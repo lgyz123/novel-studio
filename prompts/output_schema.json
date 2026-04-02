@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentOutputSchema",
+  "type": "object",
+  "properties": {
+    "task_type": {"type": "string", "description": "任务类型，如大纲、草稿、修订等"},
+    "title": {"type": "string", "description": "本次输出标题"},
+    "summary": {"type": "string", "description": "简要说明本次输出内容"},
+    "used_inputs": {"type": "array", "items": {"type": "string"}, "description": "本次写作所用素材/任务"},
+    "consistency_notes": {"type": "string", "description": "与设定、风格、人物一致性的校验说明"},
+    "output_markdown": {"type": "string", "description": "主要输出内容，Markdown 格式"},
+    "next_action_suggestion": {"type": "string", "description": "建议的下一步行动"}
+  },
+  "required": ["task_type", "title", "summary", "used_inputs", "consistency_notes", "output_markdown", "next_action_suggestion"]
+}

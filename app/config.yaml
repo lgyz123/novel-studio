@@ -1,0 +1,13 @@
+project_name: novel-studio
+language: zh-CN
+paths:
+  manifest: ../00_manifest
+  inputs: ../01_inputs
+  working: ../02_working
+  locked: ../03_locked
+  prompts: ../prompts
+agent:
+  name: single-agent
+  mode: prototype
+output:
+  working_dir: ../02_working
