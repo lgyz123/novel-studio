@@ -1,13 +1,20 @@
 project_name: novel-studio
 language: zh-CN
+
 paths:
-  manifest: ../00_manifest
-  inputs: ../01_inputs
-  working: ../02_working
-  locked: ../03_locked
-  prompts: ../prompts
+  manifest_dir: 00_manifest
+  inputs_dir: 01_inputs
+  working_dir: 02_working
+  locked_dir: 03_locked
+  prompts_dir: prompts
+
 agent:
   name: single-agent
   mode: prototype
+  model: gpt-oss:20b
+  base_url: http://192.168.1.11:11434
+
 output:
-  working_dir: ../02_working
+  working_dir: 02_working
+  review_dir: 02_working/reviews
+  draft_dir: 02_working/drafts
