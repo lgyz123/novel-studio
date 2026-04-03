@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 import yaml
 from jsonschema import validate
+from review_scene import review_scene_file
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -437,10 +438,10 @@ def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) 
 
     print("检测到剧本体，正在尝试自动改写为小说正文...")
     rewritten = call_ollama(
-        model=config["agent"]["model"],
+        model=config["writer"]["model"],
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        base_url=config["agent"]["base_url"],
+        base_url=config["writer"]["base_url"],
         num_ctx=config["generation"]["write_num_ctx"],
         temperature=0.2,
         timeout=config["generation"]["request_timeout"],
@@ -484,10 +485,10 @@ def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> s
 
     print("改写仍失败，正在尝试提纯为纯正文...")
     refined = call_ollama(
-        model=config["agent"]["model"],
+        model=config["writer"]["model"],
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        base_url=config["agent"]["base_url"],
+        base_url=config["writer"]["base_url"],
         num_ctx=config["generation"]["write_num_ctx"],
         temperature=0.1,
         timeout=config["generation"]["request_timeout"],
@@ -508,7 +509,7 @@ def validate_draft(task_text: str, draft_text: str) -> None:
         raise ValueError(f"草稿验收失败: {joined}")
 
 
-def write_draft(config: dict, current_context: str) -> None:
+def write_draft(config: dict, current_context: str) -> dict:
     task_text = read_text("01_inputs/tasks/current_task.md")
     decision = generate_decision_json(config, current_context)
     task_id = decision["task_id"]
@@ -562,6 +563,12 @@ def write_draft(config: dict, current_context: str) -> None:
 
     print(f"已保存决策文件: {decision_file}")
     print(f"已保存草稿文件: {draft_file}")
+    return {
+        "task_text": task_text,
+        "decision": decision,
+        "decision_file": decision_file,
+        "draft_file": draft_file,
+    }
 
 def clean_model_output(text: str) -> str:
     text = text.strip()
@@ -604,18 +611,292 @@ def save_failure_reason(task_id: str, reason: str, suffix: str = "failure_reason
     save_text(path, reason)
     print(f"已保存失败原因: {path}")
 
+
+def normalize_issue_lines(issues: list[str]) -> list[str]:
+    cleaned = []
+    for item in issues:
+        text = str(item).strip()
+        if not text:
+            continue
+        cleaned.append(text)
+    return cleaned
+
+
+def is_problem_like_issue(text: str) -> bool:
+    text = str(text).strip()
+    if not text:
+        return False
+
+    problem_markers = [
+        "未完成",
+        "不足",
+        "不够",
+        "偏弱",
+        "偏空",
+        "过满",
+        "越界",
+        "失衡",
+        "过多",
+        "不明确",
+        "不清晰",
+        "未能",
+        "没有形成",
+        "不充分",
+        "缺少",
+        "缺乏",
+        "太满",
+        "太散",
+        "太重",
+        "太轻",
+        "闭环感弱",
+        "闭环偏弱",
+        "牵引力不够",
+        "动作牵引不够",
+    ]
+    pure_constraint_markers = [
+        "No new characters",
+        "保持单视角",
+        "不引入新人物",
+        "不新增制度性设定",
+        "只允许孟浮灯作为核心视角人物",
+        "不引入谢观鱼",
+        "不引入裴照骨",
+        "不引入净苦和尚",
+    ]
+
+    if any(marker in text for marker in pure_constraint_markers):
+        return False
+
+    return any(marker in text for marker in problem_markers)
+
+
+def filter_followup_issue_lines(issues: list[str]) -> list[str]:
+    return [text for text in normalize_issue_lines(issues) if is_problem_like_issue(text)]
+
+
+def normalize_constraint_text(text: str) -> str:
+    text = str(text).strip()
+    text = re.sub(r"^[#\-\*\d\.\s]+", "", text)
+    text = re.sub(r"[：:；;，,。.!！?？\s]+", "", text)
+    return text
+
+
+def dedupe_followup_issue_lines(original_constraints: str, issue_lines: list[str]) -> list[str]:
+    original_lines = [
+        normalize_constraint_text(line)
+        for line in original_constraints.splitlines()
+        if line.strip()
+    ]
+
+    deduped: list[str] = []
+    seen_normalized: set[str] = set()
+
+    for issue in issue_lines:
+        normalized_issue = normalize_constraint_text(issue)
+        if not normalized_issue:
+            continue
+        if normalized_issue in seen_normalized:
+            continue
+        if any(
+            normalized_issue == original
+            or normalized_issue in original
+            or original in normalized_issue
+            for original in original_lines
+            if original
+        ):
+            continue
+        deduped.append(issue)
+        seen_normalized.add(normalized_issue)
+
+    return deduped
+
+
+def build_followup_task_id(task_id: str, mode: str) -> str:
+    if mode == "revise":
+        return f"{task_id}-R1"
+    return f"{task_id}-W1"
+
+
+def build_followup_output_target(draft_file: str, mode: str) -> str:
+    path = Path(draft_file)
+    stem = path.stem
+
+    if mode == "rewrite":
+        if stem.endswith("_rewrite"):
+            stem = f"{stem}2"
+        else:
+            stem = f"{stem}_rewrite"
+    else:
+        match = re.search(r"_v(\d+)$", stem)
+        if match:
+            next_version = int(match.group(1)) + 1
+            stem = re.sub(r"_v\d+$", f"_v{next_version}", stem)
+        else:
+            stem = f"{stem}_v2"
+
+    return path.with_name(f"{stem}{path.suffix}").as_posix()
+
+
+def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str) -> str:
+    summary = str(reviewer_result.get("summary", "")).strip()
+    issues = filter_followup_issue_lines(
+        list(reviewer_result.get("major_issues", [])) + list(reviewer_result.get("minor_issues", []))
+    )
+
+    prefix = "基于上一版草稿进行小修" if mode == "revise" else "基于上一版草稿重新写作"
+
+    normalized_summary = normalize_constraint_text(summary)
+    deduped_issues = []
+    for issue in issues[:3]:
+        normalized_issue = normalize_constraint_text(issue)
+        if normalized_summary and normalized_issue:
+            if (
+                normalized_issue == normalized_summary
+                or normalized_issue in normalized_summary
+                or normalized_summary in normalized_issue
+            ):
+                continue
+        deduped_issues.append(issue)
+
+    issue_text = "；".join(deduped_issues) if deduped_issues else summary
+    if issue_text:
+        return f"{prefix}：{original_goal}。本次重点解决：{issue_text}"
+    return f"{prefix}：{original_goal}。"
+
+
+def build_followup_constraints(task_text: str, reviewer_result: dict) -> str:
+    original_constraints = (extract_markdown_field(task_text, "constraints") or "").strip()
+    issue_lines = filter_followup_issue_lines(
+        list(reviewer_result.get("major_issues", [])) + list(reviewer_result.get("minor_issues", []))
+    )
+    issue_lines = dedupe_followup_issue_lines(original_constraints, issue_lines)
+
+    blocks = []
+    if original_constraints:
+        blocks.append(original_constraints)
+
+    if issue_lines:
+        blocks.append("- 额外修订要求：")
+        blocks.extend([f"- {line}" for line in issue_lines])
+    else:
+        summary = str(reviewer_result.get("summary", "")).strip()
+        if summary:
+            blocks.append(f"- 额外修订要求：{summary}")
+
+    return "\n".join(blocks).strip()
+
+
+def build_generated_task_content(task_text: str, reviewer_result: dict, draft_file: str, mode: str) -> str:
+    task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
+    original_goal = extract_markdown_field(task_text, "goal") or "根据 reviewer 结果继续处理当前草稿"
+    chapter_state = extract_markdown_field(task_text, "chapter_state")
+    preferred_length = extract_markdown_field(task_text, "preferred_length")
+
+    new_task_id = build_followup_task_id(task_id, mode)
+    new_goal = build_followup_goal(original_goal, reviewer_result, mode)
+    new_constraints = build_followup_constraints(task_text, reviewer_result)
+    new_output_target = build_followup_output_target(draft_file, mode)
+
+    sections = [
+        f"# task_id\n{new_task_id}",
+        f"# goal\n{new_goal}",
+        f"# based_on\n{draft_file}",
+    ]
+
+    if chapter_state:
+        sections.append(f"# chapter_state\n{chapter_state}")
+
+    sections.append(f"# constraints\n{new_constraints}")
+
+    if preferred_length:
+        sections.append(f"# preferred_length\n{preferred_length}")
+
+    sections.append(f"# output_target\n{new_output_target}")
+    return "\n\n".join(sections) + "\n"
+
+
+def build_locked_notes_content(task_text: str, reviewer_result: dict, draft_file: str, candidate_file: str) -> str:
+    task_id = extract_markdown_field(task_text, "task_id") or "today"
+    lock_date = task_id[:10] if re.match(r"\d{4}-\d{2}-\d{2}", task_id[:10]) else "today"
+    goal = extract_markdown_field(task_text, "goal") or "本场景功能待补充"
+    minor_issues = normalize_issue_lines(list(reviewer_result.get("minor_issues", [])))
+    stem = Path(candidate_file).stem
+
+    lines = [
+        f"# {stem} 锁定说明",
+        "",
+        f"- 锁定日期：{lock_date}",
+        f"- 正文文件：{candidate_file}",
+        f"- 来源草稿：{draft_file}",
+        f"- reviewer verdict：{reviewer_result.get('verdict', 'lock')}",
+        f"- reviewer summary：{str(reviewer_result.get('summary', '')).strip()}",
+        "",
+        "## 本场景功能",
+        f"- {goal}",
+    ]
+
+    if minor_issues:
+        lines.extend(["", "## 后续留意"])
+        lines.extend([f"- {item}" for item in minor_issues])
+
+    return "\n".join(lines).strip() + "\n"
+
+
+def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_result: dict) -> dict:
+    locked_dir = config["paths"].get("locked_dir", "03_locked")
+    verdict = reviewer_result.get("verdict")
+    created: dict[str, str] = {}
+
+    if verdict == "lock":
+        draft_content = read_text(draft_file)
+        filename = Path(draft_file).name
+        candidate_file = f"{locked_dir}/candidates/{filename}"
+        notes_file = f"{locked_dir}/canon/{Path(filename).stem}_notes.md"
+        save_text(candidate_file, draft_content)
+        save_text(notes_file, build_locked_notes_content(task_text, reviewer_result, draft_file, candidate_file))
+        created["candidate_file"] = candidate_file
+        created["notes_file"] = notes_file
+        return created
+
+    mode = "revise" if verdict == "revise" else "rewrite"
+    generated_dir = f"{config['paths'].get('inputs_dir', '01_inputs')}/tasks/generated"
+    task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
+    suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
+    task_file = f"{generated_dir}/{task_id}_{suffix}.md"
+    task_content = build_generated_task_content(task_text, reviewer_result, draft_file, mode)
+    save_text(task_file, task_content)
+    created["task_file"] = task_file
+    return created
+
 def main() -> None:
     try:
         config = load_yaml("app/config.yaml")
 
-        print("步骤 1/2：正在整理当前上下文...")
+        print("步骤 1/3：正在整理当前上下文...")
         current_context = compile_context(config)
         print(f"已生成上下文文件: {config['output']['context_file']}")
 
-        print("步骤 2/2：正在生成草稿...")
-        write_draft(config, current_context)
+        print("步骤 2/3：正在生成草稿...")
+        draft_result = write_draft(config, current_context)
 
-        print("本次任务完成，下一步请人工审阅。")
+        print("步骤 3/3：正在执行审稿与后续分流...")
+        _, reviewer_json_path = review_scene_file(config, draft_result["draft_file"])
+        reviewer_result = json.loads(read_text(reviewer_json_path))
+        created = route_review_result(
+            config,
+            draft_result["task_text"],
+            draft_result["draft_file"],
+            reviewer_result,
+        )
+
+        print(f"已保存 reviewer 结果: {reviewer_json_path}")
+        if reviewer_result.get("verdict") == "lock":
+            print(f"已生成候选锁定文件: {created['candidate_file']}")
+            print(f"已生成锁定 notes 草稿: {created['notes_file']}")
+        else:
+            print(f"已生成后续任务草稿: {created['task_file']}")
+
+        print("本次自动闭环完成。")
 
     except FileNotFoundError as e:
         print(f"缺少输入文件: {e}")

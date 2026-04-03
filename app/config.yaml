@@ -22,7 +22,7 @@ reviewer:
   base_url: http://192.168.1.11:11434
   num_ctx: 4096
   temperature: 0.0
-  request_timeout: 900
+  request_timeout: 1200
   num_predict: 700
   refine_num_predict: 500
   task_max_chars: 1800

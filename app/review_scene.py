@@ -231,22 +231,48 @@ def build_chinese_issue_fallback(verdict: str, raw_review_text: str) -> tuple[li
     return major_issues[:3], minor_issues[:3], summary
 
 
-def normalize_review_result(result: dict, raw_review_text: str) -> dict:
-    def clean_list(items: list[str]) -> list[str]:
-        cleaned = []
-        bad_prefixes = [
+def normalize_review_result(result: dict, raw_review_text: str, task_text: str | None = None) -> dict:
+    def is_bad_issue(text: str) -> bool:
+        text = text.strip()
+
+        bad_exact_or_prefix = [
             "The task:",
             "Must not",
             "We need to check",
             "But maybe",
             "So maybe",
+            "No new characters.",
+            "No new characters",
+            "不引入新人物。",
+            "不新增制度性设定。",
+            "保持单视角。",
         ]
+        if any(text.startswith(prefix) for prefix in bad_exact_or_prefix):
+            return True
+
+        if re.search(r"[A-Za-z]{3,}", text):
+            return True
+
+        if task_text:
+            short_lines = [
+                line.strip("- ").strip()
+                for line in task_text.splitlines()
+                if line.strip()
+            ]
+            for line in short_lines:
+                if len(line) >= 4 and text == line:
+                    return True
+
+        return False
+
+    def clean_list(items: list[str]) -> list[str]:
+        cleaned = []
 
         for item in items:
             text = str(item).strip()
             if not text:
                 continue
-            if any(text.startswith(prefix) for prefix in bad_prefixes):
+            if is_bad_issue(text):
                 continue
             cleaned.append(text)
 
@@ -267,6 +293,40 @@ def normalize_review_result(result: dict, raw_review_text: str) -> dict:
 
     if not cleaned_major and verdict in {"revise", "rewrite"}:
         cleaned_major = ["当前草稿未充分完成 task 的核心推进目标。"]
+
+    rewrite_hard_markers = [
+        "角色越界",
+        "设定越界",
+        "节奏失控",
+        "文体错误",
+        "方向错误",
+        "场景功能错位",
+    ]
+    major_text = " ".join(cleaned_major)
+    if verdict == "rewrite":
+        if not any(marker in major_text for marker in rewrite_hard_markers):
+            verdict = "revise"
+            result["verdict"] = "revise"
+            result["recommended_next_step"] = "create_revision_task"
+
+    positive_summary_markers = ["方向正确", "基本满足", "可作为终稿"]
+    negative_summary_markers = ["未完成", "不足", "需要小修", "仍需", "还需", "不够", "偏弱"]
+    heavy_minor_markers = ["核心推进", "未完成", "不足", "偏弱", "不够", "需要补", "需要加强"]
+    minor_is_light = len(cleaned_minor) <= 2 and not any(
+        any(marker in item for marker in heavy_minor_markers) for item in cleaned_minor
+    )
+    if (
+        verdict == "revise"
+        and len(cleaned_major) == 1
+        and any(marker in summary for marker in positive_summary_markers)
+        and not any(marker in summary for marker in negative_summary_markers)
+        and minor_is_light
+    ):
+        cleaned_minor = cleaned_major + cleaned_minor
+        cleaned_major = []
+        verdict = "lock"
+        result["verdict"] = "lock"
+        result["recommended_next_step"] = "lock_scene"
 
     if verdict != "lock":
         result["task_goal_fulfilled"] = False
@@ -484,6 +544,90 @@ task_id 固定为：
 
     return extract_json_object(extract_message_text(refined))
 
+
+def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
+    draft_text = clip_text(
+        read_text(draft_rel_path),
+        config["reviewer"].get("draft_max_chars", 3000),
+    )
+
+    task_text = clip_text(
+        read_text("01_inputs/tasks/current_task.md"),
+        config["reviewer"].get("task_max_chars", 2200),
+    )
+    task_id = extract_markdown_field(task_text, "task_id") or "unknown-task"
+
+    chapter_state_path = extract_markdown_field(task_text, "chapter_state")
+    if chapter_state_path:
+        chapter_state = clip_text(
+            read_text(chapter_state_path),
+            config["reviewer"].get("chapter_state_max_chars", 2200),
+        )
+    else:
+        chapter_state = "[未提供 chapter_state]"
+
+    based_on_path = extract_markdown_field(task_text, "based_on")
+    if based_on_path:
+        based_on_text = clip_text(
+            read_text(based_on_path),
+            config["reviewer"].get("based_on_max_chars", 2200),
+        )
+    else:
+        based_on_text = "[未提供 based_on]"
+
+    system_prompt = read_text("prompts/reviewer_system.md")
+    schema = json.loads(read_text("prompts/reviewer_output_schema.json"))
+
+    user_prompt = build_review_prompt(
+        task_text=task_text,
+        chapter_state=chapter_state,
+        based_on_text=based_on_text,
+        draft_text=draft_text,
+    )
+
+    raw_response = call_ollama(
+        model=config["reviewer"]["model"],
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        base_url=config["reviewer"]["base_url"],
+        num_ctx=config["reviewer"]["num_ctx"],
+        temperature=config["reviewer"].get("temperature", 0.1),
+        timeout=config["reviewer"]["request_timeout"],
+        num_predict=config["reviewer"].get("num_predict", 900),
+        response_format=schema,
+    )
+    raw_output = extract_message_text(raw_response)
+
+    try:
+        result = extract_json_object(raw_output)
+    except Exception:
+        print("Reviewer 原始输出如下：")
+        print("=" * 40)
+        print(raw_output)
+        print("=" * 40)
+        if not raw_output.strip():
+            print("Reviewer 原始响应摘要：")
+            print(summarize_response_for_debug(raw_response))
+            raise ValueError(
+                "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
+            )
+        print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
+        try:
+            result = extract_reviewer_json(config, task_id, raw_output)
+        except Exception:
+            print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+            result = build_local_review_fallback(task_id, raw_output)
+
+    result = normalize_review_result(result, raw_output, task_text=task_text)
+    validate(instance=result, schema=schema)
+    validate_review_content(result)
+
+    result["task_id"] = task_id
+
+    out_path = f"02_working/reviews/{task_id}_reviewer.json"
+    save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
+    return result, out_path
+
 def main() -> None:
     try:
         config = load_yaml("app/config.yaml")
@@ -492,87 +636,7 @@ def main() -> None:
             print("用法: python3 app/review_scene.py <scene_draft_path>")
             sys.exit(1)
 
-        draft_rel_path = sys.argv[1]
-        draft_text = clip_text(
-            read_text(draft_rel_path),
-            config["reviewer"].get("draft_max_chars", 3000),
-        )
-
-        task_text = clip_text(
-            read_text("01_inputs/tasks/current_task.md"),
-            config["reviewer"].get("task_max_chars", 2200),
-        )
-        task_id = extract_markdown_field(task_text, "task_id") or "unknown-task"
-
-        chapter_state_path = extract_markdown_field(task_text, "chapter_state")
-        if chapter_state_path:
-            chapter_state = clip_text(
-                read_text(chapter_state_path),
-                config["reviewer"].get("chapter_state_max_chars", 2200),
-            )
-        else:
-            chapter_state = "[未提供 chapter_state]"
-
-        based_on_path = extract_markdown_field(task_text, "based_on")
-        if based_on_path:
-            based_on_text = clip_text(
-                read_text(based_on_path),
-                config["reviewer"].get("based_on_max_chars", 2200),
-            )
-        else:
-            based_on_text = "[未提供 based_on]"
-
-        system_prompt = read_text("prompts/reviewer_system.md")
-        schema = json.loads(read_text("prompts/reviewer_output_schema.json"))
-
-        user_prompt = build_review_prompt(
-            task_text=task_text,
-            chapter_state=chapter_state,
-            based_on_text=based_on_text,
-            draft_text=draft_text,
-        )
-
-        raw_response = call_ollama(
-            model=config["reviewer"]["model"],
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            base_url=config["reviewer"]["base_url"],
-            num_ctx=config["reviewer"]["num_ctx"],
-            temperature=config["reviewer"].get("temperature", 0.1),
-            timeout=config["reviewer"]["request_timeout"],
-            num_predict=config["reviewer"].get("num_predict", 900),
-            response_format=schema,
-        )
-        raw_output = extract_message_text(raw_response)
-
-        try:
-            result = extract_json_object(raw_output)
-        except Exception:
-            print("Reviewer 原始输出如下：")
-            print("=" * 40)
-            print(raw_output)
-            print("=" * 40)
-            if not raw_output.strip():
-                print("Reviewer 原始响应摘要：")
-                print(summarize_response_for_debug(raw_response))
-                raise ValueError(
-                    "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
-                )
-            print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
-            try:
-                result = extract_reviewer_json(config, task_id, raw_output)
-            except Exception:
-                print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
-                result = build_local_review_fallback(task_id, raw_output)
-        result = normalize_review_result(result, raw_output)
-        validate(instance=result, schema=schema)
-        validate_review_content(result)
-
-        # task_id 对齐
-        result["task_id"] = task_id
-
-        out_path = f"02_working/reviews/{task_id}_reviewer.json"
-        save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
+        result, out_path = review_scene_file(config, sys.argv[1])
 
         print(f"已保存 reviewer 结果: {out_path}")
         print("审稿结论：", result["verdict"])
