@@ -12,8 +12,16 @@ paths:
 agent:
   name: single-agent
   mode: prototype
+
+writer:
   model: qwen3:14b
   base_url: http://192.168.1.11:11434
+
+reviewer:
+  model: gpt-oss:20b
+  base_url: http://192.168.1.11:11434
+  num_ctx: 2048
+  request_timeout: 900
 
 generation:
   compile_num_ctx: 2048

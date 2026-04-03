@@ -212,12 +212,33 @@ def build_validation_errors(task_text: str, draft_text: str) -> list[str]:
 
     return errors
 
+def build_relevant_character_section(task_text: str, character_bible: str) -> str:
+    constraints = extract_markdown_field(task_text, "constraints") or ""
+
+    allowed_names = ["孟浮灯"]
+    if "老张头可以" in constraints or "老张头" in constraints:
+        allowed_names.append("老张头")
+
+    sections = []
+    for name in allowed_names:
+        pattern = rf"(?ms)^###\s*{re.escape(name)}\s*\n(.*?)(?=^###\s|\Z)"
+        match = re.search(pattern, character_bible)
+        if match:
+            sections.append(f"### {name}\n{match.group(1).strip()}")
+
+    if sections:
+        return "\n\n".join(sections)
+
+    # 如果没匹配到结构化人物段，就退化为短提示
+    return "### 当前相关人物\n- 孟浮灯：本场核心视角人物\n- 老张头：可极轻出场的背景人物"
 
 def compile_context(config: dict) -> str:
     task_text = clip_text(read_text("01_inputs/tasks/current_task.md"), 1600)
-    novel_manifest = clip_text(read_text("00_manifest/novel_manifest.md"), 1500)
-    world_bible = clip_text(read_text("00_manifest/world_bible.md"), 1200)
-    character_bible = clip_text(read_text("00_manifest/character_bible.md"), 1200)
+    novel_manifest = clip_text(read_text("00_manifest/novel_manifest.md"), 900)
+    world_bible = clip_text(read_text("00_manifest/world_bible.md"), 700)
+    character_bible_full = read_text("00_manifest/character_bible.md")
+    relevant_characters = build_relevant_character_section(task_text, character_bible_full)
+    character_bible = clip_text(read_text("00_manifest/character_bible.md"), 700)
     life_notes = clip_text(read_text("01_inputs/life_notes/latest.md"), 800)
 
     based_on_path = extract_markdown_field(task_text, "based_on")
@@ -243,6 +264,29 @@ def compile_context(config: dict) -> str:
 [警告：未找到该文件，无法载入旧稿内容]
 """
 
+    chapter_state_path = extract_markdown_field(task_text, "chapter_state")
+    chapter_state_section = ""
+
+    if chapter_state_path:
+        chapter_state_path = chapter_state_path.strip()
+        try:
+            chapter_state_text = clip_text(read_text(chapter_state_path), 1600)
+            chapter_state_section = f"""
+
+# 当前章节状态
+来源文件：{chapter_state_path}
+
+{chapter_state_text}
+"""
+        except FileNotFoundError:
+            chapter_state_section = f"""
+
+# 当前章节状态
+来源文件：{chapter_state_path}
+
+[警告：未找到该文件，无法载入章节状态]
+"""
+
     compiled = f"""# 当前任务
 {task_text}
 
@@ -253,7 +297,7 @@ def compile_context(config: dict) -> str:
 {world_bible}
 
 # 本次相关人物设定
-{character_bible}
+{relevant_characters}
 
 # 本次生活素材使用规则
 - 生活素材只能提取气氛、感官、情绪、节奏、意象
@@ -261,7 +305,7 @@ def compile_context(config: dict) -> str:
 - 如与小说世界冲突，必须优先服从小说设定
 
 # 本次可借用的生活素材
-{life_notes}{based_on_section}
+{life_notes}{based_on_section}{chapter_state_section}
 """
 
     context_file = config["output"]["context_file"]
@@ -347,10 +391,10 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
 
     print("正在请求模型生成草稿，请稍候...")
     markdown_text = call_ollama(
-        model=config["agent"]["model"],
+        model=config["writer"]["model"],
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        base_url=config["agent"]["base_url"],
+        base_url=config["writer"]["base_url"],
         num_ctx=config["generation"]["write_num_ctx"],
         temperature=config["generation"]["temperature"],
         timeout=config["generation"]["request_timeout"],
@@ -406,6 +450,52 @@ def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) 
     # return rewritten.strip()
     return clean_model_output(rewritten)
 
+def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> str:
+    system_prompt = """你是小说正文提纯助手。
+你的任务不是重写剧情，而是从输入文本中提取可用的小说正文 prose。
+删除标题、括号说明、人物名加冒号的台词格式、修订说明、注释、解释文字。
+保留叙述段落，不新增设定，不新增角色，不改变原有事件顺序。
+只输出提纯后的小说正文。"""
+
+    task_text = read_text("01_inputs/tasks/current_task.md")
+
+    user_prompt = f"""请把下面文本提纯为小说正文 prose。
+
+要求：
+1. 只保留小说正文段落
+2. 删除标题
+3. 删除括号场景说明
+4. 删除“人物名：对白”格式
+5. 删除修订说明、注释、解释文字
+6. 不新增角色
+7. 不新增设定
+8. 不改变事件顺序
+9. 只输出提纯后的正文
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{current_context}
+
+【待提纯文本】
+{bad_draft}
+"""
+
+    print("改写仍失败，正在尝试提纯为纯正文...")
+    refined = call_ollama(
+        model=config["agent"]["model"],
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        base_url=config["agent"]["base_url"],
+        num_ctx=config["generation"]["write_num_ctx"],
+        temperature=0.1,
+        timeout=config["generation"]["request_timeout"],
+        num_predict=1200,
+    )
+
+    return clean_model_output(refined)
+
 def save_failed_draft(task_id: str, content: str, suffix: str = "failed") -> None:
     path = f"02_working/logs/{task_id}_{suffix}.md"
     save_text(path, content)
@@ -426,28 +516,42 @@ def write_draft(config: dict, current_context: str) -> None:
     markdown_text = generate_markdown_draft(config, current_context, decision)
 
     errors = build_validation_errors(task_text, markdown_text)
+    errors = build_validation_errors(task_text, markdown_text)
     if errors:
         save_failed_draft(task_id, markdown_text, "first_failed")
         save_failure_reason(task_id, "；".join(errors), "first_failed_reason")
-         # 如果只是夹带说明文本，先清洗后再验一次
+
+        # 先处理纯说明性污染
         if all("说明性附加文本" in e for e in errors):
             markdown_text = clean_model_output(markdown_text)
             errors = build_validation_errors(task_text, markdown_text)
-        # 只对“剧本体”这种可纠偏错误做一次自动改写
-        if any("剧本体" in e or "分镜体" in e for e in errors):
+
+        # 第一层 fallback：剧本体 -> prose 改写
+        if errors and any("剧本体" in e or "分镜体" in e for e in errors):
             rewritten = rewrite_script_to_prose(config, current_context, markdown_text)
             save_failed_draft(task_id, rewritten, "rewritten_attempt")
 
             rewritten_errors = build_validation_errors(task_text, rewritten)
-            if rewritten_errors:
+            if not rewritten_errors:
+                markdown_text = rewritten
+            else:
                 save_failure_reason(task_id, "；".join(rewritten_errors), "rewritten_failed_reason")
-                print("改写后验收失败，具体原因如下：")
-                for err in rewritten_errors:
-                    print(f"- {err}")
-                raise ValueError(f"草稿验收失败（改写后仍不通过）: {'；'.join(rewritten_errors)}")
 
-            markdown_text = rewritten
-        else:
+                # 第二层 fallback：提纯正文
+                refined = extract_plain_prose(config, current_context, rewritten)
+                save_failed_draft(task_id, refined, "refined_attempt")
+
+                refined_errors = build_validation_errors(task_text, refined)
+                if refined_errors:
+                    save_failure_reason(task_id, "；".join(refined_errors), "refined_failed_reason")
+                    print("提纯后验收失败，具体原因如下：")
+                    for err in refined_errors:
+                        print(f"- {err}")
+                    raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(refined_errors)}")
+
+                markdown_text = refined
+
+        elif errors:
             raise ValueError(f"草稿验收失败: {'；'.join(errors)}")
 
     decision_file = f"02_working/reviews/{decision['task_id']}.json"

@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["lock", "revise", "rewrite"]
+    },
+    "task_goal_fulfilled": {
+      "type": "boolean"
+    },
+    "major_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minor_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_next_step": {
+      "type": "string",
+      "enum": ["lock_scene", "create_revision_task", "rewrite_scene"]
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "verdict",
+    "task_goal_fulfilled",
+    "major_issues",
+    "minor_issues",
+    "recommended_next_step",
+    "summary"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-011",
+  "goal": "在保留当前段落基本结构和事件顺序的前提下，微调 ch01_scene05，使其更像完整短场景，而不是单纯气氛切片",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene05.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene05_v2.md"
+}
