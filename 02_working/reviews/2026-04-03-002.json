@@ -1,0 +1,15 @@
+{
+  "task_id": "2026-04-03-002",
+  "goal": "在保留当前场景基本结构的前提下，修订《无住人间》开场短场景，使其更像小说开篇正文，而不是意象化展示",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene01_v2.md"
+}

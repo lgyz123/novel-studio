@@ -1,0 +1,15 @@
+{
+  "task_id": "2026-04-03-004",
+  "goal": "在保留当前版本基本结构和事件顺序的前提下，微调《无住人间》开场短场景，使其更克制、更自然",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene01_v3.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene01_v4.md"
+}
