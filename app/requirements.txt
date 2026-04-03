@@ -1,1 +1,4 @@
 pyyaml
+requests
+pydantic
+python-dotenv
