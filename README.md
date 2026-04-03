@@ -16,8 +16,21 @@
 - 仅支持本地文件流转，不引入数据库和多 agent
 
 ## 如何运行
-1. 安装依赖：`pip install -r app/requirements.txt`
-2. 运行主程序：`python app/main.py`
+### 本地运行
+1. 创建虚拟环境：`python3 -m venv app/.venv`
+2. 激活虚拟环境：
+	 - macOS / Linux：`source app/.venv/bin/activate`
+	 - Windows PowerShell：`./app/.venv/Scripts/Activate.ps1`
+3. 安装依赖：`pip install -r app/requirements.txt`
+4. 运行主程序：`python app/main.py`
+
+### Codespaces
+- 仓库已提供 `.devcontainer/` 配置
+- 首次创建 Codespace 时会自动：
+	- 创建 `app/.venv`
+	- 安装 `app/requirements.txt`
+	- 为终端自动激活 `app/.venv`
+- Codespaces 运行在 Linux 容器中，因此默认使用 `source app/.venv/bin/activate` 这一套环境逻辑
 
 ## Git 使用建议
 - 建议每次大改前先 commit
