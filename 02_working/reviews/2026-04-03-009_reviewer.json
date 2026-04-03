@@ -1,9 +1,9 @@
 {
   "task_id": "2026-04-03-009",
-  "verdict": "revise",
-  "task_goal_fulfilled": false,
+  "verdict": "lock",
+  "task_goal_fulfilled": true,
   "major_issues": [],
   "minor_issues": [],
-  "recommended_next_step": "create_revision_task",
-  "summary": ""
+  "recommended_next_step": "lock_scene",
+  "summary": "审稿分析认为当前 scene 基本满足任务约束、人物边界与低烈度推进要求，可直接锁定。"
 }

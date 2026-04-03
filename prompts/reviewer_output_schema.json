@@ -2,7 +2,8 @@
   "type": "object",
   "properties": {
     "task_id": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "verdict": {
       "type": "string",
@@ -28,7 +29,8 @@
       "enum": ["lock_scene", "create_revision_task", "rewrite_scene"]
     },
     "summary": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [

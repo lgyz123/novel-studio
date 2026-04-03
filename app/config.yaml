@@ -20,8 +20,15 @@ writer:
 reviewer:
   model: gpt-oss:20b
   base_url: http://192.168.1.11:11434
-  num_ctx: 2048
+  num_ctx: 4096
+  temperature: 0.0
   request_timeout: 900
+  num_predict: 700
+  refine_num_predict: 500
+  task_max_chars: 1800
+  chapter_state_max_chars: 1800
+  based_on_max_chars: 1800
+  draft_max_chars: 2200
 
 generation:
   compile_num_ctx: 2048
