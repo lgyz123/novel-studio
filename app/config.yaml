@@ -35,6 +35,7 @@ generation:
   write_num_ctx: 2048
   temperature: 0.4
   request_timeout: 600
+  max_auto_revisions: 5
 
 output:
   working_dir: 02_working

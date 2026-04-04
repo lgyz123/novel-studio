@@ -1,11 +1,11 @@
 # task_id
-2026-04-03-012-R1
+2026-04-03-012-R2
 
 # goal
-基于上一版草稿进行小修：承接 ch01_scene05，写出《无住人间》第一章第六个短场景，让“阿绣”这个名字开始对孟浮灯的现实动作产生极轻的牵引力，但仍不升级为明确调查行动。本次重点解决：No new characters.
+基于上一版草稿进行小修：承接 ch01_scene05，写出《无住人间》第一章第六个短场景，让“阿绣”这个名字开始对孟浮灯的现实动作产生极轻的牵引力，但仍不升级为明确调查行动。本次重点解决：方向基本正确，但本场关键动作的完成度仍不足。
 
 # based_on
-02_working/drafts/ch01_scene06.md
+02_working/drafts/ch01_scene06_v2.md
 
 # chapter_state
 03_locked/canon/ch01_state.md
@@ -24,10 +24,10 @@
 - 文风克制，不要剧本体，不要说明腔
 - 仍使用小说正文 prose 格式
 - 额外修订要求：
-- No new characters.
+- 方向基本正确，但本场关键动作的完成度仍不足。
 
 # preferred_length
 500-900字
 
 # output_target
-02_working/drafts/ch01_scene06_v2.md
+02_working/drafts/ch01_scene06_v3.md

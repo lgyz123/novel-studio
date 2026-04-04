@@ -4,6 +4,7 @@ from pathlib import Path
 
 import requests
 import yaml
+from issue_filters import filter_shared_issues
 from jsonschema import validate
 from review_scene import review_scene_file
 
@@ -509,6 +510,21 @@ def validate_draft(task_text: str, draft_text: str) -> None:
         raise ValueError(f"草稿验收失败: {joined}")
 
 
+def strip_standalone_stage_directions(text: str) -> str:
+    lines = text.splitlines()
+    cleaned_lines: list[str] = []
+
+    for line in lines:
+        stripped = line.strip()
+        if re.fullmatch(r"[（(][^\n]{0,200}[)）]", stripped):
+            continue
+        cleaned_lines.append(line)
+
+    cleaned_text = "\n".join(cleaned_lines)
+    cleaned_text = re.sub(r"\n{3,}", "\n\n", cleaned_text)
+    return cleaned_text.strip()
+
+
 def write_draft(config: dict, current_context: str) -> dict:
     task_text = read_text("01_inputs/tasks/current_task.md")
     decision = generate_decision_json(config, current_context)
@@ -604,6 +620,8 @@ def clean_model_output(text: str) -> str:
     if cut_positions:
         text = text[:min(cut_positions)]
 
+    text = strip_standalone_stage_directions(text)
+
     return text.strip()
 
 def save_failure_reason(task_id: str, reason: str, suffix: str = "failure_reason") -> None:
@@ -619,6 +637,30 @@ def normalize_issue_lines(issues: list[str]) -> list[str]:
         if not text:
             continue
         cleaned.append(text)
+    return cleaned
+
+
+def get_filtered_reviewer_issues(reviewer_result: dict, task_text: str) -> tuple[list[str], list[str]]:
+    major_issues = filter_shared_issues(list(reviewer_result.get("major_issues", [])), task_text=task_text)
+    minor_issues = filter_shared_issues(list(reviewer_result.get("minor_issues", [])), task_text=task_text)
+    return major_issues, minor_issues
+
+
+def strip_revision_prefix(goal: str) -> str:
+    prefixes = [
+        "基于上一版草稿进行小修：",
+        "基于上一版草稿进行重写：",
+        "对上一版草稿进行小修：",
+        "对上一版草稿进行重写：",
+    ]
+    cleaned = goal.strip()
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes:
+            if cleaned.startswith(prefix):
+                cleaned = cleaned[len(prefix):].strip()
+                changed = True
     return cleaned
 
 
@@ -674,6 +716,32 @@ def filter_followup_issue_lines(issues: list[str]) -> list[str]:
     return [text for text in normalize_issue_lines(issues) if is_problem_like_issue(text)]
 
 
+def filter_usable_issues(issues: list[str]) -> list[str]:
+    bad_exact = {
+        "No new characters.",
+        "No new characters",
+        "不引入新人物。",
+        "不新增制度性设定。",
+        "保持单视角。",
+    }
+
+    cleaned = []
+    for issue in issues:
+        text = str(issue).strip()
+        if not text:
+            continue
+        if text in bad_exact:
+            continue
+        if "No new characters" in text:
+            continue
+        if "Must not" in text or "The task:" in text:
+            continue
+        if "We need to check" in text or "But maybe" in text or "So maybe" in text:
+            continue
+        cleaned.append(text)
+    return cleaned
+
+
 def normalize_constraint_text(text: str) -> str:
     text = str(text).strip()
     text = re.sub(r"^[#\-\*\d\.\s]+", "", text)
@@ -712,9 +780,17 @@ def dedupe_followup_issue_lines(original_constraints: str, issue_lines: list[str
 
 
 def build_followup_task_id(task_id: str, mode: str) -> str:
+    base = re.sub(r"-R\d+$", "", task_id)
+    match = re.search(r"-R(\d+)$", task_id)
     if mode == "revise":
-        return f"{task_id}-R1"
-    return f"{task_id}-W1"
+        if match:
+            next_number = int(match.group(1)) + 1
+        else:
+            next_number = 1
+        return f"{base}-R{next_number}"
+    if mode == "rewrite":
+        return f"{base}-RW1"
+    return f"{base}-R1"
 
 
 def build_followup_output_target(draft_file: str, mode: str) -> str:
@@ -722,25 +798,38 @@ def build_followup_output_target(draft_file: str, mode: str) -> str:
     stem = path.stem
 
     if mode == "rewrite":
-        if stem.endswith("_rewrite"):
-            stem = f"{stem}2"
+        rewrite_match = re.search(r"^(.*?)(_rewrite(?:\d+)?)$", stem)
+        if rewrite_match:
+            base_stem = rewrite_match.group(1)
+            suffix = rewrite_match.group(2)
+            number_match = re.search(r"_rewrite(\d+)$", suffix)
+            if number_match:
+                next_number = int(number_match.group(1)) + 1
+                stem = f"{base_stem}_rewrite{next_number}"
+            else:
+                stem = f"{base_stem}_rewrite2"
         else:
             stem = f"{stem}_rewrite"
     else:
-        match = re.search(r"_v(\d+)$", stem)
-        if match:
-            next_version = int(match.group(1)) + 1
-            stem = re.sub(r"_v\d+$", f"_v{next_version}", stem)
+        version_matches = re.findall(r"_v(\d+)", stem)
+        if version_matches:
+            base_stem = re.sub(r"(?:_v\d+)+$", "", stem)
+            next_version = int(version_matches[-1]) + 1
+            stem = f"{base_stem}_v{next_version}"
         else:
             stem = f"{stem}_v2"
 
     return path.with_name(f"{stem}{path.suffix}").as_posix()
 
 
-def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str) -> str:
+def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, task_text: str) -> str:
+    base_goal = strip_revision_prefix(original_goal)
     summary = str(reviewer_result.get("summary", "")).strip()
+    filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
+    major_issues = filter_usable_issues(filtered_major)
+    minor_issues = filter_usable_issues(filtered_minor)
     issues = filter_followup_issue_lines(
-        list(reviewer_result.get("major_issues", [])) + list(reviewer_result.get("minor_issues", []))
+        major_issues + minor_issues
     )
 
     prefix = "基于上一版草稿进行小修" if mode == "revise" else "基于上一版草稿重新写作"
@@ -760,14 +849,17 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str) ->
 
     issue_text = "；".join(deduped_issues) if deduped_issues else summary
     if issue_text:
-        return f"{prefix}：{original_goal}。本次重点解决：{issue_text}"
-    return f"{prefix}：{original_goal}。"
+        return f"{prefix}：{base_goal}。本次重点解决：{issue_text}"
+    return f"{prefix}：{base_goal}。"
 
 
 def build_followup_constraints(task_text: str, reviewer_result: dict) -> str:
     original_constraints = (extract_markdown_field(task_text, "constraints") or "").strip()
+    filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
+    major_issues = filter_usable_issues(filtered_major)
+    minor_issues = filter_usable_issues(filtered_minor)
     issue_lines = filter_followup_issue_lines(
-        list(reviewer_result.get("major_issues", [])) + list(reviewer_result.get("minor_issues", []))
+        major_issues + minor_issues
     )
     issue_lines = dedupe_followup_issue_lines(original_constraints, issue_lines)
 
@@ -793,7 +885,7 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     preferred_length = extract_markdown_field(task_text, "preferred_length")
 
     new_task_id = build_followup_task_id(task_id, mode)
-    new_goal = build_followup_goal(original_goal, reviewer_result, mode)
+    new_goal = build_followup_goal(original_goal, reviewer_result, mode, task_text)
     new_constraints = build_followup_constraints(task_text, reviewer_result)
     new_output_target = build_followup_output_target(draft_file, mode)
 
@@ -815,18 +907,33 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     return "\n\n".join(sections) + "\n"
 
 
-def build_locked_notes_content(task_text: str, reviewer_result: dict, draft_file: str, candidate_file: str) -> str:
+def build_locked_chapter_file(draft_file: str, locked_dir: str) -> str:
+    path = Path(draft_file)
+    stem = path.stem
+    stem = re.sub(r"(?:_v\d+)+$", "", stem)
+    stem = re.sub(r"_rewrite\d*$", "", stem)
+    return f"{locked_dir}/chapters/{stem}{path.suffix}"
+
+
+def extract_revision_count(task_id: str) -> int:
+    match = re.search(r"-R(\d+)$", task_id)
+    if not match:
+        return 0
+    return int(match.group(1))
+
+
+def build_locked_notes_content(task_text: str, reviewer_result: dict, draft_file: str, locked_file: str) -> str:
     task_id = extract_markdown_field(task_text, "task_id") or "today"
     lock_date = task_id[:10] if re.match(r"\d{4}-\d{2}-\d{2}", task_id[:10]) else "today"
     goal = extract_markdown_field(task_text, "goal") or "本场景功能待补充"
     minor_issues = normalize_issue_lines(list(reviewer_result.get("minor_issues", [])))
-    stem = Path(candidate_file).stem
+    stem = Path(locked_file).stem
 
     lines = [
         f"# {stem} 锁定说明",
         "",
         f"- 锁定日期：{lock_date}",
-        f"- 正文文件：{candidate_file}",
+        f"- 正文文件：{locked_file}",
         f"- 来源草稿：{draft_file}",
         f"- reviewer verdict：{reviewer_result.get('verdict', 'lock')}",
         f"- reviewer summary：{str(reviewer_result.get('summary', '')).strip()}",
@@ -842,25 +949,132 @@ def build_locked_notes_content(task_text: str, reviewer_result: dict, draft_file
     return "\n".join(lines).strip() + "\n"
 
 
+def build_working_notes_proposal_content(task_text: str, reviewer_result: dict, draft_file: str, locked_file: str, notes_file: str) -> str:
+    goal = extract_markdown_field(task_text, "goal") or "本场景功能待补充"
+    minor_issues = normalize_issue_lines(list(reviewer_result.get("minor_issues", [])))
+    lines = [
+        f"# {Path(locked_file).stem} canon notes 更新提议",
+        "",
+        f"- 建议同步到：{notes_file}",
+        f"- 对应 locked 正文：{locked_file}",
+        f"- 来源草稿：{draft_file}",
+        f"- reviewer summary：{str(reviewer_result.get('summary', '')).strip()}",
+        "",
+        "## 建议保留的场景功能",
+        f"- {goal}",
+    ]
+
+    if minor_issues:
+        lines.extend(["", "## 可写入 notes 的后续留意"])
+        lines.extend([f"- {item}" for item in minor_issues])
+
+    return "\n".join(lines).strip() + "\n"
+
+
+def build_working_state_proposal_content(task_text: str, reviewer_result: dict, locked_file: str, chapter_state_path: str | None) -> str:
+    goal = extract_markdown_field(task_text, "goal") or "本场景功能待补充"
+    summary = str(reviewer_result.get("summary", "")).strip()
+    stem = Path(locked_file).stem
+    lines = [
+        f"# {stem} 对 ch01_state 的更新提议",
+        "",
+        f"- 建议同步到：{chapter_state_path or '03_locked/canon/ch01_state.md'}",
+        f"- 对应 locked 正文：{locked_file}",
+        "",
+        "## 建议补入“已锁定场景”",
+        f"- {stem}：{goal}",
+        "",
+        "## 建议补入“当前主角状态 / 已锁定线索”",
+        f"- {summary or '本场景已完成锁定，可根据正文补充主角状态与线索推进。'}",
+        "",
+        "## 建议人工确认",
+        "- 是否需要把本场新增的动作偏移写入主角状态",
+        "- 是否需要把本场确认的低烈度推进写入章节节奏判断",
+    ]
+    return "\n".join(lines).strip() + "\n"
+
+
+def build_manual_intervention_content(task_text: str, reviewer_result: dict, draft_file: str, max_revisions: int) -> str:
+    task_id = extract_markdown_field(task_text, "task_id") or "unknown-task"
+    summary = str(reviewer_result.get("summary", "")).strip()
+    major_issues = normalize_issue_lines(list(reviewer_result.get("major_issues", [])))
+    minor_issues = normalize_issue_lines(list(reviewer_result.get("minor_issues", [])))
+
+    lines = [
+        f"# {task_id} 人工介入提醒",
+        "",
+        f"- 已达到最大自动修订次数：{max_revisions}",
+        f"- 当前草稿：{draft_file}",
+        f"- reviewer verdict：{reviewer_result.get('verdict', 'revise')}",
+        f"- reviewer summary：{summary}",
+        "",
+        "## 建议",
+        "- 暂停继续自动 revise",
+        "- 直接人工检查当前草稿与 reviewer 问题，手动定稿或手动改一版后再继续流程",
+    ]
+
+    if major_issues:
+        lines.extend(["", "## 主要问题"])
+        lines.extend([f"- {item}" for item in major_issues])
+
+    if minor_issues:
+        lines.extend(["", "## 次要问题"])
+        lines.extend([f"- {item}" for item in minor_issues])
+
+    return "\n".join(lines).strip() + "\n"
+
+
 def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_result: dict) -> dict:
     locked_dir = config["paths"].get("locked_dir", "03_locked")
+    working_dir = config["paths"].get("working_dir", "02_working")
     verdict = reviewer_result.get("verdict")
     created: dict[str, str] = {}
 
     if verdict == "lock":
         draft_content = read_text(draft_file)
         filename = Path(draft_file).name
+        locked_file = build_locked_chapter_file(draft_file, locked_dir)
         candidate_file = f"{locked_dir}/candidates/{filename}"
-        notes_file = f"{locked_dir}/canon/{Path(filename).stem}_notes.md"
+        notes_file = f"{locked_dir}/canon/{Path(locked_file).stem}_notes.md"
+        chapter_state_path = extract_markdown_field(task_text, "chapter_state")
+        notes_proposal_file = f"{working_dir}/canon_updates/{Path(locked_file).stem}_notes_proposal.md"
+        state_proposal_file = f"{working_dir}/canon_updates/{Path(locked_file).stem}_state_proposal.md"
+
+        if (ROOT / locked_file).exists():
+            print(f"警告：正在覆盖已有 locked 文件: {locked_file}")
+
+        save_text(locked_file, draft_content)
         save_text(candidate_file, draft_content)
-        save_text(notes_file, build_locked_notes_content(task_text, reviewer_result, draft_file, candidate_file))
+        save_text(notes_file, build_locked_notes_content(task_text, reviewer_result, draft_file, locked_file))
+        save_text(
+            notes_proposal_file,
+            build_working_notes_proposal_content(task_text, reviewer_result, draft_file, locked_file, notes_file),
+        )
+        save_text(
+            state_proposal_file,
+            build_working_state_proposal_content(task_text, reviewer_result, locked_file, chapter_state_path),
+        )
+        created["locked_file"] = locked_file
         created["candidate_file"] = candidate_file
         created["notes_file"] = notes_file
+        created["notes_proposal_file"] = notes_proposal_file
+        created["state_proposal_file"] = state_proposal_file
         return created
 
     mode = "revise" if verdict == "revise" else "rewrite"
     generated_dir = f"{config['paths'].get('inputs_dir', '01_inputs')}/tasks/generated"
+    max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
+
+    if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
+        manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
+        save_text(
+            manual_intervention_file,
+            build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions),
+        )
+        created["manual_intervention_file"] = manual_intervention_file
+        return created
+
     suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
     task_file = f"{generated_dir}/{task_id}_{suffix}.md"
     task_content = build_generated_task_content(task_text, reviewer_result, draft_file, mode)
@@ -891,8 +1105,15 @@ def main() -> None:
 
         print(f"已保存 reviewer 结果: {reviewer_json_path}")
         if reviewer_result.get("verdict") == "lock":
+            print(f"已自动锁定到 {created['locked_file']}")
+            print("如需人工修订，请直接编辑 locked 文件")
             print(f"已生成候选锁定文件: {created['candidate_file']}")
             print(f"已生成锁定 notes 草稿: {created['notes_file']}")
+            print(f"已生成 working notes 更新提议: {created['notes_proposal_file']}")
+            print(f"已生成 working state 更新提议: {created['state_proposal_file']}")
+        elif "manual_intervention_file" in created:
+            print("已达到最大自动修订次数（5次），请人工介入。")
+            print(f"已生成人工介入提醒: {created['manual_intervention_file']}")
         else:
             print(f"已生成后续任务草稿: {created['task_file']}")
 

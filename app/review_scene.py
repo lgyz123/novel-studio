@@ -6,6 +6,7 @@ from typing import Any
 
 import requests
 import yaml
+from issue_filters import filter_shared_issues, is_mostly_english
 from jsonschema import validate
 
 
@@ -143,61 +144,6 @@ def validate_review_content(result: dict) -> None:
         raise ValueError("Reviewer 判定任务未完成，但没有给出具体问题")
 
 
-def is_mostly_english(text: str) -> bool:
-    english_chars = len(re.findall(r"[A-Za-z]", text))
-    chinese_chars = len(re.findall(r"[\u4e00-\u9fff]", text))
-    return english_chars > chinese_chars * 2 and english_chars > 20
-
-
-def is_task_restatement(text: str) -> bool:
-    lower_text = text.lower().strip()
-    markers = [
-        "the task:",
-        "must not introduce",
-        "must not",
-        "constraints:",
-        "current task",
-        "preferred_length",
-        "output_target",
-    ]
-    return any(marker in lower_text for marker in markers)
-
-
-def is_thinking_trace(text: str) -> bool:
-    lower_text = text.lower().strip()
-    markers = [
-        "we need to check",
-        "maybe",
-        "but maybe",
-        "so maybe",
-        "let's",
-        "let us",
-        "i think",
-        "we should check",
-        "需要检查",
-        "也许",
-        "可能是",
-        "先看看",
-    ]
-    return any(marker in lower_text for marker in markers)
-
-
-def clean_issue_list(items: list[str]) -> list[str]:
-    cleaned: list[str] = []
-    for item in items:
-        text = str(item).strip()
-        if not text:
-            continue
-        if is_task_restatement(text):
-            continue
-        if is_thinking_trace(text):
-            continue
-        if is_mostly_english(text):
-            continue
-        cleaned.append(text)
-    return cleaned[:3]
-
-
 def build_chinese_issue_fallback(verdict: str, raw_review_text: str) -> tuple[list[str], list[str], str]:
     lower_text = raw_review_text.lower()
 
@@ -279,9 +225,14 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
         return cleaned
 
     verdict = result.get("verdict", "revise")
-    cleaned_major = clean_list(clean_issue_list(result.get("major_issues", [])))
-    cleaned_minor = clean_list(clean_issue_list(result.get("minor_issues", [])))
+    cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
+    cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
     summary = str(result.get("summary", "")).strip()
+
+    if verdict == "rewrite" and not cleaned_major:
+        verdict = "revise"
+        result["verdict"] = "revise"
+        result["recommended_next_step"] = "create_revision_task"
 
     if is_mostly_english(summary) or not summary:
         _, _, fallback_summary = build_chinese_issue_fallback(verdict, raw_review_text)
@@ -336,6 +287,7 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
     result["major_issues"] = cleaned_major
     result["minor_issues"] = cleaned_minor
     result["summary"] = summary
+
     return result
 
 
