@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -66,9 +67,29 @@ def call_ollama(
         payload["format"] = response_format
 
     print(f"正在请求 Reviewer 模型: {model} @ {base_url}")
-    response = requests.post(url, json=payload, timeout=timeout)
-    response.raise_for_status()
-    return response.json()
+    last_error: Exception | None = None
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = requests.post(url, json=payload, timeout=timeout)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as error:
+            last_error = error
+            status_code = error.response.status_code if error.response is not None else None
+            if status_code is None or status_code < 500 or attempt >= max_attempts:
+                raise
+            print(f"Reviewer 请求失败（HTTP {status_code}），正在重试 {attempt}/{max_attempts}...")
+            time.sleep(min(attempt, 3))
+        except requests.exceptions.RequestException as error:
+            last_error = error
+            if attempt >= max_attempts:
+                raise
+            print(f"Reviewer 请求异常，正在重试 {attempt}/{max_attempts}...")
+            time.sleep(min(attempt, 3))
+
+    assert last_error is not None
+    raise last_error
 
 
 def summarize_response_for_debug(response_data: dict) -> str:
@@ -178,6 +199,25 @@ def build_chinese_issue_fallback(verdict: str, raw_review_text: str) -> tuple[li
 
 
 def normalize_review_result(result: dict, raw_review_text: str, task_text: str | None = None) -> dict:
+    def raw_review_has_strong_negative_signal(text: str) -> bool:
+        lower_text = text.lower()
+        negative_markers = [
+            "reject",
+            "not acceptable",
+            "does not meet",
+            "doesn't meet",
+            "fails the task",
+            "fails to meet",
+            "too short",
+            "not in the required setting",
+            "not in the dock",
+            "missing the core goal",
+            "core line is missing",
+            "is too short",
+            "should reject",
+        ]
+        return any(marker in lower_text for marker in negative_markers)
+
     def is_bad_issue(text: str) -> bool:
         text = text.strip()
 
@@ -228,6 +268,13 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
     cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
     cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
     summary = str(result.get("summary", "")).strip()
+
+    if verdict == "lock" and raw_review_has_strong_negative_signal(raw_review_text):
+        verdict = "revise"
+        result["verdict"] = "revise"
+        result["recommended_next_step"] = "create_revision_task"
+        if not cleaned_major:
+            cleaned_major = ["原始审稿明确指出当前草稿未满足核心任务或关键约束，不应直接锁定。"]
 
     if verdict == "rewrite" and not cleaned_major:
         verdict = "revise"

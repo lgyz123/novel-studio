@@ -1,0 +1,11 @@
+{
+  "task_id": "2026-04-03-015-R2",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "草稿为空，无法评估"
+  ],
+  "minor_issues": [],
+  "recommended_next_step": "create_revision_task",
+  "summary": "草稿缺失，无法完成评估"
+}

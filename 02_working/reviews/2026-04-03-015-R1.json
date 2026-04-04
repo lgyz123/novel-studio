@@ -1,10 +1,10 @@
 {
-  "task_id": "2026-04-03-015",
-  "goal": "承接 ch01_scene07，写出《无住人间》第一章第八个短场景，让“阿绣”这条线在不升级为调查的前提下，对孟浮灯刚刚做出的现实小选择留下一个可见但低烈度的后果",
+  "task_id": "2026-04-03-015-R1",
+  "goal": "基于上一版草稿进行小修：承接 ch01_scene07，写出《无住人间》第一章第八个短场景，让“阿绣”这条线在不升级为调查的前提下，对孟浮灯刚刚做出的现实小选择留下一个可见但低烈度的后果。本次重点解决：缺少阿绣线索",
   "used_sources": [
     "01_inputs/tasks/current_task.md",
     "02_working/context/current_context.md",
-    "03_locked/chapters/ch01_scene07.md"
+    "02_working/drafts/ch01_scene08.md"
   ],
   "risks": [
     "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
@@ -12,5 +12,5 @@
     "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
   ],
   "next_action": "human_review",
-  "draft_file": "02_working/drafts/ch01_scene08.md"
+  "draft_file": "02_working/drafts/ch01_scene08_v2.md"
 }

@@ -586,6 +586,51 @@ def write_draft(config: dict, current_context: str) -> dict:
         "draft_file": draft_file,
     }
 
+
+def build_existing_draft_result(task_text: str) -> dict | None:
+    task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
+    draft_file = extract_markdown_field(task_text, "output_target")
+    if not draft_file:
+        return None
+
+    reviewer_json_path = f"02_working/reviews/{task_id}_reviewer.json"
+    if not (ROOT / draft_file).exists():
+        return None
+    if (ROOT / reviewer_json_path).exists():
+        return None
+
+    decision_file = f"02_working/reviews/{task_id}.json"
+    decision = {}
+    if (ROOT / decision_file).exists():
+        try:
+            decision = json.loads(read_text(decision_file))
+        except Exception:
+            decision = {}
+
+    return {
+        "task_text": task_text,
+        "decision": decision,
+        "decision_file": decision_file,
+        "draft_file": draft_file,
+        "resume_only": True,
+    }
+
+
+def build_review_retry_needed_content(task_text: str, draft_file: str, error_message: str) -> str:
+    task_id = extract_markdown_field(task_text, "task_id") or "unknown-task"
+    lines = [
+        f"# {task_id} 审稿重试提醒",
+        "",
+        f"- 当前草稿：{draft_file}",
+        f"- 当前任务：{task_id}",
+        f"- 失败原因：{error_message}",
+        "",
+        "## 建议处理",
+        "- 优先直接重新运行 `python app/main.py`，系统会尝试复用当前草稿并重新审稿",
+        "- 如果多次重试仍失败，再考虑人工检查服务端模型状态",
+    ]
+    return "\n".join(lines).strip() + "\n"
+
 def clean_model_output(text: str) -> str:
     text = text.strip()
 
@@ -1082,42 +1127,80 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     created["task_file"] = task_file
     return created
 
+
+def set_current_task_from_file(task_file: str) -> str:
+    task_content = read_text(task_file)
+    save_text("01_inputs/tasks/current_task.md", task_content)
+    return extract_markdown_field(task_content, "task_id") or task_file
+
 def main() -> None:
     try:
         config = load_yaml("app/config.yaml")
+        max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
+        loop_round = 1
 
-        print("步骤 1/3：正在整理当前上下文...")
-        current_context = compile_context(config)
-        print(f"已生成上下文文件: {config['output']['context_file']}")
+        while True:
+            current_task_text = read_text("01_inputs/tasks/current_task.md")
+            current_task_id = extract_markdown_field(current_task_text, "task_id") or "unknown-task"
+            print(f"自动流程第 {loop_round} 轮：当前任务 {current_task_id}")
 
-        print("步骤 2/3：正在生成草稿...")
-        draft_result = write_draft(config, current_context)
+            draft_result = build_existing_draft_result(current_task_text)
+            if draft_result:
+                print(f"检测到已有草稿待审，直接复用: {draft_result['draft_file']}")
+            else:
+                print("步骤 1/3：正在整理当前上下文...")
+                current_context = compile_context(config)
+                print(f"已生成上下文文件: {config['output']['context_file']}")
 
-        print("步骤 3/3：正在执行审稿与后续分流...")
-        _, reviewer_json_path = review_scene_file(config, draft_result["draft_file"])
-        reviewer_result = json.loads(read_text(reviewer_json_path))
-        created = route_review_result(
-            config,
-            draft_result["task_text"],
-            draft_result["draft_file"],
-            reviewer_result,
-        )
+                print("步骤 2/3：正在生成草稿...")
+                draft_result = write_draft(config, current_context)
 
-        print(f"已保存 reviewer 结果: {reviewer_json_path}")
-        if reviewer_result.get("verdict") == "lock":
-            print(f"已自动锁定到 {created['locked_file']}")
-            print("如需人工修订，请直接编辑 locked 文件")
-            print(f"已生成候选锁定文件: {created['candidate_file']}")
-            print(f"已生成锁定 notes 草稿: {created['notes_file']}")
-            print(f"已生成 working notes 更新提议: {created['notes_proposal_file']}")
-            print(f"已生成 working state 更新提议: {created['state_proposal_file']}")
-        elif "manual_intervention_file" in created:
-            print("已达到最大自动修订次数（5次），请人工介入。")
-            print(f"已生成人工介入提醒: {created['manual_intervention_file']}")
-        else:
+            print("步骤 3/3：正在执行审稿与后续分流...")
+            try:
+                _, reviewer_json_path = review_scene_file(config, draft_result["draft_file"])
+            except Exception as error:
+                retry_needed_file = f"02_working/reviews/{current_task_id}_review_retry_needed.md"
+                save_text(
+                    retry_needed_file,
+                    build_review_retry_needed_content(current_task_text, draft_result["draft_file"], str(error)),
+                )
+                print(f"审稿失败，已生成重试提醒: {retry_needed_file}")
+                raise
+
+            reviewer_result = json.loads(read_text(reviewer_json_path))
+            created = route_review_result(
+                config,
+                draft_result["task_text"],
+                draft_result["draft_file"],
+                reviewer_result,
+            )
+
+            print(f"已保存 reviewer 结果: {reviewer_json_path}")
+            if reviewer_result.get("verdict") == "lock":
+                print(f"已自动锁定到 {created['locked_file']}")
+                print("如需人工修订，请直接编辑 locked 文件")
+                print(f"已生成候选锁定文件: {created['candidate_file']}")
+                print(f"已生成锁定 notes 草稿: {created['notes_file']}")
+                print(f"已生成 working notes 更新提议: {created['notes_proposal_file']}")
+                print(f"已生成 working state 更新提议: {created['state_proposal_file']}")
+                print("本次自动闭环完成。")
+                break
+
+            if "manual_intervention_file" in created:
+                print(f"已达到最大自动修订次数（{max_revisions}次），请人工介入。")
+                print(f"已生成人工介入提醒: {created['manual_intervention_file']}")
+                print("本次自动闭环完成。")
+                break
+
+            if reviewer_result.get("verdict") == "revise" and "task_file" in created:
+                next_task_id = set_current_task_from_file(created["task_file"])
+                print(f"检测到 revise，已自动切换到下一轮任务: {next_task_id}")
+                loop_round += 1
+                continue
+
             print(f"已生成后续任务草稿: {created['task_file']}")
-
-        print("本次自动闭环完成。")
+            print("本次自动闭环完成。")
+            break
 
     except FileNotFoundError as e:
         print(f"缺少输入文件: {e}")
