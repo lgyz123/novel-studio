@@ -6,6 +6,7 @@ import requests
 import yaml
 from issue_filters import filter_shared_issues
 from jsonschema import validate
+from review_models import ReviewStatus, load_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
 
 
@@ -1117,6 +1118,12 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             manual_intervention_file,
             build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions),
         )
+        update_structured_review_status(
+            ROOT,
+            task_id,
+            ReviewStatus.manual_intervention,
+            f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。",
+        )
         created["manual_intervention_file"] = manual_intervention_file
         return created
 
@@ -1192,6 +1199,11 @@ def main() -> None:
                 raise
 
             reviewer_result = json.loads(read_text(reviewer_json_path))
+            structured_review = None
+            try:
+                structured_review = load_structured_review_result(ROOT, reviewer_result.get("task_id", current_task_id))
+            except Exception:
+                structured_review = None
             created = route_review_result(
                 config,
                 draft_result["task_text"],
@@ -1200,7 +1212,11 @@ def main() -> None:
             )
 
             print(f"已保存 reviewer 结果: {reviewer_json_path}")
-            if reviewer_result.get("verdict") == "lock":
+            if structured_review is not None:
+                print(f"已保存结构化审稿结果: 02_working/reviews/{structured_review.task_id}_review_result.json")
+
+            review_status = structured_review.status.value if structured_review is not None else reviewer_result.get("verdict")
+            if review_status == "lock":
                 print(f"已自动锁定到 {created['locked_file']}")
                 print("如需人工修订，请直接编辑 locked 文件")
                 print(f"已生成候选锁定文件: {created['candidate_file']}")
@@ -1216,7 +1232,7 @@ def main() -> None:
                 print("本次自动闭环完成。")
                 break
 
-            if reviewer_result.get("verdict") == "revise" and "task_file" in created:
+            if review_status == "revise" and "task_file" in created:
                 next_task_id = set_current_task_from_file(created["task_file"])
                 print(f"检测到 revise，已自动切换到下一轮任务: {next_task_id}")
                 loop_round += 1

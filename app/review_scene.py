@@ -9,6 +9,7 @@ import requests
 import yaml
 from issue_filters import filter_shared_issues, is_mostly_english
 from jsonschema import validate
+from review_models import save_structured_review_result
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -625,6 +626,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
 
     out_path = f"02_working/reviews/{task_id}_reviewer.json"
     save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
+    result["review_result_path"] = save_structured_review_result(ROOT, result)
     return result, out_path
 
 def main() -> None:
