@@ -1,0 +1,11 @@
+{
+  "task_id": "2026-04-03-017-R4",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场关键动作的完成度仍不足。"
+  ],
+  "minor_issues": [],
+  "recommended_next_step": "create_revision_task",
+  "summary": "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。"
+}

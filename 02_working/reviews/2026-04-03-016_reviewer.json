@@ -1,0 +1,13 @@
+{
+  "task_id": "2026-04-03-016",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "未在码头或求活日常场景中展开",
+    "未体现“阿绣”线索对小动作的低烈度推进",
+    "篇幅不足500字"
+  ],
+  "minor_issues": [],
+  "recommended_next_step": "create_revision_task",
+  "summary": "草稿未满足任务核心要求，需重新构思并扩展至500-900字，加入码头/求活场景、红绳、平安符及“阿绣”线索的低烈度推进。"
+}

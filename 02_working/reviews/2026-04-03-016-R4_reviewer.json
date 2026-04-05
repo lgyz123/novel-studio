@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-016-R4",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "草稿长度不足，未达到 500-900 字要求",
+    "未出现“阿绣”线的影响，缺乏核心推进",
+    "未体现低烈度推进，缺少细腻的情绪变化"
+  ],
+  "minor_issues": [
+    "缺少对工具与环境的细节描写",
+    "未使用第一人称视角的细腻叙述"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "草稿未完成核心目标，需大幅扩写并加入“阿绣”线的细微影响，保持低烈度推进，避免新人物与身份泄露。"
+}

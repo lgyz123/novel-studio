@@ -1,0 +1,11 @@
+{
+  "task_id": "2026-04-03-017-R3",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "草稿未完成，缺少结尾，无法判断是否满足所有约束"
+  ],
+  "minor_issues": [],
+  "recommended_next_step": "create_revision_task",
+  "summary": "草稿未完成，缺少结尾，无法评估是否满足所有约束"
+}

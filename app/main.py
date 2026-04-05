@@ -1153,7 +1153,31 @@ def main() -> None:
                 print(f"已生成上下文文件: {config['output']['context_file']}")
 
                 print("步骤 2/3：正在生成草稿...")
-                draft_result = write_draft(config, current_context)
+                try:
+                    draft_result = write_draft(config, current_context)
+                except Exception as error:
+                    if extract_revision_count(current_task_id) >= max_revisions:
+                        output_target = extract_markdown_field(current_task_text, "output_target") or "[未生成草稿]"
+                        manual_intervention_file = f"02_working/reviews/{current_task_id}_manual_intervention.md"
+                        save_text(
+                            manual_intervention_file,
+                            build_manual_intervention_content(
+                                current_task_text,
+                                {
+                                    "verdict": "revise",
+                                    "summary": f"写稿阶段失败：{error}",
+                                    "major_issues": [str(error)],
+                                    "minor_issues": [],
+                                },
+                                output_target,
+                                max_revisions,
+                            ),
+                        )
+                        print(f"写稿阶段失败，且已达到最大自动修订次数（{max_revisions}次），请人工介入。")
+                        print(f"已生成人工介入提醒: {manual_intervention_file}")
+                        print("本次自动闭环完成。")
+                        break
+                    raise
 
             print("步骤 3/3：正在执行审稿与后续分流...")
             try:
