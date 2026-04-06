@@ -1,0 +1,10 @@
+Five-scene smoke test summary
+artifact_root=/Users/guan/git/novel-studio/02_working/test_artifacts/five_scene_smoke/20260406-131955
+processed_scene_count=5
+uncaught_exception_count=0
+lock=0
+revise=0
+rewrite=0
+manual_intervention=5
+json_parse_failures=0
+schema_failures=0

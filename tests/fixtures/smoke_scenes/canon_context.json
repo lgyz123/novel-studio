@@ -1,0 +1,15 @@
+{
+  "project": "novel-studio smoke test",
+  "chapter": "ch01",
+  "timeline": "夜晚，码头周边，低烈度推进",
+  "rules": [
+    "保持单视角",
+    "不引入新的主线设定",
+    "优先验证 scene 是否完成单一推进目标"
+  ],
+  "known_characters": ["沈青", "阿绣", "老鲁"],
+  "chapter_state": {
+    "pace": "slow-burn",
+    "focus": "名字留下来的余波，而非外显调查"
+  }
+}

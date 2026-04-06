@@ -1,0 +1,67 @@
+[
+  {
+    "task_id": "smoke_scene_01-R1",
+    "final_status": "manual_intervention",
+    "review_result_path": "02_working/reviews/smoke_scene_01-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_01-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_01_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_01-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_01-R1_reviewer.json",
+    "manual_intervention_file": "02_working/reviews/smoke_scene_01-R1_manual_intervention.md",
+    "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_02-R1",
+    "final_status": "manual_intervention",
+    "review_result_path": "02_working/reviews/smoke_scene_02-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_02-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_02_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_02-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_02-R1_reviewer.json",
+    "manual_intervention_file": "02_working/reviews/smoke_scene_02-R1_manual_intervention.md",
+    "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_03-R1",
+    "final_status": "manual_intervention",
+    "review_result_path": "02_working/reviews/smoke_scene_03-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_03-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_03_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_03-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_03-R1_reviewer.json",
+    "manual_intervention_file": "02_working/reviews/smoke_scene_03-R1_manual_intervention.md",
+    "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_04-R1",
+    "final_status": "manual_intervention",
+    "review_result_path": "02_working/reviews/smoke_scene_04-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_04-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_04_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_04-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_04-R1_reviewer.json",
+    "manual_intervention_file": "02_working/reviews/smoke_scene_04-R1_manual_intervention.md",
+    "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_05-R1",
+    "final_status": "manual_intervention",
+    "review_result_path": "02_working/reviews/smoke_scene_05-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_05-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_05_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_05-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_05-R1_reviewer.json",
+    "manual_intervention_file": "02_working/reviews/smoke_scene_05-R1_manual_intervention.md",
+    "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY",
+    "issues": 0,
+    "lineage_round": 1
+  }
+]

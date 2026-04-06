@@ -1,0 +1,49 @@
+{
+  "scenes": [
+    {
+      "task_id": "smoke_scene_01-R1",
+      "scene_file": "scene01.md",
+      "goal": "验证名字被想起后对现实动作产生轻微牵引。",
+      "based_on": "03_locked/chapters/ch01_scene00.md",
+      "chapter_state": "03_locked/canon/ch01_state.md",
+      "constraints": ["保持单视角", "低烈度推进", "不要展开调查线"],
+      "output_target": "02_working/drafts/smoke_scene_01.md"
+    },
+    {
+      "task_id": "smoke_scene_02-R1",
+      "scene_file": "scene02.md",
+      "goal": "验证收束段是否能形成小闭环。",
+      "based_on": "03_locked/chapters/ch01_scene01.md",
+      "chapter_state": "03_locked/canon/ch01_state.md",
+      "constraints": ["保持单视角", "不新增人物功能位"],
+      "output_target": "02_working/drafts/smoke_scene_02.md"
+    },
+    {
+      "task_id": "smoke_scene_03-R1",
+      "scene_file": "scene03.md",
+      "goal": "验证轻微动作推进是否足以支撑本场功能。",
+      "based_on": "03_locked/chapters/ch01_scene02.md",
+      "chapter_state": "03_locked/canon/ch01_state.md",
+      "constraints": ["不要写成大爆点", "保持 prose 文体"],
+      "output_target": "02_working/drafts/smoke_scene_03.md"
+    },
+    {
+      "task_id": "smoke_scene_04-R1",
+      "scene_file": "scene04.md",
+      "goal": "验证信息控制是否稳定，不同时推进多条线。",
+      "based_on": "03_locked/chapters/ch01_scene03.md",
+      "chapter_state": "03_locked/canon/ch01_state.md",
+      "constraints": ["单一推进目标", "不外扩世界观信息"],
+      "output_target": "02_working/drafts/smoke_scene_04.md"
+    },
+    {
+      "task_id": "smoke_scene_05-R1",
+      "scene_file": "scene05.md",
+      "goal": "验证风格、承接与小修路径是否都能稳定落盘。",
+      "based_on": "03_locked/chapters/ch01_scene04.md",
+      "chapter_state": "03_locked/canon/ch01_state.md",
+      "constraints": ["维持当前氛围", "不新增调查动作"],
+      "output_target": "02_working/drafts/smoke_scene_05.md"
+    }
+  ]
+}

@@ -7,12 +7,21 @@ from typing import Any
 
 import requests
 import yaml
+from deepseek_reviewer import review_scene_with_deepseek, save_structured_deepseek_review, structured_review_to_legacy_result
 from issue_filters import filter_shared_issues, is_mostly_english
 from jsonschema import validate
-from review_models import build_structured_review_result, save_repair_plan, save_structured_review_result
+from review_models import StructuredReviewResult, build_structured_review_result, save_repair_plan, save_structured_review_result
 
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def should_use_deepseek(config: dict) -> bool:
+    reviewer = config.get("reviewer", {})
+    base_url = str(reviewer.get("base_url", "")).rstrip("/")
+    model = str(reviewer.get("model", "")).strip()
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    return provider == "deepseek" or (base_url == "https://api.deepseek.com" and model == "deepseek-chat")
 
 
 def read_text(rel_path: str) -> str:
@@ -574,6 +583,30 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         )
     else:
         based_on_text = "[未提供 based_on]"
+
+    if should_use_deepseek(config):
+        structured_result = review_scene_with_deepseek(
+            scene_text=draft_text,
+            scene_metadata={
+                "task_id": task_id,
+                "draft_rel_path": draft_rel_path,
+                "request_timeout": config["reviewer"].get("request_timeout", 120),
+                "max_retries": config["reviewer"].get("max_retries", 3),
+                "retry_backoff_base": config["reviewer"].get("retry_backoff_base", 1.0),
+            },
+            canon_context={
+                "task_id": task_id,
+                "task_text": task_text,
+                "chapter_state": chapter_state,
+                "based_on_text": based_on_text,
+            },
+        )
+        result = structured_review_to_legacy_result(structured_result)
+        out_path = f"02_working/reviews/{task_id}_reviewer.json"
+        save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
+        result["review_result_path"] = save_structured_deepseek_review(ROOT, structured_result)
+        result["repair_plan_path"] = save_repair_plan(ROOT, StructuredReviewResult.from_dict(structured_result))
+        return result, out_path
 
     system_prompt = read_text("prompts/reviewer_system.md")
     schema = json.loads(read_text("prompts/reviewer_output_schema.json"))

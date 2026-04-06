@@ -1,0 +1,67 @@
+[
+  {
+    "task_id": "smoke_scene_01-R1",
+    "final_status": "lock",
+    "review_result_path": "02_working/reviews/smoke_scene_01-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_01-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_01_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_01-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_01-R1_reviewer.json",
+    "manual_intervention_file": null,
+    "decision_reason": "The scene successfully validates the goal by depicting '阿绣' triggering a minor observational action (noticing the cloth corner) that leaves a lingering mental trace, adhering to all constraints (single perspective, low-intensity, no investigation expansion) and canon context (slow-burn pace, night setting). No issues identified that require revision.",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_02-R1",
+    "final_status": "lock",
+    "review_result_path": "02_working/reviews/smoke_scene_02-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_02-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_02_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_02-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_02-R1_reviewer.json",
+    "manual_intervention_file": null,
+    "decision_reason": "The scene successfully verifies a small closed loop with minimal issues; the low-severity foreshadowing does not prevent locking, as it aligns with the focus on subtlety and can be addressed in future scenes if needed.",
+    "issues": 1,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_03-R1",
+    "final_status": "lock",
+    "review_result_path": "02_working/reviews/smoke_scene_03-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_03-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_03_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_03-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_03-R1_reviewer.json",
+    "manual_intervention_file": null,
+    "decision_reason": "场景文本完全符合canon_context中的目标（夜晚、码头周边、低烈度推进），聚焦于沈青的心理余波而非外显调查，通过轻微动作（如靠柱、听梆子声、拍灰）有效支撑了场景功能，且未引入新主线设定或写成大爆点，因此建议锁定。",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_04-R1",
+    "final_status": "lock",
+    "review_result_path": "02_working/reviews/smoke_scene_04-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_04-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_04_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_04-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_04-R1_reviewer.json",
+    "manual_intervention_file": null,
+    "decision_reason": "The scene successfully validates the single goal of controlling information and avoiding multiple plot advancements, as it centers on Shen Qing's internal response to a name without deviating into new clues or characters, aligning with canon context and constraints.",
+    "issues": 0,
+    "lineage_round": 1
+  },
+  {
+    "task_id": "smoke_scene_05-R1",
+    "final_status": "lock",
+    "review_result_path": "02_working/reviews/smoke_scene_05-R1_review_result.json",
+    "repair_plan_path": "02_working/reviews/smoke_scene_05-R1_repair_plan.json",
+    "lineage_path": "02_working/reviews/smoke_scene_05_revision_lineage.json",
+    "lock_gate_report_path": "03_locked/reports/smoke_scene_05-R1_lock_gate_report.json",
+    "reviewer_json_path": "02_working/reviews/smoke_scene_05-R1_reviewer.json",
+    "manual_intervention_file": null,
+    "decision_reason": "该 scene 符合所有约束和规则：维持了 slow-burn 氛围，聚焦于名字留下的余波而非外显调查，保持单视角，未引入新主线设定，完成了验证风格和承接的目标。无连续性、时间线、视角、知识、风格、场景目的、伏笔或冗余问题，因此建议锁定。",
+    "issues": 0,
+    "lineage_round": 1
+  }
+]

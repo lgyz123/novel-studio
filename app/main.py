@@ -4,6 +4,7 @@ from pathlib import Path
 
 import requests
 import yaml
+from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, is_supervisor_enabled, run_supervisor_decision, save_supervisor_decision
 from issue_filters import filter_shared_issues
 from jsonschema import validate
 from lock_gate import apply_lock_gate, save_lock_gate_report
@@ -1283,6 +1284,33 @@ def build_manual_intervention_content(task_text: str, reviewer_result: dict, dra
     return "\n".join(lines).strip() + "\n"
 
 
+def maybe_supervise_manual_decision(
+    config: dict,
+    task_text: str,
+    reviewer_result: dict,
+    draft_file: str,
+    max_revisions: int,
+    trigger_reason: str,
+) -> tuple[dict | None, str | None]:
+    if not is_supervisor_enabled(config):
+        return None, None
+
+    decision = run_supervisor_decision(
+        ROOT,
+        config,
+        task_text,
+        reviewer_result,
+        draft_file,
+        max_revisions,
+        trigger_reason,
+    )
+    decision_path = save_supervisor_decision(ROOT, decision)
+    supervised_result = apply_supervisor_decision_to_reviewer_result(reviewer_result, decision)
+    if supervised_result.get("force_manual_intervention_reason"):
+        return None, decision_path
+    return supervised_result, decision_path
+
+
 def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_result: dict) -> dict:
     locked_dir = config["paths"].get("locked_dir", "03_locked")
     working_dir = config["paths"].get("working_dir", "02_working")
@@ -1334,6 +1362,25 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
 
     if forced_manual_reason:
+        supervised_result, supervisor_decision_path = maybe_supervise_manual_decision(
+            config,
+            task_text,
+            reviewer_result,
+            draft_file,
+            max_revisions,
+            forced_manual_reason,
+        )
+        if supervisor_decision_path:
+            created["supervisor_decision_file"] = supervisor_decision_path
+        if supervised_result is not None:
+            mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
+            suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
+            task_file = f"{generated_dir}/{task_id}_{suffix}.md"
+            task_content = build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            save_text(task_file, task_content)
+            created["task_file"] = task_file
+            return created
+
         manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
         save_text(
             manual_intervention_file,
@@ -1349,6 +1396,26 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
         return created
 
     if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
+        max_revision_reason = f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。"
+        supervised_result, supervisor_decision_path = maybe_supervise_manual_decision(
+            config,
+            task_text,
+            reviewer_result,
+            draft_file,
+            max_revisions,
+            max_revision_reason,
+        )
+        if supervisor_decision_path:
+            created["supervisor_decision_file"] = supervisor_decision_path
+        if supervised_result is not None:
+            mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
+            suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
+            task_file = f"{generated_dir}/{task_id}_{suffix}.md"
+            task_content = build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            save_text(task_file, task_content)
+            created["task_file"] = task_file
+            return created
+
         manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
         save_text(
             manual_intervention_file,
@@ -1358,7 +1425,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             ROOT,
             task_id,
             ReviewStatus.manual_intervention,
-            f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。",
+            max_revision_reason,
         )
         created["manual_intervention_file"] = manual_intervention_file
         return created
@@ -1490,6 +1557,8 @@ def main() -> None:
                 print(f"已保存 repair plan: 02_working/reviews/{structured_review.task_id}_repair_plan.json")
             if lineage_path is not None:
                 print(f"已保存 revision lineage: {lineage_path}")
+            if "supervisor_decision_file" in created:
+                print(f"已保存 supervisor 决策: {created['supervisor_decision_file']}")
             if lock_gate_report_path is not None:
                 print(f"已保存 lock gate 报告: {lock_gate_report_path}")
                 if reviewer_result.get("verdict") != "lock":

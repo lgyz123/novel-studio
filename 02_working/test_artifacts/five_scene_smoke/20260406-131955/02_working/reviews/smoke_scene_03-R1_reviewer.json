@@ -1,0 +1,12 @@
+{
+  "task_id": "smoke_scene_03-R1",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY"
+  ],
+  "minor_issues": [],
+  "recommended_next_step": "create_revision_task",
+  "summary": "DeepSeek reviewer 输出不可用，转人工介入。",
+  "force_manual_intervention_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY"
+}

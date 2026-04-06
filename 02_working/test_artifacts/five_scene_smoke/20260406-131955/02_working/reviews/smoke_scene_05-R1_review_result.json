@@ -1,0 +1,8 @@
+{
+  "task_id": "smoke_scene_05-R1",
+  "status": "manual_intervention",
+  "summary": "DeepSeek reviewer 输出不可用，转人工介入。",
+  "issues": [],
+  "strengths": [],
+  "decision_reason": "DeepSeek reviewer 初始化失败：缺少 DEEPSEEK_API_KEY"
+}

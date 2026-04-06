@@ -1,0 +1,12 @@
+{
+  "task_id": "smoke_scene_02-R1",
+  "mode": "local_fix",
+  "actions": [
+    {
+      "target": "布角",
+      "issue_id": "ISSUE-001",
+      "action": "Consider clarifying if this is intentional foreshadowing or remove it to maintain tight closure.",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：Mention of '布角' (cloth corner) is introduced but not elaborated, potentially hinting at unresolved elements that could disrupt scene closure."
+    }
+  ]
+}

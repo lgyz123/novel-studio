@@ -30,6 +30,15 @@ reviewer:
   based_on_max_chars: 1800
   draft_max_chars: 2200
 
+supervisor:
+  enabled: true
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
+  request_timeout: 120
+  max_retries: 3
+  retry_backoff_base: 1.0
+
 generation:
   compile_num_ctx: 2048
   write_num_ctx: 2048
