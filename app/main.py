@@ -4,7 +4,7 @@ from pathlib import Path
 
 import requests
 import yaml
-from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, is_supervisor_enabled, run_supervisor_decision, save_supervisor_decision
+from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, save_next_scene_task_plan, save_supervisor_decision
 from issue_filters import filter_shared_issues
 from jsonschema import validate
 from lock_gate import apply_lock_gate, save_lock_gate_report
@@ -1291,9 +1291,9 @@ def maybe_supervise_manual_decision(
     draft_file: str,
     max_revisions: int,
     trigger_reason: str,
-) -> tuple[dict | None, str | None]:
+) -> tuple[dict | None, str | None, str | None]:
     if not is_supervisor_enabled(config):
-        return None, None
+        return None, None, None
 
     decision = run_supervisor_decision(
         ROOT,
@@ -1306,9 +1306,42 @@ def maybe_supervise_manual_decision(
     )
     decision_path = save_supervisor_decision(ROOT, decision)
     supervised_result = apply_supervisor_decision_to_reviewer_result(reviewer_result, decision)
+    repair_plan_path = build_repair_plan_path(reviewer_result.get("task_id", "generated-task"))
+    task_content = build_task_content_from_supervisor_decision(
+        decision,
+        task_text,
+        draft_file,
+        repair_plan_path=repair_plan_path,
+    )
     if supervised_result.get("force_manual_intervention_reason"):
-        return None, decision_path
-    return supervised_result, decision_path
+        return None, decision_path, None
+    return supervised_result, decision_path, task_content
+
+
+def maybe_generate_next_scene_task_draft(
+    config: dict,
+    task_text: str,
+    locked_file: str,
+    reviewer_result: dict,
+) -> tuple[str | None, str | None]:
+    if not is_supervisor_enabled(config):
+        return None, None
+
+    plan = run_supervisor_next_scene_task(
+        ROOT,
+        config,
+        task_text,
+        locked_file,
+        reviewer_result,
+    )
+    if not plan:
+        return None, None
+
+    plan_path = save_next_scene_task_plan(ROOT, plan)
+    task_content = build_next_scene_task_content(plan, task_text, locked_file)
+    task_file = f"01_inputs/tasks/generated/{plan['task_id']}.md"
+    save_text(task_file, task_content)
+    return task_file, plan_path
 
 
 def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_result: dict) -> dict:
@@ -1353,6 +1386,16 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
         created["notes_proposal_file"] = notes_proposal_file
         created["state_proposal_file"] = state_proposal_file
         created.update(story_state_outputs)
+        next_scene_task_file, next_scene_plan_file = maybe_generate_next_scene_task_draft(
+            config,
+            task_text,
+            locked_file,
+            reviewer_result,
+        )
+        if next_scene_task_file:
+            created["next_scene_task_file"] = next_scene_task_file
+        if next_scene_plan_file:
+            created["next_scene_plan_file"] = next_scene_plan_file
         return created
 
     mode = "revise" if verdict == "revise" else "rewrite"
@@ -1362,7 +1405,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
 
     if forced_manual_reason:
-        supervised_result, supervisor_decision_path = maybe_supervise_manual_decision(
+        supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
             config,
             task_text,
             reviewer_result,
@@ -1376,7 +1419,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
             suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
             task_file = f"{generated_dir}/{task_id}_{suffix}.md"
-            task_content = build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
             save_text(task_file, task_content)
             created["task_file"] = task_file
             return created
@@ -1397,7 +1440,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
 
     if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
         max_revision_reason = f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。"
-        supervised_result, supervisor_decision_path = maybe_supervise_manual_decision(
+        supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
             config,
             task_text,
             reviewer_result,
@@ -1411,7 +1454,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
             suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
             task_file = f"{generated_dir}/{task_id}_{suffix}.md"
-            task_content = build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
             save_text(task_file, task_content)
             created["task_file"] = task_file
             return created
@@ -1575,6 +1618,10 @@ def main() -> None:
                 print(f"已更新 story state: {created['story_state_file']}")
                 print(f"已生成 story state patch: {created['story_state_patch_file']}")
                 print(f"已生成 story state diff: {created['story_state_diff_file']}")
+                if "next_scene_plan_file" in created:
+                    print(f"已生成下一 scene 规划: {created['next_scene_plan_file']}")
+                if "next_scene_task_file" in created:
+                    print(f"已生成下一 scene 任务草案: {created['next_scene_task_file']}")
                 print("本次自动闭环完成。")
                 break
 
