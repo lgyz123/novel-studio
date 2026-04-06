@@ -8,6 +8,7 @@ from issue_filters import filter_shared_issues
 from jsonschema import validate
 from review_models import ReviewStatus, load_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
+from story_state import update_story_state_on_lock
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -1100,11 +1101,18 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             state_proposal_file,
             build_working_state_proposal_content(task_text, reviewer_result, locked_file, chapter_state_path),
         )
+        story_state_outputs = update_story_state_on_lock(
+            ROOT,
+            task_text,
+            locked_file,
+            chapter_state_path=chapter_state_path,
+        )
         created["locked_file"] = locked_file
         created["candidate_file"] = candidate_file
         created["notes_file"] = notes_file
         created["notes_proposal_file"] = notes_proposal_file
         created["state_proposal_file"] = state_proposal_file
+        created.update(story_state_outputs)
         return created
 
     mode = "revise" if verdict == "revise" else "rewrite"
@@ -1223,6 +1231,8 @@ def main() -> None:
                 print(f"已生成锁定 notes 草稿: {created['notes_file']}")
                 print(f"已生成 working notes 更新提议: {created['notes_proposal_file']}")
                 print(f"已生成 working state 更新提议: {created['state_proposal_file']}")
+                print(f"已更新 story state: {created['story_state_file']}")
+                print(f"已生成 story state diff: {created['story_state_diff_file']}")
                 print("本次自动闭环完成。")
                 break
 
