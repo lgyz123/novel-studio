@@ -1,24 +1,19 @@
 {
-  "timeline": {
+  "task_id": "rebuild_ch01_scene01",
+  "locked_file": "03_locked/chapters/ch01_scene01.md",
+  "based_on_state": "03_locked/state/story_state.json",
+  "timeline_updates": {
     "current_book_time": "次日白天",
-    "recent_events": [
-      "EVENT-001",
-      "EVENT-002",
-      "EVENT-003",
-      "EVENT-004",
-      "EVENT-005",
-      "EVENT-006",
-      "EVENT-007",
-      "EVENT-008",
-      "EVENT-009"
+    "recent_events_to_add": [
+      "EVENT-001"
     ]
   },
-  "characters": {
+  "character_updates": {
     "protagonist": {
-      "location": "码头",
-      "physical_state": "疲惫、持续劳作、未麻木",
+      "location": "运河边",
+      "physical_state": "持续劳作、未麻木",
       "mental_state": "克制、被“阿绣”持续牵动、尚未转为调查",
-      "known_facts": [
+      "known_facts_to_add": [
         "红绳",
         "平安符背面的“阿绣”",
         "乱葬岗处理尸体后的余波",
@@ -30,11 +25,10 @@
         "这次改动过的结法已经在码头实际起效：麻袋没有彻底崩开，只留下一个轻微但看得见的裂口后果",
         "scene09 中，孟浮灯又把一截本可顺手丢掉的线头留了下来，说明“阿绣”这条线已开始牵动他对细小物件的保留"
       ],
-      "active_goals": [
-        "在不主动追查的前提下继续压住“阿绣”这条线",
-        "维持日常求活与码头做活"
+      "active_goals_to_add": [
+        "在不主动追查的前提下继续压住“阿绣”这条线"
       ],
-      "open_tensions": [
+      "open_tensions_to_add": [
         "“阿绣”这个名字已在他心里留下停顿，但他尚未形成明确行动，只是放不下",
         "他尚未形成明确调查行动，但已经无法把这个名字当作普通死者名讳轻易放下",
         "“阿绣”这个名字已经不只是记住，而是开始在具体动作中牵动孟浮灯的注意力",
@@ -44,7 +38,7 @@
       ]
     }
   },
-  "unresolved_promises": [
+  "unresolved_promises_to_add": [
     {
       "id": "PROMISE-001",
       "description": "不揭示阿绣身份",
@@ -76,8 +70,8 @@
       "expected_payoff_window": "chapter_01_scene_02_onward"
     }
   ],
-  "revealed_secrets": [],
-  "items": [
+  "revealed_secrets_to_add": [],
+  "item_updates": [
     {
       "id": "ITEM-001",
       "name": "红绳",
@@ -103,7 +97,7 @@
       "notes": "scene09 中，孟浮灯又把一截本可顺手丢掉的线头留了下来，说明“阿绣”这条线已开始牵动他对细小物件的保留"
     }
   ],
-  "relationship_deltas": [
+  "relationship_deltas_to_add": [
     {
       "id": "REL-001",
       "source": "孟浮灯",
@@ -113,5 +107,5 @@
       "status": "active"
     }
   ],
-  "last_locked_scene": "ch01_scene09"
+  "decision_reason": "同步时间线与最近事件；补入主角位置、身心状态与当前张力；记录尚未兑现的章节承诺；同步物品归属与状态；同步人物关系张力变化"
 }

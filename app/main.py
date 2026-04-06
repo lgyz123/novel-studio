@@ -6,8 +6,10 @@ import requests
 import yaml
 from issue_filters import filter_shared_issues
 from jsonschema import validate
-from review_models import ReviewStatus, load_structured_review_result, update_structured_review_status
+from lock_gate import apply_lock_gate, save_lock_gate_report
+from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
+from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
 from story_state import update_story_state_on_lock
 
 
@@ -363,11 +365,74 @@ def generate_decision_json(config: dict, current_context: str) -> dict:
     return result
 
 
-def generate_markdown_draft(config: dict, current_context: str, decision: dict) -> str:
-    system_prompt = read_text("prompts/writer_system.md")
-    task_text = read_text("01_inputs/tasks/current_task.md")
+def load_repair_guidance(task_text: str) -> tuple[str | None, str | None, list[str]]:
+    repair_mode = extract_markdown_field(task_text, "repair_mode")
+    repair_plan_path = extract_markdown_field(task_text, "repair_plan")
+    repair_actions: list[str] = []
 
-    user_prompt = f"""请根据以下输入写出 Markdown 草稿正文。
+    if repair_plan_path:
+        try:
+            repair_plan = load_repair_plan(ROOT, extract_markdown_field(task_text, "task_id") or "generated-task")
+            if not repair_mode:
+                repair_mode = repair_plan.mode.value
+            repair_actions = [action.instruction for action in repair_plan.actions]
+        except Exception:
+            repair_actions = []
+
+    return repair_mode, repair_plan_path, repair_actions
+
+
+def build_writer_repair_rules(repair_mode: str | None) -> list[str]:
+    if repair_mode == RepairMode.local_fix.value:
+        return [
+            "本次是局部修补，不要推倒整场重写。",
+            "优先保留旧稿已经可用的段落、动作顺序和场景结构。",
+            "只修 repair_plan 指向的问题段落与句子。",
+        ]
+    if repair_mode == RepairMode.partial_redraft.value:
+        return [
+            "本次允许局部重写，但不要扩大成整场翻写。",
+            "优先保留方向正确的场景骨架，只重写受影响的段落块。",
+            "如果 repair_plan 未要求，不要更换场景地点、人物边界和核心推进方式。",
+        ]
+    if repair_mode == RepairMode.full_redraft.value:
+        return [
+            "本次允许整场重写，但仍须严格围绕 repair_plan 的核心问题。",
+            "重写时优先修复核心推进失败、约束冲突或场景功能错位。",
+            "即使整场重写，也不要擅自新增设定、人物或主线外扩。",
+        ]
+    return []
+
+
+def build_writer_repair_section(task_text: str) -> str:
+    repair_mode, repair_plan_path, repair_actions = load_repair_guidance(task_text)
+    if not repair_mode and not repair_plan_path and not repair_actions:
+        return ""
+
+    lines = ["【修订执行计划】"]
+    if repair_mode:
+        lines.append(f"- repair_mode: {repair_mode}")
+    if repair_plan_path:
+        lines.append(f"- repair_plan: {repair_plan_path}")
+
+    mode_rules = build_writer_repair_rules(repair_mode)
+    if mode_rules:
+        lines.append("- 执行边界：")
+        lines.extend([f"  - {item}" for item in mode_rules])
+
+    if repair_actions:
+        lines.append("- 必须优先处理的修订动作：")
+        lines.extend([f"  - {item}" for item in repair_actions[:5]])
+
+    return "\n".join(lines)
+
+
+def build_writer_user_prompt(task_text: str, current_context: str, decision: dict) -> str:
+    repair_section = build_writer_repair_section(task_text)
+    repair_rules = build_writer_repair_rules(extract_markdown_field(task_text, "repair_mode"))
+    repair_rule_lines = "\n".join([f"14. {item}" for item in repair_rules[:1]]) if repair_rules else ""
+
+    prompt = f"""请根据以下输入写出 Markdown 草稿正文。
 
 要求：
 1. 只输出 Markdown 正文
@@ -383,15 +448,25 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
 11. 不要写“注：……”
 12. 不要附带创作说明、改写说明、风格说明
 13. 不要使用括号包裹整段说明文字
+{repair_rule_lines}
 【任务单】
 {task_text}
 
 【当前上下文】
 {current_context}
 
+{repair_section}
+
 【决策信息】
 {json.dumps(decision, ensure_ascii=False, indent=2)}
 """
+    return prompt.replace("\n\n\n", "\n\n")
+
+
+def generate_markdown_draft(config: dict, current_context: str, decision: dict) -> str:
+    system_prompt = read_text("prompts/writer_system.md")
+    task_text = read_text("01_inputs/tasks/current_task.md")
+    user_prompt = build_writer_user_prompt(task_text, current_context, decision)
 
     print("正在请求模型生成草稿，请稍候...")
     markdown_text = call_ollama(
@@ -869,7 +944,7 @@ def build_followup_output_target(draft_file: str, mode: str) -> str:
     return path.with_name(f"{stem}{path.suffix}").as_posix()
 
 
-def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, task_text: str) -> str:
+def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, task_text: str, repair_mode: str | None = None, repair_instructions: list[str] | None = None) -> str:
     base_goal = strip_revision_prefix(original_goal)
     summary = str(reviewer_result.get("summary", "")).strip()
     filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
@@ -879,7 +954,16 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
         major_issues + minor_issues
     )
 
-    prefix = "基于上一版草稿进行小修" if mode == "revise" else "基于上一版草稿重新写作"
+    if mode == "rewrite":
+        prefix = "基于上一版草稿重新写作"
+    elif repair_mode == RepairMode.local_fix.value:
+        prefix = "基于上一版草稿进行局部修补"
+    elif repair_mode == RepairMode.partial_redraft.value:
+        prefix = "基于上一版草稿进行局部重写"
+    elif repair_mode == RepairMode.full_redraft.value:
+        prefix = "基于上一版草稿整体重写当前 scene"
+    else:
+        prefix = "基于上一版草稿进行小修"
 
     normalized_summary = normalize_constraint_text(summary)
     deduped_issues = []
@@ -894,13 +978,16 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
                 continue
         deduped_issues.append(issue)
 
-    issue_text = "；".join(deduped_issues) if deduped_issues else summary
+    if repair_instructions:
+        issue_text = "；".join(repair_instructions[:3])
+    else:
+        issue_text = "；".join(deduped_issues) if deduped_issues else summary
     if issue_text:
         return f"{prefix}：{base_goal}。本次重点解决：{issue_text}"
     return f"{prefix}：{base_goal}。"
 
 
-def build_followup_constraints(task_text: str, reviewer_result: dict) -> str:
+def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mode: str | None = None, repair_instructions: list[str] | None = None) -> str:
     original_constraints = (extract_markdown_field(task_text, "constraints") or "").strip()
     filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
     major_issues = filter_usable_issues(filtered_major)
@@ -914,7 +1001,13 @@ def build_followup_constraints(task_text: str, reviewer_result: dict) -> str:
     if original_constraints:
         blocks.append(original_constraints)
 
-    if issue_lines:
+    if repair_mode:
+        blocks.append(f"- 修订模式：{repair_mode}")
+
+    if repair_instructions:
+        blocks.append("- repair_plan 执行动作：")
+        blocks.extend([f"- {item}" for item in repair_instructions[:5]])
+    elif issue_lines:
         blocks.append("- 额外修订要求：")
         blocks.extend([f"- {line}" for line in issue_lines])
     else:
@@ -930,10 +1023,23 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     original_goal = extract_markdown_field(task_text, "goal") or "根据 reviewer 结果继续处理当前草稿"
     chapter_state = extract_markdown_field(task_text, "chapter_state")
     preferred_length = extract_markdown_field(task_text, "preferred_length")
+    repair_mode = None
+    repair_plan_path = None
+    repair_instructions: list[str] = []
+
+    if mode == "revise":
+        task_id_for_plan = extract_markdown_field(task_text, "task_id") or "generated-task"
+        repair_plan_path = build_repair_plan_path(task_id_for_plan)
+        try:
+            repair_plan = load_repair_plan(ROOT, task_id_for_plan)
+            repair_mode = repair_plan.mode.value
+            repair_instructions = [action.instruction for action in repair_plan.actions]
+        except Exception:
+            repair_plan_path = None
 
     new_task_id = build_followup_task_id(task_id, mode)
-    new_goal = build_followup_goal(original_goal, reviewer_result, mode, task_text)
-    new_constraints = build_followup_constraints(task_text, reviewer_result)
+    new_goal = build_followup_goal(original_goal, reviewer_result, mode, task_text, repair_mode=repair_mode, repair_instructions=repair_instructions)
+    new_constraints = build_followup_constraints(task_text, reviewer_result, repair_mode=repair_mode, repair_instructions=repair_instructions)
     new_output_target = build_followup_output_target(draft_file, mode)
 
     sections = [
@@ -944,6 +1050,12 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
 
     if chapter_state:
         sections.append(f"# chapter_state\n{chapter_state}")
+
+    if repair_mode:
+        sections.append(f"# repair_mode\n{repair_mode}")
+
+    if repair_plan_path:
+        sections.append(f"# repair_plan\n{repair_plan_path}")
 
     sections.append(f"# constraints\n{new_constraints}")
 
@@ -1041,32 +1153,132 @@ def build_working_state_proposal_content(task_text: str, reviewer_result: dict, 
     return "\n".join(lines).strip() + "\n"
 
 
-def build_manual_intervention_content(task_text: str, reviewer_result: dict, draft_file: str, max_revisions: int) -> str:
+def build_manual_intervention_content(task_text: str, reviewer_result: dict, draft_file: str, max_revisions: int, trigger_reason: str | None = None) -> str:
     task_id = extract_markdown_field(task_text, "task_id") or "unknown-task"
     summary = str(reviewer_result.get("summary", "")).strip()
     major_issues = normalize_issue_lines(list(reviewer_result.get("major_issues", [])))
     minor_issues = normalize_issue_lines(list(reviewer_result.get("minor_issues", [])))
+    review_result_path = build_review_result_path(task_id)
+    repair_plan_path = build_repair_plan_path(task_id)
+    lineage_path = build_revision_lineage_path(task_id)
+    structured_review = None
+    repair_plan = None
+    lineage = None
+
+    try:
+        structured_review = load_structured_review_result(ROOT, task_id)
+    except Exception:
+        structured_review = None
+    try:
+        repair_plan = load_repair_plan(ROOT, task_id)
+    except Exception:
+        repair_plan = None
+    try:
+        lineage = load_revision_lineage(ROOT, task_id, max_revisions)
+    except Exception:
+        lineage = None
+
+    unresolved_issue_lines: list[str] = []
+    if structured_review is not None and structured_review.issues:
+        for issue in structured_review.issues[:5]:
+            unresolved_issue_lines.append(
+                f"- `{issue.id}` `{issue.type.value}` `{issue.severity.value}` `{issue.target}`：{issue.message}"
+            )
+    else:
+        unresolved_issue_lines.extend([f"- {item}" for item in major_issues[:5]])
+
+    likely_root_causes: list[str] = []
+    if trigger_reason:
+        likely_root_causes.append(trigger_reason)
+    if lineage is not None and lineage.escalation_reason and lineage.escalation_reason not in likely_root_causes:
+        likely_root_causes.append(lineage.escalation_reason)
+    if repair_plan is not None:
+        likely_root_causes.append(f"当前 repair_mode 为 `{repair_plan.mode.value}`，说明问题规模已超出纯局部润色。")
+    if not likely_root_causes and summary:
+        likely_root_causes.append(summary)
+
+    manual_choices = [
+        "保留当前 draft 骨架，只按 `repair_plan` 修补列出的动作点。" if repair_plan and repair_plan.mode.value == RepairMode.local_fix.value else "先判断是否保留当前 draft 骨架，再决定局部改或整场重写。",
+        "直接人工改当前 draft，然后重新运行 reviewer。",
+        "如果当前 draft 方向已错位，放弃 auto revise，手动重写后再进审稿。",
+    ]
+    if lineage is not None and lineage.recurring_issue_types:
+        manual_choices.append(f"优先处理重复未收敛的问题类型：{', '.join(lineage.recurring_issue_types)}。")
+
+    inspect_files = [
+        f"- 当前草稿：`{draft_file}`",
+        f"- 原任务：`01_inputs/tasks/current_task.md`",
+        f"- reviewer 原结果：`02_working/reviews/{task_id}_reviewer.json`",
+        f"- 结构化 review：`{review_result_path}`",
+        f"- repair plan：`{repair_plan_path}`",
+        f"- revision lineage：`{lineage_path}`",
+    ]
+    based_on_path = extract_markdown_field(task_text, "based_on")
+    chapter_state_path = extract_markdown_field(task_text, "chapter_state")
+    if based_on_path:
+        inspect_files.append(f"- 前文基准：`{based_on_path}`")
+    if chapter_state_path:
+        inspect_files.append(f"- chapter state：`{chapter_state_path}`")
+
+    retry_prompt_lines = [
+        "请基于当前草稿执行一次人工定向修订，而不是自由重写。",
+        f"目标文件：`{draft_file}`。",
+    ]
+    if repair_plan is not None and repair_plan.actions:
+        retry_prompt_lines.append(f"修订模式：`{repair_plan.mode.value}`。")
+        retry_prompt_lines.append("必须优先解决以下问题：")
+        retry_prompt_lines.extend([f"- {action.issue_id} {action.instruction}" for action in repair_plan.actions[:5]])
+    elif unresolved_issue_lines:
+        retry_prompt_lines.append("必须优先解决以下未收敛问题：")
+        retry_prompt_lines.extend(unresolved_issue_lines[:5])
+    retry_prompt_lines.append("不要新增人物、设定或主线扩写；修完后再重新进入 reviewer。")
+
+    current_status_lines = [
+        f"- 当前任务：`{task_id}`",
+        f"- 当前草稿：`{draft_file}`",
+        f"- 当前结论：`{reviewer_result.get('verdict', 'revise')}`",
+        f"- 当前摘要：{summary or '无'}",
+        f"- 自动修订上限：{max_revisions}",
+    ]
+    if lineage is not None and lineage.revisions:
+        current_status_lines.append(f"- 已记录修订轮次：{len(lineage.revisions)}")
+        if lineage.recurring_issue_types:
+            current_status_lines.append(f"- 重复问题类型：{', '.join(lineage.recurring_issue_types)}")
+
+    stop_reason_lines = [
+        f"- {trigger_reason}" if trigger_reason else f"- 已达到最大自动修订次数：{max_revisions}",
+    ]
+    if lineage is not None and lineage.escalation_reason and lineage.escalation_reason != trigger_reason:
+        stop_reason_lines.append(f"- {lineage.escalation_reason}")
 
     lines = [
-        f"# {task_id} 人工介入提醒",
+        f"# {task_id} 人工介入说明",
         "",
-        f"- 已达到最大自动修订次数：{max_revisions}",
-        f"- 当前草稿：{draft_file}",
-        f"- reviewer verdict：{reviewer_result.get('verdict', 'revise')}",
-        f"- reviewer summary：{summary}",
+        "## 当前状态",
+        *current_status_lines,
         "",
-        "## 建议",
-        "- 暂停继续自动 revise",
-        "- 直接人工检查当前草稿与 reviewer 问题，手动定稿或手动改一版后再继续流程",
+        "## 为什么自动化停止",
+        *stop_reason_lines,
+        "",
+        "## 当前未解决的关键问题",
+        *(unresolved_issue_lines or ["- 暂无结构化 issue，需人工直接检查草稿与 reviewer 原文。"]),
+        "",
+        "## 可能根因",
+        *[f"- {item}" for item in likely_root_causes],
+        "",
+        "## 推荐的人工处理选项",
+        *[f"- {item}" for item in manual_choices],
+        "",
+        "## 建议优先查看的文件",
+        *inspect_files,
+        "",
+        "## 下一次重试可直接使用的提示词",
+        *[f"- {item}" for item in retry_prompt_lines],
     ]
-
-    if major_issues:
-        lines.extend(["", "## 主要问题"])
-        lines.extend([f"- {item}" for item in major_issues])
 
     if minor_issues:
         lines.extend(["", "## 次要问题"])
-        lines.extend([f"- {item}" for item in minor_issues])
+        lines.extend([f"- {item}" for item in minor_issues[:5]])
 
     return "\n".join(lines).strip() + "\n"
 
@@ -1119,6 +1331,22 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     generated_dir = f"{config['paths'].get('inputs_dir', '01_inputs')}/tasks/generated"
     max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
+    forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
+
+    if forced_manual_reason:
+        manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
+        save_text(
+            manual_intervention_file,
+            build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=forced_manual_reason),
+        )
+        update_structured_review_status(
+            ROOT,
+            task_id,
+            ReviewStatus.manual_intervention,
+            forced_manual_reason,
+        )
+        created["manual_intervention_file"] = manual_intervention_file
+        return created
 
     if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
         manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
@@ -1212,6 +1440,43 @@ def main() -> None:
                 structured_review = load_structured_review_result(ROOT, reviewer_result.get("task_id", current_task_id))
             except Exception:
                 structured_review = None
+
+            lock_gate_report_path = None
+            if reviewer_result.get("verdict") == "lock":
+                reviewer_result, lock_gate_report = apply_lock_gate(current_task_text, reviewer_result, max_revisions)
+                lock_gate_report_path = save_lock_gate_report(ROOT, lock_gate_report)
+                save_text(reviewer_json_path, json.dumps(reviewer_result, ensure_ascii=False, indent=2))
+                save_structured_review_result(ROOT, reviewer_result)
+                save_repair_plan(ROOT, build_structured_review_result(reviewer_result))
+                try:
+                    structured_review = load_structured_review_result(ROOT, reviewer_result.get("task_id", current_task_id))
+                except Exception:
+                    structured_review = None
+
+            lineage_path = None
+            if structured_review is not None:
+                lineage, lineage_path = append_revision_lineage(
+                    ROOT,
+                    structured_review,
+                    draft_result["draft_file"],
+                    max_revisions,
+                )
+                print(build_revision_lineage_summary(lineage))
+                if should_trigger_manual_intervention(lineage) and reviewer_result.get("verdict") != "lock":
+                    reviewer_result["force_manual_intervention_reason"] = lineage.escalation_reason
+                    reviewer_result["summary"] = lineage.escalation_reason
+                    major_issues = list(reviewer_result.get("major_issues", []))
+                    if lineage.escalation_reason not in major_issues:
+                        major_issues.insert(0, lineage.escalation_reason)
+                    reviewer_result["major_issues"] = major_issues
+                    save_text(reviewer_json_path, json.dumps(reviewer_result, ensure_ascii=False, indent=2))
+                    save_structured_review_result(ROOT, reviewer_result)
+                    save_repair_plan(ROOT, build_structured_review_result(reviewer_result))
+                    try:
+                        structured_review = load_structured_review_result(ROOT, reviewer_result.get("task_id", current_task_id))
+                    except Exception:
+                        structured_review = None
+
             created = route_review_result(
                 config,
                 draft_result["task_text"],
@@ -1222,6 +1487,13 @@ def main() -> None:
             print(f"已保存 reviewer 结果: {reviewer_json_path}")
             if structured_review is not None:
                 print(f"已保存结构化审稿结果: 02_working/reviews/{structured_review.task_id}_review_result.json")
+                print(f"已保存 repair plan: 02_working/reviews/{structured_review.task_id}_repair_plan.json")
+            if lineage_path is not None:
+                print(f"已保存 revision lineage: {lineage_path}")
+            if lock_gate_report_path is not None:
+                print(f"已保存 lock gate 报告: {lock_gate_report_path}")
+                if reviewer_result.get("verdict") != "lock":
+                    print("锁定闸门未通过，已阻止本次 lock 并转入修订分流。")
 
             review_status = structured_review.status.value if structured_review is not None else reviewer_result.get("verdict")
             if review_status == "lock":
@@ -1232,6 +1504,7 @@ def main() -> None:
                 print(f"已生成 working notes 更新提议: {created['notes_proposal_file']}")
                 print(f"已生成 working state 更新提议: {created['state_proposal_file']}")
                 print(f"已更新 story state: {created['story_state_file']}")
+                print(f"已生成 story state patch: {created['story_state_patch_file']}")
                 print(f"已生成 story state diff: {created['story_state_diff_file']}")
                 print("本次自动闭环完成。")
                 break

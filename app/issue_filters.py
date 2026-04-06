@@ -40,7 +40,7 @@ def is_thinking_trace(text: str) -> bool:
     return any(marker in lower_text for marker in markers)
 
 
-def extract_allowed_light_characters(task_text: str | None) -> list[str]:
+def extract_task_scoped_light_character_exceptions(task_text: str | None) -> list[str]:
     if not task_text:
         return []
 
@@ -59,8 +59,8 @@ def is_false_character_issue(text: str, task_text: str | None) -> bool:
     if not task_text:
         return False
 
-    allowed_light = extract_allowed_light_characters(task_text)
-    if any(name in text for name in allowed_light):
+    light_character_exceptions = extract_task_scoped_light_character_exceptions(task_text)
+    if any(name in text for name in light_character_exceptions):
         if "新人物" in text or "违反" in text:
             return True
 

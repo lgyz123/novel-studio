@@ -1,4 +1,8 @@
 # ch01_scene09 story_state diff
 
-## No Changes
-- 本次 lock 未引入 story_state 变更
+## Added
+- timeline.recent_events[8]: "EVENT-009"
+
+## Changed
+- last_locked_scene: "ch01_scene08" -> "ch01_scene09"
+- timeline.current_book_time: "次日夜间" -> "次日白天"

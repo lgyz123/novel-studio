@@ -2,6 +2,14 @@
   "timeline": {
     "current_book_time": "次日白天",
     "recent_events": [
+      "EVENT-001",
+      "EVENT-002",
+      "EVENT-003",
+      "EVENT-004",
+      "EVENT-005",
+      "EVENT-006",
+      "EVENT-007",
+      "EVENT-008",
       "EVENT-009"
     ]
   },
@@ -23,8 +31,8 @@
         "scene09 中，孟浮灯又把一截本可顺手丢掉的线头留了下来，说明“阿绣”这条线已开始牵动他对细小物件的保留"
       ],
       "active_goals": [
-        "维持日常求活与码头做活",
-        "在不主动追查的前提下继续压住“阿绣”这条线"
+        "在不主动追查的前提下继续压住“阿绣”这条线",
+        "维持日常求活与码头做活"
       ],
       "open_tensions": [
         "“阿绣”这个名字已在他心里留下停顿，但他尚未形成明确行动，只是放不下",
@@ -40,66 +48,59 @@
     {
       "id": "PROMISE-001",
       "description": "不揭示阿绣身份",
-      "introduced_in": "ch01_scene09",
-      "expected_payoff_window": "chapter_01_to_03"
+      "introduced_in": "ch01_scene01",
+      "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-002",
       "description": "不展开司命体系",
-      "introduced_in": "ch01_scene09",
-      "expected_payoff_window": "chapter_02_to_05"
+      "introduced_in": "ch01_scene01",
+      "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-003",
       "description": "不引入谢观鱼、裴照骨、净苦和尚",
-      "introduced_in": "ch01_scene09",
-      "expected_payoff_window": "chapter_future"
+      "introduced_in": "ch01_scene01",
+      "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-004",
       "description": "不扩大为大规模怪异事件",
-      "introduced_in": "ch01_scene09",
-      "expected_payoff_window": "chapter_future"
+      "introduced_in": "ch01_scene01",
+      "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-005",
       "description": "不急于抛出主线真相",
-      "introduced_in": "ch01_scene09",
-      "expected_payoff_window": "chapter_02_to_06"
+      "introduced_in": "ch01_scene01",
+      "expected_payoff_window": "chapter_01_scene_02_onward"
     }
   ],
-  "revealed_secrets": [
-    {
-      "id": "SECRET-001",
-      "description": "平安符背面的“阿绣”",
-      "revealed_in": "ch01_scene09",
-      "status": "active"
-    }
-  ],
+  "revealed_secrets": [],
   "items": [
     {
       "id": "ITEM-001",
       "name": "红绳",
-      "owner": "孟浮灯",
-      "status": "贴身保留",
-      "last_seen_in": "ch01_scene09",
-      "notes": "“阿绣”线索的物理载体之一"
+      "owner": "待确认",
+      "status": "状态待确认",
+      "last_seen_in": "ch01_scene01",
+      "notes": "红绳"
     },
     {
       "id": "ITEM-002",
       "name": "平安符",
-      "owner": "孟浮灯",
-      "status": "贴身保留",
-      "last_seen_in": "ch01_scene09",
-      "notes": "背面刻有“阿绣”二字"
+      "owner": "待确认",
+      "status": "状态待确认",
+      "last_seen_in": "ch01_scene01",
+      "notes": "平安符背面的“阿绣”"
     },
     {
       "id": "ITEM-003",
       "name": "线头",
       "owner": "孟浮灯",
-      "status": "袖口暂留",
-      "last_seen_in": "ch01_scene09",
-      "notes": "scene09 起被下意识保留"
+      "status": "暂时持有",
+      "last_seen_in": "ch01_scene01",
+      "notes": "scene09 中，孟浮灯又把一截本可顺手丢掉的线头留了下来，说明“阿绣”这条线已开始牵动他对细小物件的保留"
     }
   ],
   "relationship_deltas": [
@@ -107,8 +108,8 @@
       "id": "REL-001",
       "source": "孟浮灯",
       "target": "阿绣",
-      "delta": "“阿绣”从被记住的名字，逐步转为会轻微牵住孟浮灯现实动作的隐性张力。",
-      "introduced_in": "ch01_scene09",
+      "delta": "scene09 中，孟浮灯又把一截本可顺手丢掉的线头留了下来，说明“阿绣”这条线已开始牵动他对细小物件的保留",
+      "introduced_in": "ch01_scene01",
       "status": "active"
     }
   ],

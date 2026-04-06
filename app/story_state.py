@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +9,7 @@ from pydantic import BaseModel, Field
 
 STORY_STATE_REL_PATH = "03_locked/state/story_state.json"
 STORY_STATE_HISTORY_DIR = "03_locked/state/history"
+STORY_STATE_PROPOSAL_DIR = "02_working/canon_updates"
 
 
 class TimelineState(BaseModel):
@@ -88,10 +90,59 @@ class StoryState(BaseModel):
         return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
 
 
+class CharacterStatePatch(BaseModel):
+    location: str | None = None
+    physical_state: str | None = None
+    mental_state: str | None = None
+    known_facts_to_add: list[str] = Field(default_factory=list)
+    active_goals_to_add: list[str] = Field(default_factory=list)
+    open_tensions_to_add: list[str] = Field(default_factory=list)
+
+
+class StoryStatePatchProposal(BaseModel):
+    task_id: str
+    locked_file: str
+    based_on_state: str
+    timeline_updates: dict[str, Any] = Field(default_factory=dict)
+    character_updates: dict[str, CharacterStatePatch] = Field(default_factory=dict)
+    unresolved_promises_to_add: list[PromiseState] = Field(default_factory=list)
+    revealed_secrets_to_add: list[SecretState] = Field(default_factory=list)
+    item_updates: list[ItemState] = Field(default_factory=list)
+    relationship_deltas_to_add: list[RelationshipDelta] = Field(default_factory=list)
+    decision_reason: str
+
+    def to_dict(self) -> dict[str, Any]:
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=2)
+
+    def save(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(self.to_json(), encoding="utf-8")
+
+
+def model_to_dict(model: BaseModel) -> dict[str, Any]:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
 def read_text(root: Path, rel_path: str | None) -> str:
     if not rel_path:
         return ""
     return (root / rel_path).read_text(encoding="utf-8")
+
+
+def extract_markdown_field(task_text: str, field_name: str) -> str | None:
+    pattern = rf"(?ms)^#\s*{field_name}\s*\n(.*?)(?=^\s*#\s|\Z)"
+    match = re.search(pattern, task_text)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    return value if value else None
 
 
 def parse_markdown_sections(markdown_text: str) -> dict[str, list[str]]:
@@ -135,6 +186,13 @@ def scene_stem_from_locked_file(locked_file: str) -> str:
     return Path(locked_file).stem
 
 
+def scene_sort_key_from_name(name: str) -> tuple[int, int]:
+    match = re.search(r"ch(\d+)_scene(\d+)", name)
+    if not match:
+        return (9999, 9999)
+    return (int(match.group(1)), int(match.group(2)))
+
+
 def event_id_from_scene(scene_stem: str) -> str:
     match = re.search(r"scene(\d+)", scene_stem)
     if match:
@@ -156,6 +214,129 @@ def item_id(index: int) -> str:
 
 def relationship_id(index: int) -> str:
     return f"REL-{index:03d}"
+
+
+def infer_future_window(scene_stem: str) -> str:
+    match = re.search(r"ch(\d+)_scene(\d+)", scene_stem)
+    if not match:
+        return "later"
+    chapter_number = int(match.group(1))
+    scene_number = int(match.group(2))
+    return f"chapter_{chapter_number:02d}_scene_{scene_number + 1:02d}_onward"
+
+
+def infer_chapter_state_path_from_scene(scene_stem: str) -> str:
+    match = re.search(r"(ch\d+)_scene\d+", scene_stem)
+    if not match:
+        return "03_locked/canon/ch01_state.md"
+    return f"03_locked/canon/{match.group(1)}_state.md"
+
+
+def find_task_file_for_scene(root: Path, scene_stem: str) -> str | None:
+    generated_dir = root / "01_inputs/tasks/generated"
+    if not generated_dir.exists():
+        return None
+
+    exact_matches = sorted(generated_dir.glob(f"*_{scene_stem}_auto.md"))
+    if exact_matches:
+        return exact_matches[0].relative_to(root).as_posix()
+
+    for path in generated_dir.glob("*.md"):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        output_target = extract_markdown_field(text, "output_target") or ""
+        output_stem = Path(output_target).stem
+        output_stem = re.sub(r"(?:_v\d+)+$", "", output_stem)
+        output_stem = re.sub(r"_rewrite\d*$", "", output_stem)
+        if output_stem == scene_stem:
+            return path.relative_to(root).as_posix()
+    return None
+
+
+def build_synthetic_task_text(scene_stem: str, chapter_state_path: str, locked_file: str) -> str:
+    return (
+        f"# task_id\nrebuild_{scene_stem}\n\n"
+        f"# goal\n基于已锁定正文重建 story state。\n\n"
+        f"# based_on\n{locked_file}\n\n"
+        f"# chapter_state\n{chapter_state_path}\n"
+    )
+
+
+def resolve_task_text_for_scene(root: Path, scene_stem: str, locked_file: str) -> tuple[str, str | None]:
+    task_file = find_task_file_for_scene(root, scene_stem)
+    chapter_state_path = infer_chapter_state_path_from_scene(scene_stem)
+    if task_file:
+        return read_text(root, task_file), task_file
+    return build_synthetic_task_text(scene_stem, chapter_state_path, locked_file), None
+
+
+def clear_story_state_outputs(root: Path) -> None:
+    story_state_path = root / STORY_STATE_REL_PATH
+    history_dir = root / STORY_STATE_HISTORY_DIR
+    proposal_dir = root / STORY_STATE_PROPOSAL_DIR
+
+    if story_state_path.exists():
+        story_state_path.unlink()
+    if history_dir.exists():
+        shutil.rmtree(history_dir)
+    if proposal_dir.exists():
+        for path in proposal_dir.glob("*_story_state_patch.json"):
+            path.unlink()
+
+
+def extract_named_terms(text: str) -> list[str]:
+    quoted_terms = re.findall(r"[“\"]([^”\"]{1,12})[”\"]", text)
+    bare_name_terms = re.findall(r"([一-龥]{2,4})", text)
+    candidates = quoted_terms + bare_name_terms
+    filtered = []
+    skip = {"孟浮灯", "当前", "状态", "场景", "码头", "chapter", "scene"}
+    for term in candidates:
+        term = term.strip()
+        if len(term) < 2 or term in skip:
+            continue
+        filtered.append(term)
+    return dedupe_strings(filtered)
+
+
+def extract_explicit_relation_targets(text: str) -> list[str]:
+    return dedupe_strings(
+        [term for term in re.findall(r"[“\"]([^”\"]{1,12})[”\"]", text) if len(term.strip()) >= 2]
+    )
+
+
+def extract_item_candidates(text: str) -> list[str]:
+    pattern = r"([一-龥]{1,8}(?:绳|线头|符|木牌|铜牌|玉佩|纸条|信|匣|盒|册|刀|钩|锥子|麻袋))"
+    raw_matches = re.findall(pattern, text)
+    normalized: list[str] = []
+    canonical_suffixes = ["线头", "平安符", "红绳", "麻袋", "锥子", "木牌", "铜牌", "玉佩", "纸条", "匣", "盒", "册", "刀", "钩", "符", "绳", "信"]
+    for item in raw_matches:
+        name = item.strip()
+        if "的" in name:
+            name = name.split("的")[-1]
+        for suffix in canonical_suffixes:
+            if name.endswith(suffix):
+                name = suffix if suffix in {"线头", "平安符", "红绳"} else name
+                break
+        normalized.append(name)
+    return dedupe_strings(normalized)
+
+
+def infer_item_status(source_text: str) -> str:
+    if any(marker in source_text for marker in ("贴身保留", "贴身", "腰间")):
+        return "贴身保留"
+    if any(marker in source_text for marker in ("袖口", "袖里", "袖中")):
+        return "袖口暂留"
+    if any(marker in source_text for marker in ("手里", "手上", "拿着", "留了下来")):
+        return "暂时持有"
+    return "状态待确认"
+
+
+def infer_item_owner(source_text: str) -> str:
+    if "孟浮灯" in source_text:
+        return "孟浮灯"
+    return "待确认"
 
 
 def infer_book_time(chapter_state_text: str, locked_text: str, existing_value: str) -> str:
@@ -228,12 +409,16 @@ def infer_open_tensions(protagonist_bullets: list[str], existing_items: list[str
 
 
 def infer_revealed_secrets(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[SecretState]) -> list[SecretState]:
-    existing_map = {item.id: item for item in existing}
     results = list(existing)
-    clues = chapter_sections.get("已锁定线索", [])
-    index = len(existing_map) + 1
-    for clue in clues:
-        if "平安符背面的“阿绣”" in clue and not any(item.description == clue for item in results):
+    existing_descriptions = {item.description for item in existing}
+    clue_lines = chapter_sections.get("已锁定线索", []) + chapter_sections.get("当前主角状态", [])
+    index = len(results) + 1
+    secret_markers = ("名字", "身份", "背面", "记住", "留下", "牵动", "秘密")
+    for clue in clue_lines:
+        if clue in existing_descriptions:
+            continue
+        if not any(marker in clue for marker in secret_markers) and not re.search(r"[“\"].+?[”\"]", clue):
+            continue
             results.append(
                 SecretState(
                     id=secret_id(index),
@@ -247,64 +432,64 @@ def infer_revealed_secrets(chapter_sections: dict[str, list[str]], scene_stem: s
 
 
 def infer_items(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[ItemState]) -> list[ItemState]:
-    item_specs = [
-        ("红绳", "红绳", "孟浮灯", "贴身保留", "“阿绣”线索的物理载体之一"),
-        ("平安符", "平安符", "孟浮灯", "贴身保留", "背面刻有“阿绣”二字"),
-        ("线头", "线头", "孟浮灯", "袖口暂留", "scene09 起被下意识保留"),
-    ]
     existing_by_name = {item.name: item for item in existing}
     results = list(existing)
     next_index = len(existing_by_name) + 1
-    source_text = " ".join(chapter_sections.get("已锁定线索", []))
-    for keyword, name, owner, status, notes in item_specs:
-        if keyword in source_text and name not in existing_by_name:
+    source_lines = chapter_sections.get("已锁定线索", []) + chapter_sections.get("当前主角状态", [])
+    for line in source_lines:
+        for name in extract_item_candidates(line):
+            if name in existing_by_name:
+                continue
             results.append(
                 ItemState(
                     id=item_id(next_index),
                     name=name,
-                    owner=owner,
-                    status=status,
+                    owner=infer_item_owner(line),
+                    status=infer_item_status(line),
                     last_seen_in=scene_stem,
-                    notes=notes,
+                    notes=line,
                 )
             )
+            existing_by_name[name] = results[-1]
             next_index += 1
-    for item in results:
-        if item.name == "线头" and "scene09" in scene_stem:
-            item.status = "袖口暂留"
-            item.last_seen_in = scene_stem
     return results
 
 
 def infer_relationship_deltas(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[RelationshipDelta]) -> list[RelationshipDelta]:
     results = list(existing)
-    description = "“阿绣”从被记住的名字，逐步转为会轻微牵住孟浮灯现实动作的隐性张力。"
-    if any(item.delta == description for item in results):
-        for item in results:
-            if item.delta == description:
-                item.introduced_in = scene_stem
-        return results
-    results.append(
-        RelationshipDelta(
-            id=relationship_id(len(results) + 1),
-            source="孟浮灯",
-            target="阿绣",
-            delta=description,
-            introduced_in=scene_stem,
-            status="active",
+    relation_lines = chapter_sections.get("当前主角状态", []) + chapter_sections.get("已锁定线索", [])
+    scene_candidates: list[tuple[str, str]] = []
+    for line in relation_lines:
+        if not any(marker in line for marker in ("影响", "牵动", "放不下", "记住", "无法轻易放下", "改变")):
+            continue
+        targets = [name for name in extract_explicit_relation_targets(line) if name != "孟浮灯"]
+        if not targets:
+            continue
+        scene_candidates.append((targets[0], line))
+
+    selected_by_target: dict[str, str] = {}
+    for target, line in scene_candidates:
+        selected_by_target[target] = line
+
+    for target, line in selected_by_target.items():
+        if any(item.target == target and item.delta == line for item in results):
+            continue
+        results.append(
+            RelationshipDelta(
+                id=relationship_id(len(results) + 1),
+                source="孟浮灯",
+                target=target,
+                delta=line,
+                introduced_in=scene_stem,
+                status="active",
+            )
         )
-    )
     return results
 
 
 def infer_unresolved_promises(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[PromiseState]) -> list[PromiseState]:
     results = list(existing)
     existing_descriptions = {item.description for item in results}
-    payoff_map = {
-        "不揭示阿绣身份": "chapter_01_to_03",
-        "不展开司命体系": "chapter_02_to_05",
-        "不急于抛出主线真相": "chapter_02_to_06",
-    }
     for text in chapter_sections.get("暂不展开的内容", []):
         if text in existing_descriptions:
             continue
@@ -313,7 +498,7 @@ def infer_unresolved_promises(chapter_sections: dict[str, list[str]], scene_stem
                 id=promise_id(len(results) + 1),
                 description=text,
                 introduced_in=scene_stem,
-                expected_payoff_window=payoff_map.get(text, "chapter_future"),
+                expected_payoff_window=infer_future_window(scene_stem),
             )
         )
     return results
@@ -372,7 +557,102 @@ def merge_story_state(existing: StoryState, patch: StoryState) -> StoryState:
     merged.items = merge_keyed_models(merged.items, patch.items)
     merged.relationship_deltas = merge_keyed_models(merged.relationship_deltas, patch.relationship_deltas)
     merged.last_locked_scene = patch.last_locked_scene or merged.last_locked_scene
-    return merged
+    return clean_story_state(merged)
+
+
+def clean_story_state(state: StoryState) -> StoryState:
+    invalid_target_prefixes = ("这种", "这个", "当前", "本场", "场景", "变化", "动作")
+    cleaned_relationships: list[RelationshipDelta] = []
+    seen_pairs: set[tuple[str, str]] = set()
+
+    for item in state.relationship_deltas:
+        target = item.target.strip()
+        delta = item.delta.strip()
+        if not target or any(target.startswith(prefix) for prefix in invalid_target_prefixes):
+            continue
+        key = (target, delta)
+        if key in seen_pairs:
+            continue
+        seen_pairs.add(key)
+        cleaned_relationships.append(item)
+
+    state.relationship_deltas = cleaned_relationships
+    return state
+
+
+def build_character_patch(existing: CharacterState, merged: CharacterState) -> CharacterStatePatch:
+    return CharacterStatePatch(
+        location=merged.location if merged.location != existing.location else None,
+        physical_state=merged.physical_state if merged.physical_state != existing.physical_state else None,
+        mental_state=merged.mental_state if merged.mental_state != existing.mental_state else None,
+        known_facts_to_add=[item for item in merged.known_facts if item not in existing.known_facts],
+        active_goals_to_add=[item for item in merged.active_goals if item not in existing.active_goals],
+        open_tensions_to_add=[item for item in merged.open_tensions if item not in existing.open_tensions],
+    )
+
+
+def build_story_state_patch_proposal(
+    existing: StoryState,
+    merged: StoryState,
+    task_text: str,
+    locked_file: str,
+) -> StoryStatePatchProposal:
+    task_id = extract_markdown_field(task_text, "task_id") or scene_stem_from_locked_file(locked_file)
+    character_updates: dict[str, CharacterStatePatch] = {}
+    for character_key, merged_character in merged.characters.items():
+        existing_character = existing.characters.get(character_key, CharacterState())
+        patch = build_character_patch(existing_character, merged_character)
+        if model_to_dict(patch) != model_to_dict(CharacterStatePatch()):
+            character_updates[character_key] = patch
+
+    timeline_updates: dict[str, Any] = {}
+    if merged.timeline.current_book_time != existing.timeline.current_book_time:
+        timeline_updates["current_book_time"] = merged.timeline.current_book_time
+    recent_events_to_add = [item for item in merged.timeline.recent_events if item not in existing.timeline.recent_events]
+    if recent_events_to_add:
+        timeline_updates["recent_events_to_add"] = recent_events_to_add
+
+    unresolved_promises_to_add = [item for item in merged.unresolved_promises if all(item.id != old.id for old in existing.unresolved_promises)]
+    revealed_secrets_to_add = [item for item in merged.revealed_secrets if all(item.id != old.id for old in existing.revealed_secrets)]
+    relationship_deltas_to_add = [item for item in merged.relationship_deltas if all(item.id != old.id for old in existing.relationship_deltas)]
+
+    existing_items_by_id = {item.id: item for item in existing.items}
+    item_updates: list[ItemState] = []
+    for item in merged.items:
+        previous = existing_items_by_id.get(item.id)
+        if previous is None or model_to_dict(previous) != model_to_dict(item):
+            item_updates.append(item)
+
+    reasons = []
+    if timeline_updates:
+        reasons.append("同步时间线与最近事件")
+    if character_updates:
+        reasons.append("补入主角位置、身心状态与当前张力")
+    if unresolved_promises_to_add:
+        reasons.append("记录尚未兑现的章节承诺")
+    if revealed_secrets_to_add:
+        reasons.append("记录已显性暴露的关键信息")
+    if item_updates:
+        reasons.append("同步物品归属与状态")
+    if relationship_deltas_to_add:
+        reasons.append("同步人物关系张力变化")
+
+    return StoryStatePatchProposal(
+        task_id=task_id,
+        locked_file=locked_file,
+        based_on_state=STORY_STATE_REL_PATH,
+        timeline_updates=timeline_updates,
+        character_updates=character_updates,
+        unresolved_promises_to_add=unresolved_promises_to_add,
+        revealed_secrets_to_add=revealed_secrets_to_add,
+        item_updates=item_updates,
+        relationship_deltas_to_add=relationship_deltas_to_add,
+        decision_reason="；".join(reasons) or "本次 lock 未产生新的结构化状态增量。",
+    )
+
+
+def build_story_state_patch_proposal_path(scene_stem: str) -> str:
+    return f"{STORY_STATE_PROPOSAL_DIR}/{scene_stem}_story_state_patch.json"
 
 
 def flatten_json(value: Any, prefix: str = "") -> dict[str, str]:
@@ -433,6 +713,15 @@ def load_story_state(root: Path) -> StoryState:
     return state
 
 
+def list_locked_chapter_files(root: Path, locked_dir: str = "03_locked/chapters") -> list[str]:
+    path = root / locked_dir
+    if not path.exists():
+        return []
+    files = [item.relative_to(root).as_posix() for item in path.glob("*.md") if item.is_file()]
+    files.sort(key=lambda item: scene_sort_key_from_name(Path(item).stem))
+    return files
+
+
 def save_story_state_files(root: Path, state: StoryState, scene_stem: str, previous_state: StoryState | None) -> tuple[str, str, str]:
     story_state_path = root / STORY_STATE_REL_PATH
     diff_rel_path = f"{STORY_STATE_HISTORY_DIR}/{scene_stem}_story_state_diff.md"
@@ -460,9 +749,46 @@ def update_story_state_on_lock(
     patch = build_story_state_patch(previous_state, task_text, chapter_state_text, locked_text, locked_file)
     merged = merge_story_state(previous_state, patch)
     scene_stem = scene_stem_from_locked_file(locked_file)
+    proposal = build_story_state_patch_proposal(previous_state, merged, task_text, locked_file)
+    proposal_rel_path = build_story_state_patch_proposal_path(scene_stem)
+    proposal.save(root / proposal_rel_path)
     story_state_rel_path, diff_rel_path, snapshot_rel_path = save_story_state_files(root, merged, scene_stem, previous_state)
     return {
         "story_state_file": story_state_rel_path,
+        "story_state_patch_file": proposal_rel_path,
         "story_state_diff_file": diff_rel_path,
         "story_state_snapshot_file": snapshot_rel_path,
+    }
+
+
+def rebuild_story_state_from_locked(root: Path, locked_dir: str = "03_locked/chapters") -> dict[str, Any]:
+    clear_story_state_outputs(root)
+
+    processed_scenes: list[dict[str, str | None]] = []
+    outputs: dict[str, str] | None = None
+    locked_files = list_locked_chapter_files(root, locked_dir=locked_dir)
+
+    for locked_file in locked_files:
+        scene_stem = scene_stem_from_locked_file(locked_file)
+        task_text, task_file = resolve_task_text_for_scene(root, scene_stem, locked_file)
+        chapter_state_path = extract_markdown_field(task_text, "chapter_state") or infer_chapter_state_path_from_scene(scene_stem)
+        outputs = update_story_state_on_lock(
+            root,
+            task_text,
+            locked_file,
+            chapter_state_path=chapter_state_path,
+        )
+        processed_scenes.append(
+            {
+                "scene": scene_stem,
+                "locked_file": locked_file,
+                "task_file": task_file,
+                "chapter_state": chapter_state_path,
+            }
+        )
+
+    return {
+        "processed_scenes": processed_scenes,
+        "final_story_state_file": outputs["story_state_file"] if outputs else STORY_STATE_REL_PATH,
+        "scene_count": len(processed_scenes),
     }

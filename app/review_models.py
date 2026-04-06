@@ -116,6 +116,47 @@ class StructuredReviewResult(BaseModel):
         return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
 
 
+class RepairMode(str, Enum):
+    local_fix = "local_fix"
+    partial_redraft = "partial_redraft"
+    full_redraft = "full_redraft"
+
+
+class RepairAction(BaseModel):
+    target: str = Field(min_length=1)
+    issue_id: str = Field(min_length=1)
+    action: str = Field(min_length=1)
+    instruction: str = Field(min_length=1)
+
+
+class RepairPlan(BaseModel):
+    task_id: str = Field(min_length=1)
+    mode: RepairMode
+    actions: list[RepairAction] = Field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=2)
+
+    def save(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(self.to_json(), encoding="utf-8")
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "RepairPlan":
+        if hasattr(cls, "model_validate"):
+            return cls.model_validate(data)
+        return cls.parse_obj(data)
+
+    @classmethod
+    def load(cls, path: Path) -> "RepairPlan":
+        return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+
 TYPE_RULES: list[tuple[ReviewIssueType, tuple[str, ...]]] = [
     (ReviewIssueType.pov, ("视角", "pov", "单视角", "视角漂移")),
     (ReviewIssueType.timeline, ("时序", "时间线", "timeline", "前后不一", "前后矛盾")),
@@ -129,6 +170,10 @@ TYPE_RULES: list[tuple[ReviewIssueType, tuple[str, ...]]] = [
 
 def build_review_result_path(task_id: str) -> str:
     return f"02_working/reviews/{task_id}_review_result.json"
+
+
+def build_repair_plan_path(task_id: str) -> str:
+    return f"02_working/reviews/{task_id}_repair_plan.json"
 
 
 def map_verdict_to_status(verdict: str) -> ReviewStatus:
@@ -185,7 +230,16 @@ def infer_issue_target(task_id: str, message: str) -> str:
     return task_id
 
 
-def infer_suggested_action(issue_type: ReviewIssueType, severity: ReviewSeverity) -> str:
+def infer_suggested_action(issue_type: ReviewIssueType, severity: ReviewSeverity, scope: ReviewScope) -> str:
+    if scope == ReviewScope.local:
+        if issue_type == ReviewIssueType.redundancy:
+            return "trim_local"
+        if issue_type == ReviewIssueType.pov:
+            return "tighten_pov"
+        if issue_type == ReviewIssueType.foreshadowing:
+            return "adjust_foreshadowing"
+        return "rewrite_local"
+
     if severity in {ReviewSeverity.critical, ReviewSeverity.high} and issue_type in {
         ReviewIssueType.scene_purpose,
         ReviewIssueType.continuity,
@@ -203,6 +257,69 @@ def infer_suggested_action(issue_type: ReviewIssueType, severity: ReviewSeverity
     return "rewrite_local"
 
 
+def build_repair_instruction(issue: ReviewIssue) -> str:
+    action_templates = {
+        "rewrite_scene": "围绕该问题重写相关场段，确保核心目标与约束重新成立。",
+        "rewrite_local": "在对应位置局部改写，直接修复该问题，不扩散到整场。",
+        "tighten_pov": "收紧视角，恢复贴近主角的叙述边界，删除越界信息。",
+        "adjust_foreshadowing": "压低伏笔力度，只保留本场需要的轻推信息。",
+        "trim_local": "删去重复解释或过满表达，保留必要动作与信息。",
+    }
+    base = action_templates.get(issue.suggested_action, "根据该问题执行局部修补，避免不必要的整场重写。")
+    return f"{base}问题：{issue.message}"
+
+
+def map_issue_to_repair_action(issue: ReviewIssue) -> RepairAction:
+    action_map = {
+        "rewrite_scene": "rewrite_local_block",
+        "rewrite_local": "rewrite_local",
+        "tighten_pov": "rewrite_local",
+        "adjust_foreshadowing": "adjust_foreshadowing",
+        "trim_local": "tighten",
+    }
+    return RepairAction(
+        target=issue.target,
+        issue_id=issue.id,
+        action=action_map.get(issue.suggested_action, issue.suggested_action),
+        instruction=build_repair_instruction(issue),
+    )
+
+
+def choose_repair_mode(review_result: StructuredReviewResult) -> RepairMode:
+    issues = review_result.issues
+    if review_result.status == ReviewStatus.rewrite:
+        return RepairMode.full_redraft
+    if not issues:
+        return RepairMode.local_fix
+
+    if any(
+        issue.severity == ReviewSeverity.critical
+        or (issue.severity == ReviewSeverity.high and issue.scope in {ReviewScope.chapter, ReviewScope.global_, ReviewScope.scene})
+        or issue.suggested_action == "rewrite_scene"
+        for issue in issues
+    ):
+        return RepairMode.full_redraft
+
+    if all(
+        issue.scope == ReviewScope.local
+        and issue.severity in {ReviewSeverity.low, ReviewSeverity.medium}
+        and issue.suggested_action != "rewrite_scene"
+        for issue in issues
+    ):
+        return RepairMode.local_fix
+
+    return RepairMode.partial_redraft
+
+
+def build_repair_plan(review_result: StructuredReviewResult) -> RepairPlan:
+    actions = [map_issue_to_repair_action(issue) for issue in review_result.issues]
+    return RepairPlan(
+        task_id=review_result.task_id,
+        mode=choose_repair_mode(review_result),
+        actions=actions,
+    )
+
+
 def build_issue(issue_id: int, task_id: str, message: str, bucket: str) -> ReviewIssue:
     issue_type = classify_issue_type(message)
     severity = classify_issue_severity(message, bucket)
@@ -214,7 +331,7 @@ def build_issue(issue_id: int, task_id: str, message: str, bucket: str) -> Revie
         scope=scope,
         target=infer_issue_target(task_id, message),
         message=message.strip(),
-        suggested_action=infer_suggested_action(issue_type, severity),
+        suggested_action=infer_suggested_action(issue_type, severity, scope),
     )
 
 
@@ -278,6 +395,17 @@ def save_structured_review_result(root: Path, legacy_result: dict[str, Any]) -> 
 
 def load_structured_review_result(root: Path, task_id: str) -> StructuredReviewResult:
     return StructuredReviewResult.load(root / build_review_result_path(task_id))
+
+
+def save_repair_plan(root: Path, review_result: StructuredReviewResult) -> str:
+    plan = build_repair_plan(review_result)
+    rel_path = build_repair_plan_path(review_result.task_id)
+    plan.save(root / rel_path)
+    return rel_path
+
+
+def load_repair_plan(root: Path, task_id: str) -> RepairPlan:
+    return RepairPlan.load(root / build_repair_plan_path(task_id))
 
 
 def update_structured_review_status(root: Path, task_id: str, status: ReviewStatus, decision_reason: str | None = None) -> str:
