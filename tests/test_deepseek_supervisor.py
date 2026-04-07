@@ -180,6 +180,65 @@ class DeepSeekSupervisorTest(unittest.TestCase):
         self.assertIn("scene10_rescue_strategy", context)
         self.assertIn("allowed_micro_shift_examples", context["scene10_rescue_strategy"])
 
+    def test_build_next_scene_context_includes_chapter_level_ledgers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+
+            (root / "03_locked/chapters/ch01_scene01.md").write_text("孟浮灯走回窝棚，只觉得寒气和铁锈味还在身上。", encoding="utf-8")
+            (root / "03_locked/chapters/ch01_scene02.md").write_text("他又闻到腐臭，想起阿绣，喉头发紧，仍没有做别的动作。", encoding="utf-8")
+            (root / "03_locked/chapters/ch01_scene03.md").write_text("他回到窝棚门口，寒气还贴在身上，只觉得铁锈味和阿绣两个字一起压在喉头。", encoding="utf-8")
+            (root / "03_locked/canon/ch01_state.md").write_text(
+                """# ch01 当前状态
+
+## 暂不展开的内容
+- 不揭示阿绣身份
+
+## scene03 建议目标
+- 继续轻推线索，但要让下一场承担不同功能
+""",
+                encoding="utf-8",
+            )
+            (root / "03_locked/state/story_state.json").write_text(
+                json.dumps(
+                    {
+                        "characters": {
+                            "protagonist": {
+                                "physical_state": "疲惫",
+                                "mental_state": "被阿绣牵动",
+                                "known_facts": ["平安符背面有‘阿绣’"],
+                                "active_goals": ["维持码头日常"],
+                                "open_tensions": ["尚未形成调查念头"],
+                            }
+                        },
+                        "unresolved_promises": [{"description": "不揭示阿绣身份"}],
+                        "items": [{"name": "平安符", "status": "状态待确认"}],
+                        "relationship_deltas": [{"delta": "阿绣仍只是被记住的名字"}],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            context = supervisor_module.build_next_scene_context(
+                root,
+                "scene_003",
+                "03_locked/chapters/ch01_scene03.md",
+                "# chapter_state\n03_locked/canon/ch01_state.md\n",
+            )
+
+        self.assertIn("chapter_progress", context)
+        self.assertIn("revelation_tracker", context)
+        self.assertIn("state_tracker", context)
+        self.assertIn("motif_budget", context)
+        self.assertEqual(context["chapter_progress"]["current_scene_index"], 3)
+        self.assertGreaterEqual(context["chapter_progress"]["consecutive_transition_scene_count"], 1)
+        self.assertTrue(context["revelation_tracker"]["revealed_facts"])
+        self.assertTrue(context["state_tracker"]["artifact_state"])
+
     def test_next_scene_messages_require_structural_plan_fields(self) -> None:
         messages = supervisor_module.build_next_scene_messages(
             "# task_id\n2026-04-03-017-R5\n\n# goal\n完成 scene10。\n",
@@ -192,8 +251,13 @@ class DeepSeekSupervisorTest(unittest.TestCase):
         )
 
         self.assertIn('"scene_purpose": "string"', messages[0]["content"])
+        self.assertIn('"scene_function": "string"', messages[0]["content"])
         self.assertIn('"required_information_gain": ["string"]', messages[0]["content"])
+        self.assertIn('"decision_requirement": "string"', messages[0]["content"])
+        self.assertIn('"required_state_change": ["string"]', messages[0]["content"])
+        self.assertIn('"forbidden_repetition": ["string"]', messages[0]["content"])
         self.assertIn("不能只写气氛延长、余波延长或情绪回响", messages[0]["content"])
+        self.assertIn("chapter_progress", messages[0]["content"])
         self.assertIn("avoid_motifs", messages[0]["content"])
 
     def test_maybe_supervise_manual_decision_retries_with_recovery_prompt(self) -> None:
@@ -402,10 +466,15 @@ scene_071-R5
         plan = {
             "task_id": "2026-04-03-018_ch01_scene11_auto",
             "goal": "承接 ch01_scene10，写出第一章第十一个短场景，让余波继续压在求活日常里。",
+            "scene_function": "发现线索",
             "scene_purpose": "让局面从余波停留推进到新的现实约束落地。",
             "required_information_gain": ["补充一个新的物件状态变化。"],
             "required_plot_progress": "场景结尾前必须形成新的现实阻碍。",
             "required_decision_shift": "主角必须改变原本的处理方式。",
+            "decision_requirement": "主角必须先把线索收起，再决定是否处理。",
+            "required_state_change": ["物件位置变化", "主角认知变化"],
+            "motif_budget_for_scene": {"allowed_motifs": ["平安符"], "banned_motifs": ["红绳尾端"], "only_if_new_function": ["阿绣"]},
+            "forbidden_repetition": ["禁止只写疲惫+环境+联想"],
             "avoid_motifs": ["红绳尾端", "再次打结"],
             "constraints": ["保持单视角", "不要升级为明确调查"],
             "preferred_length": "500-900字",
@@ -419,10 +488,15 @@ scene_071-R5
 
         self.assertIn("# task_id\n2026-04-03-018_ch01_scene11_auto", content)
         self.assertIn("# based_on\n03_locked/chapters/ch01_scene10.md", content)
+        self.assertIn("# scene_function\n发现线索", content)
         self.assertIn("# scene_purpose\n让局面从余波停留推进到新的现实约束落地。", content)
         self.assertIn("# required_information_gain\n- 补充一个新的物件状态变化。", content)
         self.assertIn("# required_plot_progress\n场景结尾前必须形成新的现实阻碍。", content)
         self.assertIn("# required_decision_shift\n主角必须改变原本的处理方式。", content)
+        self.assertIn("# decision_requirement\n主角必须先把线索收起，再决定是否处理。", content)
+        self.assertIn("# required_state_change\n- 物件位置变化\n- 主角认知变化", content)
+        self.assertIn("# motif_budget_for_scene\n- 允许：平安符", content)
+        self.assertIn("# forbidden_repetition\n- 禁止只写疲惫+环境+联想", content)
         self.assertIn("# avoid_motifs\n- 红绳尾端\n- 再次打结", content)
         self.assertIn("# output_target\n02_working/drafts/ch01_scene11.md", content)
         self.assertIn("- 保持单视角", content)
@@ -449,11 +523,25 @@ scene_071-R5
                 locked_file = root / "03_locked/chapters/ch01_scene10.md"
                 locked_file.parent.mkdir(parents=True, exist_ok=True)
                 locked_file.write_text("锁定正文", encoding="utf-8")
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("# ch01 当前状态\n\n## 暂不展开的内容\n- 不揭示阿绣身份\n", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text(
+                    json.dumps(
+                        {
+                            "characters": {"protagonist": {"known_facts": ["阿绣"], "active_goals": ["维持日常"], "open_tensions": ["尚未形成调查念头"]}},
+                            "unresolved_promises": [{"description": "不揭示阿绣身份"}],
+                            "items": [{"name": "平安符", "status": "状态待确认"}],
+                        },
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
 
                 plan = supervisor_module.run_supervisor_next_scene_task(
                     root,
                     {"supervisor": {"enabled": True, "model": "deepseek-chat", "api_key": "test-key"}},
-                    "# task_id\n2026-04-03-017-R5\n\n# goal\n完成 scene10。\n",
+                    "# task_id\n2026-04-03-017-R5\n\n# goal\n完成 scene10。\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
                     "03_locked/chapters/ch01_scene10.md",
                     {
                         "task_id": "2026-04-03-017-R5",
@@ -464,10 +552,15 @@ scene_071-R5
             supervisor_module.create_deepseek_client = previous_factory
 
         self.assertIsNotNone(plan)
+        self.assertIn("scene_function", plan)
         self.assertIn("scene_purpose", plan)
         self.assertTrue(plan["required_information_gain"])
         self.assertTrue(plan["required_plot_progress"].strip())
         self.assertTrue(plan["required_decision_shift"].strip())
+        self.assertTrue(plan["decision_requirement"].strip())
+        self.assertTrue(plan["required_state_change"])
+        self.assertIn("motif_budget_for_scene", plan)
+        self.assertTrue(plan["forbidden_repetition"])
         self.assertEqual(plan["avoid_motifs"], ["阿绣"])
         self.assertTrue(any(item.startswith("本场必须产生新的信息增量") for item in plan["constraints"]))
 

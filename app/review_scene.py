@@ -253,6 +253,8 @@ STRUCTURAL_MOTIFS = [
     "铁锈",
     "腐臭",
     "喉结",
+    "喉头",
+    "钝痛",
     "窝棚",
     "码头",
 ]
@@ -284,6 +286,19 @@ INFORMATION_GAIN_MARKERS = [
 
 DECISION_OR_SHIFT_MARKERS = [
     "决定",
+    "藏起",
+    "藏好",
+    "记住",
+    "记下",
+    "转向",
+    "询问",
+    "隐瞒",
+    "回去",
+    "停止",
+    "撒谎",
+    "跟踪",
+    "取走",
+    "放弃",
     "索性",
     "改成",
     "改为",
@@ -346,6 +361,53 @@ CANON_DRIFT_MARKERS = [
 
 WRONG_PROTAGONIST_NAMES = ["孟繁灯", "孟繁星", "孟浮星"]
 
+INTROSPECTIVE_ONLY_MARKERS = [
+    "想起",
+    "记起",
+    "觉得",
+    "仿佛",
+    "像是",
+    "忽然想",
+    "发怔",
+    "出神",
+    "恍惚",
+    "喉头发紧",
+    "心里一沉",
+]
+
+INVESTIGATION_MARKERS = [
+    "追问",
+    "打听",
+    "调查",
+    "追查",
+    "跟踪",
+    "查清",
+    "问清",
+    "盯梢",
+    "探查",
+]
+
+ARTIFACT_STATE_PATTERNS = [
+    r"([\u4e00-\u9fff]{1,8})(?:已被|已经)?藏在([^，。；\n]+)",
+    r"([\u4e00-\u9fff]{1,8})(?:已被|已经)?藏于([^，。；\n]+)",
+    r"([\u4e00-\u9fff]{1,8})现在放在([^，。；\n]+)",
+    r"([\u4e00-\u9fff]{1,8})留在([^，。；\n]+)",
+]
+
+CARRIED_ARTIFACT_MARKERS = [
+    "怀里",
+    "袖里",
+    "袖中",
+    "贴身",
+    "腰间",
+    "身上",
+    "怀中",
+    "揣着",
+    "带着",
+    "塞回",
+    "摸出来",
+]
+
 
 def build_empty_structural_review() -> dict[str, Any]:
     return {
@@ -388,7 +450,7 @@ def sentence_has_decision_or_shift(sentence: str) -> bool:
         return False
     if any(marker in text for marker in DECISION_OR_SHIFT_MARKERS):
         return True
-    return bool(re.search(r"(把|将).*(收起|塞进|压回|挪开|藏起|推迟|避开|绕开)", text))
+    return bool(re.search(r"(把|将).*(收起|塞进|压回|挪开|藏起|推迟|避开|绕开|记下|取走|放弃|隐瞒|询问|跟踪)", text))
 
 
 def sentence_has_plot_progress(sentence: str) -> bool:
@@ -405,6 +467,47 @@ def summarize_sentence(sentence: str, max_chars: int = 36) -> str:
     if len(compact) <= max_chars:
         return compact
     return compact[:max_chars].rstrip() + "…"
+
+
+def count_term_occurrences(text: str, term: str) -> int:
+    return str(text).count(term)
+
+
+def extract_hidden_artifact_states(chapter_state: str) -> list[tuple[str, str]]:
+    text = str(chapter_state or "")
+    states: list[tuple[str, str]] = []
+    for pattern in ARTIFACT_STATE_PATTERNS:
+        for item, location in re.findall(pattern, text):
+            item = str(item).strip()
+            location = str(location).strip()
+            if item and location and (item, location) not in states:
+                states.append((item, location))
+    return states
+
+
+def detect_artifact_state_conflicts(draft_text: str, chapter_state: str) -> list[str]:
+    conflicts: list[str] = []
+    for item, location in extract_hidden_artifact_states(chapter_state):
+        item_in_draft = item in draft_text
+        carried_in_draft = any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS)
+        if not item_in_draft or not carried_in_draft:
+            continue
+        if re.search(rf"{re.escape(item)}.{{0,8}}({'|'.join(CARRIED_ARTIFACT_MARKERS)})", draft_text) or re.search(
+            rf"({'|'.join(CARRIED_ARTIFACT_MARKERS)}).{{0,8}}{re.escape(item)}",
+            draft_text,
+        ):
+            conflicts.append(f"chapter_state 记录“{item}”应留在“{location}”，但正文又把它写成随身携带或重新取出。")
+    return conflicts[:3]
+
+
+def reviewer_missing_structural_detail(reviewer_result: dict[str, Any], field: str, detail_key: str) -> bool:
+    payload = reviewer_result.get(field, {}) if isinstance(reviewer_result, dict) else {}
+    if not isinstance(payload, dict):
+        return True
+    detail = payload.get(detail_key)
+    if isinstance(detail, list):
+        return not any(str(item).strip() for item in detail)
+    return not str(detail or "").strip()
 
 
 def build_structural_review_signals(task_text: str | None, draft_text: str, based_on_text: str = "", chapter_state: str = "") -> dict[str, Any]:
@@ -454,16 +557,28 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
         "progress_reason": progress_reason,
     }
 
+    if not has_decision:
+        introspective_only = all(any(marker in sentence for marker in INTROSPECTIVE_ONLY_MARKERS) or not sentence_has_decision_or_shift(sentence) for sentence in draft_sentences[: min(len(draft_sentences), 4)])
+        if introspective_only:
+            signals["character_decision"]["decision_detail"] = "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+
     repeated_motifs = [motif for motif in STRUCTURAL_MOTIFS if motif in draft_text and motif in based_on_text]
     motif_has_new_function = True
     redundancy_reason = "未识别到明显的高频母题复读。"
     if repeated_motifs:
+        dense_repetition = [
+            motif
+            for motif in repeated_motifs
+            if count_term_occurrences(draft_text, motif) >= 2 and count_term_occurrences(based_on_text, motif) >= 1
+        ]
         repeated_sentences = [sentence for sentence in draft_sentences if any(motif in sentence for motif in repeated_motifs)]
         motif_has_new_function = any(
             sentence_has_information_gain(sentence) or sentence_has_decision_or_shift(sentence) or sentence_has_plot_progress(sentence)
             for sentence in repeated_sentences
         )
-        if motif_has_new_function:
+        if dense_repetition and not motif_has_new_function:
+            redundancy_reason = f"高频母题 {', '.join(dense_repetition[:4])} 在相邻场景连续复现，但没有承担新的信息、动作或推进功能。"
+        elif motif_has_new_function:
             redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但至少一处承担了信息或动作功能。"
         else:
             redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但没有带来新信息、动作决策或认知反转。"
@@ -484,6 +599,15 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 break
     if chapter_state and "阿绣" in chapter_state and any(marker in draft_text for marker in CANON_DRIFT_MARKERS):
         consistency_issues.append("当前 chapter_state 尚未支持阿绣进入具体亲密回忆层，存在 canon 漂移风险。")
+    if chapter_state and ("尚未确认身份" in chapter_state or "不要急着揭示“阿绣”是谁" in chapter_state or "不揭示阿绣身份" in chapter_state):
+        if any(marker in draft_text for marker in CANON_DRIFT_MARKERS):
+            consistency_issues.append("chapter_state 明确要求阿绣身份仍保持未确认，但正文已写成旧识式亲密回忆。")
+    if chapter_state and ("尚未形成调查念头" in chapter_state or "不该主动追问" in chapter_state):
+        for marker in INVESTIGATION_MARKERS:
+            if marker in draft_text:
+                consistency_issues.append(f"chapter_state 明确禁止主动调查，但正文出现了“{marker}”式调查推进。")
+                break
+    consistency_issues.extend(detect_artifact_state_conflicts(draft_text, chapter_state))
     signals["canon_consistency"] = {
         "is_consistent": not consistency_issues,
         "consistency_issues": consistency_issues[:3],
@@ -547,6 +671,104 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
         summary = "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
 
     return major_issues[:5], minor_issues[:3], summary
+
+
+def evaluate_scene_gate(
+    task_text: str | None,
+    draft_text: str,
+    based_on_text: str = "",
+    chapter_state: str = "",
+    reviewer_result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    signals = build_structural_review_signals(task_text, draft_text, based_on_text=based_on_text, chapter_state=chapter_state)
+    failures = structural_gate_failures(signals)
+    major_issues, minor_issues, summary = build_structural_issue_summary(signals)
+    reviewer_result = reviewer_result or {}
+    guardrail_failures: list[str] = []
+
+    if reviewer_missing_structural_detail(reviewer_result, "information_gain", "new_information_items"):
+        if not signals["information_gain"].get("has_new_information"):
+            major_issues.insert(0, "Reviewer 未列出 `new_information_items`，且本地规则也未识别出新信息，本场属于高风险空转。")
+            guardrail_failures.append("reviewer_missing_information_items")
+        else:
+            minor_issues.insert(0, "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。")
+
+    if reviewer_missing_structural_detail(reviewer_result, "character_decision", "decision_detail") and not signals["character_decision"].get("has_decision_or_behavior_shift"):
+        major_issues.append("Reviewer 没有给出可核对的 `decision_detail`，本地规则也未识别到明确决策动词或动作结果。")
+        guardrail_failures.append("reviewer_missing_decision_detail")
+
+    reviewer_motif = reviewer_result.get("motif_redundancy", {}) if isinstance(reviewer_result, dict) else {}
+    if signals["motif_redundancy"].get("repeated_motifs") and not signals["motif_redundancy"].get("repetition_has_new_function"):
+        if reviewer_motif.get("repetition_has_new_function"):
+            major_issues.append("Reviewer 认为母题复现有新功能，但本地规则判定仍是复读场，需按高风险处理。")
+            guardrail_failures.append("motif_redundancy_overridden_locally")
+
+    reviewer_canon = reviewer_result.get("canon_consistency", {}) if isinstance(reviewer_result, dict) else {}
+    if reviewer_canon.get("is_consistent") and not signals["canon_consistency"].get("is_consistent"):
+        major_issues.append("Reviewer 未拦下明显 canon 冲突，本地规则已自动标红处理。")
+        guardrail_failures.append("canon_conflict_overridden_locally")
+
+    deduped_major: list[str] = []
+    for item in major_issues:
+        text = sanitize_issue_text(item)
+        if text and text not in deduped_major:
+            deduped_major.append(text)
+
+    deduped_minor: list[str] = []
+    for item in minor_issues:
+        text = sanitize_issue_text(item)
+        if text and text not in deduped_minor:
+            deduped_minor.append(text)
+
+    return {
+        "signals": signals,
+        "failures": failures,
+        "guardrail_failures": guardrail_failures,
+        "major_issues": deduped_major[:6],
+        "minor_issues": deduped_minor[:4],
+        "summary": summary,
+    }
+
+
+def apply_structural_guardrails(
+    result: dict[str, Any],
+    structural_payload: dict[str, Any],
+    guardrail_report: dict[str, Any],
+    major_issues: list[str],
+    minor_issues: list[str],
+    summary: str,
+) -> tuple[dict[str, Any], list[str], list[str], str, list[str]]:
+    updated = dict(result)
+    merged_major = list(major_issues)
+    merged_minor = list(minor_issues)
+
+    for item in reversed(guardrail_report.get("minor_issues", [])):
+        if item not in merged_minor:
+            merged_minor.insert(0, item)
+    for item in reversed(guardrail_report.get("major_issues", [])):
+        if item not in merged_major:
+            merged_major.insert(0, item)
+
+    all_failures = []
+    for item in list(guardrail_report.get("failures", [])) + list(guardrail_report.get("guardrail_failures", [])):
+        if item not in all_failures:
+            all_failures.append(item)
+
+    if all_failures:
+        summary = str(guardrail_report.get("summary") or summary).strip() or summary
+        updated["task_goal_fulfilled"] = False
+        severe_failure = "canon_inconsistency" in all_failures or "canon_conflict_overridden_locally" in all_failures or {
+            "missing_information_gain",
+            "missing_plot_progress",
+            "missing_character_decision",
+        }.issubset(set(all_failures))
+        updated["verdict"] = "rewrite" if severe_failure else "revise"
+        updated["recommended_next_step"] = "rewrite_scene" if updated["verdict"] == "rewrite" else "create_revision_task"
+
+    for field, value in structural_payload.items():
+        updated[field] = value
+
+    return updated, merged_major[:6], merged_minor[:4], summary, all_failures
 
 
 def extract_json_object(raw_text: str) -> dict:
@@ -739,7 +961,14 @@ def normalize_review_result(
     cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
     cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
     summary = str(result.get("summary", "")).strip()
-    local_structural = build_structural_review_signals(task_text, draft_text, based_on_text=based_on_text, chapter_state=chapter_state)
+    guardrail_report = evaluate_scene_gate(
+        task_text,
+        draft_text,
+        based_on_text=based_on_text,
+        chapter_state=chapter_state,
+        reviewer_result=result,
+    )
+    local_structural = guardrail_report["signals"]
 
     def merge_structural_payload() -> dict[str, Any]:
         merged = build_empty_structural_review()
@@ -825,13 +1054,16 @@ def normalize_review_result(
     if not cleaned_major and verdict in {"revise", "rewrite"}:
         cleaned_major = ["当前草稿未充分完成 task 的核心推进目标。"]
 
-    if hard_failures:
-        summary = structural_summary
-        result["task_goal_fulfilled"] = False
-        severe_failure = "canon_inconsistency" in hard_failures or {"missing_information_gain", "missing_plot_progress", "missing_character_decision"}.issubset(set(hard_failures))
-        verdict = "rewrite" if severe_failure else "revise"
-        result["verdict"] = verdict
-        result["recommended_next_step"] = infer_recommended_next_step(verdict)
+    result, cleaned_major, cleaned_minor, summary, guardrail_failures = apply_structural_guardrails(
+        result,
+        structural_payload,
+        guardrail_report,
+        cleaned_major,
+        cleaned_minor,
+        structural_summary if hard_failures else summary,
+    )
+    hard_failures = list(dict.fromkeys(hard_failures + guardrail_failures))
+    verdict = str(result.get("verdict") or verdict)
 
     rewrite_hard_markers = [
         "角色越界",

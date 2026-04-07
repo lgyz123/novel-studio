@@ -174,6 +174,110 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertNotEqual(normalized["verdict"], "lock")
         self.assertTrue(normalized["major_issues"])
 
+    def test_evaluate_scene_gate_marks_missing_information_items_as_high_risk(self) -> None:
+        report = review_scene_module.evaluate_scene_gate(
+            task_text="# constraints\n- 保持单视角\n",
+            draft_text="孟浮灯闻到腐臭，想起阿绣，喉头发紧。",
+            based_on_text="孟浮灯闻到腐臭，想起阿绣。",
+            chapter_state="阿绣这个名字已经留在他心里，但目前仍只是被记住、被反复想起。",
+            reviewer_result={
+                "information_gain": {"has_new_information": True, "new_information_items": []},
+                "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+            },
+        )
+
+        self.assertIn("reviewer_missing_information_items", report["guardrail_failures"])
+        self.assertTrue(any("new_information_items" in item for item in report["major_issues"]))
+
+    def test_normalize_review_result_blocks_lyrical_scene_without_decision_verbs(self) -> None:
+        result = {
+            "task_id": "scene_104",
+            "verdict": "lock",
+            "task_goal_fulfilled": True,
+            "major_issues": [],
+            "minor_issues": [],
+            "recommended_next_step": "lock_scene",
+            "summary": "气氛到位，可锁定。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他更疲惫了。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "情绪更沉。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他心里更难受。"},
+            "motif_redundancy": {"repeated_motifs": ["阿绣"], "repetition_has_new_function": True, "redundancy_reason": "有新功能。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            "The atmosphere is strong.",
+            task_text="# constraints\n- 不急于解释‘阿绣’是谁\n",
+            draft_text="孟浮灯想起阿绣，喉头发紧，站在原地发怔，像是又闻见那股铁锈气。",
+            based_on_text="孟浮灯想起阿绣，闻到铁锈气。",
+            chapter_state="“阿绣”这个名字已经留在他心里，但目前仍只是被记住、被反复想起。",
+        )
+
+        self.assertNotEqual(normalized["verdict"], "lock")
+        self.assertTrue(any("决策" in item or "动作结果" in item for item in normalized["major_issues"]))
+
+    def test_normalize_review_result_raises_redundancy_risk_for_dense_motif_repetition(self) -> None:
+        result = {
+            "task_id": "scene_105",
+            "verdict": "lock",
+            "task_goal_fulfilled": True,
+            "major_issues": [],
+            "minor_issues": [],
+            "recommended_next_step": "lock_scene",
+            "summary": "母题复现自然。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["看见了红绳。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面略有波动。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他停了一下。"},
+            "motif_redundancy": {"repeated_motifs": ["阿绣", "红绳"], "repetition_has_new_function": True, "redundancy_reason": "有新功能。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            "Strong atmosphere.",
+            task_text="# constraints\n- 保持单视角\n",
+            draft_text="红绳还在晃。孟浮灯又想起阿绣，红绳贴着腕骨，阿绣两个字像铁锈一样钝痛。红绳晃了第二下，他还是只想起阿绣。",
+            based_on_text="孟浮灯看见红绳，想起阿绣。",
+            chapter_state="- 线索推进应以轻推为主\n",
+        )
+
+        self.assertNotEqual(normalized["verdict"], "lock")
+        self.assertTrue(any("母题" in item or "复读" in item for item in normalized["major_issues"]))
+
+    def test_normalize_review_result_flags_chapter_state_identity_and_artifact_conflicts(self) -> None:
+        result = {
+            "task_id": "scene_106",
+            "verdict": "lock",
+            "task_goal_fulfilled": True,
+            "major_issues": [],
+            "minor_issues": [],
+            "recommended_next_step": "lock_scene",
+            "summary": "承接自然，可锁定。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他摸出了平安符。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他准备去追问。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他决定去追问。"},
+            "motif_redundancy": {"repeated_motifs": ["阿绣", "平安符"], "repetition_has_new_function": True, "redundancy_reason": "有新功能。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        chapter_state = """- 阿绣尚未确认身份
+- 他尚未形成调查念头，也不该主动追问这条线索
+- 平安符已被藏在窝棚木板下
+"""
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            "Looks fine.",
+            task_text="# constraints\n- 不急于解释‘阿绣’是谁\n",
+            draft_text="他把平安符从怀里摸出来，忽然记起阿绣总爱替他把领口压平，便想去追问这个名字的来处。",
+            based_on_text="他把平安符塞进窝棚木板下。",
+            chapter_state=chapter_state,
+        )
+
+        self.assertNotEqual(normalized["verdict"], "lock")
+        self.assertTrue(any("canon" in item or "chapter_state" in item for item in normalized["major_issues"]))
+
 
 if __name__ == "__main__":
     unittest.main()
