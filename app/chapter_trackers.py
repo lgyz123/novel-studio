@@ -167,6 +167,8 @@ class ChapterProgress(BaseModel):
     completed_scene_functions: list[str] = Field(default_factory=list)
     remaining_scene_functions: list[str] = Field(default_factory=list)
     consecutive_transition_scene_count: int = 0
+    scene_summaries: list[dict[str, Any]] = Field(default_factory=list)
+    chapter_structure_summary: dict[str, Any] = Field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         if hasattr(self, "model_dump"):
@@ -185,6 +187,40 @@ class TrackerUpdateProposal(BaseModel):
     revelation_updates: list[dict[str, Any]] = Field(default_factory=list)
     artifact_state_hints: list[dict[str, Any]] = Field(default_factory=list)
     progress_updates: list[dict[str, Any]] = Field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
+
+
+class SceneSummary(BaseModel):
+    scene_id: str
+    scene_function: str = ""
+    new_information_items: list[str] = Field(default_factory=list)
+    protagonist_decision: str = ""
+    state_changes: list[str] = Field(default_factory=list)
+    motifs_used: list[str] = Field(default_factory=list)
+    motif_functions: dict[str, list[str]] = Field(default_factory=dict)
+    artifacts_changed: list[dict[str, Any]] = Field(default_factory=list)
+    open_questions_created: list[str] = Field(default_factory=list)
+    open_questions_resolved: list[str] = Field(default_factory=list)
+    reveal_changes: dict[str, list[str]] = Field(default_factory=dict)
+    canon_risk_flags: list[str] = Field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
+
+
+class ChapterStructureSummary(BaseModel):
+    scene_function_table: list[dict[str, str]] = Field(default_factory=list)
+    first_clue_scene_id: str = ""
+    first_old_acquaintance_hint_scene_id: str = ""
+    first_investigation_trigger_scene_id: str = ""
+    first_artifact_change_scene_id: str = ""
+    consecutive_transition_runs: list[dict[str, Any]] = Field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         if hasattr(self, "model_dump"):
@@ -247,6 +283,11 @@ def extract_fact_candidates_from_text(text: str) -> tuple[list[str], list[str]]:
         if any(marker in sentence for marker in SUSPECTED_FACT_MARKERS):
             suspected.append(sentence)
     return dedupe_facts(confirmed), dedupe_facts(suspected)
+
+
+def fact_list_difference(updated: list[str], original: list[str]) -> list[str]:
+    original_keys = {re.sub(r"\s+", "", normalize_fact_text(item)) for item in original}
+    return [item for item in dedupe_facts(updated) if re.sub(r"\s+", "", normalize_fact_text(item)) not in original_keys]
 
 
 def extract_relationship_unknowns(chapter_state_text: str, story_state: dict[str, Any] | None) -> list[str]:
@@ -437,6 +478,10 @@ def tracker_file_paths(chapter_id: str) -> dict[str, str]:
         "artifact_state": f"{TRACKER_DIR}/{chapter_id}_artifact_state.json",
         "chapter_progress": f"{TRACKER_DIR}/{chapter_id}_chapter_progress.json",
     }
+
+
+def build_scene_summary_report_path(scene_id: str) -> str:
+    return f"03_locked/reports/{scene_id}_scene_summary.json"
 
 
 def classify_scene_function(scene_text: str) -> str:
@@ -843,6 +888,183 @@ def merge_scene_ids(existing: list[str], scene_id: str) -> list[str]:
     return merged[-3:]
 
 
+def build_state_changes(previous_progress: ChapterProgress, updated_progress: ChapterProgress) -> list[str]:
+    changes: list[str] = []
+    for field_name, label in [
+        ("protagonist_mode", "protagonist_mode"),
+        ("investigation_stage", "investigation_stage"),
+        ("risk_level", "risk_level"),
+    ]:
+        before = str(getattr(previous_progress, field_name, "") or "").strip()
+        after = str(getattr(updated_progress, field_name, "") or "").strip()
+        if after and after != before:
+            changes.append(f"{label}: {before or '未记录'} -> {after}")
+    return changes
+
+
+def build_artifact_changes(previous_state: ArtifactState, updated_state: ArtifactState, scene_id: str) -> list[dict[str, Any]]:
+    previous_by_label = {item.label: item for item in previous_state.items if item.label}
+    changes: list[dict[str, Any]] = []
+    for item in updated_state.items:
+        if item.last_changed_scene != scene_id:
+            continue
+        previous = previous_by_label.get(item.label)
+        change_types: list[str] = []
+        if previous is None:
+            change_types.append("introduced")
+        else:
+            if item.holder != previous.holder:
+                change_types.append("holder")
+            if item.location != previous.location:
+                change_types.append("location")
+            if item.visibility != previous.visibility:
+                change_types.append("visibility")
+            if item.significance_level != previous.significance_level:
+                change_types.append("significance_level")
+        if previous is None or change_types:
+            changes.append(
+                {
+                    "label": item.label,
+                    "holder": item.holder,
+                    "location": item.location,
+                    "visibility": item.visibility,
+                    "significance_level": item.significance_level,
+                    "change_types": change_types or ["introduced"],
+                }
+            )
+    return changes
+
+
+def is_old_acquaintance_hint(summary: dict[str, Any]) -> bool:
+    haystack_parts = [
+        str(summary.get("protagonist_decision") or ""),
+        " ".join(normalize_string_list(summary.get("new_information_items", []))),
+        " ".join(normalize_string_list(summary.get("open_questions_created", []))),
+        " ".join(normalize_string_list(summary.get("state_changes", []))),
+    ]
+    reveal_changes = summary.get("reveal_changes", {}) if isinstance(summary.get("reveal_changes"), dict) else {}
+    haystack_parts.extend(" ".join(normalize_string_list(values)) for values in reveal_changes.values() if isinstance(values, list))
+    haystack = " ".join(part for part in haystack_parts if part)
+    return any(marker in haystack for marker in ["旧识", "相识", "熟悉", "认得", "似曾", "以前", "从前"])
+
+
+def build_chapter_structure_summary(scene_summaries: list[dict[str, Any]]) -> dict[str, Any]:
+    scene_function_table = [
+        {
+            "scene_id": str(item.get("scene_id") or "").strip(),
+            "scene_function": str(item.get("scene_function") or "").strip(),
+        }
+        for item in scene_summaries
+        if str(item.get("scene_id") or "").strip()
+    ]
+    first_clue_scene_id = ""
+    first_old_acquaintance_hint_scene_id = ""
+    first_investigation_trigger_scene_id = ""
+    first_artifact_change_scene_id = ""
+    consecutive_transition_runs: list[dict[str, Any]] = []
+    current_transition_run: list[str] = []
+
+    for summary in scene_summaries:
+        scene_id = str(summary.get("scene_id") or "").strip()
+        scene_function = str(summary.get("scene_function") or "").strip()
+        new_information_items = normalize_string_list(summary.get("new_information_items", []))
+        state_changes = normalize_string_list(summary.get("state_changes", []))
+        artifacts_changed = summary.get("artifacts_changed", []) if isinstance(summary.get("artifacts_changed"), list) else []
+
+        if not first_clue_scene_id and (new_information_items or scene_function == "发现线索"):
+            first_clue_scene_id = scene_id
+        if not first_old_acquaintance_hint_scene_id and is_old_acquaintance_hint(summary):
+            first_old_acquaintance_hint_scene_id = scene_id
+        if not first_investigation_trigger_scene_id:
+            investigation_shift = any(change.startswith("investigation_stage:") and not change.endswith("-> 未启动") for change in state_changes)
+            if scene_function == "触发调查" or investigation_shift:
+                first_investigation_trigger_scene_id = scene_id
+        if not first_artifact_change_scene_id and artifacts_changed:
+            first_artifact_change_scene_id = scene_id
+
+        if scene_function == "过渡/氛围":
+            current_transition_run.append(scene_id)
+        else:
+            if len(current_transition_run) >= 2:
+                consecutive_transition_runs.append(
+                    {
+                        "start_scene_id": current_transition_run[0],
+                        "end_scene_id": current_transition_run[-1],
+                        "length": len(current_transition_run),
+                        "scene_ids": list(current_transition_run),
+                    }
+                )
+            current_transition_run = []
+
+    if len(current_transition_run) >= 2:
+        consecutive_transition_runs.append(
+            {
+                "start_scene_id": current_transition_run[0],
+                "end_scene_id": current_transition_run[-1],
+                "length": len(current_transition_run),
+                "scene_ids": list(current_transition_run),
+            }
+        )
+
+    return ChapterStructureSummary(
+        scene_function_table=scene_function_table[-12:],
+        first_clue_scene_id=first_clue_scene_id,
+        first_old_acquaintance_hint_scene_id=first_old_acquaintance_hint_scene_id,
+        first_investigation_trigger_scene_id=first_investigation_trigger_scene_id,
+        first_artifact_change_scene_id=first_artifact_change_scene_id,
+        consecutive_transition_runs=consecutive_transition_runs[-4:],
+    ).to_dict()
+
+
+def build_scene_summary(
+    scene_id: str,
+    scene_function: str,
+    reviewer_result: dict[str, Any],
+    previous_revelation_tracker: RevelationTracker,
+    updated_revelation_tracker: RevelationTracker,
+    previous_artifact_state: ArtifactState,
+    updated_artifact_state: ArtifactState,
+    previous_progress: ChapterProgress,
+    updated_progress: ChapterProgress,
+    motif_entries: list[MotifEntry],
+) -> dict[str, Any]:
+    new_information_items = normalize_string_list((reviewer_result.get("information_gain") or {}).get("new_information_items", []))
+    protagonist_decision = str((reviewer_result.get("character_decision") or {}).get("decision_detail") or "").strip()
+    artifacts_changed = build_artifact_changes(previous_artifact_state, updated_artifact_state, scene_id)
+    reveal_changes = {
+        "confirmed_added": fact_list_difference(updated_revelation_tracker.confirmed_facts, previous_revelation_tracker.confirmed_facts),
+        "suspected_added": fact_list_difference(updated_revelation_tracker.suspected_facts, previous_revelation_tracker.suspected_facts),
+        "protagonist_known_added": fact_list_difference(updated_revelation_tracker.protagonist_known_facts, previous_revelation_tracker.protagonist_known_facts),
+        "reader_known_added": fact_list_difference(updated_revelation_tracker.reader_known_facts, previous_revelation_tracker.reader_known_facts),
+        "unrevealed_resolved": fact_list_difference(previous_revelation_tracker.unrevealed_facts, updated_revelation_tracker.unrevealed_facts),
+        "relationship_unknowns_resolved": fact_list_difference(previous_revelation_tracker.relationship_unknowns, updated_revelation_tracker.relationship_unknowns),
+    }
+    open_questions_created = fact_list_difference(updated_progress.unresolved_questions, previous_progress.unresolved_questions)
+    open_questions_resolved = fact_list_difference(previous_progress.unresolved_questions, updated_progress.unresolved_questions)
+
+    motif_functions: dict[str, list[str]] = {}
+    motifs_used: list[str] = []
+    for entry in motif_entries:
+        if entry.label not in motifs_used:
+            motifs_used.append(entry.label)
+        motif_functions[entry.label] = normalize_string_list(entry.narrative_functions)
+
+    return SceneSummary(
+        scene_id=scene_id,
+        scene_function=scene_function,
+        new_information_items=new_information_items,
+        protagonist_decision=protagonist_decision,
+        state_changes=build_state_changes(previous_progress, updated_progress),
+        motifs_used=motifs_used,
+        motif_functions=motif_functions,
+        artifacts_changed=artifacts_changed,
+        open_questions_created=open_questions_created,
+        open_questions_resolved=open_questions_resolved,
+        reveal_changes={key: value for key, value in reveal_changes.items() if value},
+        canon_risk_flags=normalize_string_list((reviewer_result.get("canon_consistency") or {}).get("consistency_issues", [])),
+    ).to_dict()
+
+
 def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, reviewer_result: dict[str, Any], tracker_bundle: dict[str, Any]) -> dict[str, Any]:
     chapter_id = chapter_id_from_task_or_locked(task_text, locked_file)
     scene_id = scene_id_from_locked_file(locked_file)
@@ -852,6 +1074,9 @@ def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, 
     revelation_tracker = RevelationTracker.from_dict(tracker_bundle.get("revelation_tracker", {"chapter_id": chapter_id}))
     artifact_state = ArtifactState.from_dict(tracker_bundle.get("artifact_state", {"chapter_id": chapter_id}))
     chapter_progress = ChapterProgress.from_dict(tracker_bundle.get("chapter_progress", {"chapter_id": chapter_id}))
+    previous_revelation_tracker = RevelationTracker.from_dict(revelation_tracker.to_dict())
+    previous_artifact_state = ArtifactState.from_dict(artifact_state.to_dict())
+    previous_progress = ChapterProgress.from_dict(chapter_progress.to_dict())
 
     motif_map = {entry.motif_id: entry for entry in chapter_motif_tracker.active_motifs}
     reviewer_scene_function = str(extract_markdown_field(task_text, "scene_function") or classify_scene_function(locked_text)).strip() or classify_scene_function(locked_text)
@@ -933,12 +1158,40 @@ def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, 
     chapter_progress.unresolved_questions = dedupe_facts(
         chapter_progress.unresolved_questions + revelation_tracker.suspected_facts + revelation_tracker.relationship_unknowns + revelation_tracker.unrevealed_facts
     )[:10]
+    motif_entries = [entry for entry in chapter_motif_tracker.active_motifs if entry.label in locked_text]
+    scene_summary = build_scene_summary(
+        scene_id=scene_id,
+        scene_function=reviewer_scene_function,
+        reviewer_result=reviewer_result,
+        previous_revelation_tracker=previous_revelation_tracker,
+        updated_revelation_tracker=revelation_tracker,
+        previous_artifact_state=previous_artifact_state,
+        updated_artifact_state=artifact_state,
+        previous_progress=previous_progress,
+        updated_progress=chapter_progress,
+        motif_entries=motif_entries,
+    )
+    scene_summaries = [
+        item
+        for item in chapter_progress.scene_summaries
+        if isinstance(item, dict) and str(item.get("scene_id") or "").strip() != scene_id
+    ]
+    scene_summaries.append(scene_summary)
+    chapter_progress.scene_summaries = scene_summaries[-12:]
+    chapter_progress.chapter_structure_summary = build_chapter_structure_summary(chapter_progress.scene_summaries)
 
     return {
         "chapter_motif_tracker": chapter_motif_tracker.to_dict(),
         "revelation_tracker": RevelationTracker.from_dict(revelation_tracker.to_dict()).to_dict(),
         "artifact_state": artifact_state.to_dict(),
         "chapter_progress": chapter_progress.to_dict(),
+        "scene_summary_report": {
+            "chapter_id": chapter_id,
+            "scene_id": scene_id,
+            "locked_file": locked_file,
+            "scene_summary": scene_summary,
+            "chapter_structure_summary": chapter_progress.chapter_structure_summary,
+        },
     }
 
 
@@ -962,4 +1215,10 @@ def update_trackers_on_lock(root: Path, task_text: str, locked_file: str, review
     story_state = safe_load_json(story_state_path)
     tracker_bundle = load_tracker_bundle(root, chapter_id, chapter_state_text=chapter_state_text, story_state=story_state, upto_scene_id=scene_id_from_locked_file(locked_file))
     updated_bundle = derive_actual_tracker_updates(root, task_text, locked_file, reviewer_result, tracker_bundle)
-    return save_tracker_bundle(root, updated_bundle, chapter_id)
+    outputs = save_tracker_bundle(root, updated_bundle, chapter_id)
+    scene_summary_report = updated_bundle.get("scene_summary_report")
+    if isinstance(scene_summary_report, dict):
+        report_path = build_scene_summary_report_path(scene_id_from_locked_file(locked_file))
+        save_json(root / report_path, scene_summary_report)
+        outputs["scene_summary_report_file"] = report_path
+    return outputs

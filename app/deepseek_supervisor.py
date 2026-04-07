@@ -425,6 +425,7 @@ def build_next_scene_planning_ledger(root: Path, locked_file: str, task_text: st
         "chapter_state_text": chapter_state_text,
         "chapter_motif_tracker": tracker_bundle["chapter_motif_tracker"],
         "chapter_progress": tracker_bundle["chapter_progress"],
+        "chapter_structure_summary": tracker_bundle["chapter_progress"].get("chapter_structure_summary", {}),
         "revelation_tracker": tracker_bundle["revelation_tracker"],
         "state_tracker": {
             "protagonist_state": "；".join(
