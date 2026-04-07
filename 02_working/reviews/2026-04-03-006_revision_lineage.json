@@ -1,0 +1,120 @@
+{
+  "task_id": "2026-04-03-006",
+  "revisions": [
+    {
+      "round": 1,
+      "task_id": "2026-04-03-006",
+      "draft_id": "ch01_scene03",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-006-R1",
+      "draft_id": "ch01_scene03_v2",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 3,
+      "task_id": "2026-04-03-006-R2",
+      "draft_id": "ch01_scene03_v3",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 4,
+      "task_id": "2026-04-03-006-RW1",
+      "draft_id": "ch01_scene03_v3_rewrite",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 5,
+      "task_id": "2026-04-03-006-R1",
+      "draft_id": "ch01_scene03_v3_rewrite_v4",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 6,
+      "task_id": "2026-04-03-006-RW1",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 7,
+      "task_id": "2026-04-03-006-RW2",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite2",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 8,
+      "task_id": "2026-04-03-006-RW3",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite3",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 9,
+      "task_id": "2026-04-03-006-RW4",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite4",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 10,
+      "task_id": "2026-04-03-006-RW5",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite5",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 11,
+      "task_id": "2026-04-03-006-RW6",
+      "draft_id": "ch01_scene03_v3_rewrite_v4_rewrite6",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    }
+  ],
+  "recurring_issue_types": [
+    "scene_purpose"
+  ],
+  "escalate_after": 5,
+  "escalation_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

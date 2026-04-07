@@ -4,7 +4,7 @@ from pathlib import Path
 
 import requests
 import yaml
-from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, save_next_scene_task_plan, save_supervisor_decision
+from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, run_supervisor_rescue_draft, save_next_scene_task_plan, save_supervisor_decision, save_supervisor_rescue_record
 from issue_filters import filter_shared_issues
 from jsonschema import validate
 from lock_gate import apply_lock_gate, save_lock_gate_report
@@ -106,6 +106,7 @@ def extract_markdown_field(task_text: str, field_name: str) -> str | None:
 
 def contains_script_style(text: str) -> list[str]:
     problems = []
+    stripped = text.strip()
 
     # 1. 明确的“场景说明”式写法
     if re.search(r"[（(]\s*场景\s*[:：]", text):
@@ -120,6 +121,10 @@ def contains_script_style(text: str) -> list[str]:
     pure_parenthetical_lines = re.findall(r"(?m)^\s*[（(].*[)）]\s*$", text)
     if len(pure_parenthetical_lines) >= 2:
         problems.append("出现连续括号舞台说明")
+    elif stripped.startswith(("（", "(")) and stripped.endswith(("）", ")")):
+        inner = stripped[1:-1].strip()
+        if inner and len(inner) >= 12:
+            problems.append("整段文本为括号包裹的舞台说明")
 
     return problems
 
@@ -183,21 +188,52 @@ def detect_forbidden_characters(task_text: str, draft_text: str) -> list[str]:
     blocked = extract_forbidden_characters(task_text)
     return [name for name in blocked if name in draft_text]
 
+
+EDITORIAL_HEADING_PATTERNS = [
+    r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:修订说明|修改说明|说明|执行说明|推进说明|写作说明|改写说明|补充说明|内容说明|思路说明|本次说明)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
+    r"^[\t >#\-*]*(?:\*\*)?(?:以下为正文|以下正文|正文如下|以下是正文|以下是修改说明|以下是修订说明)(?:\*\*)?\s*[:：]?\s*$",
+    r"^[\t >#\-*]*(?:\*\*)?(?:注|备注|附注)(?:\*\*)?\s*[:：].*$",
+]
+
+
 def contains_editorial_explanation(text: str) -> list[str]:
     markers = [
         "【修订说明】",
         "【修改说明】",
         "【说明】",
+        "【执行说明】",
+        "【推进说明】",
         "以下为",
+        "以下正文",
+        "正文如下",
         "改写说明",
         "修订说明",
+        "执行说明",
+        "推进说明",
+        "写作说明",
         "注：",
+        "备注：",
     ]
-    return [m for m in markers if m in text]
+    found = [m for m in markers if m in text]
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if any(re.match(pattern, stripped, flags=re.IGNORECASE) for pattern in EDITORIAL_HEADING_PATTERNS):
+            found.append(stripped)
+
+    deduped: list[str] = []
+    for item in found:
+        if item not in deduped:
+            deduped.append(item)
+    return deduped
 
 
 def build_validation_errors(task_text: str, draft_text: str) -> list[str]:
     errors = []
+    if not str(draft_text).strip():
+        errors.append("草稿为空，未生成有效小说正文")
+        return errors
 
     modern_terms = contains_forbidden_modern_terms(draft_text)
     editorial_markers = contains_editorial_explanation(draft_text)
@@ -428,8 +464,154 @@ def build_writer_repair_section(task_text: str) -> str:
     return "\n".join(lines)
 
 
+def extract_markdown_list_field(task_text: str, field_name: str) -> list[str]:
+    raw_value = extract_markdown_field(task_text, field_name)
+    if not raw_value:
+        return []
+    items: list[str] = []
+    for line in raw_value.splitlines():
+        cleaned = re.sub(r"^[-*]\s*", "", line).strip()
+        if cleaned and cleaned not in items:
+            items.append(cleaned)
+    return items
+
+
+def build_writer_structure_section(task_text: str) -> str:
+    scene_purpose = (extract_markdown_field(task_text, "scene_purpose") or "").strip()
+    information_gain = extract_markdown_list_field(task_text, "required_information_gain")
+    plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
+    decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
+
+    if not any([scene_purpose, information_gain, plot_progress, decision_shift, avoid_motifs]):
+        return ""
+
+    lines = ["【本场结构硬约束】"]
+    if scene_purpose:
+        lines.append(f"- 场景功能：{scene_purpose}")
+    if information_gain:
+        lines.append("- 必须写出的新信息增量：")
+        lines.extend([f"  - {item}" for item in information_gain])
+    if plot_progress:
+        lines.append(f"- 必须完成的局面推进：{plot_progress}")
+    if decision_shift:
+        lines.append(f"- 主角必须出现的新动作/决策偏移：{decision_shift}")
+    if avoid_motifs:
+        lines.append("- 本场避免原样复用的母题/触发物：")
+        lines.extend([f"  - {item}" for item in avoid_motifs])
+    lines.append("- 以上结构要求必须体现在正文事件里，不能只停留在情绪、气氛、回想或解释。")
+    return "\n".join(lines)
+
+
+def build_structural_task_fields(task_text: str, reviewer_result: dict) -> dict[str, Any]:
+    scene_purpose = (extract_markdown_field(task_text, "scene_purpose") or "").strip()
+    information_gain = extract_markdown_list_field(task_text, "required_information_gain")
+    plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
+    decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
+
+    goal_text = strip_revision_prefix((extract_markdown_field(task_text, "goal") or "").strip())
+    if not scene_purpose:
+        if goal_text:
+            scene_purpose = f"继续围绕“{goal_text}”推进，并在场景结束时形成新的可验证变化。"
+        else:
+            scene_purpose = "本场必须形成新的可验证变化，不能只延长上一场气氛或余波。"
+
+    reviewer_info = reviewer_result.get("information_gain", {}) if isinstance(reviewer_result, dict) else {}
+    reviewer_plot = reviewer_result.get("plot_progress", {}) if isinstance(reviewer_result, dict) else {}
+    reviewer_decision = reviewer_result.get("character_decision", {}) if isinstance(reviewer_result, dict) else {}
+    reviewer_motif = reviewer_result.get("motif_redundancy", {}) if isinstance(reviewer_result, dict) else {}
+
+    if not information_gain:
+        information_gain = [str(item).strip() for item in reviewer_info.get("new_information_items", []) if str(item).strip()]
+    if not information_gain:
+        information_gain = ["补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。"]
+
+    if not plot_progress:
+        plot_progress = str(reviewer_plot.get("progress_reason") or "").strip()
+    if not plot_progress:
+        plot_progress = "场景结尾前必须形成新的局面推进，例如阻碍变化、关系变化、行动启动或新约束落地。"
+
+    if not decision_shift:
+        decision_shift = str(reviewer_decision.get("decision_detail") or "").strip()
+    if not decision_shift:
+        decision_shift = "主角必须做出新的现实动作或选择，并让这个动作改变他接下来怎么处理局面。"
+
+    if not avoid_motifs:
+        avoid_motifs = [str(item).strip() for item in reviewer_motif.get("repeated_motifs", []) if str(item).strip()]
+
+    deduped_information_gain: list[str] = []
+    for item in information_gain:
+        if item not in deduped_information_gain:
+            deduped_information_gain.append(item)
+
+    deduped_avoid_motifs: list[str] = []
+    for item in avoid_motifs:
+        if item not in deduped_avoid_motifs:
+            deduped_avoid_motifs.append(item)
+
+    return {
+        "scene_purpose": scene_purpose,
+        "required_information_gain": deduped_information_gain,
+        "required_plot_progress": plot_progress,
+        "required_decision_shift": decision_shift,
+        "avoid_motifs": deduped_avoid_motifs,
+    }
+
+
+def build_scene10_prompt_guardrails(task_text: str) -> str:
+    lowered = task_text.lower()
+    is_scene10_like = any(marker in lowered for marker in ["scene10", "scene 10", "ch01_scene10"])
+    if not is_scene10_like:
+        return ""
+
+    lines = [
+        "【scene10 专项防跑偏规则】",
+        "- 本场禁止再次把“改结法”“多打一个结”“留下线头”“让红绳尾端继续露出”“让平安符/红绳本身成为最终停留结果”写成核心动作偏移。",
+        "- 如果写到绳、结、线头、红绳、平安符，它们只能作为触发物或背景，不得再次成为本场真正的新动作结果。",
+        "- 本场必须产出一种不同于 scene07/08/09 的新型轻微现实偏移，例如：顺手收起、没有立刻擦掉、额外确认、轻微避开、重新摆正、暂缓一个本可立即完成的收尾动作。",
+        "- “阿绣”的影响必须落实到一次具体做活动作的轻微偏移，不能只停留在意象联想、旧物回想或再次处理绳结/线头。",
+        "- 重点不是再留下一截东西，而是让孟浮灯在求活日常里，把一个本来会直接做完的小动作轻轻带偏。",
+    ]
+    return "\n".join(lines)
+
+
+def is_scene10_like_task(task_text: str) -> bool:
+    lowered = str(task_text).lower()
+    return any(marker in lowered for marker in ["scene10", "scene 10", "ch01_scene10"])
+
+
+def detect_scene10_old_pattern_reuse(draft_text: str) -> list[str]:
+    text = str(draft_text)
+    lowered = text.lower()
+    problems: list[str] = []
+
+    knot_markers = ["多打", "改结", "绕了个", "绕上去", "另绕", "缠了两圈", "打了个松松的环"]
+    tail_markers = ["线头", "绳头", "绳尾", "尾端", "垂在那里", "留着", "没割", "没有割", "不割", "不剪"]
+    charm_markers = ["红绳", "平安符"]
+
+    if any(marker in text for marker in knot_markers):
+        problems.append("再次回到改结/绕结类旧动作模式")
+    if any(marker in text for marker in tail_markers):
+        problems.append("再次回到留线头/留绳尾/不割绳尾类旧动作模式")
+    if any(marker in text for marker in charm_markers) and any(marker in text for marker in ["垂", "晃", "露", "留"]):
+        problems.append("再次让红绳或平安符本身成为最终停留结果")
+    if "不是检查。只是停了一下" in text or "他就是绕了" in text or "是因为别的东西" in text:
+        problems.append("重复使用前几轮 rescue 的句法骨架")
+    if "rope tail" in lowered or "knot" in lowered:
+        problems.append("出现英文绳结/绳尾旧模式描述")
+
+    deduped: list[str] = []
+    for item in problems:
+        if item not in deduped:
+            deduped.append(item)
+    return deduped
+
+
 def build_writer_user_prompt(task_text: str, current_context: str, decision: dict) -> str:
     repair_section = build_writer_repair_section(task_text)
+    structure_section = build_writer_structure_section(task_text)
+    scene10_guardrails = build_scene10_prompt_guardrails(task_text)
     repair_rules = build_writer_repair_rules(extract_markdown_field(task_text, "repair_mode"))
     repair_rule_lines = "\n".join([f"14. {item}" for item in repair_rules[:1]]) if repair_rules else ""
 
@@ -449,6 +631,8 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 11. 不要写“注：……”
 12. 不要附带创作说明、改写说明、风格说明
 13. 不要使用括号包裹整段说明文字
+14. 如果任务单提供了结构字段，必须把“新信息增量、局面推进、决策偏移”真正写进正文事件，不能只写气氛、感受或回想
+15. 如果任务单提供了 avoid_motifs，禁止原样复用这些母题/触发物；除非写出新的功能
 {repair_rule_lines}
 【任务单】
 {task_text}
@@ -457,6 +641,10 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 {current_context}
 
 {repair_section}
+
+{structure_section}
+
+{scene10_guardrails}
 
 【决策信息】
 {json.dumps(decision, ensure_ascii=False, indent=2)}
@@ -481,8 +669,7 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
         num_predict=1000,
     )
 
-    # return markdown_text.strip()
-    return clean_model_output(markdown_text)
+    return markdown_text.strip()
 
 def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) -> str:
     system_prompt = """你是小说改写助手。
@@ -533,9 +720,10 @@ def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) 
 def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> str:
     system_prompt = """你是小说正文提纯助手。
 你的任务不是重写剧情，而是从输入文本中提取可用的小说正文 prose。
-删除标题、括号说明、人物名加冒号的台词格式、修订说明、注释、解释文字。
+删除标题、括号说明、人物名加冒号的台词格式、修订说明、执行说明、推进说明、注释、解释文字。
 保留叙述段落，不新增设定，不新增角色，不改变原有事件顺序。
-只输出提纯后的小说正文。"""
+只输出提纯后的小说正文。
+凡是带有“说明 / 注 / 备注 / 以下正文 / 正文如下 / 列表总结”的区块，一律视为污染并删除。"""
 
     task_text = read_text("01_inputs/tasks/current_task.md")
 
@@ -546,11 +734,12 @@ def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> s
 2. 删除标题
 3. 删除括号场景说明
 4. 删除“人物名：对白”格式
-5. 删除修订说明、注释、解释文字
+5. 删除修订说明、执行说明、推进说明、注释、解释文字
 6. 不新增角色
 7. 不新增设定
 8. 不改变事件顺序
 9. 只输出提纯后的正文
+10. 如果文本里出现 `**修订说明**`、`【执行说明】`、`正文如下`、编号列表总结等元话语，必须从该处起全部删除
 
 【任务单】
 {task_text}
@@ -575,6 +764,96 @@ def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> s
     )
 
     return clean_model_output(refined)
+
+
+def continue_truncated_draft(config: dict, current_context: str, bad_draft: str) -> str:
+    system_prompt = """你是小说续写修复助手。
+你的任务不是重写整场，而是把一段明显半截、被截断的小说正文补完整。
+要求：
+1. 紧接现有文本继续写，不重复已给出的句子
+2. 保持同一场景、同一视角、同一文风
+3. 优先把当前动作写完整，并自然收束到一个完整结尾
+4. 不新增设定，不新增角色，不扩展主线
+5. 只输出补全后的完整正文，不要解释"""
+
+    task_text = read_text("01_inputs/tasks/current_task.md")
+
+    user_prompt = f"""请补全下面这段明显被截断的小说正文，使其成为一段可直接保存的完整草稿。
+
+要求：
+1. 保留已有内容不变
+2. 从现有最后一句自然续写
+3. 总体仍满足任务要求
+4. 只输出补全后的完整正文
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{current_context}
+
+【待补全文本】
+{bad_draft}
+"""
+
+    print("检测到草稿疑似截断，正在尝试自动续写补全...")
+    continued = call_ollama(
+        model=config["writer"]["model"],
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        base_url=config["writer"]["base_url"],
+        num_ctx=config["generation"]["write_num_ctx"],
+        temperature=0.2,
+        timeout=config["generation"]["request_timeout"],
+        num_predict=1200,
+    )
+
+    return clean_model_output(continued)
+
+
+def repair_invalid_draft(config: dict, current_context: str, bad_draft: str, errors: list[str]) -> str:
+    system_prompt = """你是小说草稿修复助手。
+你的任务不是重写方向，而是在尽量保留现有内容与场景骨架的前提下，修掉明确的验收违规项。
+要求：
+1. 优先修复校验错误，不要擅自改变场景核心目标
+2. 删除或替换不合规词汇、说明文字、错误格式、现代词、明显违规表达
+3. 保持小说正文 prose 形式
+4. 不新增角色，不新增设定，不扩展主线
+5. 只输出修复后的正文
+6. 严禁输出任何元话语或附加区块，例如：修订说明、执行说明、推进说明、说明、注、备注、以下正文、正文如下
+7. 如果原文末尾带有说明区块，必须整段删除，不得保留标题、项目符号或总结语"""
+
+    task_text = read_text("01_inputs/tasks/current_task.md")
+    joined_errors = "\n".join(f"- {item}" for item in errors if str(item).strip())
+
+    user_prompt = f"""请针对下面这些验收错误，定向修复当前草稿。
+
+【必须修复的错误】
+{joined_errors}
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{current_context}
+
+【待修复草稿】
+{bad_draft}
+"""
+
+    print("检测到草稿存在验收违规，正在尝试自动定向修复...")
+    repaired = call_ollama(
+        model=config["writer"]["model"],
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        base_url=config["writer"]["base_url"],
+        num_ctx=config["generation"]["write_num_ctx"],
+        temperature=0.2,
+        timeout=config["generation"]["request_timeout"],
+        num_predict=1200,
+    )
+
+    return clean_model_output(repaired)
 
 def save_failed_draft(task_id: str, content: str, suffix: str = "failed") -> None:
     path = f"02_working/logs/{task_id}_{suffix}.md"
@@ -608,13 +887,45 @@ def write_draft(config: dict, current_context: str) -> dict:
     decision = generate_decision_json(config, current_context)
     task_id = decision["task_id"]
 
-    markdown_text = generate_markdown_draft(config, current_context, decision)
+    raw_markdown_text = generate_markdown_draft(config, current_context, decision)
+    markdown_text = clean_model_output(raw_markdown_text)
+
+    if not markdown_text and raw_markdown_text.strip():
+        save_failed_draft(task_id, raw_markdown_text, "first_failed_raw")
+        rewritten = rewrite_script_to_prose(config, current_context, raw_markdown_text)
+        save_failed_draft(task_id, rewritten, "rewritten_attempt")
+
+        rewritten_errors = build_validation_errors(task_text, rewritten)
+        if not rewritten_errors:
+            markdown_text = rewritten
+        else:
+            save_failure_reason(task_id, "；".join(rewritten_errors), "rewritten_failed_reason")
+            refined = extract_plain_prose(config, current_context, rewritten)
+            save_failed_draft(task_id, refined, "refined_attempt")
+
+            refined_errors = build_validation_errors(task_text, refined)
+            if refined_errors:
+                save_failure_reason(task_id, "；".join(refined_errors), "refined_failed_reason")
+                raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(refined_errors)}")
+
+            markdown_text = refined
 
     errors = build_validation_errors(task_text, markdown_text)
     errors = build_validation_errors(task_text, markdown_text)
     if errors:
         save_failed_draft(task_id, markdown_text, "first_failed")
         save_failure_reason(task_id, "；".join(errors), "first_failed_reason")
+
+        if any("草稿疑似被截断" in e for e in errors):
+            continued = continue_truncated_draft(config, current_context, raw_markdown_text)
+            save_failed_draft(task_id, continued, "continued_attempt")
+            continued_errors = build_validation_errors(task_text, continued)
+            if not continued_errors:
+                markdown_text = continued
+                errors = []
+            else:
+                save_failure_reason(task_id, "；".join(continued_errors), "continued_failed_reason")
+                errors = continued_errors
 
         # 先处理纯说明性污染
         if all("说明性附加文本" in e for e in errors):
@@ -647,7 +958,13 @@ def write_draft(config: dict, current_context: str) -> dict:
                 markdown_text = refined
 
         elif errors:
-            raise ValueError(f"草稿验收失败: {'；'.join(errors)}")
+            repaired = repair_invalid_draft(config, current_context, raw_markdown_text, errors)
+            save_failed_draft(task_id, repaired, "repaired_attempt")
+            repaired_errors = build_validation_errors(task_text, repaired)
+            if repaired_errors:
+                save_failure_reason(task_id, "；".join(repaired_errors), "repaired_failed_reason")
+                raise ValueError(f"草稿验收失败: {'；'.join(repaired_errors)}")
+            markdown_text = repaired
 
     decision_file = f"02_working/reviews/{decision['task_id']}.json"
     draft_file = decision["draft_file"]
@@ -734,12 +1051,28 @@ def clean_model_output(text: str) -> str:
         "【修订说明】",
         "【修改说明】",
         "【说明】",
+        "【执行说明】",
+        "【推进说明】",
+        "执行说明",
+        "推进说明",
+        "修订说明",
+        "修改说明",
+        "正文如下",
+        "以下正文",
         "\n注：",
         "\n（注：",
         "\n(注：",
     ]
 
     cut_positions = [text.find(marker) for marker in split_markers if text.find(marker) != -1]
+    lines = text.splitlines()
+    running_index = 0
+    for line in lines:
+        stripped = line.strip()
+        if stripped and any(re.match(pattern, stripped, flags=re.IGNORECASE) for pattern in EDITORIAL_HEADING_PATTERNS):
+            cut_positions.append(running_index)
+            break
+        running_index += len(line) + 1
     if cut_positions:
         text = text[:min(cut_positions)]
 
@@ -775,6 +1108,10 @@ def strip_revision_prefix(goal: str) -> str:
         "基于上一版草稿进行重写：",
         "对上一版草稿进行小修：",
         "对上一版草稿进行重写：",
+        "基于上一版草稿进行局部修补：",
+        "基于上一版草稿进行局部重写：",
+        "基于上一版草稿整体重写当前 scene：",
+        "基于上一版草稿重新写作：",
     ]
     cleaned = goal.strip()
     changed = True
@@ -784,7 +1121,87 @@ def strip_revision_prefix(goal: str) -> str:
             if cleaned.startswith(prefix):
                 cleaned = cleaned[len(prefix):].strip()
                 changed = True
+    cleaned = re.sub(r"(?:。|\s)*本次重点解决：.*$", "", cleaned).strip()
     return cleaned
+
+
+def sanitize_followup_constraints(constraints: str) -> str:
+    lines = str(constraints or "").splitlines()
+    cleaned_lines: list[str] = []
+    skip_repair_action_lines = False
+
+    for raw_line in lines:
+        line = raw_line.rstrip()
+        stripped = line.strip()
+
+        if skip_repair_action_lines and stripped.startswith("-"):
+            continue
+        if skip_repair_action_lines and not stripped:
+            skip_repair_action_lines = False
+            continue
+        if skip_repair_action_lines:
+            skip_repair_action_lines = False
+
+        if stripped.startswith("- 修订模式："):
+            continue
+        if stripped == "- repair_plan 执行动作：":
+            skip_repair_action_lines = True
+            continue
+        if stripped.startswith("- 额外修订要求"):
+            continue
+        if not stripped:
+            if cleaned_lines and cleaned_lines[-1] != "":
+                cleaned_lines.append("")
+            continue
+
+        cleaned_lines.append(line)
+
+    while cleaned_lines and cleaned_lines[-1] == "":
+        cleaned_lines.pop()
+    return "\n".join(cleaned_lines).strip()
+
+
+def extract_scene_number(text: str | None) -> int | None:
+    if not text:
+        return None
+    match = re.search(r"scene(\d+)", str(text), re.IGNORECASE)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def get_auto_continue_target_scene(config: dict) -> int | None:
+    generation = config.get("generation", {})
+    value = generation.get("auto_continue_until_scene")
+    if value in (None, "", 0):
+        return None
+    try:
+        target = int(value)
+    except (TypeError, ValueError):
+        return None
+    return target if target > 0 else None
+
+
+def should_continue_after_lock(config: dict, next_scene_task_file: str | None) -> bool:
+    if not next_scene_task_file:
+        return False
+    target_scene = get_auto_continue_target_scene(config)
+    if target_scene is None:
+        return False
+    task_text = read_text(next_scene_task_file)
+    output_target = extract_markdown_field(task_text, "output_target") or next_scene_task_file
+    next_scene_number = extract_scene_number(output_target) or extract_scene_number(task_text)
+    if next_scene_number is None:
+        return False
+    return next_scene_number <= target_scene
+
+
+def is_supervisor_rescue_draft_enabled(config: dict) -> bool:
+    generation = config.get("generation", {})
+    value = generation.get("supervisor_rescue_draft_enabled", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
 
 
 def is_problem_like_issue(text: str) -> bool:
@@ -989,7 +1406,7 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
 
 
 def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mode: str | None = None, repair_instructions: list[str] | None = None) -> str:
-    original_constraints = (extract_markdown_field(task_text, "constraints") or "").strip()
+    original_constraints = sanitize_followup_constraints(extract_markdown_field(task_text, "constraints") or "")
     filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
     major_issues = filter_usable_issues(filtered_major)
     minor_issues = filter_usable_issues(filtered_minor)
@@ -1042,12 +1459,22 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     new_goal = build_followup_goal(original_goal, reviewer_result, mode, task_text, repair_mode=repair_mode, repair_instructions=repair_instructions)
     new_constraints = build_followup_constraints(task_text, reviewer_result, repair_mode=repair_mode, repair_instructions=repair_instructions)
     new_output_target = build_followup_output_target(draft_file, mode)
+    structural_fields = build_structural_task_fields(task_text, reviewer_result)
+    information_gain_block = "\n".join(f"- {item}" for item in structural_fields["required_information_gain"])
+    avoid_motifs_block = "\n".join(f"- {item}" for item in structural_fields["avoid_motifs"])
 
     sections = [
         f"# task_id\n{new_task_id}",
         f"# goal\n{new_goal}",
         f"# based_on\n{draft_file}",
+        f"# scene_purpose\n{structural_fields['scene_purpose']}",
+        f"# required_information_gain\n{information_gain_block}",
+        f"# required_plot_progress\n{structural_fields['required_plot_progress']}",
+        f"# required_decision_shift\n{structural_fields['required_decision_shift']}",
     ]
+
+    if avoid_motifs_block:
+        sections.append(f"# avoid_motifs\n{avoid_motifs_block}")
 
     if chapter_state:
         sections.append(f"# chapter_state\n{chapter_state}")
@@ -1067,11 +1494,38 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     return "\n\n".join(sections) + "\n"
 
 
-def build_locked_chapter_file(draft_file: str, locked_dir: str) -> str:
+def extract_scene_stem(text: str | None) -> str | None:
+    raw = str(text or "").strip()
+    if not raw:
+        return None
+
+    path_stem = Path(raw).stem
+    for candidate in [raw, path_stem]:
+        match = re.search(r"(ch\d+_scene\d+)", candidate)
+        if match:
+            return match.group(1)
+    return None
+
+
+def infer_locked_scene_stem(task_text: str, draft_file: str) -> str:
+    output_target = extract_markdown_field(task_text, "output_target")
+    task_id = extract_markdown_field(task_text, "task_id")
+
+    for candidate in [output_target, task_id, draft_file]:
+        scene_stem = extract_scene_stem(candidate)
+        if scene_stem:
+            return scene_stem
+
     path = Path(draft_file)
     stem = path.stem
     stem = re.sub(r"(?:_v\d+)+$", "", stem)
     stem = re.sub(r"_rewrite\d*$", "", stem)
+    return stem
+
+
+def build_locked_chapter_file(task_text: str, draft_file: str, locked_dir: str) -> str:
+    path = Path(draft_file)
+    stem = infer_locked_scene_stem(task_text, draft_file)
     return f"{locked_dir}/chapters/{stem}{path.suffix}"
 
 
@@ -1080,6 +1534,84 @@ def extract_revision_count(task_id: str) -> int:
     if not match:
         return 0
     return int(match.group(1))
+
+
+def extract_supervisor_round(task_text: str) -> int:
+    raw = extract_markdown_field(task_text, "supervisor_round")
+    if not raw:
+        return 0
+    try:
+        value = int(str(raw).strip())
+    except (TypeError, ValueError):
+        return 0
+    return max(value, 0)
+
+
+def get_max_supervisor_rounds(config: dict) -> int:
+    value = config.get("generation", {}).get("max_supervisor_rounds", 3)
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return 3
+    return max(parsed, 0)
+
+
+def has_supervisor_retry_budget(config: dict, task_text: str) -> bool:
+    return extract_supervisor_round(task_text) < get_max_supervisor_rounds(config)
+
+
+def build_supervisor_rescue_record_path(task_id: str) -> str:
+    return f"02_working/reviews/{task_id}_supervisor_rescue.json"
+
+
+def has_supervisor_rescue_record(task_id: str) -> bool:
+    normalized = str(task_id or "").strip()
+    if not normalized:
+        return False
+    return (ROOT / build_supervisor_rescue_record_path(normalized)).exists()
+
+
+def should_auto_lock_after_supervisor_rescue(config: dict, task_text: str, reviewer_result: dict) -> bool:
+    if not is_supervisor_enabled(config):
+        return False
+
+    task_id = extract_markdown_field(task_text, "task_id") or str(reviewer_result.get("task_id") or "").strip()
+    if not task_id or not has_supervisor_rescue_record(task_id):
+        return False
+
+    if extract_supervisor_round(task_text) <= 0:
+        return False
+
+    if str(reviewer_result.get("verdict") or "").strip() == "lock":
+        return False
+
+    return bool(str(reviewer_result.get("force_manual_intervention_reason") or "").strip())
+
+
+def build_supervisor_auto_lock_result(reviewer_result: dict, trigger_reason: str) -> dict:
+    updated = dict(reviewer_result)
+    summary = str(updated.get("summary") or "").strip()
+    reason = str(trigger_reason or "").strip()
+    decision_reason = "supervisor 已完成救场，本轮 reviewer 未继续给出可执行修订任务，按自动接管策略转入锁定。"
+    if reason:
+        decision_reason = f"{decision_reason} 原因：{reason}"
+    elif summary:
+        decision_reason = f"{decision_reason} 原始摘要：{summary}"
+
+    updated["verdict"] = "lock"
+    updated["task_goal_fulfilled"] = True
+    updated["recommended_next_step"] = "lock_scene"
+    updated["summary"] = decision_reason
+    updated.pop("force_manual_intervention_reason", None)
+
+    major_issues = [str(item).strip() for item in updated.get("major_issues", []) if str(item).strip()]
+    filtered_major_issues = [
+        item
+        for item in major_issues
+        if item != reason and "建议人工介入" not in item and "人工介入" not in item and "修订阈值" not in item
+    ]
+    updated["major_issues"] = filtered_major_issues
+    return updated
 
 
 def build_locked_notes_content(task_text: str, reviewer_result: dict, draft_file: str, locked_file: str) -> str:
@@ -1295,6 +1827,9 @@ def maybe_supervise_manual_decision(
     if not is_supervisor_enabled(config):
         return None, None, None
 
+    current_supervisor_round = extract_supervisor_round(task_text)
+    max_supervisor_rounds = get_max_supervisor_rounds(config)
+
     decision = run_supervisor_decision(
         ROOT,
         config,
@@ -1303,7 +1838,30 @@ def maybe_supervise_manual_decision(
         draft_file,
         max_revisions,
         trigger_reason,
+        supervisor_round=current_supervisor_round,
+        max_supervisor_rounds=max_supervisor_rounds,
     )
+
+    if decision.get("action") == "manual_intervention" and current_supervisor_round < max_supervisor_rounds:
+        recovery_reason = (
+            f"{trigger_reason} supervisor 首轮判断倾向人工介入，但系统仍允许继续自动化。"
+            "请优先给出一份可执行、可收敛的 next_task；除非完全无法提出任务，否则不要再次选择 manual_intervention。"
+        )
+        recovery_decision = run_supervisor_decision(
+            ROOT,
+            config,
+            task_text,
+            reviewer_result,
+            draft_file,
+            max_revisions,
+            recovery_reason,
+            supervisor_round=current_supervisor_round,
+            max_supervisor_rounds=max_supervisor_rounds,
+            force_continue_preference=True,
+        )
+        if recovery_decision.get("action") in {"continue_revise", "continue_rewrite"}:
+            decision = recovery_decision
+
     decision_path = save_supervisor_decision(ROOT, decision)
     supervised_result = apply_supervisor_decision_to_reviewer_result(reviewer_result, decision)
     repair_plan_path = build_repair_plan_path(reviewer_result.get("task_id", "generated-task"))
@@ -1344,16 +1902,70 @@ def maybe_generate_next_scene_task_draft(
     return task_file, plan_path
 
 
+def maybe_prepare_supervisor_rescue_draft(
+    config: dict,
+    next_task_text: str,
+    source_draft_file: str,
+    reviewer_result: dict,
+) -> tuple[str | None, str | None]:
+    if not is_supervisor_enabled(config) or not is_supervisor_rescue_draft_enabled(config):
+        return None, None
+
+    output_target = extract_markdown_field(next_task_text, "output_target")
+    task_id = extract_markdown_field(next_task_text, "task_id") or reviewer_result.get("task_id") or "generated-task"
+    if not output_target:
+        return None, None
+
+    rescue_result = run_supervisor_rescue_draft(
+        ROOT,
+        config,
+        next_task_text,
+        source_draft_file,
+        reviewer_result,
+    )
+    if not rescue_result:
+        return None, None
+
+    record_path = save_supervisor_rescue_record(ROOT, rescue_result)
+    draft_text = str(rescue_result.get("draft_text") or "").strip()
+    if not draft_text:
+        return None, record_path
+
+    cleaned_draft = clean_model_output(draft_text)
+    errors = build_validation_errors(next_task_text, cleaned_draft)
+    if is_scene10_like_task(next_task_text):
+        errors.extend(detect_scene10_old_pattern_reuse(cleaned_draft))
+    if errors:
+        save_failed_draft(str(task_id), cleaned_draft, "supervisor_rescue_failed")
+        save_failure_reason(str(task_id), "；".join(errors), "supervisor_rescue_failed_reason")
+        return None, record_path
+
+    save_text(output_target, cleaned_draft)
+    return output_target, record_path
+
+
 def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_result: dict) -> dict:
     locked_dir = config["paths"].get("locked_dir", "03_locked")
     working_dir = config["paths"].get("working_dir", "02_working")
+    max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
     verdict = reviewer_result.get("verdict")
     created: dict[str, str] = {}
+
+    if should_auto_lock_after_supervisor_rescue(config, task_text, reviewer_result):
+        reviewer_result = build_supervisor_auto_lock_result(
+            reviewer_result,
+            str(reviewer_result.get("force_manual_intervention_reason") or "").strip(),
+        )
+        reviewer_result, lock_gate_report = apply_lock_gate(task_text, reviewer_result, max_revisions)
+        created["lock_gate_report_file"] = save_lock_gate_report(ROOT, lock_gate_report)
+        save_structured_review_result(ROOT, reviewer_result)
+        save_repair_plan(ROOT, build_structured_review_result(reviewer_result))
+        verdict = reviewer_result.get("verdict")
 
     if verdict == "lock":
         draft_content = read_text(draft_file)
         filename = Path(draft_file).name
-        locked_file = build_locked_chapter_file(draft_file, locked_dir)
+        locked_file = build_locked_chapter_file(task_text, draft_file, locked_dir)
         candidate_file = f"{locked_dir}/candidates/{filename}"
         notes_file = f"{locked_dir}/canon/{Path(locked_file).stem}_notes.md"
         chapter_state_path = extract_markdown_field(task_text, "chapter_state")
@@ -1400,19 +2012,22 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
 
     mode = "revise" if verdict == "revise" else "rewrite"
     generated_dir = f"{config['paths'].get('inputs_dir', '01_inputs')}/tasks/generated"
-    max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
     forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
 
     if forced_manual_reason:
-        supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
-            config,
-            task_text,
-            reviewer_result,
-            draft_file,
-            max_revisions,
-            forced_manual_reason,
-        )
+        supervised_result = None
+        supervisor_decision_path = None
+        supervisor_task_content = None
+        if has_supervisor_retry_budget(config, task_text):
+            supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
+                config,
+                task_text,
+                reviewer_result,
+                draft_file,
+                max_revisions,
+                forced_manual_reason,
+            )
         if supervisor_decision_path:
             created["supervisor_decision_file"] = supervisor_decision_path
         if supervised_result is not None:
@@ -1422,9 +2037,21 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
             save_text(task_file, task_content)
             created["task_file"] = task_file
+            rescue_draft_file, rescue_record_file = maybe_prepare_supervisor_rescue_draft(
+                config,
+                task_content,
+                draft_file,
+                supervised_result,
+            )
+            if rescue_draft_file:
+                created["supervisor_rescue_draft_file"] = rescue_draft_file
+            if rescue_record_file:
+                created["supervisor_rescue_record_file"] = rescue_record_file
             return created
 
         manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
+        if not has_supervisor_retry_budget(config, task_text):
+            forced_manual_reason = f"{forced_manual_reason} supervisor 接管轮次已用尽。"
         save_text(
             manual_intervention_file,
             build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=forced_manual_reason),
@@ -1440,14 +2067,18 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
 
     if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
         max_revision_reason = f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。"
-        supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
-            config,
-            task_text,
-            reviewer_result,
-            draft_file,
-            max_revisions,
-            max_revision_reason,
-        )
+        supervised_result = None
+        supervisor_decision_path = None
+        supervisor_task_content = None
+        if has_supervisor_retry_budget(config, task_text):
+            supervised_result, supervisor_decision_path, supervisor_task_content = maybe_supervise_manual_decision(
+                config,
+                task_text,
+                reviewer_result,
+                draft_file,
+                max_revisions,
+                max_revision_reason,
+            )
         if supervisor_decision_path:
             created["supervisor_decision_file"] = supervisor_decision_path
         if supervised_result is not None:
@@ -1457,12 +2088,24 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
             save_text(task_file, task_content)
             created["task_file"] = task_file
+            rescue_draft_file, rescue_record_file = maybe_prepare_supervisor_rescue_draft(
+                config,
+                task_content,
+                draft_file,
+                supervised_result,
+            )
+            if rescue_draft_file:
+                created["supervisor_rescue_draft_file"] = rescue_draft_file
+            if rescue_record_file:
+                created["supervisor_rescue_record_file"] = rescue_record_file
             return created
 
         manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
+        if not has_supervisor_retry_budget(config, task_text):
+            max_revision_reason = f"{max_revision_reason} supervisor 接管轮次已用尽。"
         save_text(
             manual_intervention_file,
-            build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions),
+            build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=max_revision_reason),
         )
         update_structured_review_status(
             ROOT,
@@ -1602,12 +2245,29 @@ def main() -> None:
                 print(f"已保存 revision lineage: {lineage_path}")
             if "supervisor_decision_file" in created:
                 print(f"已保存 supervisor 决策: {created['supervisor_decision_file']}")
+                if "supervisor_rescue_draft_file" in created:
+                    print(f"已保存 supervisor 救场记录: {created['supervisor_rescue_record_file']}")
+                else:
+                    print(f"已保存 supervisor 救场记录（草稿未采用）: {created['supervisor_rescue_record_file']}")
+            if "supervisor_rescue_draft_file" in created:
+                print(f"已生成 supervisor 救场稿: {created['supervisor_rescue_draft_file']}")
             if lock_gate_report_path is not None:
                 print(f"已保存 lock gate 报告: {lock_gate_report_path}")
                 if reviewer_result.get("verdict") != "lock":
                     print("锁定闸门未通过，已阻止本次 lock 并转入修订分流。")
 
-            review_status = structured_review.status.value if structured_review is not None else reviewer_result.get("verdict")
+            created_lock_gate_report = created.get("lock_gate_report_file")
+            if created_lock_gate_report and created_lock_gate_report != lock_gate_report_path:
+                print(f"已保存 lock gate 报告: {created_lock_gate_report}")
+
+            if "locked_file" in created:
+                review_status = "lock"
+            elif "manual_intervention_file" in created:
+                review_status = "manual_intervention"
+            elif structured_review is not None:
+                review_status = structured_review.status.value
+            else:
+                review_status = reviewer_result.get("verdict")
             if review_status == "lock":
                 print(f"已自动锁定到 {created['locked_file']}")
                 print("如需人工修订，请直接编辑 locked 文件")
@@ -1622,6 +2282,11 @@ def main() -> None:
                     print(f"已生成下一 scene 规划: {created['next_scene_plan_file']}")
                 if "next_scene_task_file" in created:
                     print(f"已生成下一 scene 任务草案: {created['next_scene_task_file']}")
+                    if should_continue_after_lock(config, created["next_scene_task_file"]):
+                        next_task_id = set_current_task_from_file(created["next_scene_task_file"])
+                        print(f"检测到 lock 后续任务，已自动切换到下一 scene: {next_task_id}")
+                        loop_round += 1
+                        continue
                 print("本次自动闭环完成。")
                 break
 
@@ -1631,9 +2296,9 @@ def main() -> None:
                 print("本次自动闭环完成。")
                 break
 
-            if review_status == "revise" and "task_file" in created:
+            if review_status in {"revise", "rewrite"} and "task_file" in created:
                 next_task_id = set_current_task_from_file(created["task_file"])
-                print(f"检测到 revise，已自动切换到下一轮任务: {next_task_id}")
+                print(f"检测到 {review_status}，已自动切换到下一轮任务: {next_task_id}")
                 loop_round += 1
                 continue
 

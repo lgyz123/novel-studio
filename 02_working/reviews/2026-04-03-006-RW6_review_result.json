@@ -1,0 +1,29 @@
+{
+  "task_id": "2026-04-03-006-RW6",
+  "status": "revise",
+  "summary": "该草稿未能在500-900字内完成核心目标，且过度使用超现实元素与多余细节，导致节奏失衡。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "global",
+      "target": "2026-04-03-006-RW6",
+      "message": "场景过度使用超现实意象，导致读者难以把握核心线索 未能在限定长度内完成核心目标 未充分体现劳累疲惫的氛围 多余细节（铜钱、红绳、鱼群等）与主线无直接关联",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "style",
+      "severity": "low",
+      "scope": "scene",
+      "target": "2026-04-03-006-RW6",
+      "message": "缺乏明确的情节闭环 对话与叙述混杂，文体略显散乱",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "该草稿未能在500-900字内完成核心目标，且过度使用超现实元素与多余细节，导致节奏失衡。"
+}

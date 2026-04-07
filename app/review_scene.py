@@ -136,6 +136,419 @@ def extract_message_text(response_data: dict) -> str:
     return ""
 
 
+def normalize_text_key(text: str) -> str:
+    lowered = str(text).strip().lower()
+    lowered = re.sub(r"\s+", " ", lowered)
+    lowered = re.sub(r"[\W_]+", "", lowered)
+    return lowered
+
+
+def split_text_fragments(text: str) -> list[str]:
+    normalized = re.sub(r"\s+", " ", str(text).strip())
+    return [part.strip() for part in re.split(r"(?<=[。！？.!?；;])\s+|[；;]\s*", normalized) if part.strip()]
+
+
+def dedupe_repeated_fragments(text: str, max_unique_fragments: int = 8) -> tuple[str, int]:
+    fragments = split_text_fragments(text)
+    if not fragments:
+        return str(text).strip(), 0
+
+    kept: list[str] = []
+    seen: set[str] = set()
+    repeated_count = 0
+
+    for fragment in fragments:
+        key = normalize_text_key(fragment)
+        if not key:
+            continue
+        if key in seen:
+            repeated_count += 1
+            continue
+        seen.add(key)
+        kept.append(fragment)
+        if len(kept) >= max_unique_fragments:
+            remaining = len(fragments) - len(kept)
+            repeated_count += max(remaining, 0)
+            break
+
+    return " ".join(kept).strip(), repeated_count
+
+
+def is_low_value_english_analysis(text: str) -> bool:
+    stripped = str(text).strip()
+    if not stripped or not is_mostly_english(stripped):
+        return False
+
+    lower_text = stripped.lower()
+    marker_count = sum(
+        1
+        for marker in [
+            "we need to",
+            "the assistant must",
+            "must output",
+            "single json object",
+            "the draft must",
+            "we should output",
+            "we need to evaluate",
+            "we need to review",
+            "status and message",
+            "pass or fail",
+        ]
+        if marker in lower_text
+    )
+    compressed, repeated_count = dedupe_repeated_fragments(stripped)
+    return marker_count >= 2 or repeated_count >= 3 or len(compressed) < len(stripped) * 0.55
+
+
+def sanitize_reviewer_raw_output(raw_text: str, max_chars: int = 2200) -> tuple[str, dict[str, Any]]:
+    stripped = str(raw_text).strip()
+    if not stripped:
+        return "", {"low_value_english": False, "repeated_fragments": 0, "truncated": False}
+
+    compressed, repeated_count = dedupe_repeated_fragments(stripped)
+    low_value_english = is_low_value_english_analysis(stripped)
+    sanitized = compressed or stripped
+    truncated = False
+
+    if low_value_english and len(sanitized) > 1200:
+        sanitized = sanitized[:1200].rstrip()
+        truncated = True
+    elif len(sanitized) > max_chars:
+        sanitized = sanitized[:max_chars].rstrip()
+        truncated = True
+
+    if truncated:
+        sanitized = sanitized + "\n\n[审稿原文已截断]"
+    if repeated_count > 0:
+        sanitized = sanitized + f"\n\n[重复片段已压缩 {repeated_count} 处]"
+
+    return sanitized, {
+        "low_value_english": low_value_english,
+        "repeated_fragments": repeated_count,
+        "truncated": truncated,
+    }
+
+
+def sanitize_issue_text(text: str) -> str:
+    compacted, repeated_count = dedupe_repeated_fragments(str(text).strip(), max_unique_fragments=4)
+    cleaned = compacted.strip()
+    if repeated_count > 0 and cleaned:
+        cleaned = f"{cleaned}（重复内容已压缩）"
+    return cleaned[:180].strip()
+
+
+def strip_scene_heading(text: str) -> str:
+    cleaned = str(text or "").strip()
+    cleaned = re.sub(r"^【scene\s*\d+】\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"^scene\s*\d+[:：]\s*", "", cleaned, flags=re.IGNORECASE)
+    return cleaned.strip()
+
+
+STRUCTURAL_MOTIFS = [
+    "阿绣",
+    "红绳",
+    "平安符",
+    "铜钱",
+    "铜铃",
+    "铁锈",
+    "腐臭",
+    "喉结",
+    "窝棚",
+    "码头",
+]
+
+INFORMATION_GAIN_MARKERS = [
+    "发现",
+    "看见",
+    "看到",
+    "摸到",
+    "捡到",
+    "拾到",
+    "认出",
+    "确认",
+    "注意到",
+    "露出",
+    "写着",
+    "系着",
+    "挂着",
+    "藏着",
+    "放着",
+    "多了",
+    "少了",
+    "不见",
+    "原来",
+    "竟是",
+    "不是",
+    "留下",
+]
+
+DECISION_OR_SHIFT_MARKERS = [
+    "决定",
+    "索性",
+    "改成",
+    "改为",
+    "先把",
+    "没有立刻",
+    "没立刻",
+    "暂缓",
+    "拖到",
+    "拖延",
+    "收起",
+    "藏起",
+    "塞进",
+    "记下",
+    "绕开",
+    "避开",
+    "不交",
+    "压下",
+    "停下",
+    "回头",
+    "重新",
+    "推迟",
+    "扣住",
+    "挪开",
+]
+
+PLOT_PROGRESS_MARKERS = [
+    "于是",
+    "便",
+    "随后",
+    "接着",
+    "结果",
+    "差点",
+    "终于",
+    "开始",
+    "改成",
+    "改为",
+    "导致",
+    "让他",
+    "没能",
+    "只好",
+]
+
+CANON_DRIFT_MARKERS = [
+    "阿绣坐在",
+    "阿绣站在",
+    "阿绣笑",
+    "阿绣总爱",
+    "阿绣替他",
+    "阿绣给他",
+    "阿绣在窗边",
+    "阿绣的后颈",
+    "阿绣的手",
+    "阿绣的头发",
+    "她膝上",
+    "和阿绣",
+    "他和阿绣",
+    "原来阿绣",
+    "阿绣就是",
+]
+
+WRONG_PROTAGONIST_NAMES = ["孟繁灯", "孟繁星", "孟浮星"]
+
+
+def build_empty_structural_review() -> dict[str, Any]:
+    return {
+        "information_gain": {
+            "has_new_information": False,
+            "new_information_items": [],
+        },
+        "plot_progress": {
+            "has_plot_progress": False,
+            "progress_reason": "未识别到明确的情节推进。",
+        },
+        "character_decision": {
+            "has_decision_or_behavior_shift": False,
+            "decision_detail": "主角尚未做出可追踪的决策或行为偏移。",
+        },
+        "motif_redundancy": {
+            "repeated_motifs": [],
+            "repetition_has_new_function": True,
+            "redundancy_reason": "未识别到明显的高频母题复读。",
+        },
+        "canon_consistency": {
+            "is_consistent": True,
+            "consistency_issues": [],
+        },
+    }
+
+
+def sentence_has_information_gain(sentence: str) -> bool:
+    text = str(sentence).strip()
+    if not text:
+        return False
+    if any(marker in text for marker in INFORMATION_GAIN_MARKERS):
+        return True
+    return bool(re.search(r"(位置|来处|来源|物件|尸体|袖口|袋口|腕上|背面).*(变|露|写|挂|放|藏|缺|多|少)", text))
+
+
+def sentence_has_decision_or_shift(sentence: str) -> bool:
+    text = str(sentence).strip()
+    if not text:
+        return False
+    if any(marker in text for marker in DECISION_OR_SHIFT_MARKERS):
+        return True
+    return bool(re.search(r"(把|将).*(收起|塞进|压回|挪开|藏起|推迟|避开|绕开)", text))
+
+
+def sentence_has_plot_progress(sentence: str) -> bool:
+    text = str(sentence).strip()
+    if not text:
+        return False
+    if any(marker in text for marker in PLOT_PROGRESS_MARKERS):
+        return True
+    return bool(re.search(r"(差点|结果|于是|随后|接着).*(翻倒|暴露|滑出|漏出|停下|改变|延后)", text))
+
+
+def summarize_sentence(sentence: str, max_chars: int = 36) -> str:
+    compact = re.sub(r"\s+", " ", str(sentence).strip())
+    if len(compact) <= max_chars:
+        return compact
+    return compact[:max_chars].rstrip() + "…"
+
+
+def build_structural_review_signals(task_text: str | None, draft_text: str, based_on_text: str = "", chapter_state: str = "") -> dict[str, Any]:
+    signals = build_empty_structural_review()
+    draft_sentences = split_sentences(strip_scene_heading(draft_text))
+    based_on_keys = {normalize_text_key(item) for item in split_sentences(strip_scene_heading(based_on_text))}
+
+    new_information_items: list[str] = []
+    decision_detail = ""
+    progress_reason = ""
+
+    for sentence in draft_sentences:
+        key = normalize_text_key(sentence)
+        if key and key not in based_on_keys and sentence_has_information_gain(sentence):
+            new_information_items.append(summarize_sentence(sentence))
+        if not decision_detail and sentence_has_decision_or_shift(sentence):
+            decision_detail = summarize_sentence(sentence, max_chars=48)
+        if not progress_reason and sentence_has_plot_progress(sentence):
+            progress_reason = summarize_sentence(sentence, max_chars=48)
+
+    deduped_information_items: list[str] = []
+    for item in new_information_items:
+        if item not in deduped_information_items:
+            deduped_information_items.append(item)
+
+    signals["information_gain"] = {
+        "has_new_information": bool(deduped_information_items),
+        "new_information_items": deduped_information_items[:3],
+    }
+
+    has_decision = bool(decision_detail)
+    if not decision_detail:
+        decision_detail = "主角主要停留在感受、回想或氛围反应，没有形成可追踪的行为偏移。"
+    signals["character_decision"] = {
+        "has_decision_or_behavior_shift": has_decision,
+        "decision_detail": decision_detail,
+    }
+
+    has_plot_progress = bool(progress_reason) or has_decision
+    if not progress_reason:
+        if has_plot_progress:
+            progress_reason = "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+        else:
+            progress_reason = "全文主要在重复动作与感受，没有形成可追踪的局面变化、风险变化或认知推进。"
+    signals["plot_progress"] = {
+        "has_plot_progress": has_plot_progress,
+        "progress_reason": progress_reason,
+    }
+
+    repeated_motifs = [motif for motif in STRUCTURAL_MOTIFS if motif in draft_text and motif in based_on_text]
+    motif_has_new_function = True
+    redundancy_reason = "未识别到明显的高频母题复读。"
+    if repeated_motifs:
+        repeated_sentences = [sentence for sentence in draft_sentences if any(motif in sentence for motif in repeated_motifs)]
+        motif_has_new_function = any(
+            sentence_has_information_gain(sentence) or sentence_has_decision_or_shift(sentence) or sentence_has_plot_progress(sentence)
+            for sentence in repeated_sentences
+        )
+        if motif_has_new_function:
+            redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但至少一处承担了信息或动作功能。"
+        else:
+            redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但没有带来新信息、动作决策或认知反转。"
+    signals["motif_redundancy"] = {
+        "repeated_motifs": repeated_motifs[:5],
+        "repetition_has_new_function": motif_has_new_function,
+        "redundancy_reason": redundancy_reason,
+    }
+
+    consistency_issues: list[str] = []
+    for wrong_name in WRONG_PROTAGONIST_NAMES:
+        if wrong_name in draft_text:
+            consistency_issues.append(f"主角姓名漂移为“{wrong_name}”，与既有 canon 不一致。")
+    if task_text and "不急于解释" in task_text:
+        for marker in CANON_DRIFT_MARKERS:
+            if marker in draft_text:
+                consistency_issues.append(f"出现“{marker}”式亲密回忆，阿绣从陌生线索漂移成了既有旧识。")
+                break
+    if chapter_state and "阿绣" in chapter_state and any(marker in draft_text for marker in CANON_DRIFT_MARKERS):
+        consistency_issues.append("当前 chapter_state 尚未支持阿绣进入具体亲密回忆层，存在 canon 漂移风险。")
+    signals["canon_consistency"] = {
+        "is_consistent": not consistency_issues,
+        "consistency_issues": consistency_issues[:3],
+    }
+
+    return signals
+
+
+def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
+    failures: list[str] = []
+    information_gain = signals.get("information_gain", {})
+    plot_progress = signals.get("plot_progress", {})
+    character_decision = signals.get("character_decision", {})
+    motif_redundancy = signals.get("motif_redundancy", {})
+    canon_consistency = signals.get("canon_consistency", {})
+
+    if not information_gain.get("has_new_information"):
+        failures.append("missing_information_gain")
+    if not plot_progress.get("has_plot_progress"):
+        failures.append("missing_plot_progress")
+    if not character_decision.get("has_decision_or_behavior_shift"):
+        failures.append("missing_character_decision")
+    if motif_redundancy.get("repeated_motifs") and not motif_redundancy.get("repetition_has_new_function"):
+        failures.append("motif_redundancy_without_new_function")
+    if not canon_consistency.get("is_consistent") and canon_consistency.get("consistency_issues"):
+        failures.append("canon_inconsistency")
+    return failures
+
+
+def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], list[str], str]:
+    major_issues: list[str] = []
+    minor_issues: list[str] = []
+
+    information_gain = signals.get("information_gain", {})
+    plot_progress = signals.get("plot_progress", {})
+    character_decision = signals.get("character_decision", {})
+    motif_redundancy = signals.get("motif_redundancy", {})
+    canon_consistency = signals.get("canon_consistency", {})
+
+    if not information_gain.get("has_new_information"):
+        major_issues.append("本场缺少可验证的新信息增量，新增内容主要停留在氛围、疲惫或既有意象复现。")
+    elif information_gain.get("new_information_items"):
+        minor_issues.append(f"本场新增信息：{'；'.join(information_gain['new_information_items'][:2])}")
+
+    if not plot_progress.get("has_plot_progress"):
+        major_issues.append("本场没有形成可追踪的情节推进，局面、风险、关系或认知没有发生明确变化。")
+
+    if not character_decision.get("has_decision_or_behavior_shift"):
+        major_issues.append("主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。")
+
+    repeated_motifs = motif_redundancy.get("repeated_motifs") or []
+    if repeated_motifs and not motif_redundancy.get("repetition_has_new_function"):
+        major_issues.append(f"高频母题复读但未承担新功能：{', '.join(repeated_motifs[:4])}。")
+
+    for issue in (canon_consistency.get("consistency_issues") or [])[:2]:
+        major_issues.append(f"canon 一致性风险：{issue}")
+
+    if major_issues:
+        summary = major_issues[0]
+    else:
+        summary = "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+
+    return major_issues[:5], minor_issues[:3], summary
+
+
 def extract_json_object(raw_text: str) -> dict:
     text = raw_text.strip()
     if not text:
@@ -174,15 +587,28 @@ def validate_review_content(result: dict) -> None:
     if result.get("task_goal_fulfilled") is False and not (major_issues or minor_issues):
         raise ValueError("Reviewer 判定任务未完成，但没有给出具体问题")
 
+    for field in ["information_gain", "plot_progress", "character_decision", "motif_redundancy", "canon_consistency"]:
+        if not isinstance(result.get(field), dict):
+            raise ValueError(f"Reviewer 输出缺少结构检查字段：{field}")
 
-def build_chinese_issue_fallback(verdict: str, raw_review_text: str) -> tuple[list[str], list[str], str]:
+
+def build_chinese_issue_fallback(
+    verdict: str,
+    raw_review_text: str,
+    task_text: str | None = None,
+    draft_text: str = "",
+    based_on_text: str = "",
+    chapter_state: str = "",
+) -> tuple[list[str], list[str], str, dict[str, Any]]:
     lower_text = raw_review_text.lower()
+    structural_signals = build_structural_review_signals(task_text, draft_text, based_on_text=based_on_text, chapter_state=chapter_state)
+    major_issues, minor_issues, structural_summary = build_structural_issue_summary(structural_signals)
 
     if verdict == "lock":
-        return [], [], "当前 scene 已满足任务目标与约束条件，可直接锁定。"
-
-    major_issues: list[str] = []
-    minor_issues: list[str] = []
+        if structural_gate_failures(structural_signals):
+            verdict = "revise"
+        else:
+            return [], [], "当前 scene 已满足任务目标与约束条件，且通过结构硬检查，可直接锁定。", structural_signals
 
     if "too short" in lower_text or "500-900" in raw_review_text or "200-250" in lower_text:
         major_issues.append("篇幅与动作承载量偏弱，导致本场的完成度不足。")
@@ -199,16 +625,46 @@ def build_chinese_issue_fallback(verdict: str, raw_review_text: str) -> tuple[li
     if verdict == "rewrite":
         if not major_issues:
             major_issues.append("当前 scene 在方向或约束执行上存在明显偏差，需要整体重写。")
-        summary = "当前 scene 存在方向性问题，建议整体重写后再进入审稿。"
+        summary = structural_summary or "当前 scene 存在方向性问题，建议整体重写后再进入审稿。"
     else:
         if not major_issues:
-            major_issues.append("方向基本正确，但本场关键动作的完成度仍不足。")
-        summary = "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。"
+            major_issues.append("方向基本正确，但本场结构推进信号仍不足。")
+        summary = structural_summary or "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。"
 
-    return major_issues[:3], minor_issues[:3], summary
+    return major_issues[:5], minor_issues[:3], summary, structural_signals
 
 
-def normalize_review_result(result: dict, raw_review_text: str, task_text: str | None = None) -> dict:
+def normalize_review_result(
+    result: dict,
+    raw_review_text: str,
+    task_text: str | None = None,
+    low_confidence: bool = False,
+    draft_text: str = "",
+    based_on_text: str = "",
+    chapter_state: str = "",
+) -> dict:
+    allowed_keys = {
+        "task_id",
+        "verdict",
+        "task_goal_fulfilled",
+        "major_issues",
+        "minor_issues",
+        "recommended_next_step",
+        "summary",
+        "information_gain",
+        "plot_progress",
+        "character_decision",
+        "motif_redundancy",
+        "canon_consistency",
+    }
+
+    def infer_recommended_next_step(current_verdict: str) -> str:
+        if current_verdict == "lock":
+            return "lock_scene"
+        if current_verdict == "rewrite":
+            return "rewrite_scene"
+        return "create_revision_task"
+
     def raw_review_has_strong_negative_signal(text: str) -> bool:
         lower_text = text.lower()
         negative_markers = [
@@ -263,13 +719,18 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
 
     def clean_list(items: list[str]) -> list[str]:
         cleaned = []
+        seen: set[str] = set()
 
         for item in items:
-            text = str(item).strip()
+            text = sanitize_issue_text(item)
             if not text:
                 continue
             if is_bad_issue(text):
                 continue
+            key = normalize_text_key(text)
+            if key in seen:
+                continue
+            seen.add(key)
             cleaned.append(text)
 
         return cleaned
@@ -278,6 +739,37 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
     cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
     cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
     summary = str(result.get("summary", "")).strip()
+    local_structural = build_structural_review_signals(task_text, draft_text, based_on_text=based_on_text, chapter_state=chapter_state)
+
+    def merge_structural_payload() -> dict[str, Any]:
+        merged = build_empty_structural_review()
+        for field, local_value in local_structural.items():
+            candidate = result.get(field) if isinstance(result.get(field), dict) else {}
+            merged[field] = dict(local_value)
+            if field == "information_gain":
+                reviewer_items = [sanitize_issue_text(item) for item in candidate.get("new_information_items", []) if str(item).strip()]
+                merged[field]["has_new_information"] = bool(candidate.get("has_new_information", local_value["has_new_information"])) and bool(local_value["has_new_information"])
+                merged[field]["new_information_items"] = (reviewer_items or local_value["new_information_items"])[:3]
+            elif field == "plot_progress":
+                merged[field]["has_plot_progress"] = bool(candidate.get("has_plot_progress", local_value["has_plot_progress"])) and bool(local_value["has_plot_progress"])
+                merged[field]["progress_reason"] = sanitize_issue_text(candidate.get("progress_reason") or local_value["progress_reason"])
+            elif field == "character_decision":
+                merged[field]["has_decision_or_behavior_shift"] = bool(candidate.get("has_decision_or_behavior_shift", local_value["has_decision_or_behavior_shift"])) and bool(local_value["has_decision_or_behavior_shift"])
+                merged[field]["decision_detail"] = sanitize_issue_text(candidate.get("decision_detail") or local_value["decision_detail"])
+            elif field == "motif_redundancy":
+                reviewer_motifs = [sanitize_issue_text(item) for item in candidate.get("repeated_motifs", []) if str(item).strip()]
+                merged[field]["repeated_motifs"] = (reviewer_motifs or local_value["repeated_motifs"])[:5]
+                merged[field]["repetition_has_new_function"] = bool(candidate.get("repetition_has_new_function", local_value["repetition_has_new_function"])) and bool(local_value["repetition_has_new_function"])
+                merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"])
+            elif field == "canon_consistency":
+                reviewer_issues = [sanitize_issue_text(item) for item in candidate.get("consistency_issues", []) if str(item).strip()]
+                merged[field]["is_consistent"] = bool(candidate.get("is_consistent", local_value["is_consistent"])) and bool(local_value["is_consistent"])
+                merged[field]["consistency_issues"] = (reviewer_issues or local_value["consistency_issues"])[:3]
+        return merged
+
+    structural_payload = merge_structural_payload()
+    structural_major, structural_minor, structural_summary = build_structural_issue_summary(structural_payload)
+    hard_failures = structural_gate_failures(structural_payload)
 
     if verdict == "lock" and raw_review_has_strong_negative_signal(raw_review_text):
         verdict = "revise"
@@ -291,16 +783,55 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
         result["verdict"] = "revise"
         result["recommended_next_step"] = "create_revision_task"
 
+    if low_confidence and verdict == "rewrite":
+        verdict = "revise"
+        result["verdict"] = "revise"
+        result["recommended_next_step"] = "create_revision_task"
+
+    if low_confidence:
+        low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理。"
+        if low_confidence_note not in cleaned_minor:
+            cleaned_minor = [low_confidence_note] + cleaned_minor
+
     if is_mostly_english(summary) or not summary:
-        _, _, fallback_summary = build_chinese_issue_fallback(verdict, raw_review_text)
+        _, _, fallback_summary, _ = build_chinese_issue_fallback(
+            verdict,
+            raw_review_text,
+            task_text=task_text,
+            draft_text=draft_text,
+            based_on_text=based_on_text,
+            chapter_state=chapter_state,
+        )
         summary = fallback_summary
 
     if verdict in {"revise", "rewrite"} and not (cleaned_major or cleaned_minor):
-        cleaned_major, cleaned_minor, fallback_summary = build_chinese_issue_fallback(verdict, raw_review_text)
+        cleaned_major, cleaned_minor, fallback_summary, _ = build_chinese_issue_fallback(
+            verdict,
+            raw_review_text,
+            task_text=task_text,
+            draft_text=draft_text,
+            based_on_text=based_on_text,
+            chapter_state=chapter_state,
+        )
         summary = fallback_summary
+
+    for item in reversed(structural_minor):
+        if item not in cleaned_minor:
+            cleaned_minor.insert(0, item)
+    for item in reversed(structural_major):
+        if item not in cleaned_major:
+            cleaned_major.insert(0, item)
 
     if not cleaned_major and verdict in {"revise", "rewrite"}:
         cleaned_major = ["当前草稿未充分完成 task 的核心推进目标。"]
+
+    if hard_failures:
+        summary = structural_summary
+        result["task_goal_fulfilled"] = False
+        severe_failure = "canon_inconsistency" in hard_failures or {"missing_information_gain", "missing_plot_progress", "missing_character_decision"}.issubset(set(hard_failures))
+        verdict = "rewrite" if severe_failure else "revise"
+        result["verdict"] = verdict
+        result["recommended_next_step"] = infer_recommended_next_step(verdict)
 
     rewrite_hard_markers = [
         "角色越界",
@@ -326,6 +857,7 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
     if (
         verdict == "revise"
         and len(cleaned_major) == 1
+        and not hard_failures
         and any(marker in summary for marker in positive_summary_markers)
         and not any(marker in summary for marker in negative_summary_markers)
         and minor_is_light
@@ -344,8 +876,11 @@ def normalize_review_result(result: dict, raw_review_text: str, task_text: str |
     result["major_issues"] = cleaned_major
     result["minor_issues"] = cleaned_minor
     result["summary"] = summary
-
-    return result
+    result["verdict"] = verdict
+    result["recommended_next_step"] = str(result.get("recommended_next_step") or infer_recommended_next_step(verdict)).strip()
+    for field, value in structural_payload.items():
+        result[field] = value
+    return {key: result.get(key) for key in allowed_keys}
 
 
 def split_sentences(text: str) -> list[str]:
@@ -441,9 +976,31 @@ def extract_issue_candidates(text: str) -> tuple[list[str], list[str]]:
     return major_issues[:3], minor_issues[:3]
 
 
-def build_local_review_fallback(task_id: str, raw_review_text: str) -> dict:
+def build_local_review_fallback(
+    task_id: str,
+    raw_review_text: str,
+    task_text: str | None = None,
+    draft_text: str = "",
+    based_on_text: str = "",
+    chapter_state: str = "",
+    low_confidence: bool = False,
+) -> dict:
     verdict = infer_verdict_from_text(raw_review_text)
-    major_issues, minor_issues = extract_issue_candidates(raw_review_text)
+    extracted_major, extracted_minor = extract_issue_candidates(raw_review_text)
+    structural_signals = build_structural_review_signals(task_text, draft_text, based_on_text=based_on_text, chapter_state=chapter_state)
+    structural_major, structural_minor, structural_summary = build_structural_issue_summary(structural_signals)
+    major_issues = structural_major + extracted_major
+    minor_issues = structural_minor + extracted_minor
+    failures = structural_gate_failures(structural_signals)
+
+    if low_confidence:
+        verdict = "revise"
+        low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理并转为保守小修。"
+        if low_confidence_note not in minor_issues:
+            minor_issues = [low_confidence_note] + minor_issues
+
+    if failures and verdict == "lock":
+        verdict = "rewrite" if "canon_inconsistency" in failures else "revise"
 
     if verdict == "lock":
         summary = "审稿分析认为当前 scene 基本满足任务约束、人物边界与低烈度推进要求，可直接锁定。"
@@ -452,13 +1009,13 @@ def build_local_review_fallback(task_id: str, raw_review_text: str) -> dict:
         major_issues = []
         minor_issues = []
     elif verdict == "rewrite":
-        summary = "审稿分析认为当前 scene 存在方向性或约束性问题，建议整体重写。"
+        summary = structural_summary or "审稿分析认为当前 scene 存在方向性或约束性问题，建议整体重写。"
         task_goal_fulfilled = False
         recommended_next_step = "rewrite_scene"
         if not major_issues:
             major_issues = ["当前审稿分析指向重写，但原始输出未提供足够结构化的问题列表，需人工补充复核。"]
     else:
-        summary = "审稿分析认为当前 scene 方向基本正确，但仍有若干问题需要小修。"
+        summary = structural_summary or "审稿分析认为当前 scene 方向基本正确，但仍有若干问题需要小修。"
         task_goal_fulfilled = False
         recommended_next_step = "create_revision_task"
         if not (major_issues or minor_issues):
@@ -468,10 +1025,15 @@ def build_local_review_fallback(task_id: str, raw_review_text: str) -> dict:
         "task_id": task_id,
         "verdict": verdict,
         "task_goal_fulfilled": task_goal_fulfilled,
-        "major_issues": major_issues,
-        "minor_issues": minor_issues,
+        "major_issues": major_issues[:5],
+        "minor_issues": minor_issues[:3],
         "recommended_next_step": recommended_next_step,
         "summary": summary,
+        "information_gain": structural_signals["information_gain"],
+        "plot_progress": structural_signals["plot_progress"],
+        "character_decision": structural_signals["character_decision"],
+        "motif_redundancy": structural_signals["motif_redundancy"],
+        "canon_consistency": structural_signals["canon_consistency"],
     }
 
 
@@ -492,11 +1054,37 @@ def build_review_prompt(
     based_on_text: str,
     draft_text: str,
 ) -> str:
+    normalized_based_on = strip_scene_heading(based_on_text)
+    normalized_draft = strip_scene_heading(draft_text)
     return f"""请审查下面这段 scene 草稿。
 
 你只能输出一个合法 JSON 对象。
 禁止先输出分析过程、英文说明、推理草稿或自然语言结论。
 如果判断可以锁定，也必须把理由写进 summary 字段。
+你审查的对象只有“待审草稿”一节；“直接前文 / 基准文本”只用于核对承接关系，绝不是本次草稿本身。
+不要把“直接前文 / 基准文本”误判为待审草稿，不要因为它属于上一场 scene 就说当前稿件还是上一场。
+你不是文风评论员，而是结构质量闸门。禁止只给“氛围到位、画面感强、文风统一、scene purpose 不够”这类泛评。
+你必须逐项回答以下五类硬检查：
+- information_gain：本场是否新增了至少一条可验证的新信息；若有，必须列出 `new_information_items`。
+- plot_progress：本场是否推动了情节或让局面发生变化；`progress_reason` 必须说明推进了什么。
+- character_decision：主角是否做出了可追踪的决策或行为偏移；`decision_detail` 必须写明具体动作。
+- motif_redundancy：本场复读了哪些母题；若复读，是否承担了新功能；`redundancy_reason` 必须明确。
+- canon_consistency：是否与 `chapter_state` / 前文 / locked notes 冲突；若冲突，列出 `consistency_issues`。
+如果以下任一项不满足，默认不能 lock：没有新信息、没有情节推进、没有决策变化、母题复读且无新功能、存在 canon 冲突。
+
+你输出的 JSON 必须包含这些字段：
+- `task_id`
+- `verdict`
+- `task_goal_fulfilled`
+- `major_issues`
+- `minor_issues`
+- `recommended_next_step`
+- `summary`
+- `information_gain` {{ `has_new_information`, `new_information_items` }}
+- `plot_progress` {{ `has_plot_progress`, `progress_reason` }}
+- `character_decision` {{ `has_decision_or_behavior_shift`, `decision_detail` }}
+- `motif_redundancy` {{ `repeated_motifs`, `repetition_has_new_function`, `redundancy_reason` }}
+- `canon_consistency` {{ `is_consistent`, `consistency_issues` }}
 
 【当前任务】
 {task_text}
@@ -505,10 +1093,10 @@ def build_review_prompt(
 {chapter_state}
 
 【直接前文 / 基准文本】
-{based_on_text}
+{normalized_based_on}
 
 【待审草稿】
-{draft_text}
+{normalized_draft}
 
 再次强调：你的最终输出必须是单个 JSON 对象本身，首字符必须是 {{，末字符必须是 }}。
 """
@@ -531,6 +1119,11 @@ JSON 必须包含这些字段：
 - minor_issues (string array)
 - recommended_next_step (lock_scene / create_revision_task / rewrite_scene)
 - summary (string)
+- information_gain ({'{'} has_new_information, new_information_items {'}'})
+- plot_progress ({'{'} has_plot_progress, progress_reason {'}'})
+- character_decision ({'{'} has_decision_or_behavior_shift, decision_detail {'}'})
+- motif_redundancy ({'{'} repeated_motifs, repetition_has_new_function, redundancy_reason {'}'})
+- canon_consistency ({'{'} is_consistent, consistency_issues {'}'})
 
 task_id 固定为：
 {task_id}
@@ -630,13 +1223,16 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         response_format=schema,
     )
     raw_output = extract_message_text(raw_response)
+    raw_output_for_retry = raw_output
+    raw_output_meta = {"low_value_english": False, "repeated_fragments": 0, "truncated": False}
 
     try:
         result = extract_json_object(raw_output)
     except Exception:
+        raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
         print("Reviewer 原始输出如下：")
         print("=" * 40)
-        print(raw_output)
+        print(raw_output_for_retry)
         print("=" * 40)
         if not raw_output.strip():
             print("Reviewer 原始响应摘要：")
@@ -646,16 +1242,31 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
             )
         print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
         try:
-            result = extract_reviewer_json(config, task_id, raw_output)
+            result = extract_reviewer_json(config, task_id, raw_output_for_retry)
         except Exception:
             print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
-            result = build_local_review_fallback(task_id, raw_output)
+            result = build_local_review_fallback(
+                task_id,
+                raw_output_for_retry,
+                task_text=task_text,
+                draft_text=draft_text,
+                based_on_text=based_on_text,
+                chapter_state=chapter_state,
+                low_confidence=raw_output_meta["low_value_english"],
+            )
 
-    result = normalize_review_result(result, raw_output, task_text=task_text)
+    result = normalize_review_result(
+        result,
+        raw_output_for_retry,
+        task_text=task_text,
+        low_confidence=raw_output_meta["low_value_english"],
+        draft_text=draft_text,
+        based_on_text=based_on_text,
+        chapter_state=chapter_state,
+    )
+    result["task_id"] = task_id
     validate(instance=result, schema=schema)
     validate_review_content(result)
-
-    result["task_id"] = task_id
 
     out_path = f"02_working/reviews/{task_id}_reviewer.json"
     save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))

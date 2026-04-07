@@ -45,6 +45,9 @@ generation:
   temperature: 0.4
   request_timeout: 600
   max_auto_revisions: 5
+  auto_continue_until_scene: 15
+  max_supervisor_rounds: 8
+  supervisor_rescue_draft_enabled: true
 
 output:
   working_dir: 02_working

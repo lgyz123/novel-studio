@@ -4,6 +4,5 @@
 - timeline.recent_events[6]: "EVENT-007"
 
 ## Changed
-- characters.protagonist.location: "运河边" -> "码头"
+- characters.protagonist.physical_state: "疲惫、持续劳作、未麻木" -> "持续劳作、未麻木"
 - last_locked_scene: "ch01_scene06" -> "ch01_scene07"
-- timeline.current_book_time: "次日夜间" -> "次日白天"

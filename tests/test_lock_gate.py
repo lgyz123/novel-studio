@@ -37,9 +37,14 @@ class LockGateTest(unittest.TestCase):
             "summary": "当前 scene 满足锁定条件。",
             "major_issues": [],
             "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认了尸体腰间少了一枚铜钱。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "主角因此改变了交差顺序。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他先把铜钱藏起，没有立刻交差。"},
+            "motif_redundancy": {"repeated_motifs": ["红绳"], "repetition_has_new_function": True, "redundancy_reason": "红绳这次触发了新的现实动作。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
         }
         structured = build_structured_review_result(reviewer_result)
-        report = build_lock_gate_report(BASE_TASK, structured, max_revisions=5)
+        report = build_lock_gate_report(BASE_TASK, structured, max_revisions=5, legacy_result=reviewer_result)
 
         self.assertTrue(report.passed)
         self.assertTrue(all(check.passed for check in report.checks))
@@ -51,6 +56,11 @@ class LockGateTest(unittest.TestCase):
             "summary": "看似可锁，但仍有硬伤。",
             "major_issues": ["存在严重时间线矛盾，导致前后不一。"],
             "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["发现了新线索。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面发生变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角做出新的动作偏移。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
         }
         updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
 
@@ -67,9 +77,14 @@ class LockGateTest(unittest.TestCase):
             "summary": "人工复核后可锁定。",
             "major_issues": [],
             "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认尸体来源地。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "本场局面向前推进。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角决定暂缓交差。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
         }
         structured = build_structured_review_result(reviewer_result)
-        report = build_lock_gate_report(task_text, structured, max_revisions=5)
+        report = build_lock_gate_report(task_text, structured, max_revisions=5, legacy_result=reviewer_result)
 
         self.assertTrue(report.passed)
         self.assertTrue(report.policy_override.present)
@@ -82,9 +97,34 @@ class LockGateTest(unittest.TestCase):
             "summary": "当前 scene 满足锁定条件。",
             "major_issues": [],
             "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认了一个不可回退的新事实。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "剧情继续向前。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角决定夜里回查。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
         }
         structured = build_structured_review_result(reviewer_result)
-        report = build_lock_gate_report(BASE_TASK, structured, max_revisions=5)
+        report = build_lock_gate_report(BASE_TASK, structured, max_revisions=5, legacy_result=reviewer_result)
+
+    def test_lock_gate_blocks_lock_without_information_gain(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "氛围统一，可锁定。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面略有变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角藏起了物件。"},
+            "motif_redundancy": {"repeated_motifs": ["红绳"], "repetition_has_new_function": False, "redundancy_reason": "红绳只是在重复出现。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertFalse(report.passed)
+        self.assertTrue(any(check.name == "information_gain" and not check.passed for check in report.checks))
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

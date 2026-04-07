@@ -9,7 +9,20 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
-from app.main import build_generated_task_content, build_writer_user_prompt
+from app.main import (
+    build_generated_task_content,
+    build_locked_chapter_file,
+    build_validation_errors,
+    clean_model_output,
+    contains_script_style,
+    detect_scene10_old_pattern_reuse,
+    build_writer_user_prompt,
+    extract_supervisor_round,
+    has_supervisor_retry_budget,
+    maybe_prepare_supervisor_rescue_draft,
+    should_continue_after_lock,
+    write_draft,
+)
 from app.review_models import (
     RepairMode,
     ReviewIssue,
@@ -29,6 +42,41 @@ from app.review_models import (
 
 
 class ReviewModelsTest(unittest.TestCase):
+    def test_writer_system_prompt_only_requests_markdown_prose(self) -> None:
+        prompt = Path("/Users/guan/git/novel-studio/prompts/writer_system.md").read_text(encoding="utf-8")
+
+        self.assertIn("只生成一个可直接保存的 Markdown 草稿正文", prompt)
+        self.assertIn("只允许输出 Markdown 草稿正文", prompt)
+        self.assertIn("修订说明", prompt)
+        self.assertIn("required_information_gain", prompt)
+        self.assertIn("avoid_motifs", prompt)
+        self.assertNotIn("第一部分：JSON", prompt)
+
+    def test_validation_rejects_editorial_tail_blocks(self) -> None:
+        draft = """孟浮灯把麻绳搭回肩头，顺着冷风往前走。
+
+**修订说明**
+1. 强化了疲惫感
+2. 收紧了疑问推进
+"""
+
+        errors = build_validation_errors("# task_id\nscene_001\n", draft)
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+        self.assertTrue(any("修订说明" in item or "**修订说明**" in item for item in errors))
+
+    def test_clean_model_output_truncates_editorial_tail_blocks(self) -> None:
+        raw = """孟浮灯把门关上，潮气还贴在手背上。
+
+【执行说明】
+1. 保留环境压迫感
+2. 不让疑问升级为行动
+"""
+
+        cleaned = clean_model_output(raw)
+
+        self.assertEqual(cleaned, "孟浮灯把门关上，潮气还贴在手背上。")
+
     def test_invalid_issue_category_rejected(self) -> None:
         with self.assertRaises(ValidationError):
             ReviewIssue(
@@ -243,6 +291,517 @@ local_fix
             self.assertIn("scene_044_repair_plan.json", prompt)
             self.assertIn("本次是局部修补，不要推倒整场重写", prompt)
             self.assertIn("必须优先处理的修订动作", prompt)
+
+    def test_writer_prompt_includes_scene10_anti_pattern_guardrails(self) -> None:
+        task_text = """# task_id
+2026-04-03-017-RW3
+# goal
+重写 scene10。
+
+# based_on
+02_working/drafts/ch01_scene10_v6_rewrite2.md
+
+# output_target
+02_working/drafts/ch01_scene10_v6_rewrite3.md
+"""
+
+        prompt = build_writer_user_prompt(
+            task_text,
+            "上下文内容",
+            {"task_id": "2026-04-03-017-RW3", "goal": "重写 scene10", "draft_file": "02_working/drafts/ch01_scene10_v6_rewrite3.md"},
+        )
+
+        self.assertIn("【scene10 专项防跑偏规则】", prompt)
+        self.assertIn("禁止再次把“改结法”", prompt)
+        self.assertIn("顺手收起、没有立刻擦掉、额外确认、轻微避开、重新摆正、暂缓一个本可立即完成的收尾动作", prompt)
+
+    def test_writer_prompt_includes_structural_scene_requirements(self) -> None:
+        task_text = """# task_id
+2026-04-03-018_ch01_scene11_auto
+
+# goal
+承接上一场，完成下一场 scene。
+
+# scene_purpose
+让局面从余波停留推进到新的现实约束落地。
+
+# required_information_gain
+- 补充一个新的物件状态变化。
+- 明确一个新的行动边界。
+
+# required_plot_progress
+场景结尾前必须形成新的现实阻碍。
+
+# required_decision_shift
+主角必须改变原本的处理方式。
+
+# avoid_motifs
+- 红绳尾端
+- 再次打结
+"""
+
+        prompt = build_writer_user_prompt(
+            task_text,
+            "上下文内容",
+            {"task_id": "2026-04-03-018_ch01_scene11_auto", "goal": "承接上一场，完成下一场 scene。"},
+        )
+
+        self.assertIn("【本场结构硬约束】", prompt)
+        self.assertIn("场景功能：让局面从余波停留推进到新的现实约束落地。", prompt)
+        self.assertIn("必须写出的新信息增量", prompt)
+        self.assertIn("必须完成的局面推进：场景结尾前必须形成新的现实阻碍。", prompt)
+        self.assertIn("主角必须出现的新动作/决策偏移：主角必须改变原本的处理方式。", prompt)
+        self.assertIn("本场避免原样复用的母题/触发物", prompt)
+
+    def test_generated_task_content_carries_structural_fields(self) -> None:
+        task_text = """# task_id
+scene_301
+
+# goal
+继续处理当前 scene。
+
+# scene_purpose
+让局面进入新的现实阶段。
+
+# required_information_gain
+- 确认新的风险条件。
+
+# required_plot_progress
+场景结尾前必须让阻碍升级。
+
+# required_decision_shift
+主角必须改变原先的处理方式。
+
+# avoid_motifs
+- 原样重复旧物回想
+
+# output_target
+02_working/drafts/scene_301.md
+"""
+        reviewer_result = {
+            "task_id": "scene_301",
+            "summary": "需要继续推进。",
+            "major_issues": ["当前推进不够。"],
+            "minor_issues": [],
+        }
+
+        content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_301.md", "rewrite")
+
+        self.assertIn("# scene_purpose\n让局面进入新的现实阶段。", content)
+        self.assertIn("# required_information_gain\n- 确认新的风险条件。", content)
+        self.assertIn("# required_plot_progress\n场景结尾前必须让阻碍升级。", content)
+        self.assertIn("# required_decision_shift\n主角必须改变原先的处理方式。", content)
+        self.assertIn("# avoid_motifs\n- 原样重复旧物回想", content)
+
+    def test_build_validation_errors_rejects_empty_draft(self) -> None:
+        task_text = """# task_id
+scene_200
+
+# goal
+写一个短场景。
+
+# constraints
+- 保持单视角
+"""
+
+        errors = build_validation_errors(task_text, "   \n\n  ")
+
+        self.assertEqual(errors, ["草稿为空，未生成有效小说正文"])
+
+    def test_write_draft_recovers_parenthetical_only_output_via_rewrite(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_parenthetical
+
+# goal
+写一个短场景。
+
+# output_target
+02_working/drafts/scene_parenthetical.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_call_ollama = main_module.call_ollama
+            original_rewrite = main_module.rewrite_script_to_prose
+            main_module.ROOT = root
+            try:
+                main_module.call_ollama = lambda **kwargs: "（他把盐袋轻轻挪开，像临时让出半寸位置。）"
+                main_module.rewrite_script_to_prose = lambda config, current_context, bad_draft: "他把盐袋轻轻挪开，像临时让出半寸位置。"
+
+                result = write_draft(
+                    {
+                        "writer": {"model": "fake", "base_url": "http://example.com"},
+                        "generation": {"write_num_ctx": 2048, "temperature": 0.4, "request_timeout": 10},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.call_ollama = original_call_ollama
+                main_module.rewrite_script_to_prose = original_rewrite
+                main_module.ROOT = previous_root
+
+            saved_draft = (root / "02_working/drafts/scene_parenthetical.md").read_text(encoding="utf-8")
+            self.assertEqual(result["draft_file"], "02_working/drafts/scene_parenthetical.md")
+            self.assertEqual(saved_draft, "他把盐袋轻轻挪开，像临时让出半寸位置。")
+            self.assertTrue((root / "02_working/logs/scene_parenthetical_first_failed_raw.md").exists())
+
+    def test_contains_script_style_flags_single_parenthetical_block(self) -> None:
+        problems = contains_script_style("（他把木箱挪开半寸，风从缝里钻了进来，煤油灯晃了一下。）")
+
+        self.assertIn("整段文本为括号包裹的舞台说明", problems)
+
+    def test_write_draft_recovers_truncated_output_via_continuation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_truncated
+
+# goal
+写一个短场景。
+
+# output_target
+02_working/drafts/scene_truncated.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_call_ollama = main_module.call_ollama
+            original_continue = main_module.continue_truncated_draft
+            main_module.ROOT = root
+            try:
+                main_module.call_ollama = lambda **kwargs: "仓库角落的煤油灯突然熄灭。孟浮灯摸出火柴时，火"
+                main_module.continue_truncated_draft = lambda config, current_context, bad_draft: "仓库角落的煤油灯突然熄灭。孟浮灯摸出火柴时，火苗在指间一闪，又被风压低了半寸。他护着那点亮色，把眼前的活计重新看清。"
+
+                result = write_draft(
+                    {
+                        "writer": {"model": "fake", "base_url": "http://example.com"},
+                        "generation": {"write_num_ctx": 2048, "temperature": 0.4, "request_timeout": 10},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.call_ollama = original_call_ollama
+                main_module.continue_truncated_draft = original_continue
+                main_module.ROOT = previous_root
+
+            saved_draft = (root / "02_working/drafts/scene_truncated.md").read_text(encoding="utf-8")
+            self.assertEqual(result["draft_file"], "02_working/drafts/scene_truncated.md")
+            self.assertTrue(saved_draft.endswith("把眼前的活计重新看清。"))
+            self.assertTrue((root / "02_working/logs/scene_truncated_continued_attempt.md").exists())
+
+    def test_write_draft_repairs_validation_errors_before_failing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_modern
+
+# goal
+写一个短场景。
+
+# output_target
+02_working/drafts/scene_modern.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_call_ollama = main_module.call_ollama
+            original_repair = main_module.repair_invalid_draft
+            main_module.ROOT = root
+            try:
+                main_module.call_ollama = lambda **kwargs: "远处传来运尸车碾过石板的闷响。"
+                main_module.repair_invalid_draft = lambda config, current_context, bad_draft, errors: "远处传来板车碾过石板的闷响。"
+
+                result = write_draft(
+                    {
+                        "writer": {"model": "fake", "base_url": "http://example.com"},
+                        "generation": {"write_num_ctx": 2048, "temperature": 0.4, "request_timeout": 10},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.call_ollama = original_call_ollama
+                main_module.repair_invalid_draft = original_repair
+                main_module.ROOT = previous_root
+
+            saved_draft = (root / "02_working/drafts/scene_modern.md").read_text(encoding="utf-8")
+            self.assertEqual(result["draft_file"], "02_working/drafts/scene_modern.md")
+            self.assertEqual(saved_draft, "远处传来板车碾过石板的闷响。")
+            self.assertTrue((root / "02_working/logs/scene_modern_repaired_attempt.md").exists())
+
+    def test_generated_followup_task_strips_accumulated_revision_pollution(self) -> None:
+        task_text = """# task_id
+2026-04-03-017-R5
+
+# goal
+基于上一版草稿进行小修：承接 ch01_scene09 写出 scene10。本次重点解决：旧问题A。本次重点解决：旧问题B。
+
+# constraints
+- 保持单视角
+- 不新增制度性设定
+- 修订模式：full_redraft
+- repair_plan 执行动作：
+- 旧动作一
+- 旧动作二
+- 额外修订要求：旧要求A
+- 额外修订要求：旧要求B
+
+# preferred_length
+500-900字
+
+# output_target
+02_working/drafts/ch01_scene10_v6.md
+"""
+
+        reviewer_result = {
+            "summary": "新的问题摘要。",
+            "major_issues": ["新的核心问题。"],
+            "minor_issues": [],
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            main_module.ROOT = Path(tmp_dir)
+            try:
+                content = build_generated_task_content(
+                    task_text,
+                    reviewer_result,
+                    "02_working/drafts/ch01_scene10_v6.md",
+                    "revise",
+                )
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIn("承接 ch01_scene09 写出 scene10。", content)
+        self.assertNotIn("旧问题A", content)
+        self.assertNotIn("旧问题B", content)
+        self.assertNotIn("旧动作一", content)
+        self.assertNotIn("旧动作二", content)
+        self.assertNotIn("旧要求A", content)
+        self.assertNotIn("旧要求B", content)
+
+    def test_build_locked_chapter_file_uses_canonical_scene_name(self) -> None:
+        task_text = """# task_id
+2026-04-03-018_ch01_scene11_auto-RW1-RW1
+
+# output_target
+02_working/drafts/ch01_scene11_v3_rewrite_v8_rewrite.md
+"""
+
+        locked_file = build_locked_chapter_file(
+            task_text,
+            "02_working/drafts/ch01_scene11_v3_rewrite_v8_rewrite.md",
+            "03_locked",
+        )
+
+        self.assertEqual(locked_file, "03_locked/chapters/ch01_scene11.md")
+
+    def test_should_continue_after_lock_honors_target_scene(self) -> None:
+        config = {"generation": {"auto_continue_until_scene": 15}}
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            task_file = root / "01_inputs/tasks/generated/2026-04-03-018_ch01_scene11_auto.md"
+            task_file.parent.mkdir(parents=True, exist_ok=True)
+            task_file.write_text(
+                """# task_id
+2026-04-03-018_ch01_scene11_auto
+
+# output_target
+02_working/drafts/ch01_scene11.md
+""",
+                encoding="utf-8",
+            )
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                self.assertTrue(should_continue_after_lock(config, "01_inputs/tasks/generated/2026-04-03-018_ch01_scene11_auto.md"))
+                self.assertFalse(should_continue_after_lock({"generation": {"auto_continue_until_scene": 10}}, "01_inputs/tasks/generated/2026-04-03-018_ch01_scene11_auto.md"))
+            finally:
+                main_module.ROOT = previous_root
+
+    def test_supervisor_retry_budget_uses_task_metadata(self) -> None:
+        task_text = """# task_id
+scene_090-R5
+
+# supervisor_round
+2
+"""
+
+        self.assertEqual(extract_supervisor_round(task_text), 2)
+        self.assertTrue(has_supervisor_retry_budget({"generation": {"max_supervisor_rounds": 3}}, task_text))
+        self.assertFalse(has_supervisor_retry_budget({"generation": {"max_supervisor_rounds": 2}}, task_text))
+
+    def test_prepare_supervisor_rescue_draft_saves_validated_draft(self) -> None:
+        task_text = """# task_id
+scene_091-RW1
+
+# constraints
+- 保持单视角
+
+# output_target
+02_working/drafts/scene_091_rewrite.md
+"""
+        reviewer_result = {"task_id": "scene_091-R5", "summary": "需要重写。"}
+
+        import app.main as main_module
+
+        previous_runner = main_module.run_supervisor_rescue_draft
+        previous_root = main_module.ROOT
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            main_module.ROOT = root
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts/scene_091_v6.md").write_text("旧稿", encoding="utf-8")
+            main_module.run_supervisor_rescue_draft = lambda *args, **kwargs: {
+                "task_id": "scene_091-RW1",
+                "source_draft_file": "02_working/drafts/scene_091_v6.md",
+                "draft_text": "孟浮灯把木箱边渗开的水痕又擦了一遍，擦到一半，手却停住，没立刻把那点褐印彻底抹净。",
+            }
+            try:
+                draft_file, record_file = maybe_prepare_supervisor_rescue_draft(
+                    {"supervisor": {"enabled": True}, "generation": {"supervisor_rescue_draft_enabled": True}},
+                    task_text,
+                    "02_working/drafts/scene_091_v6.md",
+                    reviewer_result,
+                )
+            finally:
+                main_module.run_supervisor_rescue_draft = previous_runner
+                main_module.ROOT = previous_root
+
+            self.assertEqual(draft_file, "02_working/drafts/scene_091_rewrite.md")
+            self.assertIsNotNone(record_file)
+            self.assertTrue((root / "02_working/drafts/scene_091_rewrite.md").exists())
+
+    def test_prepare_supervisor_rescue_draft_rejects_scene10_old_pattern_reuse(self) -> None:
+        task_text = """# task_id
+2026-04-03-017-RW4
+
+# goal
+重写 scene10。
+
+# output_target
+02_working/drafts/ch01_scene10_v6_rewrite4.md
+"""
+        reviewer_result = {"task_id": "2026-04-03-017-RW3", "summary": "需要重写。"}
+
+        import app.main as main_module
+
+        previous_runner = main_module.run_supervisor_rescue_draft
+        previous_root = main_module.ROOT
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            main_module.ROOT = root
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts/ch01_scene10_v6_rewrite3.md").write_text("旧稿", encoding="utf-8")
+            main_module.run_supervisor_rescue_draft = lambda *args, **kwargs: {
+                "task_id": "2026-04-03-017-RW4",
+                "source_draft_file": "02_working/drafts/ch01_scene10_v6_rewrite3.md",
+                "draft_text": "他把多余的绳头绕上去，又留着那一截尾端在风里轻轻晃。",
+            }
+            try:
+                draft_file, record_file = maybe_prepare_supervisor_rescue_draft(
+                    {"supervisor": {"enabled": True}, "generation": {"supervisor_rescue_draft_enabled": True}},
+                    task_text,
+                    "02_working/drafts/ch01_scene10_v6_rewrite3.md",
+                    reviewer_result,
+                )
+            finally:
+                main_module.run_supervisor_rescue_draft = previous_runner
+                main_module.ROOT = previous_root
+
+            self.assertIsNone(draft_file)
+            self.assertIsNotNone(record_file)
+            self.assertFalse((root / "02_working/drafts/ch01_scene10_v6_rewrite4.md").exists())
+
+    def test_detect_scene10_old_pattern_reuse_flags_legacy_knot_tail_moves(self) -> None:
+        issues = detect_scene10_old_pattern_reuse("他把多余的绳头绕上去，没有割掉，任由那截尾端垂在那里。")
+
+        self.assertTrue(any("改结" in item or "留线头" in item or "绳尾" in item for item in issues))
 
 
 if __name__ == "__main__":

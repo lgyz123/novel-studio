@@ -4,5 +4,5 @@
 - timeline.recent_events[4]: "EVENT-005"
 
 ## Changed
+- characters.protagonist.location: "住处" -> "乱葬岗"
 - last_locked_scene: "ch01_scene04" -> "ch01_scene05"
-- timeline.current_book_time: "次日夜间" -> "次日白天"

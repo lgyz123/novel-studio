@@ -1,0 +1,63 @@
+{
+  "task_id": "2026-04-03-010_ch01_scene07_auto",
+  "revisions": [
+    {
+      "round": 1,
+      "task_id": "2026-04-03-010_ch01_scene07_auto",
+      "draft_id": "ch01_scene07",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-010_ch01_scene07_auto-R1",
+      "draft_id": "ch01_scene07_v2",
+      "issues": [
+        "scene_purpose",
+        "redundancy"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 3,
+      "task_id": "2026-04-03-010_ch01_scene07_auto-R2",
+      "draft_id": "ch01_scene07_v3",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [
+        "redundancy"
+      ],
+      "decision": "revise"
+    },
+    {
+      "round": 4,
+      "task_id": "2026-04-03-010_ch01_scene07_auto-R3",
+      "draft_id": "ch01_scene07_v4",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 5,
+      "task_id": "2026-04-03-010_ch01_scene07_auto-R4",
+      "draft_id": "ch01_scene07_v5",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "lock"
+    }
+  ],
+  "recurring_issue_types": [
+    "scene_purpose"
+  ],
+  "escalate_after": 5,
+  "escalation_reason": ""
+}

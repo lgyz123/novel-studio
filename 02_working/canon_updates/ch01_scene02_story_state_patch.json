@@ -3,7 +3,7 @@
   "locked_file": "03_locked/chapters/ch01_scene02.md",
   "based_on_state": "03_locked/state/story_state.json",
   "timeline_updates": {
-    "current_book_time": "次日夜间",
+    "current_book_time": "夜间",
     "recent_events_to_add": [
       "EVENT-002"
     ]
@@ -12,7 +12,7 @@
     "protagonist": {
       "location": "乱葬岗",
       "physical_state": null,
-      "mental_state": null,
+      "mental_state": "克制、被“阿绣”持续牵动",
       "known_facts_to_add": [],
       "active_goals_to_add": [],
       "open_tensions_to_add": []

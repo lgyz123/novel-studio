@@ -1,17 +1,25 @@
 {
-  "task_id": "2026-04-03-016",
+  "task_id": "2026-04-03-012_ch01_scene09_auto",
   "locked_file": "03_locked/chapters/ch01_scene09.md",
   "based_on_state": "03_locked/state/story_state.json",
   "timeline_updates": {
-    "current_book_time": "次日白天",
     "recent_events_to_add": [
       "EVENT-009"
     ]
   },
-  "character_updates": {},
+  "character_updates": {
+    "protagonist": {
+      "location": null,
+      "physical_state": "持续劳作、未麻木",
+      "mental_state": null,
+      "known_facts_to_add": [],
+      "active_goals_to_add": [],
+      "open_tensions_to_add": []
+    }
+  },
   "unresolved_promises_to_add": [],
   "revealed_secrets_to_add": [],
   "item_updates": [],
   "relationship_deltas_to_add": [],
-  "decision_reason": "同步时间线与最近事件"
+  "decision_reason": "同步时间线与最近事件；补入主角位置、身心状态与当前张力"
 }

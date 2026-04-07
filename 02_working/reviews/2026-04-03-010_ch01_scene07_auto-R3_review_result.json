@@ -1,0 +1,38 @@
+{
+  "task_id": "2026-04-03-010_ch01_scene07_auto-R3",
+  "status": "revise",
+  "summary": "重复问题未收敛：scene_purpose",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "redundancy",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-R3",
+      "message": "重复问题未收敛：scene_purpose",
+      "suggested_action": "trim_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-R3",
+      "message": "当前草稿未充分完成 task 的核心推进目标。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-R3",
+      "message": "Reviewer 原始输出主要是无效英文分析，已降权处理。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "重复问题未收敛：scene_purpose"
+}

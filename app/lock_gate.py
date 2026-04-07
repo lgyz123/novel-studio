@@ -101,7 +101,58 @@ def is_chapter_metadata_complete(task_text: str) -> tuple[bool, str]:
     return True, "complete"
 
 
-def build_lock_gate_report(task_text: str, review_result: StructuredReviewResult, max_revisions: int) -> LockGateReport:
+def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[LockGateCheck]:
+    if not isinstance(legacy_result, dict):
+        return []
+
+    information_gain = legacy_result.get("information_gain") or {}
+    plot_progress = legacy_result.get("plot_progress") or {}
+    character_decision = legacy_result.get("character_decision") or {}
+    motif_redundancy = legacy_result.get("motif_redundancy") or {}
+    canon_consistency = legacy_result.get("canon_consistency") or {}
+
+    repeated_motifs = [str(item).strip() for item in motif_redundancy.get("repeated_motifs", []) if str(item).strip()]
+    consistency_issues = [str(item).strip() for item in canon_consistency.get("consistency_issues", []) if str(item).strip()]
+
+    return [
+        LockGateCheck(
+            name="information_gain",
+            passed=bool(information_gain.get("has_new_information")),
+            details="；".join(information_gain.get("new_information_items", [])[:3]) or "missing new information",
+        ),
+        LockGateCheck(
+            name="plot_progress",
+            passed=bool(plot_progress.get("has_plot_progress")),
+            details=str(plot_progress.get("progress_reason") or "missing plot progress").strip(),
+        ),
+        LockGateCheck(
+            name="character_decision",
+            passed=bool(character_decision.get("has_decision_or_behavior_shift")),
+            details=str(character_decision.get("decision_detail") or "missing decision or behavior shift").strip(),
+        ),
+        LockGateCheck(
+            name="motif_redundancy",
+            passed=not repeated_motifs or bool(motif_redundancy.get("repetition_has_new_function")),
+            details=(
+                str(motif_redundancy.get("redundancy_reason") or "motif repetition without new function").strip()
+                if repeated_motifs
+                else "no repeated motifs"
+            ),
+        ),
+        LockGateCheck(
+            name="canon_consistency",
+            passed=bool(canon_consistency.get("is_consistent", True)),
+            details="；".join(consistency_issues[:3]) or "consistent",
+        ),
+    ]
+
+
+def build_lock_gate_report(
+    task_text: str,
+    review_result: StructuredReviewResult,
+    max_revisions: int,
+    legacy_result: dict[str, Any] | None = None,
+) -> LockGateReport:
     override = extract_lock_override(task_text)
     task_id = review_result.task_id
     timeline_issues = has_issue(review_result.issues, ReviewIssueType.timeline, {ReviewSeverity.critical})
@@ -129,6 +180,7 @@ def build_lock_gate_report(task_text: str, review_result: StructuredReviewResult
         LockGateCheck(name="scene_purpose_defined", passed=scene_purpose_ok, details=scene_purpose_details),
         LockGateCheck(name="chapter_metadata_complete", passed=metadata_ok, details=metadata_details),
     ]
+    checks.extend(build_structural_lock_checks(legacy_result))
 
     return LockGateReport(
         task_id=task_id,
@@ -146,7 +198,7 @@ def save_lock_gate_report(root: Path, report: LockGateReport) -> str:
 
 def apply_lock_gate(task_text: str, reviewer_result: dict[str, Any], max_revisions: int) -> tuple[dict[str, Any], LockGateReport]:
     structured_review = build_structured_review_result(reviewer_result)
-    report = build_lock_gate_report(task_text, structured_review, max_revisions)
+    report = build_lock_gate_report(task_text, structured_review, max_revisions, legacy_result=reviewer_result)
 
     if reviewer_result.get("verdict") != "lock" or report.passed:
         return reviewer_result, report

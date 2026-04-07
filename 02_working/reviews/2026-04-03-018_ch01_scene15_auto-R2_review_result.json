@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-018_ch01_scene15_auto-R2",
+  "status": "revise",
+  "summary": "重复问题未收敛：scene_purpose",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "redundancy",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-018_ch01_scene15_auto-R2",
+      "message": "重复问题未收敛：scene_purpose",
+      "suggested_action": "trim_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-018_ch01_scene15_auto-R2",
+      "message": "场景地点与前一场景不符，改为山道与坟墓，违背已锁定的河岸/运河环境",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-018_ch01_scene15_auto-R2",
+      "message": "直接写出“阿绣”墓碑文字，违背“阿绣影响通过潜意识感知转移，非直接回忆”要求",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "redundancy",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-018_ch01_scene15_auto-R2",
+      "message": "未能聚焦尸体移动的机械重复与感官冲击",
+      "suggested_action": "trim_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "pov",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-018_ch01_scene15_auto-R2",
+      "message": "缺乏对孟复登视角的持续聚焦",
+      "suggested_action": "tighten_pov"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "重复问题未收敛：scene_purpose"
+}

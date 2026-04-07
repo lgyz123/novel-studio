@@ -31,6 +31,86 @@
     "summary": {
       "type": "string",
       "minLength": 1
+    },
+    "information_gain": {
+      "type": "object",
+      "properties": {
+        "has_new_information": {
+          "type": "boolean"
+        },
+        "new_information_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["has_new_information", "new_information_items"],
+      "additionalProperties": false
+    },
+    "plot_progress": {
+      "type": "object",
+      "properties": {
+        "has_plot_progress": {
+          "type": "boolean"
+        },
+        "progress_reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["has_plot_progress", "progress_reason"],
+      "additionalProperties": false
+    },
+    "character_decision": {
+      "type": "object",
+      "properties": {
+        "has_decision_or_behavior_shift": {
+          "type": "boolean"
+        },
+        "decision_detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["has_decision_or_behavior_shift", "decision_detail"],
+      "additionalProperties": false
+    },
+    "motif_redundancy": {
+      "type": "object",
+      "properties": {
+        "repeated_motifs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repetition_has_new_function": {
+          "type": "boolean"
+        },
+        "redundancy_reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["repeated_motifs", "repetition_has_new_function", "redundancy_reason"],
+      "additionalProperties": false
+    },
+    "canon_consistency": {
+      "type": "object",
+      "properties": {
+        "is_consistent": {
+          "type": "boolean"
+        },
+        "consistency_issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["is_consistent", "consistency_issues"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -40,7 +120,12 @@
     "major_issues",
     "minor_issues",
     "recommended_next_step",
-    "summary"
+    "summary",
+    "information_gain",
+    "plot_progress",
+    "character_decision",
+    "motif_redundancy",
+    "canon_consistency"
   ],
   "additionalProperties": false
 }

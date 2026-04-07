@@ -1,0 +1,12 @@
+{
+  "task_id": "2026-04-03-012_ch01_scene09_auto",
+  "mode": "partial_redraft",
+  "actions": [
+    {
+      "target": "2026-04-03-012_ch01_scene09_auto",
+      "issue_id": "ISSUE-001",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Reviewer 原始输出主要是无效英文分析，已降权处理。"
+    }
+  ]
+}

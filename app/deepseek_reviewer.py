@@ -22,7 +22,10 @@ def resolve_api_key(explicit_api_key: str | None = None, api_key_env: str | None
     if explicit_api_key and explicit_api_key.strip():
         return explicit_api_key.strip()
     if api_key_env and api_key_env.strip():
-        value = os.getenv(api_key_env.strip(), "").strip()
+        api_key_env = api_key_env.strip()
+        if api_key_env.startswith("sk-"):
+            return api_key_env
+        value = os.getenv(api_key_env, "").strip()
         if value:
             return value
     return os.getenv("DEEPSEEK_API_KEY", "").strip()

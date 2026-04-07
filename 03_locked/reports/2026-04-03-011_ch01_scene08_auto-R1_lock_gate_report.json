@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-R1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿整体重写当前 scene：承接上一场结尾，写孟浮灯回到窝棚后的日常琐事，如清洗工具、整理物品或准备简单饭食，通过窝棚内的环境细节（如光线、气味、物品摆放）再次无意识触发对‘阿绣’和红绳的联想，但依然不主动调查。重点写他在安静独处时，思绪被微小干扰（如滴水声、物件触感）而短暂浮现，深化疑问的潜移默化影响，展现线索在记忆中的持续发酵。。本次重点解决：围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：当前草稿未充分完成 task 的核心推进目标。；在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Reviewer 原始输出主要是无效英文分析，已降权处理。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}
