@@ -8,6 +8,7 @@ from typing import Any
 import requests
 import yaml
 from chapter_trackers import (
+    classify_scene_function,
     chapter_id_from_task_or_locked,
     detect_artifact_state_conflicts as detect_tracker_artifact_state_conflicts,
     detect_forbidden_reveal_violations,
@@ -399,7 +400,12 @@ def build_empty_structural_review() -> dict[str, Any]:
         },
         "motif_redundancy": {
             "repeated_motifs": [],
+            "new_function_motifs": [],
+            "stale_function_motifs": [],
+            "repeated_same_function_motifs": [],
+            "consecutive_same_function_motifs": [],
             "repetition_has_new_function": True,
+            "same_function_reuse_allowed": True,
             "redundancy_reason": "未识别到明显的高频母题复读。",
         },
         "canon_consistency": {
@@ -499,6 +505,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
     }
 
     has_plot_progress = bool(progress_reason) or has_decision
+    scene_function = classify_scene_function(draft_text)
     chapter_state_shift_reasons: list[str] = []
     if any(marker in draft_text for marker in INVESTIGATION_MARKERS) and str(chapter_progress.get("investigation_stage") or "") != "主动调查":
         chapter_state_shift_reasons.append("调查阶段从未启动/留意推进到更明确的调查动作")
@@ -526,13 +533,19 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
 
     repeated_entries = motif_entries_in_text(draft_text, chapter_motif_tracker)
     repeated_motifs = []
+    new_function_motifs: list[str] = []
+    stale_function_motifs: list[str] = []
+    repeated_same_function_motifs: list[str] = []
+    consecutive_same_function_motifs: list[str] = []
+    disallowed_same_function_motifs: list[str] = []
     for entry in repeated_entries:
         if not isinstance(entry, dict):
             continue
         label = str(entry.get("label") or "").strip()
-        if label and label in based_on_text and label not in repeated_motifs:
+        if label and label not in repeated_motifs:
             repeated_motifs.append(label)
     motif_has_new_function = True
+    same_function_reuse_allowed = True
     redundancy_reason = "未识别到明显的高频母题复读。"
     if repeated_motifs:
         dense_repetition = [
@@ -540,20 +553,64 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
             for motif in repeated_motifs
             if count_term_occurrences(draft_text, motif) >= 2 and count_term_occurrences(based_on_text, motif) >= 1
         ]
-        repeated_sentences = [sentence for sentence in draft_sentences if any(motif in sentence for motif in repeated_motifs)]
-        motif_has_new_function = any(
-            sentence_has_information_gain(sentence) or sentence_has_decision_or_shift(sentence) or sentence_has_plot_progress(sentence)
-            for sentence in repeated_sentences
-        )
-        if dense_repetition and not motif_has_new_function:
+        repeated_entry_map = {
+            str(entry.get("label") or "").strip(): entry
+            for entry in repeated_entries
+            if isinstance(entry, dict) and str(entry.get("label") or "").strip()
+        }
+        for label in repeated_motifs:
+            entry = repeated_entry_map.get(label, {})
+            recent_functions = [str(item).strip() for item in entry.get("recent_functions", []) if str(item).strip()]
+            if not recent_functions:
+                recent_functions = [str(item).strip() for item in entry.get("narrative_functions", []) if str(item).strip()]
+            last_function = str(entry.get("last_function") or (recent_functions[-1] if recent_functions else "")).strip()
+            same_function_reuse = bool(scene_function and scene_function in recent_functions)
+            consecutive_same_function = bool(scene_function and last_function and scene_function == last_function)
+            sentences_for_label = [sentence for sentence in draft_sentences if label in sentence]
+            local_function_gain = any(
+                sentence_has_information_gain(sentence) or sentence_has_decision_or_shift(sentence) or sentence_has_plot_progress(sentence)
+                for sentence in sentences_for_label
+            )
+            function_is_new = bool(scene_function and scene_function not in recent_functions)
+            has_new_function = function_is_new or local_function_gain
+            only_if_new_function = bool(entry.get("only_if_new_function"))
+            allow_next_scene = bool(entry.get("allow_next_scene", True))
+
+            if same_function_reuse and label not in repeated_same_function_motifs:
+                repeated_same_function_motifs.append(label)
+            if consecutive_same_function and label not in consecutive_same_function_motifs:
+                consecutive_same_function_motifs.append(label)
+            if has_new_function:
+                if label not in new_function_motifs:
+                    new_function_motifs.append(label)
+            else:
+                if label not in stale_function_motifs:
+                    stale_function_motifs.append(label)
+
+            if same_function_reuse and ((only_if_new_function and not function_is_new) or not allow_next_scene or consecutive_same_function):
+                if label not in disallowed_same_function_motifs:
+                    disallowed_same_function_motifs.append(label)
+
+        motif_has_new_function = not stale_function_motifs
+        same_function_reuse_allowed = not disallowed_same_function_motifs
+        if consecutive_same_function_motifs and stale_function_motifs:
+            redundancy_reason = f"母题 {', '.join(consecutive_same_function_motifs[:4])} 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+        elif disallowed_same_function_motifs:
+            redundancy_reason = f"母题 {', '.join(disallowed_same_function_motifs[:4])} 延续了受限的同功能复用，本场应改为新功能承担。"
+        elif dense_repetition and not motif_has_new_function:
             redundancy_reason = f"高频母题 {', '.join(dense_repetition[:4])} 在相邻场景连续复现，但没有承担新的信息、动作或推进功能。"
         elif motif_has_new_function:
-            redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但至少一处承担了信息或动作功能。"
+            redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，且本场至少为 {', '.join(new_function_motifs[:3]) or '其中一项'} 提供了新的叙事功能。"
         else:
             redundancy_reason = f"复现母题 {', '.join(repeated_motifs[:4])}，但没有带来新信息、动作决策或认知反转。"
     signals["motif_redundancy"] = {
         "repeated_motifs": repeated_motifs[:5],
+        "new_function_motifs": new_function_motifs[:5],
+        "stale_function_motifs": stale_function_motifs[:5],
+        "repeated_same_function_motifs": repeated_same_function_motifs[:5],
+        "consecutive_same_function_motifs": consecutive_same_function_motifs[:5],
         "repetition_has_new_function": motif_has_new_function,
+        "same_function_reuse_allowed": same_function_reuse_allowed,
         "redundancy_reason": redundancy_reason,
     }
 
@@ -592,6 +649,8 @@ def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
         failures.append("missing_character_decision")
     if motif_redundancy.get("repeated_motifs") and not motif_redundancy.get("repetition_has_new_function"):
         failures.append("motif_redundancy_without_new_function")
+    if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
+        failures.append("motif_same_function_reuse_not_allowed")
     if not canon_consistency.get("is_consistent") and canon_consistency.get("consistency_issues"):
         failures.append("canon_inconsistency")
     return failures
@@ -621,6 +680,8 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
     repeated_motifs = motif_redundancy.get("repeated_motifs") or []
     if repeated_motifs and not motif_redundancy.get("repetition_has_new_function"):
         major_issues.append(f"高频母题复读但未承担新功能：{', '.join(repeated_motifs[:4])}。")
+    if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
+        major_issues.append(f"母题同功能连续复用已超限：{', '.join((motif_redundancy.get('repeated_same_function_motifs') or [])[:4])}。")
 
     for issue in (canon_consistency.get("consistency_issues") or [])[:2]:
         major_issues.append(f"canon 一致性风险：{issue}")
@@ -662,6 +723,10 @@ def evaluate_scene_gate(
         if reviewer_motif.get("repetition_has_new_function"):
             major_issues.append("Reviewer 认为母题复现有新功能，但本地规则判定仍是复读场，需按高风险处理。")
             guardrail_failures.append("motif_redundancy_overridden_locally")
+    if signals["motif_redundancy"].get("repeated_same_function_motifs") and not signals["motif_redundancy"].get("same_function_reuse_allowed", True):
+        if reviewer_motif.get("same_function_reuse_allowed", True):
+            major_issues.append("Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。")
+            guardrail_failures.append("motif_same_function_reuse_overridden_locally")
 
     reviewer_canon = reviewer_result.get("canon_consistency", {}) if isinstance(reviewer_result, dict) else {}
     if reviewer_canon.get("is_consistent") and not signals["canon_consistency"].get("is_consistent"):
@@ -948,7 +1013,12 @@ def normalize_review_result(
             elif field == "motif_redundancy":
                 reviewer_motifs = [sanitize_issue_text(item) for item in candidate.get("repeated_motifs", []) if str(item).strip()]
                 merged[field]["repeated_motifs"] = (reviewer_motifs or local_value["repeated_motifs"])[:5]
+                merged[field]["new_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("new_function_motifs", local_value["new_function_motifs"]) if str(item).strip()][:5]
+                merged[field]["stale_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("stale_function_motifs", local_value["stale_function_motifs"]) if str(item).strip()][:5]
+                merged[field]["repeated_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("repeated_same_function_motifs", local_value["repeated_same_function_motifs"]) if str(item).strip()][:5]
+                merged[field]["consecutive_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]) if str(item).strip()][:5]
                 merged[field]["repetition_has_new_function"] = bool(candidate.get("repetition_has_new_function", local_value["repetition_has_new_function"])) and bool(local_value["repetition_has_new_function"])
+                merged[field]["same_function_reuse_allowed"] = bool(candidate.get("same_function_reuse_allowed", local_value["same_function_reuse_allowed"])) and bool(local_value["same_function_reuse_allowed"])
                 merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"])
             elif field == "canon_consistency":
                 reviewer_issues = [sanitize_issue_text(item) for item in candidate.get("consistency_issues", []) if str(item).strip()]
@@ -1258,8 +1328,12 @@ def build_review_prompt(
                         "label": item.get("label"),
                         "category": item.get("category"),
                         "recent_usage_count": item.get("recent_usage_count"),
+                        "recent_functions": item.get("recent_functions"),
+                        "last_function": item.get("last_function"),
+                        "function_novelty_score": item.get("function_novelty_score"),
                         "allow_next_scene": item.get("allow_next_scene"),
                         "only_if_new_function": item.get("only_if_new_function"),
+                        "redundancy_risk": item.get("redundancy_risk"),
                     }
                     for item in (tracker_bundle.get("chapter_motif_tracker", {}) or {}).get("active_motifs", [])[:8]
                     if isinstance(item, dict)
@@ -1282,7 +1356,7 @@ def build_review_prompt(
 - information_gain：本场是否新增了至少一条可验证的新信息；若有，必须列出 `new_information_items`。
 - plot_progress：本场是否推动了情节或让局面发生变化；`progress_reason` 必须说明推进了什么。
 - character_decision：主角是否做出了可追踪的决策或行为偏移；`decision_detail` 必须写明具体动作。
-- motif_redundancy：本场复读了哪些母题；若复读，是否承担了新功能；`redundancy_reason` 必须明确。
+- motif_redundancy：本场复读了哪些母题；若复读，本次是否承担了新功能、是否仍在复用同一功能、这种同功能复用是否仍被允许；`redundancy_reason` 必须明确。
 - canon_consistency：是否与 `chapter_state` / 前文 / locked notes 冲突；若冲突，列出 `consistency_issues`。
 如果以下任一项不满足，默认不能 lock：没有新信息、没有情节推进、没有决策变化、母题复读且无新功能、存在 canon 冲突。
 
@@ -1297,7 +1371,7 @@ def build_review_prompt(
 - `information_gain` {{ `has_new_information`, `new_information_items` }}
 - `plot_progress` {{ `has_plot_progress`, `progress_reason` }}
 - `character_decision` {{ `has_decision_or_behavior_shift`, `decision_detail` }}
-- `motif_redundancy` {{ `repeated_motifs`, `repetition_has_new_function`, `redundancy_reason` }}
+- `motif_redundancy` {{ `repeated_motifs`, `new_function_motifs`, `stale_function_motifs`, `repeated_same_function_motifs`, `consecutive_same_function_motifs`, `repetition_has_new_function`, `same_function_reuse_allowed`, `redundancy_reason` }}
 - `canon_consistency` {{ `is_consistent`, `consistency_issues` }}
 
 【当前任务】

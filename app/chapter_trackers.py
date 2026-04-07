@@ -63,8 +63,12 @@ class MotifEntry(BaseModel):
     status: str = "active"
     recent_scene_ids: list[str] = Field(default_factory=list)
     recent_usage_count: int = 0
+    recent_functions: list[str] = Field(default_factory=list)
+    last_function: str = ""
+    function_novelty_score: float = 1.0
     allow_next_scene: bool = True
     only_if_new_function: bool = False
+    redundancy_risk: str = "low"
     notes: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -471,6 +475,18 @@ def scene_id_from_locked_file(locked_file: str) -> str:
     return match.group(1)
 
 
+def previous_scene_id(scene_id: str) -> str | None:
+    match = re.fullmatch(r"(ch\d+)_scene(\d+)", str(scene_id or "").strip())
+    if not match:
+        return None
+    chapter_id = match.group(1)
+    scene_number_text = match.group(2)
+    scene_number = int(scene_number_text)
+    if scene_number <= 1:
+        return None
+    return f"{chapter_id}_scene{scene_number - 1:0{len(scene_number_text)}d}"
+
+
 def tracker_file_paths(chapter_id: str) -> dict[str, str]:
     return {
         "chapter_motif_tracker": f"{TRACKER_DIR}/{chapter_id}_chapter_motif_tracker.json",
@@ -599,29 +615,35 @@ def bootstrap_chapter_motif_tracker(root: Path, chapter_id: str, upto_scene_id: 
             motif_id = f"{category}_{slugify_label(label)}"
             entry = motif_map.get(motif_id)
             if entry is None:
+                scene_function = classify_scene_function(scene_text)
                 entry = MotifEntry(
                     motif_id=motif_id,
                     category=category,
                     label=label,
-                    narrative_functions=[classify_scene_function(scene_text)],
+                    narrative_functions=[scene_function],
                     status="active",
                     recent_scene_ids=[scene_id],
                     recent_usage_count=1,
+                    recent_functions=[scene_function],
+                    last_function=scene_function,
+                    function_novelty_score=1.0,
                     allow_next_scene=True,
                     only_if_new_function=False,
+                    redundancy_risk="low",
                     notes="bootstrap_from_recent_locked_scenes",
                 )
                 motif_map[motif_id] = entry
             else:
+                scene_function = classify_scene_function(scene_text)
                 if scene_id not in entry.recent_scene_ids:
                     entry.recent_scene_ids.append(scene_id)
                     entry.recent_usage_count += 1
-                scene_function = classify_scene_function(scene_text)
-                if scene_function not in entry.narrative_functions:
-                    entry.narrative_functions.append(scene_function)
+                update_motif_function_tracking(entry, scene_function)
     for entry in motif_map.values():
-        entry.allow_next_scene = entry.recent_usage_count < 2
-        entry.only_if_new_function = entry.recent_usage_count >= 2
+        if not entry.recent_functions and entry.last_function:
+            entry.recent_functions = [entry.last_function]
+        if not entry.last_function and entry.recent_functions:
+            entry.last_function = entry.recent_functions[-1]
     return ChapterMotifTracker(chapter_id=chapter_id, active_motifs=list(motif_map.values()))
 
 
@@ -888,6 +910,78 @@ def merge_scene_ids(existing: list[str], scene_id: str) -> list[str]:
     return merged[-3:]
 
 
+def merge_recent_functions(existing: list[str], scene_function: str) -> list[str]:
+    normalized = [str(item).strip() for item in existing if str(item).strip()]
+    if not scene_function:
+        return normalized[-3:]
+    normalized.append(scene_function)
+    return normalized[-3:]
+
+
+def count_trailing_same_function(values: list[str], scene_function: str) -> int:
+    if not scene_function:
+        return 0
+    count = 0
+    for item in reversed(values):
+        if item != scene_function:
+            break
+        count += 1
+    return count
+
+
+def calculate_function_novelty_score(previous_functions: list[str], scene_function: str) -> float:
+    history = [str(item).strip() for item in previous_functions if str(item).strip()]
+    if not scene_function:
+        return 0.0
+    if not history:
+        return 1.0
+    if scene_function not in history:
+        return 1.0
+    if history[-1] == scene_function:
+        return 0.0
+    return 0.4
+
+
+def assess_motif_redundancy_risk(
+    recent_usage_count: int,
+    recent_functions: list[str],
+    function_novelty_score: float,
+    forced_only_if_new: bool = False,
+) -> str:
+    last_function = recent_functions[-1] if recent_functions else ""
+    same_function_streak = count_trailing_same_function(recent_functions, last_function)
+    if forced_only_if_new or same_function_streak >= 2 or (recent_usage_count >= 3 and function_novelty_score <= 0.0):
+        return "high"
+    if same_function_streak >= 1 and function_novelty_score < 1.0:
+        return "medium"
+    if recent_usage_count >= 3:
+        return "medium"
+    return "low"
+
+
+def update_motif_function_tracking(entry: MotifEntry, scene_function: str, forced_only_if_new: bool = False) -> None:
+    previous_functions = [str(item).strip() for item in entry.recent_functions if str(item).strip()]
+    if not previous_functions and entry.last_function:
+        previous_functions = [entry.last_function]
+
+    novelty_score = calculate_function_novelty_score(previous_functions, scene_function)
+    entry.recent_functions = merge_recent_functions(previous_functions, scene_function)
+    if scene_function:
+        entry.last_function = scene_function
+        if scene_function not in entry.narrative_functions:
+            entry.narrative_functions.append(scene_function)
+
+    entry.function_novelty_score = novelty_score
+    entry.redundancy_risk = assess_motif_redundancy_risk(
+        recent_usage_count=entry.recent_usage_count,
+        recent_functions=entry.recent_functions,
+        function_novelty_score=entry.function_novelty_score,
+        forced_only_if_new=forced_only_if_new,
+    )
+    entry.only_if_new_function = forced_only_if_new or entry.redundancy_risk in {"medium", "high"}
+    entry.allow_next_scene = entry.redundancy_risk != "high"
+
+
 def build_state_changes(previous_progress: ChapterProgress, updated_progress: ChapterProgress) -> list[str]:
     changes: list[str] = []
     for field_name, label in [
@@ -1080,25 +1174,39 @@ def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, 
 
     motif_map = {entry.motif_id: entry for entry in chapter_motif_tracker.active_motifs}
     reviewer_scene_function = str(extract_markdown_field(task_text, "scene_function") or classify_scene_function(locked_text)).strip() or classify_scene_function(locked_text)
+    motif_redundancy = reviewer_result.get("motif_redundancy") or {}
+    repeated_motifs = normalize_string_list(motif_redundancy.get("repeated_motifs", []))
+    stale_function_motifs = normalize_string_list(motif_redundancy.get("stale_function_motifs", []))
+    consecutive_same_function_motifs = normalize_string_list(motif_redundancy.get("consecutive_same_function_motifs", []))
     for category, label in extract_candidate_motifs_from_text(locked_text):
         motif_id = f"{category}_{slugify_label(label)}"
         entry = motif_map.get(motif_id)
         if entry is None:
-            entry = MotifEntry(motif_id=motif_id, category=category, label=label, narrative_functions=[reviewer_scene_function], recent_scene_ids=[scene_id], recent_usage_count=1)
+            entry = MotifEntry(
+                motif_id=motif_id,
+                category=category,
+                label=label,
+                narrative_functions=[reviewer_scene_function],
+                recent_scene_ids=[scene_id],
+                recent_usage_count=1,
+                recent_functions=[reviewer_scene_function],
+                last_function=reviewer_scene_function,
+                function_novelty_score=1.0,
+                allow_next_scene=True,
+                only_if_new_function=False,
+                redundancy_risk="low",
+            )
             motif_map[motif_id] = entry
         else:
             entry.recent_scene_ids = merge_scene_ids(entry.recent_scene_ids, scene_id)
             entry.recent_usage_count = min(max(entry.recent_usage_count + 1, len(entry.recent_scene_ids)), 99)
-            if reviewer_scene_function and reviewer_scene_function not in entry.narrative_functions:
-                entry.narrative_functions.append(reviewer_scene_function)
-        repeated_motifs = normalize_string_list((reviewer_result.get("motif_redundancy") or {}).get("repeated_motifs", []))
-        if label in repeated_motifs and not (reviewer_result.get("motif_redundancy") or {}).get("repetition_has_new_function", True):
-            entry.allow_next_scene = False
-            entry.only_if_new_function = True
-            entry.notes = "locked_scene_repeated_without_new_function"
-        else:
-            entry.allow_next_scene = entry.recent_usage_count < 2
-            entry.only_if_new_function = entry.recent_usage_count >= 2
+            force_only_if_new = (
+                label in stale_function_motifs
+                or label in consecutive_same_function_motifs
+                or (label in repeated_motifs and not motif_redundancy.get("repetition_has_new_function", True))
+            )
+            update_motif_function_tracking(entry, reviewer_scene_function, forced_only_if_new=force_only_if_new)
+            entry.notes = "locked_scene_repeated_without_new_function" if force_only_if_new else entry.notes
     chapter_motif_tracker.active_motifs = list(motif_map.values())
 
     reviewer_new_facts = normalize_string_list((reviewer_result.get("information_gain") or {}).get("new_information_items", []))
@@ -1209,16 +1317,23 @@ def save_tracker_bundle(root: Path, bundle: dict[str, Any], chapter_id: str) -> 
 
 def update_trackers_on_lock(root: Path, task_text: str, locked_file: str, reviewer_result: dict[str, Any]) -> dict[str, str]:
     chapter_id = chapter_id_from_task_or_locked(task_text, locked_file)
+    scene_id = scene_id_from_locked_file(locked_file)
     chapter_state_path = extract_markdown_field(task_text, "chapter_state")
     chapter_state_text = (root / chapter_state_path).read_text(encoding="utf-8") if chapter_state_path and (root / chapter_state_path).exists() else ""
     story_state_path = root / "03_locked/state/story_state.json"
     story_state = safe_load_json(story_state_path)
-    tracker_bundle = load_tracker_bundle(root, chapter_id, chapter_state_text=chapter_state_text, story_state=story_state, upto_scene_id=scene_id_from_locked_file(locked_file))
+    tracker_bundle = load_tracker_bundle(
+        root,
+        chapter_id,
+        chapter_state_text=chapter_state_text,
+        story_state=story_state,
+        upto_scene_id=previous_scene_id(scene_id),
+    )
     updated_bundle = derive_actual_tracker_updates(root, task_text, locked_file, reviewer_result, tracker_bundle)
     outputs = save_tracker_bundle(root, updated_bundle, chapter_id)
     scene_summary_report = updated_bundle.get("scene_summary_report")
     if isinstance(scene_summary_report, dict):
-        report_path = build_scene_summary_report_path(scene_id_from_locked_file(locked_file))
+        report_path = build_scene_summary_report_path(scene_id)
         save_json(root / report_path, scene_summary_report)
         outputs["scene_summary_report_file"] = report_path
     return outputs

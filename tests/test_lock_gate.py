@@ -154,6 +154,34 @@ class LockGateTest(unittest.TestCase):
         self.assertNotEqual(updated["verdict"], "lock")
         self.assertTrue(any(check.name == "state_transition_evidence" and not check.passed for check in report.checks))
 
+    def test_lock_gate_blocks_disallowed_same_function_motif_reuse(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "结构上可锁定。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["看见红绳又一次只是晃动。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "气氛继续过渡。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他压下追问。"},
+            "motif_redundancy": {
+                "repeated_motifs": ["红绳"],
+                "new_function_motifs": [],
+                "stale_function_motifs": ["红绳"],
+                "repeated_same_function_motifs": ["红绳"],
+                "consecutive_same_function_motifs": ["红绳"],
+                "repetition_has_new_function": False,
+                "same_function_reuse_allowed": False,
+                "redundancy_reason": "红绳在相邻场景连续承担同一过渡功能。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertTrue(any(check.name == "motif_redundancy" and not check.passed for check in report.checks))
+
 
 if __name__ == "__main__":
     unittest.main()

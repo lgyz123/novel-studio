@@ -98,6 +98,9 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
 
         self.assertIn("红绳", signals["motif_redundancy"]["repeated_motifs"])
         self.assertFalse(signals["motif_redundancy"]["repetition_has_new_function"])
+        self.assertIn("红绳", signals["motif_redundancy"]["repeated_same_function_motifs"])
+        self.assertIn("红绳", signals["motif_redundancy"]["consecutive_same_function_motifs"])
+        self.assertFalse(signals["motif_redundancy"]["same_function_reuse_allowed"])
         self.assertFalse(signals["canon_consistency"]["is_consistent"])
         self.assertTrue(any("artifact_state" in item or "物件“平安符”" in item for item in signals["canon_consistency"]["consistency_issues"]))
 
@@ -367,6 +370,38 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
 
         self.assertNotEqual(normalized["verdict"], "lock")
         self.assertTrue(any("canon" in item or "chapter_state" in item for item in normalized["major_issues"]))
+
+    def test_build_structural_review_signals_marks_new_function_reuse_as_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    '{"chapter_id": "ch01", "active_motifs": [{"motif_id": "artifact_motif_hongsheng", "category": "artifact_motif", "label": "红绳", "narrative_functions": ["过渡/氛围"], "status": "active", "recent_scene_ids": ["ch01_scene01"], "recent_usage_count": 2, "recent_functions": ["过渡/氛围"], "last_function": "过渡/氛围", "function_novelty_score": 0.0, "allow_next_scene": false, "only_if_new_function": true, "redundancy_risk": "high", "notes": "repeated"}]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["发现线索"], "consecutive_transition_scene_count": 1}', encoding="utf-8")
+
+                signals = review_scene_module.build_structural_review_signals(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    draft_text="红绳这次露出背面刻着一个新字样，他立刻把那截红绳收进袖里。",
+                    based_on_text="孟浮灯看见红绳，什么也没做。",
+                    chapter_state="章节状态",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("红绳", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertIn("红绳", signals["motif_redundancy"]["new_function_motifs"])
+        self.assertTrue(signals["motif_redundancy"]["repetition_has_new_function"])
+        self.assertTrue(signals["motif_redundancy"]["same_function_reuse_allowed"])
 
 
 if __name__ == "__main__":

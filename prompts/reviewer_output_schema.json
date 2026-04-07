@@ -85,7 +85,34 @@
             "type": "string"
           }
         },
+        "new_function_motifs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stale_function_motifs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repeated_same_function_motifs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "consecutive_same_function_motifs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "repetition_has_new_function": {
+          "type": "boolean"
+        },
+        "same_function_reuse_allowed": {
           "type": "boolean"
         },
         "redundancy_reason": {
@@ -93,7 +120,7 @@
           "minLength": 1
         }
       },
-      "required": ["repeated_motifs", "repetition_has_new_function", "redundancy_reason"],
+      "required": ["repeated_motifs", "new_function_motifs", "stale_function_motifs", "repeated_same_function_motifs", "consecutive_same_function_motifs", "repetition_has_new_function", "same_function_reuse_allowed", "redundancy_reason"],
       "additionalProperties": false
     },
     "canon_consistency": {

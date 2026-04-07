@@ -112,6 +112,8 @@ def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[L
     canon_consistency = legacy_result.get("canon_consistency") or {}
 
     repeated_motifs = [str(item).strip() for item in motif_redundancy.get("repeated_motifs", []) if str(item).strip()]
+    repeated_same_function_motifs = [str(item).strip() for item in motif_redundancy.get("repeated_same_function_motifs", []) if str(item).strip()]
+    consecutive_same_function_motifs = [str(item).strip() for item in motif_redundancy.get("consecutive_same_function_motifs", []) if str(item).strip()]
     consistency_issues = [str(item).strip() for item in canon_consistency.get("consistency_issues", []) if str(item).strip()]
     state_transition_evidence: list[str] = []
     state_transition_evidence.extend([str(item).strip() for item in information_gain.get("new_information_items", []) if str(item).strip()])
@@ -138,11 +140,11 @@ def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[L
         ),
         LockGateCheck(
             name="motif_redundancy",
-            passed=not repeated_motifs or bool(motif_redundancy.get("repetition_has_new_function")),
+            passed=(not repeated_motifs or bool(motif_redundancy.get("repetition_has_new_function"))) and (not repeated_same_function_motifs or bool(motif_redundancy.get("same_function_reuse_allowed", True))),
             details=(
                 str(motif_redundancy.get("redundancy_reason") or "motif repetition without new function").strip()
                 if repeated_motifs
-                else "no repeated motifs"
+                else (f"same-function streak: {', '.join(consecutive_same_function_motifs[:3])}" if consecutive_same_function_motifs else "no repeated motifs")
             ),
         ),
         LockGateCheck(

@@ -94,6 +94,13 @@ class ChapterTrackersTest(unittest.TestCase):
         self.assertEqual(artifact["visibility"], "hidden")
         self.assertTrue(artifact["linked_facts"])
 
+        motif_tracker = bundle["chapter_motif_tracker"]
+        motif_entry = next(item for item in motif_tracker["active_motifs"] if item["label"] == "平安符")
+        self.assertEqual(motif_entry["recent_functions"][-1], "发现线索")
+        self.assertEqual(motif_entry["last_function"], "发现线索")
+        self.assertGreaterEqual(motif_entry["function_novelty_score"], 1.0)
+        self.assertEqual(motif_entry["redundancy_risk"], "low")
+
         chapter_progress = bundle["chapter_progress"]
         self.assertIn("protagonist_goal", chapter_progress)
         self.assertIn("protagonist_mode", chapter_progress)
@@ -174,6 +181,86 @@ class ChapterTrackersTest(unittest.TestCase):
 
         self.assertTrue(violations)
         self.assertTrue(any("阿绣" in item for item in violations))
+
+    def test_update_trackers_on_lock_marks_same_function_motif_reuse_risk(self) -> None:
+        task_text = """# task_id
+2026-04-07-012_ch01_scene03_auto
+
+# goal
+继续推进。
+
+# scene_function
+过渡/氛围
+
+# chapter_state
+03_locked/canon/ch01_state.md
+"""
+        reviewer_result = {
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "保持场景过渡。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他暂时压下念头。"},
+            "motif_redundancy": {
+                "repeated_motifs": ["红绳"],
+                "new_function_motifs": [],
+                "stale_function_motifs": ["红绳"],
+                "repeated_same_function_motifs": ["红绳"],
+                "consecutive_same_function_motifs": ["红绳"],
+                "repetition_has_new_function": False,
+                "same_function_reuse_allowed": False,
+                "redundancy_reason": "红绳连续承担同一过渡功能，没有新的叙事作用。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            tracker_dir = root / "03_locked/state/trackers"
+            tracker_dir.mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon/ch01_state.md").write_text("# ch01 当前状态\n", encoding="utf-8")
+            (root / "03_locked/chapters/ch01_scene03.md").write_text("红绳贴着腕骨轻轻晃，他只是站着发怔。", encoding="utf-8")
+            (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "active_motifs": [
+                            {
+                                "motif_id": "artifact_motif_hongsheng",
+                                "category": "artifact_motif",
+                                "label": "红绳",
+                                "narrative_functions": ["过渡/氛围"],
+                                "recent_scene_ids": ["ch01_scene01", "ch01_scene02"],
+                                "recent_usage_count": 2,
+                                "recent_functions": ["过渡/氛围", "过渡/氛围"],
+                                "last_function": "过渡/氛围",
+                                "function_novelty_score": 0.0,
+                                "allow_next_scene": False,
+                                "only_if_new_function": True,
+                                "redundancy_risk": "high",
+                                "notes": "repeated",
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01"}', encoding="utf-8")
+            (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+            (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01"}', encoding="utf-8")
+
+            update_trackers_on_lock(root, task_text, "03_locked/chapters/ch01_scene03.md", reviewer_result)
+            bundle = load_tracker_bundle(root, "ch01", chapter_state_text="# ch01 当前状态\n", story_state={}, upto_scene_id="ch01_scene03")
+
+        motif_entry = next(item for item in bundle["chapter_motif_tracker"]["active_motifs"] if item["label"] == "红绳")
+        self.assertEqual(motif_entry["recent_functions"][-1], "过渡/氛围")
+        self.assertEqual(motif_entry["last_function"], "过渡/氛围")
+        self.assertEqual(motif_entry["function_novelty_score"], 0.0)
+        self.assertEqual(motif_entry["redundancy_risk"], "high")
+        self.assertFalse(motif_entry["allow_next_scene"])
+        self.assertTrue(motif_entry["only_if_new_function"])
 
 
 if __name__ == "__main__":
