@@ -47,6 +47,11 @@
 21. 如果任务单提供 `scene_purpose`、`required_information_gain`、`required_plot_progress`、`required_decision_shift`、`avoid_motifs`，必须把这些要求落实为正文中的可见事件结果。
 22. 不允许只用气氛、情绪、回想、联想来“假装完成”结构要求；必须出现新的信息、推进结果或行为偏移。
 23. 如果任务单列出 `avoid_motifs`，禁止原样复用这些母题、触发物或动作结果；除非赋予明确新功能。
+24. 本场结尾时，至少一个状态变量必须与开头不同，例如：已知信息、角色判断、行动计划、风险等级、关系态势、物件位置或可见性。
+25. 本场至少有一个动作带来现实后果；不允许整场只有感受、联想、疲惫、回忆、气味描写或悬着不动的疑问。
+26. 本场必须至少命中以下三项中的两项：一个可验证的新信息、一个可追踪的新动作或决策、一个会影响后续的现实后果。
+27. 禁止把“名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心”当作推进完成；除非它同时伴随明确决定、新事实暴露、物件状态变化或关系变化。
+28. 输入材料应优先使用 current scene contract、latest chapter_state、recent structured scene summaries、revelation/artifact/chapter_progress 切片；少量 prose reference 只用于承接，不得顺着旧文风空转。
 
 输出要求：
 - 只输出 Markdown 草稿正文

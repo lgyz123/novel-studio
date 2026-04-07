@@ -1,10 +1,11 @@
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 import requests
 import yaml
-from chapter_trackers import update_trackers_on_lock
+from chapter_trackers import chapter_id_from_task_or_locked, load_tracker_bundle, update_trackers_on_lock
 from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, run_supervisor_rescue_draft, save_next_scene_task_plan, save_supervisor_decision, save_supervisor_rescue_record
 from issue_filters import filter_shared_issues
 from jsonschema import validate
@@ -40,6 +41,13 @@ def clip_text(text: str, max_chars: int) -> str:
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + "\n\n[已截断]"
+
+
+def clip_tail_text(text: str, max_chars: int) -> str:
+    text = text.strip()
+    if len(text) <= max_chars:
+        return text
+    return "[前文已省略]\n\n" + text[-max_chars:]
 
 
 def call_ollama(
@@ -276,37 +284,169 @@ def build_relevant_character_section(task_text: str, character_bible: str) -> st
     # 如果没匹配到结构化人物段，就退化为短提示
     return "### 当前相关人物\n- 孟浮灯：本场核心视角人物\n- 老张头：可极轻出场的背景人物"
 
+
+def load_story_state_snapshot() -> dict[str, Any] | None:
+    path = ROOT / "03_locked/state/story_state.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def build_scene_contract_summary(task_text: str) -> str:
+    goal = (extract_markdown_field(task_text, "goal") or "").strip()
+    scene_purpose = (extract_markdown_field(task_text, "scene_purpose") or "").strip()
+    information_gain = extract_markdown_list_field(task_text, "required_information_gain")
+    plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
+    decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
+
+    lines = ["# 当前 scene contract"]
+    if goal:
+        lines.append(f"- 核心目标：{goal}")
+    if scene_purpose:
+        lines.append(f"- 场景功能：{scene_purpose}")
+    if information_gain:
+        lines.append(f"- 新信息要求：{'；'.join(information_gain[:3])}")
+    if plot_progress:
+        lines.append(f"- 局面推进要求：{plot_progress}")
+    if decision_shift:
+        lines.append(f"- 决策偏移要求：{decision_shift}")
+    if avoid_motifs:
+        lines.append(f"- 避免复用：{'；'.join(avoid_motifs[:4])}")
+    return "\n".join(lines)
+
+
+def load_writer_tracker_bundle(task_text: str) -> dict[str, Any]:
+    chapter_state_path = (extract_markdown_field(task_text, "chapter_state") or "").strip()
+    chapter_state_text = ""
+    if chapter_state_path:
+        try:
+            chapter_state_text = read_text(chapter_state_path)
+        except FileNotFoundError:
+            chapter_state_text = ""
+    try:
+        chapter_id = chapter_id_from_task_or_locked(task_text, "")
+    except Exception:
+        return {}
+    try:
+        return load_tracker_bundle(
+            ROOT,
+            chapter_id,
+            chapter_state_text=chapter_state_text,
+            story_state=load_story_state_snapshot(),
+        )
+    except Exception:
+        return {}
+
+
+def build_recent_scene_summaries_section(task_text: str) -> str:
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle, dict) else {}
+    scene_summaries = chapter_progress.get("scene_summaries", []) if isinstance(chapter_progress, dict) else []
+    if not isinstance(scene_summaries, list) or not scene_summaries:
+        return ""
+
+    lines = ["# 最近结构化场景摘要"]
+    for item in scene_summaries[-3:]:
+        if not isinstance(item, dict):
+            continue
+        scene_id = str(item.get("scene_id") or "").strip() or "unknown_scene"
+        scene_function = str(item.get("scene_function") or "").strip() or "未标注功能"
+        lines.append(f"- {scene_id}｜{scene_function}")
+
+        new_information = [str(value).strip() for value in (item.get("new_information_items") or []) if str(value).strip()]
+        if new_information:
+            lines.append(f"  - 新信息：{'；'.join(new_information[:2])}")
+
+        protagonist_decision = str(item.get("protagonist_decision") or "").strip()
+        if protagonist_decision:
+            lines.append(f"  - 新动作/决策：{protagonist_decision}")
+
+        state_changes = [str(value).strip() for value in (item.get("state_changes") or []) if str(value).strip()]
+        if state_changes:
+            lines.append(f"  - 状态变化：{'；'.join(state_changes[:2])}")
+
+        artifacts_changed = item.get("artifacts_changed", []) if isinstance(item.get("artifacts_changed"), list) else []
+        if artifacts_changed:
+            artifact_labels = [str(entry.get("label") or "").strip() for entry in artifacts_changed if isinstance(entry, dict) and str(entry.get("label") or "").strip()]
+            if artifact_labels:
+                lines.append(f"  - 物件变化：{'；'.join(artifact_labels[:2])}")
+    return "\n".join(lines)
+
+
+def build_writer_tracker_slices_section(task_text: str) -> str:
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    if not isinstance(tracker_bundle, dict) or not tracker_bundle:
+        return ""
+
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle.get("chapter_progress"), dict) else {}
+    revelation_tracker = tracker_bundle.get("revelation_tracker", {}) if isinstance(tracker_bundle.get("revelation_tracker"), dict) else {}
+    artifact_state = tracker_bundle.get("artifact_state", {}) if isinstance(tracker_bundle.get("artifact_state"), dict) else {}
+    chapter_structure_summary = chapter_progress.get("chapter_structure_summary", {}) if isinstance(chapter_progress, dict) else {}
+
+    lines = ["# 相关 tracker 摘要"]
+    if chapter_progress:
+        lines.append(f"- 章节目标：{str(chapter_progress.get('chapter_goal') or '').strip() or '未记录'}")
+        lines.append(f"- 主角当前目标：{str(chapter_progress.get('protagonist_goal') or '').strip() or '未记录'}")
+        lines.append(f"- 当前模式 / 调查阶段 / 风险：{str(chapter_progress.get('protagonist_mode') or '未记录')} / {str(chapter_progress.get('investigation_stage') or '未记录')} / {str(chapter_progress.get('risk_level') or '未记录')}")
+        unresolved = [str(item).strip() for item in (chapter_progress.get("unresolved_questions") or []) if str(item).strip()]
+        if unresolved:
+            lines.append(f"- 当前未解问题：{'；'.join(unresolved[:3])}")
+    if revelation_tracker:
+        confirmed = [str(item).strip() for item in (revelation_tracker.get("confirmed_facts") or []) if str(item).strip()]
+        suspected = [str(item).strip() for item in (revelation_tracker.get("suspected_facts") or []) if str(item).strip()]
+        relationship_unknowns = [str(item).strip() for item in (revelation_tracker.get("relationship_unknowns") or []) if str(item).strip()]
+        if confirmed:
+            lines.append(f"- 已确认事实：{'；'.join(confirmed[:3])}")
+        if suspected:
+            lines.append(f"- 待验证事实：{'；'.join(suspected[:3])}")
+        if relationship_unknowns:
+            lines.append(f"- 暂未揭开的关系：{'；'.join(relationship_unknowns[:3])}")
+    items = artifact_state.get("items", []) if isinstance(artifact_state, dict) else []
+    artifact_lines: list[str] = []
+    for item in items[:3]:
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("label") or "").strip()
+        if not label:
+            continue
+        holder = str(item.get("holder") or "待确认").strip() or "待确认"
+        location = str(item.get("location") or "待确认").strip() or "待确认"
+        visibility = str(item.get("visibility") or "unknown").strip() or "unknown"
+        artifact_lines.append(f"{label}（持有者：{holder}；位置：{location}；可见性：{visibility}）")
+    if artifact_lines:
+        lines.append(f"- 关键物件切片：{'；'.join(artifact_lines)}")
+    if chapter_structure_summary:
+        lines.append(
+            f"- 章节结构锚点：首个线索场={str(chapter_structure_summary.get('first_clue_scene_id') or '未记录')}；首个旧识暗示场={str(chapter_structure_summary.get('first_old_acquaintance_hint_scene_id') or '未记录')}；首个调查触发场={str(chapter_structure_summary.get('first_investigation_trigger_scene_id') or '未记录')}"
+        )
+    return "\n".join(lines)
+
+
+def build_prose_reference_section(task_text: str) -> str:
+    based_on_path = (extract_markdown_field(task_text, "based_on") or "").strip()
+    if not based_on_path:
+        return ""
+    try:
+        full_text = read_text(based_on_path)
+    except FileNotFoundError:
+        return "# 少量必要 prose 参考\n来源文件缺失，跳过旧稿参考。"
+    paragraphs = [line.strip() for line in full_text.splitlines() if line.strip()]
+    prose_seed = paragraphs[-1] if paragraphs else full_text.strip()
+    based_on_text = clip_tail_text(prose_seed, 280)
+    return f"# 少量必要 prose 参考\n来源文件：{based_on_path}\n- 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。\n\n{based_on_text}"
+
 def compile_context(config: dict) -> str:
     task_text = clip_text(read_text("01_inputs/tasks/current_task.md"), 1600)
     novel_manifest = clip_text(read_text("00_manifest/novel_manifest.md"), 900)
     world_bible = clip_text(read_text("00_manifest/world_bible.md"), 700)
     character_bible_full = read_text("00_manifest/character_bible.md")
     relevant_characters = build_relevant_character_section(task_text, character_bible_full)
-    character_bible = clip_text(read_text("00_manifest/character_bible.md"), 700)
     life_notes = clip_text(read_text("01_inputs/life_notes/latest.md"), 800)
-
-    based_on_path = extract_markdown_field(task_text, "based_on")
-    based_on_section = ""
-
-    if based_on_path:
-        based_on_path = based_on_path.strip()
-        try:
-            based_on_text = clip_text(read_text(based_on_path), 1600)
-            based_on_section = f"""
-
-# 本次修订所依据的旧稿
-来源文件：{based_on_path}
-
-{based_on_text}
-"""
-        except FileNotFoundError:
-            based_on_section = f"""
-
-# 本次修订所依据的旧稿
-来源文件：{based_on_path}
-
-[警告：未找到该文件，无法载入旧稿内容]
-"""
 
     chapter_state_path = extract_markdown_field(task_text, "chapter_state")
     chapter_state_section = ""
@@ -331,8 +471,12 @@ def compile_context(config: dict) -> str:
 [警告：未找到该文件，无法载入章节状态]
 """
 
-    compiled = f"""# 当前任务
-{task_text}
+    scene_contract_section = build_scene_contract_summary(task_text)
+    recent_scene_summaries_section = build_recent_scene_summaries_section(task_text)
+    tracker_slices_section = build_writer_tracker_slices_section(task_text)
+    prose_reference_section = build_prose_reference_section(task_text)
+
+    compiled = f"""{scene_contract_section}
 
 # 本次必须遵守的项目总纲
 {novel_manifest}
@@ -349,7 +493,13 @@ def compile_context(config: dict) -> str:
 - 如与小说世界冲突，必须优先服从小说设定
 
 # 本次可借用的生活素材
-{life_notes}{based_on_section}{chapter_state_section}
+{life_notes}{chapter_state_section}
+
+{recent_scene_summaries_section}
+
+{tracker_slices_section}
+
+{prose_reference_section}
 """
 
     context_file = config["output"]["context_file"]
@@ -634,6 +784,12 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 13. 不要使用括号包裹整段说明文字
 14. 如果任务单提供了结构字段，必须把“新信息增量、局面推进、决策偏移”真正写进正文事件，不能只写气氛、感受或回想
 15. 如果任务单提供了 avoid_motifs，禁止原样复用这些母题/触发物；除非写出新的功能
+16. 本场结尾时，至少一个状态变量必须与开头不同：已知信息、角色判断、行动计划、风险等级、关系态势、物件位置或可见性，至少命中其中一项
+17. 本场至少要有一个动作带来现实后果；不允许整场只有感受、联想、疲惫、回忆、气味描写或 lingering 的疑问
+18. 本场必须至少命中以下三项中的两项：一个可验证的新信息、一个可追踪的新动作或决策、一个会影响后续的现实后果
+19. 禁止把“名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心”当作推进完成；除非它同时伴随明确决定、新事实暴露、物件状态变化或关系变化
+20. 如果正文没有交出新事实、新动作、新后果、新状态变化中的至少若干项，该稿就算未完成 task
+21. 优先使用 current scene contract、latest chapter_state、recent structured scene summaries、revelation/artifact/chapter_progress 切片来完成任务；不要顺着旧 scene 正文的文风滑行
 {repair_rule_lines}
 【任务单】
 {task_text}

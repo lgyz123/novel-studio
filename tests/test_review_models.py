@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from app.main import (
+    compile_context,
     build_generated_task_content,
     build_locked_chapter_file,
     build_validation_errors,
@@ -50,6 +52,8 @@ class ReviewModelsTest(unittest.TestCase):
         self.assertIn("修订说明", prompt)
         self.assertIn("required_information_gain", prompt)
         self.assertIn("avoid_motifs", prompt)
+        self.assertIn("至少一个状态变量必须与开头不同", prompt)
+        self.assertIn("至少命中以下三项中的两项", prompt)
         self.assertNotIn("第一部分：JSON", prompt)
 
     def test_validation_rejects_editorial_tail_blocks(self) -> None:
@@ -352,6 +356,173 @@ local_fix
         self.assertIn("必须完成的局面推进：场景结尾前必须形成新的现实阻碍。", prompt)
         self.assertIn("主角必须出现的新动作/决策偏移：主角必须改变原本的处理方式。", prompt)
         self.assertIn("本场避免原样复用的母题/触发物", prompt)
+
+    def test_writer_prompt_includes_hard_progress_obligations(self) -> None:
+        task_text = """# task_id
+2026-04-07-020_ch01_scene12_auto
+
+# goal
+承接上一场，写出疲惫、环境与联想下仍然发生真实推进的一场。
+
+# scene_purpose
+让主角在低烈度状态下仍被迫交出新的现实变化。
+"""
+
+        prompt = build_writer_user_prompt(
+            task_text,
+            "上下文内容",
+            {"task_id": "2026-04-07-020_ch01_scene12_auto", "goal": "承接上一场推进。"},
+        )
+
+        self.assertIn("至少一个状态变量必须与开头不同", prompt)
+        self.assertIn("本场至少要有一个动作带来现实后果", prompt)
+        self.assertIn("本场必须至少命中以下三项中的两项", prompt)
+        self.assertIn("名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心", prompt)
+        self.assertIn("不要顺着旧 scene 正文的文风滑行", prompt)
+
+    def test_compile_context_prefers_structured_inputs_and_small_prose_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            for rel_dir in [
+                "00_manifest",
+                "01_inputs/tasks",
+                "01_inputs/life_notes",
+                "02_working/context",
+                "02_working/drafts",
+                "03_locked/canon",
+                "03_locked/state/trackers",
+                "03_locked/state",
+            ]:
+                (root / rel_dir).mkdir(parents=True, exist_ok=True)
+
+            (root / "00_manifest/novel_manifest.md").write_text("总纲", encoding="utf-8")
+            (root / "00_manifest/world_bible.md").write_text("世界设定", encoding="utf-8")
+            (root / "00_manifest/character_bible.md").write_text("### 孟浮灯\n- 核心视角人物", encoding="utf-8")
+            (root / "01_inputs/life_notes/latest.md").write_text("潮气、疲惫、风声", encoding="utf-8")
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+2026-04-07-021_ch01_scene04_auto
+
+# goal
+承接上一场，完成一次真实推进。
+
+# scene_purpose
+让主角因为物件状态变化而进入新的处理阶段。
+
+# required_information_gain
+- 确认平安符位置已变化。
+
+# chapter_state
+03_locked/canon/ch01_state.md
+
+# based_on
+02_working/drafts/ch01_scene03.md
+
+# output_target
+02_working/drafts/ch01_scene04.md
+""",
+                encoding="utf-8",
+            )
+            (root / "03_locked/canon/ch01_state.md").write_text("## 暂不展开的内容\n- 阿绣关系暂不揭穿\n", encoding="utf-8")
+            (root / "02_working/drafts/ch01_scene03.md").write_text(
+                "开头旧稿气氛" * 120 + "\n结尾参考：他把平安符压回袖里，听见风从棚屋缝里钻过去。",
+                encoding="utf-8",
+            )
+            (root / "03_locked/state/story_state.json").write_text(json.dumps({"characters": {"protagonist": {"active_goals": ["查清平安符来处"]}}}, ensure_ascii=False, indent=2), encoding="utf-8")
+            (root / "03_locked/state/trackers/ch01_chapter_motif_tracker.json").write_text(json.dumps({"chapter_id": "ch01", "active_motifs": []}, ensure_ascii=False, indent=2), encoding="utf-8")
+            (root / "03_locked/state/trackers/ch01_revelation_tracker.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "confirmed_facts": ["平安符已出现异常"],
+                        "suspected_facts": ["阿绣与旧事有关"],
+                        "unrevealed_facts": [],
+                        "forbidden_premature_reveals": [],
+                        "protagonist_known_facts": ["平安符已出现异常"],
+                        "reader_known_facts": ["平安符已出现异常"],
+                        "relationship_unknowns": ["阿绣是谁"],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (root / "03_locked/state/trackers/ch01_artifact_state.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "items": [
+                            {"item_id": "artifact_001", "label": "平安符", "holder": "主角", "location": "袖里", "visibility": "hidden", "significance_level": "high", "last_changed_scene": "ch01_scene03", "linked_facts": ["平安符已出现异常"]}
+                        ],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (root / "03_locked/state/trackers/ch01_chapter_progress.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "chapter_goal": "推进平安符相关线索",
+                        "protagonist_goal": "查清平安符来处",
+                        "protagonist_mode": "观察/求活",
+                        "investigation_stage": "被动留意",
+                        "risk_level": "medium",
+                        "current_relationships": [],
+                        "unresolved_questions": ["阿绣是谁"],
+                        "completed_scene_functions": ["ch01_scene02: 发现线索", "ch01_scene03: 过渡/氛围"],
+                        "remaining_scene_functions": ["触发调查"],
+                        "consecutive_transition_scene_count": 1,
+                        "scene_summaries": [
+                            {
+                                "scene_id": "ch01_scene02",
+                                "scene_function": "发现线索",
+                                "new_information_items": ["确认平安符背面有名字"],
+                                "protagonist_decision": "先收起，不声张",
+                                "state_changes": ["investigation_stage: 未启动 -> 被动留意"],
+                                "artifacts_changed": [{"label": "平安符"}],
+                            },
+                            {
+                                "scene_id": "ch01_scene03",
+                                "scene_function": "过渡/氛围",
+                                "new_information_items": [],
+                                "protagonist_decision": "压下追问",
+                                "state_changes": [],
+                                "artifacts_changed": [],
+                            },
+                        ],
+                        "chapter_structure_summary": {
+                            "first_clue_scene_id": "ch01_scene02",
+                            "first_old_acquaintance_hint_scene_id": "",
+                            "first_investigation_trigger_scene_id": "",
+                            "first_artifact_change_scene_id": "ch01_scene02",
+                            "consecutive_transition_runs": [],
+                        },
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                context = compile_context({"output": {"context_file": "02_working/context/current_context.md"}})
+            finally:
+                main_module.ROOT = previous_root
+
+            self.assertIn("# 当前 scene contract", context)
+            self.assertIn("# 最近结构化场景摘要", context)
+            self.assertIn("ch01_scene02｜发现线索", context)
+            self.assertIn("# 相关 tracker 摘要", context)
+            self.assertIn("平安符（持有者：主角；位置：袖里；可见性：hidden）", context)
+            self.assertIn("# 少量必要 prose 参考", context)
+            self.assertIn("结尾参考：他把平安符压回袖里", context)
+            self.assertNotIn("开头旧稿气氛开头旧稿气氛开头旧稿气氛", context)
 
     def test_generated_task_content_carries_structural_fields(self) -> None:
         task_text = """# task_id
