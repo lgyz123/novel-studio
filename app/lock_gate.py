@@ -113,6 +113,12 @@ def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[L
 
     repeated_motifs = [str(item).strip() for item in motif_redundancy.get("repeated_motifs", []) if str(item).strip()]
     consistency_issues = [str(item).strip() for item in canon_consistency.get("consistency_issues", []) if str(item).strip()]
+    state_transition_evidence: list[str] = []
+    state_transition_evidence.extend([str(item).strip() for item in information_gain.get("new_information_items", []) if str(item).strip()])
+    if str(plot_progress.get("progress_reason") or "").strip() and plot_progress.get("has_plot_progress"):
+        state_transition_evidence.append(str(plot_progress.get("progress_reason") or "").strip())
+    if str(character_decision.get("decision_detail") or "").strip() and character_decision.get("has_decision_or_behavior_shift"):
+        state_transition_evidence.append(str(character_decision.get("decision_detail") or "").strip())
 
     return [
         LockGateCheck(
@@ -143,6 +149,11 @@ def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[L
             name="canon_consistency",
             passed=bool(canon_consistency.get("is_consistent", True)),
             details="；".join(consistency_issues[:3]) or "consistent",
+        ),
+        LockGateCheck(
+            name="state_transition_evidence",
+            passed=bool(state_transition_evidence),
+            details="；".join(state_transition_evidence[:3]) or "missing chapter/artifact/revelation state change evidence",
         ),
     ]
 

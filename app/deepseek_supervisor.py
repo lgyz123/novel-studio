@@ -450,6 +450,10 @@ def build_next_scene_planning_ledger(root: Path, locked_file: str, task_text: st
                 ]
             ) or "关键物件仍处于待确认状态。",
             "investigation_state": "；".join(tracker_bundle["revelation_tracker"].get("suspected_facts", [])[:2]) or "调查尚未被正式触发。",
+            "chapter_goal": str(tracker_bundle["chapter_progress"].get("chapter_goal") or "").strip(),
+            "protagonist_goal": str(tracker_bundle["chapter_progress"].get("protagonist_goal") or "").strip(),
+            "protagonist_mode": str(tracker_bundle["chapter_progress"].get("protagonist_mode") or "").strip(),
+            "risk_level": str(tracker_bundle["chapter_progress"].get("risk_level") or "").strip(),
         },
         "artifact_state": tracker_bundle["artifact_state"],
         "motif_budget": build_motif_budget(tracker_bundle),
@@ -936,6 +940,7 @@ def choose_scene_function_default(context: dict[str, Any]) -> str:
 def build_state_change_defaults(scene_function: str, context: dict[str, Any]) -> list[str]:
     revelation_tracker = context.get("revelation_tracker", {}) if isinstance(context, dict) else {}
     state_tracker = context.get("state_tracker", {}) if isinstance(context, dict) else {}
+    chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
     if scene_function == "发现线索":
         return ["主角认知变化", "物件位置变化"]
     if scene_function == "引发后果":
@@ -946,8 +951,10 @@ def build_state_change_defaults(scene_function: str, context: dict[str, Any]) ->
         return ["关系变化", "主角认知变化"]
     if scene_function == "引入阻力":
         return ["风险等级变化"]
-    if revelation_tracker.get("pending_facts"):
+    if revelation_tracker.get("pending_facts") or revelation_tracker.get("suspected_facts"):
         return ["主角认知变化"]
+    if str(chapter_progress.get("investigation_stage") or "") == "未启动":
+        return ["调查状态变化", "主角认知变化"]
     if str(state_tracker.get("artifact_state") or "").strip():
         return ["物件位置变化"]
     return ["主角认知变化"]
@@ -1001,7 +1008,7 @@ def build_next_scene_structural_defaults(
     if int(chapter_progress.get("consecutive_transition_scene_count") or 0) >= 2:
         scene_purpose = f"承接上一场结果，但必须把连续过渡场切换成“{scene_function}”场；本场结束时至少落下一项新的事实、动作后果或风险变化。"
 
-    information_gain = normalize_string_list(revelation_tracker.get("pending_facts", []))[:2]
+    information_gain = normalize_string_list(revelation_tracker.get("pending_facts", []) or revelation_tracker.get("suspected_facts", []))[:2]
     if not information_gain:
         information_gain = ["补充至少一个新的具体信息，优先落在人物关系、物件状态、风险变化或行动条件上。"]
 

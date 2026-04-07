@@ -135,6 +135,25 @@ class LockGateTest(unittest.TestCase):
             self.assertIn("checks", data)
             self.assertTrue(any(check["name"] == "scene_purpose_defined" for check in data["checks"]))
 
+    def test_lock_gate_blocks_lock_without_state_transition_evidence(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "气氛统一，可锁定。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertTrue(any(check.name == "state_transition_evidence" and not check.passed for check in report.checks))
+
 
 if __name__ == "__main__":
     unittest.main()

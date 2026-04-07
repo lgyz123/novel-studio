@@ -465,6 +465,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
     chapter_motif_tracker = tracker_bundle.get("chapter_motif_tracker", {}) if isinstance(tracker_bundle, dict) else {}
     revelation_tracker = tracker_bundle.get("revelation_tracker", {}) if isinstance(tracker_bundle, dict) else {}
     artifact_state = tracker_bundle.get("artifact_state", {}) if isinstance(tracker_bundle, dict) else {}
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle, dict) else {}
 
     new_information_items: list[str] = []
     decision_detail = ""
@@ -498,6 +499,16 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
     }
 
     has_plot_progress = bool(progress_reason) or has_decision
+    chapter_state_shift_reasons: list[str] = []
+    if any(marker in draft_text for marker in INVESTIGATION_MARKERS) and str(chapter_progress.get("investigation_stage") or "") != "主动调查":
+        chapter_state_shift_reasons.append("调查阶段从未启动/留意推进到更明确的调查动作")
+    if any(marker in draft_text for marker in ["差点", "险些", "暴露", "惹来", "更难", "盯上"]):
+        chapter_state_shift_reasons.append("风险等级发生变化")
+    if any(isinstance(item, dict) and str(item.get("label") or "") in draft_text for item in artifact_state.get("items", []) if isinstance(artifact_state, dict)) and any(marker in draft_text for marker in ["塞回", "藏在", "摸出来", "揣着", "露出", "挂着"]):
+        chapter_state_shift_reasons.append("关键物件状态发生变化")
+    if chapter_state_shift_reasons and not has_plot_progress:
+        has_plot_progress = True
+        progress_reason = "；".join(chapter_state_shift_reasons[:2])
     if not progress_reason:
         if has_plot_progress:
             progress_reason = "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"

@@ -31,7 +31,7 @@ MISJUDGMENT_MARKERS = ["还当", "误以为", "只当", "本以为", "认错", "
 INVESTIGATION_MARKERS = ["追问", "打听", "调查", "跟踪", "查清", "问清", "探查"]
 TRANSITION_MARKERS = ["疲惫", "寒气", "气味", "风", "冷", "潮气", "想起", "发怔", "联想"]
 
-GENERIC_FAMILIARITY_MARKERS = ["总爱", "总会", "从前", "以前", "那年", "一起", "替他", "替她", "并肩", "笑着", "住在"]
+GENERIC_FAMILIARITY_MARKERS = ["总爱", "总会", "从前", "以前", "那年", "一起", "替他", "替她", "并肩", "笑着", "住在", "相识", "旧识", "熟悉"]
 CARRIED_ARTIFACT_MARKERS = ["怀里", "袖里", "袖中", "贴身", "腰间", "身上", "怀中", "揣着", "带着", "塞回", "摸出来"]
 LOCATION_CHANGE_MARKERS = ["放在", "藏在", "塞进", "挂在", "留在", "压在"]
 
@@ -101,6 +101,9 @@ class RevelationTracker(BaseModel):
     suspected_facts: list[str] = Field(default_factory=list)
     unrevealed_facts: list[str] = Field(default_factory=list)
     forbidden_premature_reveals: list[str] = Field(default_factory=list)
+    protagonist_known_facts: list[str] = Field(default_factory=list)
+    reader_known_facts: list[str] = Field(default_factory=list)
+    relationship_unknowns: list[str] = Field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         if hasattr(self, "model_dump"):
@@ -119,8 +122,10 @@ class ArtifactStateItem(BaseModel):
     label: str
     holder: str = "待确认"
     location: str = "待确认"
+    visibility: str = "unknown"
     significance_level: str = "medium"
     last_changed_scene: str = ""
+    linked_facts: list[str] = Field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         if hasattr(self, "model_dump"):
@@ -153,6 +158,12 @@ class ArtifactState(BaseModel):
 class ChapterProgress(BaseModel):
     chapter_id: str
     chapter_goal: str = ""
+    protagonist_goal: str = ""
+    protagonist_mode: str = "观察/求活"
+    investigation_stage: str = "未启动"
+    risk_level: str = "low"
+    current_relationships: list[str] = Field(default_factory=list)
+    unresolved_questions: list[str] = Field(default_factory=list)
     completed_scene_functions: list[str] = Field(default_factory=list)
     remaining_scene_functions: list[str] = Field(default_factory=list)
     consecutive_transition_scene_count: int = 0
@@ -190,6 +201,170 @@ def normalize_string_list(values: Any) -> list[str]:
         if text and text not in normalized:
             normalized.append(text)
     return normalized
+
+
+def normalize_fact_text(value: str) -> str:
+    text = re.sub(r"\s+", " ", str(value or "").strip())
+    text = text.strip("-•·，。；：: ")
+    return text
+
+
+def split_sentences(text: str) -> list[str]:
+    return [item.strip() for item in re.split(r"(?<=[。！？!?；;])\s*", str(text or "")) if item.strip()]
+
+
+def dedupe_facts(values: list[str]) -> list[str]:
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        text = normalize_fact_text(value)
+        if not text:
+            continue
+        key = re.sub(r"\s+", "", text)
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append(text)
+    return normalized
+
+
+SUSPECTED_FACT_MARKERS = ["似乎", "像是", "仿佛", "也许", "可能", "隐约", "怀疑", "认得", "像曾见过", "未必"]
+READER_KNOWN_MARKERS = ["看见", "看到", "摸到", "露出", "写着", "发现", "认出", "听见"]
+VISIBILITY_OPEN_MARKERS = ["手里", "桌上", "门口", "窗边", "露出", "挂着", "看见", "亮出来"]
+VISIBILITY_HIDDEN_MARKERS = ["袖里", "袖中", "怀里", "贴身", "腰间", "藏在", "塞回", "压在", "揣着"]
+RISK_LEVEL_MARKERS = {
+    "high": ["差点", "险些", "暴露", "惹来", "盯上", "失手", "追上"],
+    "medium": ["麻烦", "不敢", "更难", "迟疑", "阻力", "后果"],
+}
+
+
+def extract_fact_candidates_from_text(text: str) -> tuple[list[str], list[str]]:
+    confirmed: list[str] = []
+    suspected: list[str] = []
+    for sentence in split_sentences(text):
+        if any(marker in sentence for marker in DISCOVERY_MARKERS + READER_KNOWN_MARKERS):
+            confirmed.append(sentence)
+        if any(marker in sentence for marker in SUSPECTED_FACT_MARKERS):
+            suspected.append(sentence)
+    return dedupe_facts(confirmed), dedupe_facts(suspected)
+
+
+def extract_relationship_unknowns(chapter_state_text: str, story_state: dict[str, Any] | None) -> list[str]:
+    sections = parse_markdown_sections(chapter_state_text)
+    candidates = extract_bullets_from_section(sections.get("暂不展开的内容", []))
+    protagonist = ((story_state or {}).get("characters") or {}).get("protagonist") or {}
+    candidates.extend(normalize_string_list(protagonist.get("open_tensions", [])))
+    return dedupe_facts([item for item in candidates if any(marker in item for marker in ["身份", "关系", "名字", "旧识", "来处", "是谁"])])[:12]
+
+
+def build_relationship_status_snapshots(
+    chapter_state_text: str,
+    story_state: dict[str, Any] | None,
+    confirmed_facts: list[str] | None = None,
+    suspected_facts: list[str] | None = None,
+    relationship_unknowns: list[str] | None = None,
+) -> list[str]:
+    snapshots: list[str] = []
+    relationship_unknowns = relationship_unknowns or []
+    suspected_facts = suspected_facts or []
+    confirmed_facts = confirmed_facts or []
+
+    for unknown in relationship_unknowns:
+        names = extract_named_tokens(unknown)
+        if not names:
+            snapshots.append(f"陌生线索：{unknown}")
+            continue
+        for name in names:
+            snapshots.append(f"{name}：陌生线索")
+
+    for fact in suspected_facts:
+        if any(marker in fact for marker in ["旧识", "认得", "像曾", "似曾", "记得"]):
+            for name in extract_named_tokens(fact):
+                snapshots.append(f"{name}：疑似旧识")
+
+    for fact in confirmed_facts:
+        if any(marker in fact for marker in ["确认", "认出", "原来", "就是", "旧识"]):
+            for name in extract_named_tokens(fact):
+                snapshots.append(f"{name}：已确认关系推进")
+
+    for item in normalize_string_list([str(entry.get("delta") or "").strip() for entry in ((story_state or {}).get("relationship_deltas") or []) if isinstance(entry, dict)]):
+        snapshots.append(item)
+    return dedupe_facts(snapshots)[:8]
+
+
+def extract_named_tokens(text: str) -> list[str]:
+    cleaned = re.sub(r"(是谁|身份|来处|关系|真实身份|旧识)$", "", str(text or ""))
+    matches = re.findall(r"[“\"『「]?([\u4e00-\u9fff]{2,4})[”\"』」]?", cleaned)
+    skip = {"主角", "关系", "名字", "线索", "身份", "当前", "本场", "旧识"}
+    return [item for item in dedupe_facts(matches) if item not in skip]
+
+
+def infer_artifact_visibility(text: str, label: str) -> str:
+    if any(marker in text for marker in VISIBILITY_HIDDEN_MARKERS):
+        return "hidden"
+    if any(marker in text for marker in VISIBILITY_OPEN_MARKERS):
+        return "visible"
+    if label and label in text:
+        return "mentioned"
+    return "unknown"
+
+
+def infer_artifact_holder(text: str) -> str:
+    if any(marker in text for marker in CARRIED_ARTIFACT_MARKERS):
+        return "主角"
+    match = re.search(r"([\u4e00-\u9fff]{2,4}).{0,4}(?:拿着|握着|带着|揣着|捏着)", text)
+    if match:
+        return match.group(1)
+    return "待确认"
+
+
+def infer_artifact_location(text: str, label: str, fallback: str = "待确认") -> str:
+    if any(marker in text for marker in CARRIED_ARTIFACT_MARKERS):
+        return "随身携带"
+    for marker in LOCATION_CHANGE_MARKERS:
+        match = re.search(rf"{re.escape(label)}.{{0,8}}{re.escape(marker)}([^，。；\n]+)", text)
+        if match:
+            return match.group(1).strip()
+        reverse_match = re.search(rf"{re.escape(marker)}([^，。；\n]+).{{0,8}}{re.escape(label)}", text)
+        if reverse_match:
+            return reverse_match.group(1).strip()
+    return fallback
+
+
+def infer_artifact_significance(label: str, linked_facts: list[str], recent_usage_count: int = 0) -> str:
+    if linked_facts or recent_usage_count >= 2:
+        return "high"
+    if label.endswith(("符", "牌", "佩", "匣", "盒")):
+        return "medium"
+    return "low"
+
+
+def classify_investigation_stage(text: str, story_state: dict[str, Any] | None = None) -> str:
+    combined = f"{text}\n{json.dumps(story_state or {}, ensure_ascii=False)}"
+    if any(marker in combined for marker in ["查清", "追问", "调查", "跟踪", "探查", "问清"]):
+        return "主动调查"
+    if any(marker in combined for marker in ["记下", "留意", "盯着", "想起", "怀疑", "不敢忽略"]):
+        return "被动留意"
+    return "未启动"
+
+
+def classify_protagonist_mode(text: str, story_state: dict[str, Any] | None = None) -> str:
+    combined = f"{text}\n{json.dumps(story_state or {}, ensure_ascii=False)}"
+    if any(marker in combined for marker in ["隐瞒", "藏起", "塞回", "压下"]):
+        return "隐匿/压制"
+    if any(marker in combined for marker in INVESTIGATION_MARKERS):
+        return "调查/试探"
+    if any(marker in combined for marker in ["决定", "转向", "回去", "取走"]):
+        return "行动推进"
+    return "观察/求活"
+
+
+def classify_risk_level(text: str, story_state: dict[str, Any] | None = None) -> str:
+    combined = f"{text}\n{json.dumps(story_state or {}, ensure_ascii=False)}"
+    for level, markers in RISK_LEVEL_MARKERS.items():
+        if any(marker in combined for marker in markers):
+            return level
+    return "low"
 
 
 def safe_load_json(path: Path) -> dict[str, Any] | None:
@@ -338,6 +513,13 @@ def classify_motif_category(label: str) -> str:
     return "environment_motif"
 
 
+def clean_extracted_label(label: str) -> str:
+    text = str(label or "").strip("“”‘’\"' ，。；：:、")
+    text = re.sub(r"^(?:看见|看到|摸到|捡到|拾到|认出|确认|写着|露出|原来|竟是|把|将|那块|这块|那枚|这枚|一枚|一截|半截|那截|这截|是把|像是|仍把)", "", text)
+    text = re.sub(r"^(?:他的|她的|那条|这条|那只|这只)", "", text)
+    return text.strip()
+
+
 def extract_candidate_motifs_from_text(text: str) -> list[tuple[str, str]]:
     candidates: list[tuple[str, str]] = []
     pattern_groups = [
@@ -352,7 +534,7 @@ def extract_candidate_motifs_from_text(text: str) -> list[tuple[str, str]]:
         for pattern in patterns:
             for match in pattern.findall(str(text or "")):
                 label = match if isinstance(match, str) else match[0]
-                label = str(label).strip("“”‘’\"' ，。；：:、")
+                label = clean_extracted_label(label)
                 if len(label) < 2:
                     continue
                 item = (category, label)
@@ -406,6 +588,9 @@ def bootstrap_revelation_tracker(chapter_id: str, chapter_state_text: str, story
     suspected_facts = normalize_string_list(protagonist.get("open_tensions", []))
     unrevealed_facts = normalize_string_list(extract_bullets_from_section(sections.get("已锁定线索", [])))
     forbidden_premature_reveals = normalize_string_list(extract_bullets_from_section(sections.get("暂不展开的内容", [])))
+    protagonist_known_facts = list(confirmed_facts)
+    reader_known_facts = dedupe_facts(confirmed_facts + unrevealed_facts)
+    relationship_unknowns = extract_relationship_unknowns(chapter_state_text, story_state)
     for promise in story_state.get("unresolved_promises", []) if isinstance(story_state.get("unresolved_promises"), list) else []:
         description = str(promise.get("description") or "").strip()
         if description and description not in forbidden_premature_reveals:
@@ -416,6 +601,9 @@ def bootstrap_revelation_tracker(chapter_id: str, chapter_state_text: str, story
         suspected_facts=suspected_facts[:12],
         unrevealed_facts=unrevealed_facts[:12],
         forbidden_premature_reveals=forbidden_premature_reveals[:12],
+        protagonist_known_facts=protagonist_known_facts[:12],
+        reader_known_facts=reader_known_facts[:16],
+        relationship_unknowns=relationship_unknowns[:12],
     )
 
 
@@ -430,8 +618,10 @@ def bootstrap_artifact_state(chapter_id: str, story_state: dict[str, Any] | None
                 label=str(item.get("name") or item.get("label") or f"artifact_{index:03d}").strip(),
                 holder=str(item.get("owner") or "待确认").strip() or "待确认",
                 location=str(item.get("status") or item.get("notes") or "待确认").strip() or "待确认",
+                visibility="unknown",
                 significance_level="medium",
                 last_changed_scene=str(item.get("last_seen_in") or "").strip(),
+                linked_facts=dedupe_facts(normalize_string_list(item.get("linked_facts", [])))[:6],
             )
         )
     return ArtifactState(chapter_id=chapter_id, items=tracker_items)
@@ -445,6 +635,25 @@ def bootstrap_chapter_progress(root: Path, chapter_id: str, chapter_state_text: 
     sections = parse_markdown_sections(chapter_state_text)
     chapter_goal_candidates = extract_bullets_from_section(sections.get("scene03 建议目标", []))
     protagonist_goal = normalize_string_list((((story_state or {}).get("characters") or {}).get("protagonist") or {}).get("active_goals", []))
+    protagonist_known_facts = normalize_string_list((((story_state or {}).get("characters") or {}).get("protagonist") or {}).get("known_facts", []))
+    protagonist_open_tensions = normalize_string_list((((story_state or {}).get("characters") or {}).get("protagonist") or {}).get("open_tensions", []))
+    unrevealed_facts = normalize_string_list(extract_bullets_from_section(sections.get("已锁定线索", [])))
+    protagonist_mode = classify_protagonist_mode(chapter_state_text, story_state)
+    investigation_stage = classify_investigation_stage(chapter_state_text, story_state)
+    risk_level = classify_risk_level(chapter_state_text, story_state)
+    relationship_unknowns = extract_relationship_unknowns(chapter_state_text, story_state)
+    current_relationships = build_relationship_status_snapshots(
+        chapter_state_text,
+        story_state,
+        confirmed_facts=protagonist_known_facts,
+        suspected_facts=protagonist_open_tensions,
+        relationship_unknowns=relationship_unknowns,
+    )
+    unresolved_questions = dedupe_facts(
+        protagonist_open_tensions
+        + extract_bullets_from_section(sections.get("暂不展开的内容", []))
+        + unrevealed_facts
+    )[:8]
     if not chapter_goal_candidates:
         chapter_goal_candidates = protagonist_goal[:2]
     remaining = [label for label in SCENE_FUNCTION_LABELS if label not in completed_labels and label != "过渡/氛围"]
@@ -455,6 +664,12 @@ def bootstrap_chapter_progress(root: Path, chapter_id: str, chapter_state_text: 
     return ChapterProgress(
         chapter_id=chapter_id,
         chapter_goal="；".join(chapter_goal_candidates[:2]) if chapter_goal_candidates else "以 scene function、信息增量、决策变化、状态转移推进本章。",
+        protagonist_goal="；".join(protagonist_goal[:2]) if protagonist_goal else "推动当前章内未解决问题。",
+        protagonist_mode=protagonist_mode,
+        investigation_stage=investigation_stage,
+        risk_level=risk_level,
+        current_relationships=current_relationships[:6],
+        unresolved_questions=unresolved_questions,
         completed_scene_functions=completed[-8:],
         remaining_scene_functions=remaining[:8],
         consecutive_transition_scene_count=consecutive,
@@ -475,11 +690,23 @@ def load_tracker_bundle(root: Path, chapter_id: str, chapter_state_text: str = "
     artifact_state = ArtifactState.from_dict(artifact_data) if artifact_data else bootstrap_artifact_state(chapter_id, story_state)
     chapter_progress = ChapterProgress.from_dict(progress_data) if progress_data else bootstrap_chapter_progress(root, chapter_id, chapter_state_text, story_state, upto_scene_id=upto_scene_id)
 
+    revelation_payload = revelation_tracker.to_dict()
+    revelation_payload.setdefault("revealed_facts", revelation_payload.get("confirmed_facts", []))
+    revelation_payload.setdefault("pending_facts", revelation_payload.get("suspected_facts", []))
+    revelation_payload.setdefault("forbidden_early_reveals", revelation_payload.get("forbidden_premature_reveals", []))
+
+    chapter_progress_payload = chapter_progress.to_dict()
+    chapter_progress_payload.setdefault("state_tracker_summary", {
+        "investigation_stage": chapter_progress_payload.get("investigation_stage", "未启动"),
+        "risk_level": chapter_progress_payload.get("risk_level", "low"),
+        "protagonist_mode": chapter_progress_payload.get("protagonist_mode", "观察/求活"),
+    })
+
     return {
         "chapter_motif_tracker": chapter_motif_tracker.to_dict(),
-        "revelation_tracker": revelation_tracker.to_dict(),
+        "revelation_tracker": revelation_payload,
         "artifact_state": artifact_state.to_dict(),
-        "chapter_progress": chapter_progress.to_dict(),
+        "chapter_progress": chapter_progress_payload,
         "tracker_files": paths,
     }
 
@@ -580,6 +807,13 @@ def detect_forbidden_reveal_violations(draft_text: str, revelation_tracker: dict
         tokens = extract_fact_tokens(fact_text)
         if tokens and any(token in draft_text for token in tokens) and any(marker in draft_text for marker in GENERIC_FAMILIARITY_MARKERS):
             violations.append(f"禁止提前揭示的内容“{fact_text}”在正文中出现了过度熟识化表达。")
+    for unknown in revelation_tracker.get("relationship_unknowns", []) if isinstance(revelation_tracker, dict) else []:
+        unknown_text = str(unknown).strip()
+        if not unknown_text:
+            continue
+        tokens = extract_named_tokens(unknown_text) or extract_fact_tokens(unknown_text)
+        if tokens and any(token in draft_text for token in tokens) and any(marker in draft_text for marker in GENERIC_FAMILIARITY_MARKERS):
+            violations.append(f"关系未知项“{unknown_text}”仍未确认，但正文已经写成熟识关系。")
     return violations[:3]
 
 
@@ -591,12 +825,15 @@ def detect_artifact_state_conflicts(draft_text: str, artifact_state: dict[str, A
         label = str(item.get("label") or "").strip()
         holder = str(item.get("holder") or "").strip()
         location = str(item.get("location") or "").strip()
+        visibility = str(item.get("visibility") or "").strip()
         if not label or label not in draft_text:
             continue
         if holder and holder not in {"待确认", ""} and holder not in draft_text and any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS):
             conflicts.append(f"物件“{label}”当前持有者应为“{holder}”，但正文写法与现有 artifact_state 不一致。")
         if location and location not in {"待确认", ""} and location not in draft_text and any(marker in draft_text for marker in LOCATION_CHANGE_MARKERS + CARRIED_ARTIFACT_MARKERS):
             conflicts.append(f"物件“{label}”当前所在位置应为“{location}”，但正文写法与现有 artifact_state 不一致。")
+        if visibility == "hidden" and any(marker in draft_text for marker in VISIBILITY_OPEN_MARKERS):
+            conflicts.append(f"物件“{label}”当前应保持隐藏，但正文把它写成对外可见。")
     return conflicts[:3]
 
 
@@ -639,29 +876,41 @@ def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, 
             entry.only_if_new_function = entry.recent_usage_count >= 2
     chapter_motif_tracker.active_motifs = list(motif_map.values())
 
-    new_facts = normalize_string_list((reviewer_result.get("information_gain") or {}).get("new_information_items", []))
-    revelation_tracker.confirmed_facts = normalize_string_list(revelation_tracker.confirmed_facts + new_facts)
-    revelation_tracker.suspected_facts = [item for item in revelation_tracker.suspected_facts if item not in new_facts]
-    revelation_tracker.unrevealed_facts = [item for item in revelation_tracker.unrevealed_facts if item not in new_facts]
+    reviewer_new_facts = normalize_string_list((reviewer_result.get("information_gain") or {}).get("new_information_items", []))
+    text_confirmed, text_suspected = extract_fact_candidates_from_text(locked_text)
+    new_facts = dedupe_facts(reviewer_new_facts + text_confirmed)
+    revelation_tracker.confirmed_facts = dedupe_facts(revelation_tracker.confirmed_facts + new_facts)[:16]
+    revelation_tracker.protagonist_known_facts = dedupe_facts(revelation_tracker.protagonist_known_facts + reviewer_new_facts)[:16]
+    revelation_tracker.reader_known_facts = dedupe_facts(revelation_tracker.reader_known_facts + new_facts + text_suspected)[:20]
+    revelation_tracker.suspected_facts = dedupe_facts(revelation_tracker.suspected_facts + text_suspected)[:16]
+    revelation_tracker.unrevealed_facts = [item for item in revelation_tracker.unrevealed_facts if item not in new_facts][:16]
+    revelation_tracker.relationship_unknowns = [
+        item for item in revelation_tracker.relationship_unknowns if not any(token in " ".join(new_facts) for token in extract_fact_tokens(item))
+    ][:12]
 
     artifact_map = {item.item_id: item for item in artifact_state.items}
+    artifact_by_label = {item.label: item for item in artifact_state.items if item.label}
     for category, label in extract_candidate_motifs_from_text(locked_text):
         if category != "artifact_motif":
             continue
         item_id = f"artifact_{slugify_label(label)}"
-        item = artifact_map.get(item_id)
+        item = artifact_map.get(item_id) or artifact_by_label.get(label)
         if item is None:
             item = ArtifactStateItem(item_id=item_id, label=label, last_changed_scene=scene_id)
             artifact_map[item_id] = item
+            artifact_by_label[label] = item
+        elif item.item_id != item_id:
+            artifact_map.pop(item.item_id, None)
+            item.item_id = item_id
+            artifact_map[item_id] = item
         item.last_changed_scene = scene_id
-        if any(marker in locked_text for marker in CARRIED_ARTIFACT_MARKERS):
-            item.location = "随身携带"
-            item.holder = "主角"
-        for marker in LOCATION_CHANGE_MARKERS:
-            match = re.search(rf"{re.escape(label)}.{{0,8}}{re.escape(marker)}([^，。；\n]+)", locked_text)
-            if match:
-                item.location = match.group(1).strip()
-                break
+        item.holder = infer_artifact_holder(locked_text) if label in locked_text else item.holder
+        item.location = infer_artifact_location(locked_text, label, fallback=item.location)
+        item.visibility = infer_artifact_visibility(locked_text, label)
+        linked_facts = [fact for fact in revelation_tracker.confirmed_facts + revelation_tracker.suspected_facts if label in fact]
+        item.linked_facts = dedupe_facts(item.linked_facts + linked_facts)[:6]
+        related_motif = motif_map.get(f"artifact_motif_{slugify_label(label)}")
+        item.significance_level = infer_artifact_significance(label, item.linked_facts, related_motif.recent_usage_count if related_motif else 0)
     artifact_state.items = list(artifact_map.values())
 
     completed = [item for item in chapter_progress.completed_scene_functions if not item.startswith(f"{scene_id}: ")]
@@ -670,10 +919,24 @@ def derive_actual_tracker_updates(root: Path, task_text: str, locked_file: str, 
     remaining = [item for item in chapter_progress.remaining_scene_functions if item != reviewer_scene_function]
     chapter_progress.remaining_scene_functions = remaining
     chapter_progress.consecutive_transition_scene_count = chapter_progress.consecutive_transition_scene_count + 1 if reviewer_scene_function == "过渡/氛围" else 0
+    chapter_progress.protagonist_goal = "；".join(normalize_string_list((revelation_tracker.protagonist_known_facts or [])[:2])) or chapter_progress.protagonist_goal or "推动当前章内未解决问题。"
+    chapter_progress.protagonist_mode = classify_protagonist_mode(locked_text, {"reviewer_result": reviewer_result})
+    chapter_progress.investigation_stage = classify_investigation_stage(locked_text, {"reviewer_result": reviewer_result, "suspected_facts": revelation_tracker.suspected_facts})
+    chapter_progress.risk_level = classify_risk_level(locked_text, {"reviewer_result": reviewer_result})
+    chapter_progress.current_relationships = build_relationship_status_snapshots(
+        locked_text,
+        {"relationship_deltas": [{"delta": item} for item in chapter_progress.current_relationships]},
+        confirmed_facts=revelation_tracker.confirmed_facts,
+        suspected_facts=revelation_tracker.suspected_facts,
+        relationship_unknowns=revelation_tracker.relationship_unknowns,
+    )[:8]
+    chapter_progress.unresolved_questions = dedupe_facts(
+        chapter_progress.unresolved_questions + revelation_tracker.suspected_facts + revelation_tracker.relationship_unknowns + revelation_tracker.unrevealed_facts
+    )[:10]
 
     return {
         "chapter_motif_tracker": chapter_motif_tracker.to_dict(),
-        "revelation_tracker": revelation_tracker.to_dict(),
+        "revelation_tracker": RevelationTracker.from_dict(revelation_tracker.to_dict()).to_dict(),
         "artifact_state": artifact_state.to_dict(),
         "chapter_progress": chapter_progress.to_dict(),
     }
