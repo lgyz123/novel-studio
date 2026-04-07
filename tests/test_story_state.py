@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.story_state import STORY_STATE_REL_PATH, StoryState, load_story_state, update_story_state_on_lock
+from app.story_state import STORY_STATE_REL_PATH, StoryState, extract_item_candidates, load_story_state, update_story_state_on_lock
 from app.story_state import rebuild_story_state_from_locked
 
 
@@ -157,6 +157,82 @@ class StoryStateTest(unittest.TestCase):
             self.assertIn("item_updates", patch_data)
             self.assertEqual(patch_data["character_updates"]["protagonist"]["location"], "码头")
             self.assertTrue(any(item["name"] == "线头" for item in patch_data["item_updates"]))
+
+    def test_story_state_uses_generic_tension_labels_instead_of_specific_name_binding(self) -> None:
+        chapter_state_text = """# ch01 当前状态
+
+## 当前主角状态
+- 他尚未形成明确调查行动，但已经无法把这个名字当作普通死者名讳轻易放下
+"""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon/ch01_state.md").write_text(chapter_state_text, encoding="utf-8")
+            (root / "03_locked/chapters/ch01_scene09.md").write_text("孟浮灯停顿了一下，还是没有主动追查。", encoding="utf-8")
+
+            result = update_story_state_on_lock(
+                root,
+                TASK_TEXT,
+                "03_locked/chapters/ch01_scene09.md",
+                chapter_state_path="03_locked/canon/ch01_state.md",
+            )
+
+            state = StoryState.load(root / STORY_STATE_REL_PATH)
+
+        self.assertTrue(result["story_state_file"].endswith("story_state.json"))
+        self.assertIn("被未解线索持续牵动", state.characters["protagonist"].mental_state)
+        self.assertIn("在不主动追查的前提下继续压住这条未解线索", state.characters["protagonist"].active_goals)
+        self.assertNotIn("阿绣", state.characters["protagonist"].mental_state)
+
+    def test_extract_item_candidates_keeps_generic_item_names_without_special_case_table(self) -> None:
+        items = extract_item_candidates("他把平安符塞回袖里，又捡起红绳和短短的线头。")
+
+        self.assertIn("平安符", items)
+        self.assertIn("红绳", items)
+        self.assertIn("线头", items)
+
+    def test_story_state_bootstraps_protagonist_name_and_location_from_task_and_chapter_state(self) -> None:
+        task_text = """# task_id
+2026-04-07-001
+
+# goal
+承接上一场，继续保持渡口求活与低烈度推进。
+
+# chapter_state
+03_locked/canon/ch02_state.md
+"""
+        chapter_state_text = """# ch02 当前状态
+
+## 当前主角状态
+- 沈砚仍处于底层求活状态
+- 他尚未形成明确调查行动，但已经无法把这个名字轻易放下
+
+## 已锁定线索
+- 木牌背面有旧划痕
+"""
+        locked_text = "沈砚把麻袋拖到渡口棚下，肩背发木，却还是把那块木牌塞回袖里。"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon/ch02_state.md").write_text(chapter_state_text, encoding="utf-8")
+            (root / "03_locked/chapters/ch02_scene01.md").write_text(locked_text, encoding="utf-8")
+
+            update_story_state_on_lock(
+                root,
+                task_text,
+                "03_locked/chapters/ch02_scene01.md",
+                chapter_state_path="03_locked/canon/ch02_state.md",
+            )
+
+            state = StoryState.load(root / STORY_STATE_REL_PATH)
+
+        self.assertEqual(state.characters["protagonist"].location, "渡口")
+        self.assertTrue(any(item.owner == "沈砚" for item in state.items))
+        self.assertTrue(any(item.source == "沈砚" for item in state.relationship_deltas) or not state.relationship_deltas)
 
     def test_rebuild_story_state_from_locked_recreates_state_from_scratch(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

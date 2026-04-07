@@ -124,6 +124,11 @@ class StoryStatePatchProposal(BaseModel):
         path.write_text(self.to_json(), encoding="utf-8")
 
 
+class StoryStateBootstrapConfig(BaseModel):
+    protagonist_name: str = "主角"
+    location_hints: list[str] = Field(default_factory=list)
+
+
 def model_to_dict(model: BaseModel) -> dict[str, Any]:
     if hasattr(model, "model_dump"):
         return model.model_dump()
@@ -291,13 +296,62 @@ def extract_named_terms(text: str) -> list[str]:
     bare_name_terms = re.findall(r"([一-龥]{2,4})", text)
     candidates = quoted_terms + bare_name_terms
     filtered = []
-    skip = {"孟浮灯", "当前", "状态", "场景", "码头", "chapter", "scene"}
+    skip = {"当前", "状态", "场景", "chapter", "scene"}
     for term in candidates:
         term = term.strip()
         if len(term) < 2 or term in skip:
             continue
         filtered.append(term)
     return dedupe_strings(filtered)
+
+
+def extract_character_name_candidates(text: str) -> list[str]:
+    candidates = re.findall(r"([一-龥]{2,4})(?=(?:仍|在|把|将|正|又|先|便|停顿|走|回|看|听|闻|摸|捡|拾|决定|想|没|不|已|会))", str(text or ""))
+    skip = {"当前", "状态", "场景", "线索", "名字", "名讳", "主角", "码头", "运河", "渡口", "棚下"}
+    return dedupe_strings([item for item in candidates if item not in skip])
+
+
+def extract_location_candidates(text: str) -> list[str]:
+    pattern = r"([一-龥]{0,4}(?:码头|运河边|运河|乱葬岗|住处|棚下|棚屋|岸边|桥洞|渡口|河边|船舱|门口|窗边|屋里|巷口|街口))"
+    matches = [str(item).strip() for item in re.findall(pattern, str(text or "")) if str(item).strip()]
+    return dedupe_strings(matches)
+
+
+def normalize_location_hint(candidate: str, anchors: list[str]) -> str:
+    text = str(candidate or "").strip()
+    if not text:
+        return ""
+    text = re.sub(r"^(?:继续保持|保持|继续|来到|回到|在|向|去|到|承接上一场继续保持)", "", text)
+    if text == "运河":
+        return "运河边"
+    if text in {"棚下", "棚屋", "棚边"} and anchors:
+        anchor = anchors[0]
+        if anchor.endswith(text):
+            return anchor
+        return f"{anchor}{text}"
+    return text
+
+
+def build_story_state_bootstrap_config(task_text: str, chapter_state_text: str, locked_text: str) -> StoryStateBootstrapConfig:
+    protagonist_candidates = []
+    for source in (chapter_state_text, locked_text, task_text):
+        protagonist_candidates.extend(extract_character_name_candidates(source))
+    protagonist_name = protagonist_candidates[0] if protagonist_candidates else "主角"
+
+    raw_location_candidates: list[str] = []
+    task_and_state = f"{task_text}\n{chapter_state_text}"
+    raw_location_candidates.extend(extract_location_candidates(task_and_state))
+    if not raw_location_candidates:
+        raw_location_candidates.extend(extract_location_candidates(locked_text))
+
+    normalized_hints: list[str] = []
+    major_anchors = [item for item in raw_location_candidates if item not in {"棚下", "棚屋", "棚边"}]
+    for candidate in raw_location_candidates:
+        normalized = normalize_location_hint(candidate, major_anchors or raw_location_candidates)
+        if normalized and normalized not in normalized_hints:
+            normalized_hints.append(normalized)
+
+    return StoryStateBootstrapConfig(protagonist_name=protagonist_name, location_hints=normalized_hints)
 
 
 def extract_explicit_relation_targets(text: str) -> list[str]:
@@ -310,14 +364,16 @@ def extract_item_candidates(text: str) -> list[str]:
     pattern = r"([一-龥]{1,8}(?:绳|线头|符|木牌|铜牌|玉佩|纸条|信|匣|盒|册|刀|钩|锥子|麻袋))"
     raw_matches = re.findall(pattern, text)
     normalized: list[str] = []
-    canonical_suffixes = ["线头", "平安符", "红绳", "麻袋", "锥子", "木牌", "铜牌", "玉佩", "纸条", "匣", "盒", "册", "刀", "钩", "符", "绳", "信"]
+    canonical_suffixes = ["线头", "麻袋", "锥子", "木牌", "铜牌", "玉佩", "纸条", "匣", "盒", "册", "刀", "钩", "符", "绳", "信"]
     for item in raw_matches:
         name = item.strip()
+        name = re.sub(r"^(?:他把|她把|把|将|又把|又捡起|捡起|拾起|摸出|取出|塞回|留住|留下)", "", name)
         if "的" in name:
             name = name.split("的")[-1]
         for suffix in canonical_suffixes:
             if name.endswith(suffix):
-                name = suffix if suffix in {"线头", "平安符", "红绳"} else name
+                if len(suffix) >= 2:
+                    name = suffix
                 break
         normalized.append(name)
     return dedupe_strings(normalized)
@@ -333,9 +389,13 @@ def infer_item_status(source_text: str) -> str:
     return "状态待确认"
 
 
-def infer_item_owner(source_text: str) -> str:
-    if "孟浮灯" in source_text:
-        return "孟浮灯"
+def infer_item_owner(source_text: str, config: StoryStateBootstrapConfig) -> str:
+    protagonist_name = str(config.protagonist_name or "").strip()
+    if protagonist_name and protagonist_name != "主角" and protagonist_name in source_text:
+        return protagonist_name
+    name_candidates = extract_character_name_candidates(source_text)
+    if name_candidates:
+        return name_candidates[0]
     return "待确认"
 
 
@@ -352,18 +412,15 @@ def infer_book_time(chapter_state_text: str, locked_text: str, existing_value: s
     return existing_value or "unknown"
 
 
-def infer_location(task_text: str, locked_text: str, existing_value: str) -> str:
-    combined = f"{task_text}\n{locked_text}"
-    location_rules = [
-        ("码头", "码头"),
-        ("运河", "运河边"),
-        ("乱葬岗", "乱葬岗"),
-        ("住处", "住处"),
-        ("棚下", "码头棚下"),
-    ]
-    for marker, label in location_rules:
-        if marker in combined:
-            return label
+def infer_location(task_text: str, chapter_state_text: str, locked_text: str, existing_value: str, config: StoryStateBootstrapConfig) -> str:
+    for hint in config.location_hints:
+        if hint and hint not in {"棚下", "棚屋", "棚边"}:
+            return hint
+
+    combined = f"{task_text}\n{chapter_state_text}\n{locked_text}"
+    dynamic_candidates = extract_location_candidates(combined)
+    if dynamic_candidates:
+        return normalize_location_hint(dynamic_candidates[0], dynamic_candidates[1:] or dynamic_candidates)
     return existing_value or "unknown"
 
 
@@ -384,19 +441,23 @@ def summarize_mental_state(protagonist_bullets: list[str], locked_text: str, exi
     combined = " ".join(protagonist_bullets) + "\n" + locked_text
     if any(marker in combined for marker in ("克制", "压", "低烈度")):
         tags.append("克制")
-    if any(marker in combined for marker in ("放不下", "阿绣", "停顿", "牵住", "牵动")):
-        tags.append("被“阿绣”持续牵动")
+    if any(marker in combined for marker in ("放不下", "停顿", "牵住", "牵动", "名字", "名讳", "线索")):
+        tags.append("被未解线索持续牵动")
     if any(marker in combined for marker in ("未形成明确行动", "未展开主动追查", "尚未升级成主动追查", "不升级为明确调查")):
         tags.append("尚未转为调查")
     return "、".join(dedupe_strings(tags)) or existing_value or "unknown"
 
 
-def infer_active_goals(task_text: str, protagonist_bullets: list[str], existing_items: list[str]) -> list[str]:
+def infer_active_goals(task_text: str, protagonist_bullets: list[str], existing_items: list[str], config: StoryStateBootstrapConfig) -> list[str]:
     goals = list(existing_items)
-    if any(marker in task_text for marker in ("底层求活", "求活日常", "码头")):
-        goals.append("维持日常求活与码头做活")
+    if any(marker in task_text for marker in ("底层求活", "求活日常", "做活")):
+        base_location = next((item for item in config.location_hints if item and item not in {"棚下", "棚屋", "棚边"}), "")
+        if base_location:
+            goals.append(f"维持日常求活与{base_location}做活")
+        else:
+            goals.append("维持日常求活")
     if any(marker in " ".join(protagonist_bullets) for marker in ("尚未形成明确调查", "尚未形成行动计划", "无法轻易放下")):
-        goals.append("在不主动追查的前提下继续压住“阿绣”这条线")
+        goals.append("在不主动追查的前提下继续压住这条未解线索")
     return dedupe_strings(goals)
 
 
@@ -431,11 +492,18 @@ def infer_revealed_secrets(chapter_sections: dict[str, list[str]], scene_stem: s
     return results
 
 
-def infer_items(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[ItemState]) -> list[ItemState]:
+def infer_items(
+    chapter_sections: dict[str, list[str]],
+    scene_stem: str,
+    existing: list[ItemState],
+    config: StoryStateBootstrapConfig,
+    locked_text: str = "",
+) -> list[ItemState]:
     existing_by_name = {item.name: item for item in existing}
     results = list(existing)
     next_index = len(existing_by_name) + 1
     source_lines = chapter_sections.get("已锁定线索", []) + chapter_sections.get("当前主角状态", [])
+    source_lines.extend([line.strip() for line in str(locked_text or "").splitlines() if line.strip()])
     for line in source_lines:
         for name in extract_item_candidates(line):
             if name in existing_by_name:
@@ -444,7 +512,7 @@ def infer_items(chapter_sections: dict[str, list[str]], scene_stem: str, existin
                 ItemState(
                     id=item_id(next_index),
                     name=name,
-                    owner=infer_item_owner(line),
+                    owner=infer_item_owner(line, config),
                     status=infer_item_status(line),
                     last_seen_in=scene_stem,
                     notes=line,
@@ -455,14 +523,14 @@ def infer_items(chapter_sections: dict[str, list[str]], scene_stem: str, existin
     return results
 
 
-def infer_relationship_deltas(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[RelationshipDelta]) -> list[RelationshipDelta]:
+def infer_relationship_deltas(chapter_sections: dict[str, list[str]], scene_stem: str, existing: list[RelationshipDelta], config: StoryStateBootstrapConfig) -> list[RelationshipDelta]:
     results = list(existing)
     relation_lines = chapter_sections.get("当前主角状态", []) + chapter_sections.get("已锁定线索", [])
     scene_candidates: list[tuple[str, str]] = []
     for line in relation_lines:
         if not any(marker in line for marker in ("影响", "牵动", "放不下", "记住", "无法轻易放下", "改变")):
             continue
-        targets = [name for name in extract_explicit_relation_targets(line) if name != "孟浮灯"]
+        targets = [name for name in extract_explicit_relation_targets(line) if name != config.protagonist_name]
         if not targets:
             continue
         scene_candidates.append((targets[0], line))
@@ -477,7 +545,7 @@ def infer_relationship_deltas(chapter_sections: dict[str, list[str]], scene_stem
         results.append(
             RelationshipDelta(
                 id=relationship_id(len(results) + 1),
-                source="孟浮灯",
+                source=config.protagonist_name,
                 target=target,
                 delta=line,
                 introduced_in=scene_stem,
@@ -509,6 +577,7 @@ def build_story_state_patch(existing: StoryState, task_text: str, chapter_state_
     chapter_sections = parse_markdown_sections(chapter_state_text)
     protagonist_bullets = chapter_sections.get("当前主角状态", [])
     protagonist = existing.characters.get("protagonist", CharacterState())
+    config = build_story_state_bootstrap_config(task_text, chapter_state_text, locked_text)
 
     event_id = event_id_from_scene(scene_stem)
     recent_events = dedupe_strings(existing.timeline.recent_events + [event_id])
@@ -520,18 +589,18 @@ def build_story_state_patch(existing: StoryState, task_text: str, chapter_state_
         ),
         characters={
             "protagonist": CharacterState(
-                location=infer_location(task_text, locked_text, protagonist.location),
+                location=infer_location(task_text, chapter_state_text, locked_text, protagonist.location, config),
                 physical_state=summarize_physical_state(protagonist_bullets, locked_text, protagonist.physical_state),
                 mental_state=summarize_mental_state(protagonist_bullets, locked_text, protagonist.mental_state),
                 known_facts=dedupe_strings(protagonist.known_facts + chapter_sections.get("已锁定线索", [])),
-                active_goals=infer_active_goals(task_text, protagonist_bullets, protagonist.active_goals),
+                active_goals=infer_active_goals(task_text, protagonist_bullets, protagonist.active_goals, config),
                 open_tensions=infer_open_tensions(protagonist_bullets, protagonist.open_tensions),
             )
         },
         unresolved_promises=infer_unresolved_promises(chapter_sections, scene_stem, existing.unresolved_promises),
         revealed_secrets=infer_revealed_secrets(chapter_sections, scene_stem, existing.revealed_secrets),
-        items=infer_items(chapter_sections, scene_stem, existing.items),
-        relationship_deltas=infer_relationship_deltas(chapter_sections, scene_stem, existing.relationship_deltas),
+        items=infer_items(chapter_sections, scene_stem, existing.items, config, locked_text=locked_text),
+        relationship_deltas=infer_relationship_deltas(chapter_sections, scene_stem, existing.relationship_deltas, config),
         last_locked_scene=scene_stem,
     )
     return patch

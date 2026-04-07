@@ -234,10 +234,10 @@ class DeepSeekSupervisorTest(unittest.TestCase):
         self.assertIn("revelation_tracker", context)
         self.assertIn("state_tracker", context)
         self.assertIn("motif_budget", context)
-        self.assertEqual(context["chapter_progress"]["current_scene_index"], 3)
+        self.assertEqual(context["chapter_progress"]["chapter_id"], "ch01")
         self.assertGreaterEqual(context["chapter_progress"]["consecutive_transition_scene_count"], 1)
-        self.assertTrue(context["revelation_tracker"]["revealed_facts"])
-        self.assertTrue(context["state_tracker"]["artifact_state"])
+        self.assertTrue(context["revelation_tracker"]["confirmed_facts"])
+        self.assertTrue(str(context["state_tracker"]["artifact_state"]).strip())
 
     def test_next_scene_messages_require_structural_plan_fields(self) -> None:
         messages = supervisor_module.build_next_scene_messages(
@@ -474,6 +474,12 @@ scene_071-R5
             "decision_requirement": "主角必须先把线索收起，再决定是否处理。",
             "required_state_change": ["物件位置变化", "主角认知变化"],
             "motif_budget_for_scene": {"allowed_motifs": ["平安符"], "banned_motifs": ["红绳尾端"], "only_if_new_function": ["阿绣"]},
+            "tracker_update_proposal": {
+                "motif_updates": [{"op": "add_or_update", "label": "平安符"}],
+                "revelation_updates": [{"op": "anticipate", "fact": "补充一个新的物件状态变化。"}],
+                "artifact_state_hints": [{"op": "anticipate_change", "state_change": "物件位置变化"}],
+                "progress_updates": [{"op": "plan_scene_function", "scene_function": "发现线索"}],
+            },
             "forbidden_repetition": ["禁止只写疲惫+环境+联想"],
             "avoid_motifs": ["红绳尾端", "再次打结"],
             "constraints": ["保持单视角", "不要升级为明确调查"],
@@ -496,6 +502,8 @@ scene_071-R5
         self.assertIn("# decision_requirement\n主角必须先把线索收起，再决定是否处理。", content)
         self.assertIn("# required_state_change\n- 物件位置变化\n- 主角认知变化", content)
         self.assertIn("# motif_budget_for_scene\n- 允许：平安符", content)
+        self.assertIn("# tracker_update_proposal\n```json", content)
+        self.assertIn('"motif_updates": [', content)
         self.assertIn("# forbidden_repetition\n- 禁止只写疲惫+环境+联想", content)
         self.assertIn("# avoid_motifs\n- 红绳尾端\n- 再次打结", content)
         self.assertIn("# output_target\n02_working/drafts/ch01_scene11.md", content)
@@ -560,6 +568,8 @@ scene_071-R5
         self.assertTrue(plan["decision_requirement"].strip())
         self.assertTrue(plan["required_state_change"])
         self.assertIn("motif_budget_for_scene", plan)
+        self.assertIn("tracker_update_proposal", plan)
+        self.assertIn("revelation_updates", plan["tracker_update_proposal"])
         self.assertTrue(plan["forbidden_repetition"])
         self.assertEqual(plan["avoid_motifs"], ["阿绣"])
         self.assertTrue(any(item.startswith("本场必须产生新的信息增量") for item in plan["constraints"]))
@@ -742,6 +752,12 @@ scene_080-RW6
                     created = main_module.route_review_result(config, task_text, "02_working/drafts/ch01_scene10_v6.md", reviewer_result)
                     self.assertEqual(created["next_scene_task_file"], "01_inputs/tasks/generated/2026-04-03-018_ch01_scene11_auto.md")
                     self.assertEqual(created["next_scene_plan_file"], "02_working/reviews/2026-04-03-018_ch01_scene11_auto_next_scene_task_plan.json")
+                    self.assertIn("chapter_motif_tracker_file", created)
+                    self.assertIn("revelation_tracker_file", created)
+                    self.assertIn("artifact_state_file", created)
+                    self.assertIn("chapter_progress_file", created)
+                    self.assertTrue((root / created["chapter_motif_tracker_file"]).exists())
+                    self.assertTrue((root / created["revelation_tracker_file"]).exists())
                 finally:
                     main_module.ROOT = previous_root
         finally:

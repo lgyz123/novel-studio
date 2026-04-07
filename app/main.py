@@ -4,6 +4,7 @@ from pathlib import Path
 
 import requests
 import yaml
+from chapter_trackers import update_trackers_on_lock
 from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, run_supervisor_rescue_draft, save_next_scene_task_plan, save_supervisor_decision, save_supervisor_rescue_record
 from issue_filters import filter_shared_issues
 from jsonschema import validate
@@ -1992,12 +1993,19 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             locked_file,
             chapter_state_path=chapter_state_path,
         )
+        tracker_outputs = update_trackers_on_lock(
+            ROOT,
+            task_text,
+            locked_file,
+            reviewer_result,
+        )
         created["locked_file"] = locked_file
         created["candidate_file"] = candidate_file
         created["notes_file"] = notes_file
         created["notes_proposal_file"] = notes_proposal_file
         created["state_proposal_file"] = state_proposal_file
         created.update(story_state_outputs)
+        created.update(tracker_outputs)
         next_scene_task_file, next_scene_plan_file = maybe_generate_next_scene_task_draft(
             config,
             task_text,

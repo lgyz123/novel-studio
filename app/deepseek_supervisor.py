@@ -9,6 +9,7 @@ from typing import Any
 from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
+from chapter_trackers import build_tracker_update_proposal_from_plan, chapter_id_from_task_or_locked, load_tracker_bundle
 from review_models import build_repair_plan_path, build_review_result_path
 from revision_lineage import build_revision_lineage_path
 
@@ -28,7 +29,6 @@ SCENE_FUNCTION_LABELS = [
     "过渡/氛围",
 ]
 
-SUPERVISOR_MOTIFS = ["阿绣", "红绳", "平安符", "铜钱", "铜铃", "腐臭", "铁锈", "窝棚", "喉头", "钝痛"]
 DECISION_MARKERS = ["决定", "收起", "藏起", "记下", "转向", "询问", "隐瞒", "回去", "停止", "撒谎", "跟踪", "取走", "放弃", "塞进", "挪开", "压回"]
 DISCOVERY_MARKERS = ["发现", "认出", "确认", "看到", "摸到", "捡到", "拾到", "写着", "露出", "原来", "竟是"]
 CONSEQUENCE_MARKERS = ["结果", "于是", "随后", "接着", "只好", "导致", "没能", "暴露", "惹来", "逼得"]
@@ -75,6 +75,7 @@ class NextSceneTaskDraft(BaseModel):
     decision_requirement: str = ""
     required_state_change: list[str] = Field(default_factory=list)
     motif_budget_for_scene: dict[str, Any] = Field(default_factory=dict)
+    tracker_update_proposal: dict[str, Any] = Field(default_factory=dict)
     forbidden_repetition: list[str] = Field(default_factory=list)
     avoid_motifs: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
@@ -84,6 +85,12 @@ class NextSceneTaskDraft(BaseModel):
         if hasattr(self, "model_dump"):
             return self.model_dump()
         return self.dict()
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "NextSceneTaskDraft":
+        if hasattr(cls, "model_validate"):
+            return cls.model_validate(data)
+        return cls.parse_obj(data)
 
 
 class SupervisorDecision(BaseModel):
@@ -381,20 +388,21 @@ def build_state_tracker(story_state: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def build_motif_budget(root: Path, locked_file: str) -> list[dict[str, Any]]:
-    chapter_label, current_scene_index = extract_chapter_label_and_scene_index(locked_file)
-    locked_files = list_locked_chapter_files(root, chapter_label, current_scene_index)
-    recent_texts = [path.read_text(encoding="utf-8") for path in locked_files[-3:] if path.exists()]
+def build_motif_budget(tracker_bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    chapter_motif_tracker = tracker_bundle.get("chapter_motif_tracker", {}) if isinstance(tracker_bundle, dict) else {}
+    active_motifs = chapter_motif_tracker.get("active_motifs", []) if isinstance(chapter_motif_tracker, dict) else []
     budgets: list[dict[str, Any]] = []
-    for motif in SUPERVISOR_MOTIFS:
-        usage_count = sum(1 for text in recent_texts if motif in text)
-        if usage_count == 0:
+    for motif in active_motifs:
+        if not isinstance(motif, dict):
+            continue
+        label = str(motif.get("label") or "").strip()
+        if not label:
             continue
         entry = MotifBudgetEntry(
-            motif_name=motif,
-            recent_usage_count=usage_count,
-            allowed_next_scene_usage=usage_count < 2,
-            only_if_new_function=usage_count >= 2,
+            motif_name=label,
+            recent_usage_count=int(motif.get("recent_usage_count") or 0),
+            allowed_next_scene_usage=bool(motif.get("allow_next_scene", True)),
+            only_if_new_function=bool(motif.get("only_if_new_function", False)),
         )
         budgets.append(entry.to_dict())
     return budgets
@@ -405,13 +413,46 @@ def build_next_scene_planning_ledger(root: Path, locked_file: str, task_text: st
     chapter_state_path = extract_markdown_field(task_text, "chapter_state")
     if chapter_state_path and (root / chapter_state_path).exists():
         chapter_state_text = (root / chapter_state_path).read_text(encoding="utf-8")
+    tracker_bundle = load_tracker_bundle(
+        root,
+        chapter_id_from_task_or_locked(task_text, locked_file),
+        chapter_state_text=chapter_state_text,
+        story_state=story_state,
+        upto_scene_id=extract_chapter_label_and_scene_index(locked_file)[0] + f"_scene{extract_chapter_label_and_scene_index(locked_file)[1]:02d}",
+    )
 
     return {
         "chapter_state_text": chapter_state_text,
-        "chapter_progress": build_chapter_progress(root, locked_file, chapter_state_text, story_state),
-        "revelation_tracker": build_revelation_tracker(chapter_state_text, story_state),
-        "state_tracker": build_state_tracker(story_state),
-        "motif_budget": build_motif_budget(root, locked_file),
+        "chapter_motif_tracker": tracker_bundle["chapter_motif_tracker"],
+        "chapter_progress": tracker_bundle["chapter_progress"],
+        "revelation_tracker": tracker_bundle["revelation_tracker"],
+        "state_tracker": {
+            "protagonist_state": "；".join(
+                [
+                    item
+                    for item in [
+                        str((((story_state or {}).get("characters") or {}).get("protagonist") or {}).get("physical_state") or "").strip(),
+                        str((((story_state or {}).get("characters") or {}).get("protagonist") or {}).get("mental_state") or "").strip(),
+                    ]
+                    if item
+                ]
+            ) or "主角仍处于低烈度求活状态。",
+            "relationship_state": "；".join(
+                normalize_string_list(
+                    [str(item.get("delta") or "").strip() for item in ((story_state or {}).get("relationship_deltas") or []) if isinstance(item, dict)]
+                )[-1:]
+            ) or "未出现新的关系位移。",
+            "artifact_state": "；".join(
+                [
+                    f"{item.get('label')}：{item.get('location')}"
+                    for item in tracker_bundle["artifact_state"].get("items", [])
+                    if isinstance(item, dict) and str(item.get("label") or "").strip()
+                ]
+            ) or "关键物件仍处于待确认状态。",
+            "investigation_state": "；".join(tracker_bundle["revelation_tracker"].get("suspected_facts", [])[:2]) or "调查尚未被正式触发。",
+        },
+        "artifact_state": tracker_bundle["artifact_state"],
+        "motif_budget": build_motif_budget(tracker_bundle),
     }
 
 
@@ -789,6 +830,12 @@ def build_next_scene_messages(task_text: str, locked_file: str, reviewer_result:
         "banned_motifs": ["string"],
         "only_if_new_function": ["string"]
     },
+    "tracker_update_proposal": {
+        "motif_updates": ["object"],
+        "revelation_updates": ["object"],
+        "artifact_state_hints": ["object"],
+        "progress_updates": ["object"]
+    },
     "forbidden_repetition": ["string"],
     "avoid_motifs": ["string"],
   "constraints": ["string"],
@@ -807,7 +854,8 @@ def build_next_scene_messages(task_text: str, locked_file: str, reviewer_result:
 - `decision_requirement` 必须写明主角本场必须执行的微决策类型。
 - `required_state_change` 必须列出至少一个状态变量改变，例如：物件位置变化 / 主角认知变化 / 关系变化 / 风险等级变化 / 目标变化。
 - `motif_budget_for_scene` 必须明确本场允许出现哪些意象、哪些禁止再刷、哪些只能在承担新功能时使用。
-- `forbidden_repetition` 必须写出具体禁令，例如“禁止只写疲惫+环境+联想”“禁止再次以阿绣名字浮现作为结尾推进”。
+- `tracker_update_proposal` 必须提出对 chapter-scoped tracker 的预期更新，但它只是 proposal；只有 lock 后才会基于实际文本落盘。
+- `forbidden_repetition` 必须写出具体禁令，例如“禁止只写疲惫+环境+联想”“禁止再次以熟识化名字浮现/旧记忆回响充当结尾推进”。
 - `avoid_motifs` 必须列出本场应避免原样复用的母题/触发物；如果某个母题必须复现，也只能在赋予新功能时复现。
 - `goal` 必须直接可放进 task 文件。
 - `constraints` 必须是约束短句列表。
@@ -853,7 +901,7 @@ def build_next_scene_context(root: Path, task_id: str, locked_file: str, task_te
 def build_forbidden_repetition_defaults(context: dict[str, Any]) -> list[str]:
     forbidden = [
         "禁止只写疲惫+环境+联想。",
-        "禁止再次以“阿绣名字浮现”作为结尾推进。",
+        "禁止再次以熟识化名字浮现、旧记忆回响或身份暗示作为结尾推进。",
         "禁止只通过气味描写制造所谓变化。",
     ]
     chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
@@ -989,6 +1037,16 @@ def build_next_scene_structural_defaults(
         "decision_requirement": decision_requirement,
         "required_state_change": required_state_change,
         "motif_budget_for_scene": motif_budget_for_scene,
+        "tracker_update_proposal": build_tracker_update_proposal_from_plan(
+            {
+                "scene_function": scene_function,
+                "scene_purpose": scene_purpose,
+                "required_information_gain": information_gain,
+                "required_state_change": required_state_change,
+                "motif_budget_for_scene": motif_budget_for_scene,
+            },
+            context or {},
+        ),
         "forbidden_repetition": forbidden_repetition,
         "avoid_motifs": avoid_motifs,
     }
@@ -1027,6 +1085,18 @@ def enrich_next_scene_plan_payload(
             "only_if_new_function": normalize_string_list(motif_budget_for_scene.get("only_if_new_function", [])) or defaults["motif_budget_for_scene"].get("only_if_new_function", []),
         }
     normalized["motif_budget_for_scene"] = motif_budget_for_scene
+
+    tracker_update_proposal = normalized.get("tracker_update_proposal") if isinstance(normalized.get("tracker_update_proposal"), dict) else {}
+    if not tracker_update_proposal:
+        tracker_update_proposal = defaults["tracker_update_proposal"]
+    else:
+        tracker_update_proposal = {
+            "motif_updates": tracker_update_proposal.get("motif_updates", []) or defaults["tracker_update_proposal"].get("motif_updates", []),
+            "revelation_updates": tracker_update_proposal.get("revelation_updates", []) or defaults["tracker_update_proposal"].get("revelation_updates", []),
+            "artifact_state_hints": tracker_update_proposal.get("artifact_state_hints", []) or defaults["tracker_update_proposal"].get("artifact_state_hints", []),
+            "progress_updates": tracker_update_proposal.get("progress_updates", []) or defaults["tracker_update_proposal"].get("progress_updates", []),
+        }
+    normalized["tracker_update_proposal"] = tracker_update_proposal
 
     avoid_motifs = normalize_string_list(normalized.get("avoid_motifs", []))
     normalized["avoid_motifs"] = avoid_motifs or defaults["avoid_motifs"]
@@ -1234,12 +1304,14 @@ def build_next_scene_task_content(plan: dict[str, Any], task_text: str, locked_f
     forbidden_repetition_block = "\n".join(f"- {item.strip()}" for item in validated.forbidden_repetition if str(item).strip())
     avoid_motifs_block = "\n".join(f"- {item.strip()}" for item in validated.avoid_motifs if str(item).strip())
     motif_budget_for_scene = validated.motif_budget_for_scene if isinstance(validated.motif_budget_for_scene, dict) else {}
+    tracker_update_proposal = validated.tracker_update_proposal if isinstance(validated.tracker_update_proposal, dict) else {}
     motif_budget_lines = []
     for key, label in (("allowed_motifs", "允许"), ("banned_motifs", "禁止"), ("only_if_new_function", "仅在承担新功能时允许")):
         items = normalize_string_list(motif_budget_for_scene.get(key, []))
         if items:
             motif_budget_lines.append(f"- {label}：{' / '.join(items)}")
     motif_budget_block = "\n".join(motif_budget_lines)
+    tracker_update_block = json.dumps(tracker_update_proposal, ensure_ascii=False, indent=2)
     sections = [
         f"# task_id\n{validated.task_id}",
         f"# goal\n{validated.goal.strip()}",
@@ -1252,6 +1324,7 @@ def build_next_scene_task_content(plan: dict[str, Any], task_text: str, locked_f
         f"# decision_requirement\n{validated.decision_requirement.strip()}",
         f"# required_state_change\n{state_change_block}",
         f"# motif_budget_for_scene\n{motif_budget_block}",
+        f"# tracker_update_proposal\n```json\n{tracker_update_block}\n```",
         f"# forbidden_repetition\n{forbidden_repetition_block}",
         f"# avoid_motifs\n{avoid_motifs_block}",
     ]

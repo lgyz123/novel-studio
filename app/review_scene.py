@@ -7,6 +7,13 @@ from typing import Any
 
 import requests
 import yaml
+from chapter_trackers import (
+    chapter_id_from_task_or_locked,
+    detect_artifact_state_conflicts as detect_tracker_artifact_state_conflicts,
+    detect_forbidden_reveal_violations,
+    load_tracker_bundle,
+    motif_entries_in_text,
+)
 from deepseek_reviewer import review_scene_with_deepseek, save_structured_deepseek_review, structured_review_to_legacy_result
 from issue_filters import filter_shared_issues, is_mostly_english
 from jsonschema import validate
@@ -244,21 +251,6 @@ def strip_scene_heading(text: str) -> str:
     return cleaned.strip()
 
 
-STRUCTURAL_MOTIFS = [
-    "阿绣",
-    "红绳",
-    "平安符",
-    "铜钱",
-    "铜铃",
-    "铁锈",
-    "腐臭",
-    "喉结",
-    "喉头",
-    "钝痛",
-    "窝棚",
-    "码头",
-]
-
 INFORMATION_GAIN_MARKERS = [
     "发现",
     "看见",
@@ -341,24 +333,6 @@ PLOT_PROGRESS_MARKERS = [
     "只好",
 ]
 
-CANON_DRIFT_MARKERS = [
-    "阿绣坐在",
-    "阿绣站在",
-    "阿绣笑",
-    "阿绣总爱",
-    "阿绣替他",
-    "阿绣给他",
-    "阿绣在窗边",
-    "阿绣的后颈",
-    "阿绣的手",
-    "阿绣的头发",
-    "她膝上",
-    "和阿绣",
-    "他和阿绣",
-    "原来阿绣",
-    "阿绣就是",
-]
-
 WRONG_PROTAGONIST_NAMES = ["孟繁灯", "孟繁星", "孟浮星"]
 
 INTROSPECTIVE_ONLY_MARKERS = [
@@ -387,26 +361,26 @@ INVESTIGATION_MARKERS = [
     "探查",
 ]
 
-ARTIFACT_STATE_PATTERNS = [
-    r"([\u4e00-\u9fff]{1,8})(?:已被|已经)?藏在([^，。；\n]+)",
-    r"([\u4e00-\u9fff]{1,8})(?:已被|已经)?藏于([^，。；\n]+)",
-    r"([\u4e00-\u9fff]{1,8})现在放在([^，。；\n]+)",
-    r"([\u4e00-\u9fff]{1,8})留在([^，。；\n]+)",
-]
-
-CARRIED_ARTIFACT_MARKERS = [
-    "怀里",
-    "袖里",
-    "袖中",
-    "贴身",
-    "腰间",
-    "身上",
-    "怀中",
-    "揣着",
-    "带着",
-    "塞回",
-    "摸出来",
-]
+def load_review_tracker_bundle(task_text: str | None, chapter_state: str = "") -> dict[str, Any]:
+    if not str(task_text or "").strip():
+        return {}
+    try:
+        chapter_id = chapter_id_from_task_or_locked(str(task_text or ""), "")
+    except Exception:
+        return {}
+    story_state_path = ROOT / "03_locked/state/story_state.json"
+    story_state: dict[str, Any] | None = None
+    if story_state_path.exists():
+        try:
+            loaded = json.loads(story_state_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                story_state = loaded
+        except Exception:
+            story_state = None
+    try:
+        return load_tracker_bundle(ROOT, chapter_id, chapter_state_text=str(chapter_state or ""), story_state=story_state)
+    except Exception:
+        return {}
 
 
 def build_empty_structural_review() -> dict[str, Any]:
@@ -473,33 +447,6 @@ def count_term_occurrences(text: str, term: str) -> int:
     return str(text).count(term)
 
 
-def extract_hidden_artifact_states(chapter_state: str) -> list[tuple[str, str]]:
-    text = str(chapter_state or "")
-    states: list[tuple[str, str]] = []
-    for pattern in ARTIFACT_STATE_PATTERNS:
-        for item, location in re.findall(pattern, text):
-            item = str(item).strip()
-            location = str(location).strip()
-            if item and location and (item, location) not in states:
-                states.append((item, location))
-    return states
-
-
-def detect_artifact_state_conflicts(draft_text: str, chapter_state: str) -> list[str]:
-    conflicts: list[str] = []
-    for item, location in extract_hidden_artifact_states(chapter_state):
-        item_in_draft = item in draft_text
-        carried_in_draft = any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS)
-        if not item_in_draft or not carried_in_draft:
-            continue
-        if re.search(rf"{re.escape(item)}.{{0,8}}({'|'.join(CARRIED_ARTIFACT_MARKERS)})", draft_text) or re.search(
-            rf"({'|'.join(CARRIED_ARTIFACT_MARKERS)}).{{0,8}}{re.escape(item)}",
-            draft_text,
-        ):
-            conflicts.append(f"chapter_state 记录“{item}”应留在“{location}”，但正文又把它写成随身携带或重新取出。")
-    return conflicts[:3]
-
-
 def reviewer_missing_structural_detail(reviewer_result: dict[str, Any], field: str, detail_key: str) -> bool:
     payload = reviewer_result.get(field, {}) if isinstance(reviewer_result, dict) else {}
     if not isinstance(payload, dict):
@@ -514,6 +461,10 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
     signals = build_empty_structural_review()
     draft_sentences = split_sentences(strip_scene_heading(draft_text))
     based_on_keys = {normalize_text_key(item) for item in split_sentences(strip_scene_heading(based_on_text))}
+    tracker_bundle = load_review_tracker_bundle(task_text, chapter_state=chapter_state)
+    chapter_motif_tracker = tracker_bundle.get("chapter_motif_tracker", {}) if isinstance(tracker_bundle, dict) else {}
+    revelation_tracker = tracker_bundle.get("revelation_tracker", {}) if isinstance(tracker_bundle, dict) else {}
+    artifact_state = tracker_bundle.get("artifact_state", {}) if isinstance(tracker_bundle, dict) else {}
 
     new_information_items: list[str] = []
     decision_detail = ""
@@ -562,7 +513,14 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
         if introspective_only:
             signals["character_decision"]["decision_detail"] = "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
 
-    repeated_motifs = [motif for motif in STRUCTURAL_MOTIFS if motif in draft_text and motif in based_on_text]
+    repeated_entries = motif_entries_in_text(draft_text, chapter_motif_tracker)
+    repeated_motifs = []
+    for entry in repeated_entries:
+        if not isinstance(entry, dict):
+            continue
+        label = str(entry.get("label") or "").strip()
+        if label and label in based_on_text and label not in repeated_motifs:
+            repeated_motifs.append(label)
     motif_has_new_function = True
     redundancy_reason = "未识别到明显的高频母题复读。"
     if repeated_motifs:
@@ -592,22 +550,13 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
     for wrong_name in WRONG_PROTAGONIST_NAMES:
         if wrong_name in draft_text:
             consistency_issues.append(f"主角姓名漂移为“{wrong_name}”，与既有 canon 不一致。")
-    if task_text and "不急于解释" in task_text:
-        for marker in CANON_DRIFT_MARKERS:
-            if marker in draft_text:
-                consistency_issues.append(f"出现“{marker}”式亲密回忆，阿绣从陌生线索漂移成了既有旧识。")
-                break
-    if chapter_state and "阿绣" in chapter_state and any(marker in draft_text for marker in CANON_DRIFT_MARKERS):
-        consistency_issues.append("当前 chapter_state 尚未支持阿绣进入具体亲密回忆层，存在 canon 漂移风险。")
-    if chapter_state and ("尚未确认身份" in chapter_state or "不要急着揭示“阿绣”是谁" in chapter_state or "不揭示阿绣身份" in chapter_state):
-        if any(marker in draft_text for marker in CANON_DRIFT_MARKERS):
-            consistency_issues.append("chapter_state 明确要求阿绣身份仍保持未确认，但正文已写成旧识式亲密回忆。")
+    consistency_issues.extend(detect_forbidden_reveal_violations(draft_text, revelation_tracker))
     if chapter_state and ("尚未形成调查念头" in chapter_state or "不该主动追问" in chapter_state):
         for marker in INVESTIGATION_MARKERS:
             if marker in draft_text:
                 consistency_issues.append(f"chapter_state 明确禁止主动调查，但正文出现了“{marker}”式调查推进。")
                 break
-    consistency_issues.extend(detect_artifact_state_conflicts(draft_text, chapter_state))
+    consistency_issues.extend(detect_tracker_artifact_state_conflicts(draft_text, artifact_state))
     signals["canon_consistency"] = {
         "is_consistent": not consistency_issues,
         "consistency_issues": consistency_issues[:3],
@@ -1288,6 +1237,28 @@ def build_review_prompt(
 ) -> str:
     normalized_based_on = strip_scene_heading(based_on_text)
     normalized_draft = strip_scene_heading(draft_text)
+    tracker_bundle = load_review_tracker_bundle(task_text, chapter_state=chapter_state)
+    prompt_tracker_summary = {}
+    if tracker_bundle:
+        prompt_tracker_summary = {
+            "chapter_motif_tracker": {
+                "active_motifs": [
+                    {
+                        "label": item.get("label"),
+                        "category": item.get("category"),
+                        "recent_usage_count": item.get("recent_usage_count"),
+                        "allow_next_scene": item.get("allow_next_scene"),
+                        "only_if_new_function": item.get("only_if_new_function"),
+                    }
+                    for item in (tracker_bundle.get("chapter_motif_tracker", {}) or {}).get("active_motifs", [])[:8]
+                    if isinstance(item, dict)
+                ]
+            },
+            "revelation_tracker": tracker_bundle.get("revelation_tracker", {}),
+            "artifact_state": tracker_bundle.get("artifact_state", {}),
+            "chapter_progress": tracker_bundle.get("chapter_progress", {}),
+        }
+    tracker_summary_text = json.dumps(prompt_tracker_summary, ensure_ascii=False, indent=2) if prompt_tracker_summary else "{}"
     return f"""请审查下面这段 scene 草稿。
 
 你只能输出一个合法 JSON 对象。
@@ -1323,6 +1294,9 @@ def build_review_prompt(
 
 【当前章节状态】
 {chapter_state}
+
+【动态章节 tracker】
+{tracker_summary_text}
 
 【直接前文 / 基准文本】
 {normalized_based_on}
@@ -1409,6 +1383,8 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
     else:
         based_on_text = "[未提供 based_on]"
 
+    tracker_bundle = load_review_tracker_bundle(task_text, chapter_state=chapter_state)
+
     if should_use_deepseek(config):
         structured_result = review_scene_with_deepseek(
             scene_text=draft_text,
@@ -1424,6 +1400,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
                 "task_text": task_text,
                 "chapter_state": chapter_state,
                 "based_on_text": based_on_text,
+                "tracker_bundle": tracker_bundle,
             },
         )
         result = structured_review_to_legacy_result(structured_result)

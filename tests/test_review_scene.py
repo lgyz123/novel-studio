@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 from pathlib import Path
 
 import sys
@@ -29,6 +30,76 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertIn("当前草稿", prompt)
         self.assertNotIn("【scene10】", prompt)
         self.assertNotIn("【scene11】", prompt)
+
+    def test_build_review_prompt_includes_dynamic_tracker_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("# ch01 当前状态\n\n## 暂不展开的内容\n- 不提前揭示阿绣替他收过尸账\n", encoding="utf-8")
+                (root / "03_locked/chapters/ch01_scene01.md").write_text("孟浮灯摸到红绳，袖里还留着铁锈味。", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text(
+                    '{"characters": {"protagonist": {"known_facts": ["摸到红绳"]}}}',
+                    encoding="utf-8",
+                )
+
+                prompt = review_scene_module.build_review_prompt(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    chapter_state="# ch01 当前状态\n\n## 暂不展开的内容\n- 不提前揭示阿绣替他收过尸账\n",
+                    based_on_text="【scene01】孟浮灯摸到红绳。",
+                    draft_text="【scene02】孟浮灯又看见红绳。",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("【动态章节 tracker】", prompt)
+        self.assertIn("chapter_motif_tracker", prompt)
+        self.assertIn("revelation_tracker", prompt)
+
+    def test_build_structural_review_signals_uses_dynamic_tracker_for_motif_and_artifact_checks(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    '{"chapter_id": "ch01", "active_motifs": [{"motif_id": "artifact_motif_hongsheng", "category": "artifact_motif", "label": "红绳", "narrative_functions": ["过渡/氛围"], "status": "active", "recent_scene_ids": ["ch01_scene01"], "recent_usage_count": 2, "allow_next_scene": false, "only_if_new_function": true, "notes": "repeated"}]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text(
+                    '{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": ["阿绣替他"]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_artifact_state.json").write_text(
+                    '{"chapter_id": "ch01", "items": [{"item_id": "artifact_001", "label": "平安符", "holder": "待确认", "location": "窝棚木板下", "significance_level": "medium", "last_changed_scene": "ch01_scene01"}]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_chapter_progress.json").write_text(
+                    '{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["发现线索"], "consecutive_transition_scene_count": 1}',
+                    encoding="utf-8",
+                )
+
+                signals = review_scene_module.build_structural_review_signals(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    draft_text="红绳还在晃。红绳贴着腕骨，他只是发怔。后来他把平安符从怀里摸出来，还想起阿绣替他把领口压平。",
+                    based_on_text="孟浮灯看见红绳，什么也没做。",
+                    chapter_state="章节状态",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("红绳", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertFalse(signals["motif_redundancy"]["repetition_has_new_function"])
+        self.assertFalse(signals["canon_consistency"]["is_consistent"])
+        self.assertTrue(any("artifact_state" in item or "物件“平安符”" in item for item in signals["canon_consistency"]["consistency_issues"]))
 
     def test_sanitize_reviewer_raw_output_compresses_repeated_english_analysis(self) -> None:
         raw_text = " ".join(
@@ -233,14 +304,33 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
             "canon_consistency": {"is_consistent": True, "consistency_issues": []},
         }
 
-        normalized = review_scene_module.normalize_review_result(
-            result,
-            "Strong atmosphere.",
-            task_text="# constraints\n- 保持单视角\n",
-            draft_text="红绳还在晃。孟浮灯又想起阿绣，红绳贴着腕骨，阿绣两个字像铁锈一样钝痛。红绳晃了第二下，他还是只想起阿绣。",
-            based_on_text="孟浮灯看见红绳，想起阿绣。",
-            chapter_state="- 线索推进应以轻推为主\n",
-        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("- 线索推进应以轻推为主\n", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    '{"chapter_id": "ch01", "active_motifs": [{"motif_id": "artifact_motif_hongsheng", "category": "artifact_motif", "label": "红绳", "narrative_functions": ["过渡/氛围"], "status": "active", "recent_scene_ids": ["ch01_scene01"], "recent_usage_count": 2, "allow_next_scene": false, "only_if_new_function": true, "notes": "repeated"}, {"motif_id": "identity_motif_axiu", "category": "identity_motif", "label": "阿绣", "narrative_functions": ["过渡/氛围"], "status": "active", "recent_scene_ids": ["ch01_scene01"], "recent_usage_count": 2, "allow_next_scene": false, "only_if_new_function": true, "notes": "repeated"}]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["发现线索"], "consecutive_transition_scene_count": 1}', encoding="utf-8")
+
+                normalized = review_scene_module.normalize_review_result(
+                    result,
+                    "Strong atmosphere.",
+                    task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n\n# constraints\n- 保持单视角\n",
+                    draft_text="红绳还在晃。孟浮灯又想起阿绣，红绳贴着腕骨，阿绣两个字像铁锈一样钝痛。红绳晃了第二下，他还是只想起阿绣。",
+                    based_on_text="孟浮灯看见红绳，想起阿绣。",
+                    chapter_state="- 线索推进应以轻推为主\n",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
 
         self.assertNotEqual(normalized["verdict"], "lock")
         self.assertTrue(any("母题" in item or "复读" in item for item in normalized["major_issues"]))
