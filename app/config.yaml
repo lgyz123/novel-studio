@@ -38,6 +38,22 @@ supervisor:
   request_timeout: 120
   max_retries: 3
   retry_backoff_base: 1.0
+  scene_type_policy:
+    max_consecutive_weak_scenes: 2
+    weak_scene_types: [atmosphere, transition, reflection]
+    forced_after_weak_streak: [discovery, decision, consequence, confrontation, reveal]
+    min_type_ratios:
+      discovery: 0.20
+      decision: 0.15
+      consequence: 0.10
+    combined_min_type_ratios:
+      reveal_or_relationship_shift:
+        types: [reveal, relationship_shift]
+        ratio: 0.10
+    combined_max_type_ratios:
+      weak_scenes:
+        types: [atmosphere, transition, reflection]
+        ratio: 0.30
 
 generation:
   compile_num_ctx: 2048

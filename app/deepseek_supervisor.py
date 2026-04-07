@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 import time
@@ -28,6 +29,58 @@ SCENE_FUNCTION_LABELS = [
     "扩展世界信息",
     "过渡/氛围",
 ]
+
+SCENE_TYPE_LABELS = [
+    "discovery",
+    "decision",
+    "consequence",
+    "confrontation",
+    "reveal",
+    "relationship_shift",
+    "atmosphere",
+    "transition",
+    "reflection",
+]
+
+DEFAULT_SCENE_TYPE_POLICY: dict[str, Any] = {
+    "max_consecutive_weak_scenes": 2,
+    "weak_scene_types": ["atmosphere", "transition", "reflection"],
+    "forced_after_weak_streak": ["discovery", "decision", "consequence", "confrontation", "reveal"],
+    "min_type_ratios": {
+        "discovery": 0.20,
+        "decision": 0.15,
+        "consequence": 0.10,
+    },
+    "combined_min_type_ratios": {
+        "reveal_or_relationship_shift": {"types": ["reveal", "relationship_shift"], "ratio": 0.10},
+    },
+    "combined_max_type_ratios": {
+        "weak_scenes": {"types": ["atmosphere", "transition", "reflection"], "ratio": 0.30},
+    },
+}
+
+SCENE_FUNCTION_TO_TYPE = {
+    "发现线索": "discovery",
+    "触发调查": "decision",
+    "引发后果": "consequence",
+    "引入阻力": "confrontation",
+    "揭示关系": "relationship_shift",
+    "提高风险": "consequence",
+    "扩展世界信息": "reveal",
+    "制造错误判断": "reflection",
+}
+
+SCENE_TYPE_TO_FUNCTIONS = {
+    "discovery": ["发现线索", "扩展世界信息"],
+    "decision": ["触发调查", "引入阻力"],
+    "consequence": ["引发后果", "提高风险"],
+    "confrontation": ["引入阻力", "提高风险"],
+    "reveal": ["扩展世界信息", "发现线索"],
+    "relationship_shift": ["揭示关系"],
+    "atmosphere": ["过渡/氛围"],
+    "transition": ["过渡/氛围"],
+    "reflection": ["制造错误判断", "过渡/氛围"],
+}
 
 DECISION_MARKERS = ["决定", "收起", "藏起", "记下", "转向", "询问", "隐瞒", "回去", "停止", "撒谎", "跟踪", "取走", "放弃", "塞进", "挪开", "压回"]
 DISCOVERY_MARKERS = ["发现", "认出", "确认", "看到", "摸到", "捡到", "拾到", "写着", "露出", "原来", "竟是"]
@@ -211,6 +264,26 @@ def normalize_string_list(values: Any) -> list[str]:
         if text and text not in normalized:
             normalized.append(text)
     return normalized
+
+
+def load_scene_type_policy(config: dict[str, Any] | None = None) -> dict[str, Any]:
+    policy = json.loads(json.dumps(DEFAULT_SCENE_TYPE_POLICY, ensure_ascii=False))
+    configured = ((config or {}).get("supervisor") or {}).get("scene_type_policy", {})
+    if not isinstance(configured, dict):
+        return policy
+    for key in ("max_consecutive_weak_scenes",):
+        if configured.get(key) not in (None, ""):
+            try:
+                policy[key] = max(int(configured.get(key)), 1)
+            except (TypeError, ValueError):
+                pass
+    for key in ("weak_scene_types", "forced_after_weak_streak"):
+        if isinstance(configured.get(key), list):
+            policy[key] = [item for item in normalize_string_list(configured.get(key)) if item in SCENE_TYPE_LABELS]
+    for key in ("min_type_ratios", "combined_min_type_ratios", "combined_max_type_ratios"):
+        if isinstance(configured.get(key), dict):
+            policy[key] = configured.get(key)
+    return policy
 
 
 def parse_markdown_sections(text: str) -> dict[str, list[str]]:
@@ -458,6 +531,140 @@ def build_next_scene_planning_ledger(root: Path, locked_file: str, task_text: st
         },
         "artifact_state": tracker_bundle["artifact_state"],
         "motif_budget": build_motif_budget(tracker_bundle),
+    }
+
+
+def classify_scene_type_from_summary(summary: dict[str, Any]) -> str:
+    scene_function = str(summary.get("scene_function") or "").strip()
+    if scene_function and scene_function in SCENE_FUNCTION_TO_TYPE:
+        if scene_function != "过渡/氛围":
+            return SCENE_FUNCTION_TO_TYPE[scene_function]
+
+    new_information_items = normalize_string_list(summary.get("new_information_items", []))
+    state_changes = normalize_string_list(summary.get("state_changes", []))
+    protagonist_decision = str(summary.get("protagonist_decision") or "").strip()
+    artifacts_changed = summary.get("artifacts_changed", []) if isinstance(summary.get("artifacts_changed"), list) else []
+    open_questions_resolved = normalize_string_list(summary.get("open_questions_resolved", []))
+    reveal_changes = summary.get("reveal_changes", {}) if isinstance(summary.get("reveal_changes"), dict) else {}
+    reveal_delta_count = sum(len(normalize_string_list(value)) for value in reveal_changes.values() if isinstance(value, list))
+
+    if scene_function == "揭示关系":
+        return "relationship_shift"
+    if scene_function == "过渡/氛围":
+        if not new_information_items and not protagonist_decision and not state_changes and not artifacts_changed and not reveal_delta_count:
+            return "atmosphere"
+        if state_changes and not protagonist_decision and not artifacts_changed and not open_questions_resolved:
+            return "reflection"
+        return "transition"
+    return SCENE_FUNCTION_TO_TYPE.get(scene_function, "discovery")
+
+
+def build_scene_type_counts(scene_summaries: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    sequence: list[dict[str, Any]] = []
+    counts = {label: 0 for label in SCENE_TYPE_LABELS}
+    for summary in scene_summaries:
+        if not isinstance(summary, dict):
+            continue
+        scene_id = str(summary.get("scene_id") or "").strip()
+        scene_function = str(summary.get("scene_function") or "").strip()
+        scene_type = classify_scene_type_from_summary(summary)
+        sequence.append({"scene_id": scene_id, "scene_function": scene_function, "scene_type": scene_type})
+        counts[scene_type] = counts.get(scene_type, 0) + 1
+    return sequence, counts
+
+
+def build_scene_type_control(context: dict[str, Any], scene_type_policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    scene_type_policy = scene_type_policy or load_scene_type_policy()
+    chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
+    scene_summaries = chapter_progress.get("scene_summaries", []) if isinstance(chapter_progress, dict) else []
+    scene_sequence, counts = build_scene_type_counts(scene_summaries if isinstance(scene_summaries, list) else [])
+    weak_scene_types = [item for item in normalize_string_list(scene_type_policy.get("weak_scene_types", [])) if item in SCENE_TYPE_LABELS]
+    forced_after_weak_streak = [item for item in normalize_string_list(scene_type_policy.get("forced_after_weak_streak", [])) if item in SCENE_TYPE_LABELS]
+    max_consecutive_weak_scenes = max(int(scene_type_policy.get("max_consecutive_weak_scenes") or 2), 1)
+
+    weak_scene_streak_count = 0
+    for item in reversed(scene_sequence):
+        if str(item.get("scene_type") or "") in weak_scene_types:
+            weak_scene_streak_count += 1
+            continue
+        break
+
+    total_completed = len(scene_sequence)
+    projected_total = total_completed + 1
+    quota_gaps: list[dict[str, Any]] = []
+    preferred_next_scene_types: list[str] = []
+    disallowed_next_scene_types: list[str] = []
+
+    min_type_ratios = scene_type_policy.get("min_type_ratios", {}) if isinstance(scene_type_policy.get("min_type_ratios"), dict) else {}
+    for scene_type, ratio in min_type_ratios.items():
+        if scene_type not in SCENE_TYPE_LABELS:
+            continue
+        try:
+            ratio_value = float(ratio)
+        except (TypeError, ValueError):
+            continue
+        required_count = max(int(math.ceil(projected_total * ratio_value)), 0)
+        current_count = int(counts.get(scene_type, 0))
+        if current_count < required_count:
+            quota_gaps.append({"scene_type": scene_type, "current": current_count, "required_by_next": required_count})
+            if scene_type not in preferred_next_scene_types:
+                preferred_next_scene_types.append(scene_type)
+
+    combined_min_type_ratios = scene_type_policy.get("combined_min_type_ratios", {}) if isinstance(scene_type_policy.get("combined_min_type_ratios"), dict) else {}
+    for group_name, group in combined_min_type_ratios.items():
+        if not isinstance(group, dict):
+            continue
+        types = [item for item in normalize_string_list(group.get("types", [])) if item in SCENE_TYPE_LABELS]
+        try:
+            ratio_value = float(group.get("ratio") or 0)
+        except (TypeError, ValueError):
+            continue
+        required_count = max(int(math.ceil(projected_total * ratio_value)), 0)
+        current_count = sum(int(counts.get(item, 0)) for item in types)
+        if types and current_count < required_count:
+            quota_gaps.append({"group": group_name, "scene_types": types, "current": current_count, "required_by_next": required_count})
+            for scene_type in types:
+                if scene_type not in preferred_next_scene_types:
+                    preferred_next_scene_types.append(scene_type)
+
+    combined_max_type_ratios = scene_type_policy.get("combined_max_type_ratios", {}) if isinstance(scene_type_policy.get("combined_max_type_ratios"), dict) else {}
+    for _, group in combined_max_type_ratios.items():
+        if not isinstance(group, dict):
+            continue
+        types = [item for item in normalize_string_list(group.get("types", [])) if item in SCENE_TYPE_LABELS]
+        try:
+            ratio_value = float(group.get("ratio") or 0)
+        except (TypeError, ValueError):
+            continue
+        max_count_after_next = max(int(math.floor(projected_total * ratio_value)), 1)
+        current_count = sum(int(counts.get(item, 0)) for item in types)
+        if types and current_count >= max_count_after_next:
+            for scene_type in types:
+                if scene_type not in disallowed_next_scene_types:
+                    disallowed_next_scene_types.append(scene_type)
+
+    if weak_scene_streak_count >= max_consecutive_weak_scenes:
+        for scene_type in weak_scene_types:
+            if scene_type not in disallowed_next_scene_types:
+                disallowed_next_scene_types.append(scene_type)
+        preferred_next_scene_types = [item for item in forced_after_weak_streak if item not in disallowed_next_scene_types] + [
+            item for item in preferred_next_scene_types if item not in forced_after_weak_streak and item not in disallowed_next_scene_types
+        ]
+
+    ratios = {
+        scene_type: round((int(counts.get(scene_type, 0)) / total_completed), 3) if total_completed else 0.0
+        for scene_type in SCENE_TYPE_LABELS
+    }
+    return {
+        "policy": scene_type_policy,
+        "scene_type_sequence": scene_sequence[-12:],
+        "scene_type_counts": counts,
+        "scene_type_ratios": ratios,
+        "weak_scene_types": weak_scene_types,
+        "weak_scene_streak_count": weak_scene_streak_count,
+        "preferred_next_scene_types": preferred_next_scene_types[:6],
+        "disallowed_next_scene_types": disallowed_next_scene_types[:6],
+        "quota_gaps": quota_gaps[:6],
     }
 
 
@@ -866,6 +1073,9 @@ def build_next_scene_messages(task_text: str, locked_file: str, reviewer_result:
 - `constraints` 必须是约束短句列表。
 - `preferred_length` 可为空，但若能判断请给出合适范围。
 - 如果 `chapter_progress.consecutive_transition_scene_count >= 2`，下一场不能再是过渡/氛围场，必须切换为 discovery / decision / consequence / resistance 一类场景。
+- 你必须同时参考 `scene_type_control`：`atmosphere / transition / reflection` 连续不得超过 2 场；一旦达到上限，下一场必须切到 `discovery / decision / consequence / confrontation / reveal` 之一。
+- 你必须同时参考 `scene_type_control.quota_gaps`：如果某类 scene type 的 chapter 配额明显落后，下一场优先补该类，而不是继续局部最优。
+- chapter 级建议配额默认为：`discovery >= 20%`、`decision >= 15%`、`consequence >= 10%`、`reveal / relationship_shift >= 10%`、`atmosphere / transition / reflection 合计 <= 30%`。
 - 每 2 场至少要新增 1 个可验证事实；每 3 场至少要触发 1 个调查动作、关系动作或后果动作。
 - 如果 `revelation_tracker.forbidden_early_reveals` 仍包含某项内容，不得提前揭示；若要转入 reveal turn，必须在 `scene_function` 与 `required_state_change` 中显式登记。
 - 高频母题必须与 scene function 绑定；若 `motif_budget` 标记为不可继续刷，则本场默认禁用。
@@ -888,7 +1098,7 @@ def build_next_scene_messages(task_text: str, locked_file: str, reviewer_result:
     ]
 
 
-def build_next_scene_context(root: Path, task_id: str, locked_file: str, task_text: str = "") -> dict[str, Any]:
+def build_next_scene_context(root: Path, task_id: str, locked_file: str, task_text: str = "", scene_type_policy: dict[str, Any] | None = None) -> dict[str, Any]:
     notes_file = root / f"03_locked/canon/{Path(locked_file).stem}_notes.md"
     story_state_file = root / "03_locked/state/story_state.json"
     story_state = safe_load_json(story_state_file)
@@ -900,6 +1110,9 @@ def build_next_scene_context(root: Path, task_id: str, locked_file: str, task_te
         "review_result": safe_load_json(root / build_review_result_path(task_id)),
     }
     context.update(build_next_scene_planning_ledger(root, locked_file, task_text, story_state))
+    policy = scene_type_policy or load_scene_type_policy()
+    context["scene_type_policy"] = policy
+    context["scene_type_control"] = build_scene_type_control(context, scene_type_policy=policy)
     return context
 
 
@@ -910,8 +1123,11 @@ def build_forbidden_repetition_defaults(context: dict[str, Any]) -> list[str]:
         "禁止只通过气味描写制造所谓变化。",
     ]
     chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
+    scene_type_control = context.get("scene_type_control", {}) if isinstance(context, dict) else {}
     if int(chapter_progress.get("consecutive_transition_scene_count") or 0) >= 2:
         forbidden.insert(0, "连续两场已偏向过渡/氛围，下一场禁止再写 transition / reflection / atmosphere scene。")
+    if int(scene_type_control.get("weak_scene_streak_count") or 0) >= int((scene_type_control.get("policy") or {}).get("max_consecutive_weak_scenes") or 2):
+        forbidden.insert(0, "连续弱推进 scene 已触达上限，下一场禁止继续写 atmosphere / transition / reflection。")
     motif_budget = context.get("motif_budget", []) if isinstance(context, dict) else []
     for entry in motif_budget:
         if not isinstance(entry, dict):
@@ -927,6 +1143,18 @@ def choose_scene_function_default(context: dict[str, Any]) -> str:
     chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
     remaining = normalize_string_list(chapter_progress.get("remaining_scene_functions", []))
     consecutive_transition_count = int(chapter_progress.get("consecutive_transition_scene_count") or 0)
+    scene_type_control = context.get("scene_type_control", {}) if isinstance(context, dict) else {}
+    preferred_scene_types = normalize_string_list(scene_type_control.get("preferred_next_scene_types", []))
+    disallowed_scene_types = normalize_string_list(scene_type_control.get("disallowed_next_scene_types", []))
+
+    for scene_type in preferred_scene_types:
+        for label in SCENE_TYPE_TO_FUNCTIONS.get(scene_type, []):
+            mapped_type = SCENE_FUNCTION_TO_TYPE.get(label, scene_type)
+            if mapped_type in disallowed_scene_types:
+                continue
+            if label in remaining:
+                return label
+
     if consecutive_transition_count >= 2:
         for label in ["发现线索", "引入阻力", "触发调查", "引发后果"]:
             if label in remaining:
@@ -999,6 +1227,7 @@ def build_next_scene_structural_defaults(
     goal_text = (extract_markdown_field(task_text, "goal") or "").strip()
     chapter_progress = context.get("chapter_progress", {}) if isinstance(context, dict) else {}
     revelation_tracker = context.get("revelation_tracker", {}) if isinstance(context, dict) else {}
+    scene_type_control = context.get("scene_type_control", {}) if isinstance(context, dict) else {}
     scene_function = choose_scene_function_default(context)
     motif_budget_for_scene = build_motif_budget_for_scene(context)
     forbidden_repetition = build_forbidden_repetition_defaults(context)
@@ -1008,6 +1237,11 @@ def build_next_scene_structural_defaults(
         scene_purpose = f"承接上一场结果，并围绕“{goal_text}”继续推进；场景结束时必须出现新的可验证变化，而不是只延长气氛。"
     if int(chapter_progress.get("consecutive_transition_scene_count") or 0) >= 2:
         scene_purpose = f"承接上一场结果，但必须把连续过渡场切换成“{scene_function}”场；本场结束时至少落下一项新的事实、动作后果或风险变化。"
+    quota_gaps = scene_type_control.get("quota_gaps", []) if isinstance(scene_type_control, dict) else []
+    if quota_gaps:
+        gap = quota_gaps[0] if isinstance(quota_gaps[0], dict) else {}
+        gap_label = str(gap.get("scene_type") or gap.get("group") or "scene type 配额").strip()
+        scene_purpose = f"{scene_purpose} 同时要补上当前 chapter 在“{gap_label}”上的类型配额缺口，避免继续把场景浪费在弱推进切片上。"
 
     information_gain = normalize_string_list(revelation_tracker.get("pending_facts", []) or revelation_tracker.get("suspected_facts", []))[:2]
     if not information_gain:
@@ -1187,7 +1421,13 @@ def run_supervisor_next_scene_task(
     except Exception:
         return None
 
-    context = build_next_scene_context(root, current_task_id, locked_file, task_text=task_text)
+    context = build_next_scene_context(
+        root,
+        current_task_id,
+        locked_file,
+        task_text=task_text,
+        scene_type_policy=load_scene_type_policy(config),
+    )
     context["suggested_task_id"] = suggested_task_id
     messages = build_next_scene_messages(task_text, locked_file, reviewer_result, context)
     last_error: Exception | None = None

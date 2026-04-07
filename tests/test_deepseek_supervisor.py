@@ -231,6 +231,7 @@ class DeepSeekSupervisorTest(unittest.TestCase):
             )
 
         self.assertIn("chapter_progress", context)
+        self.assertIn("scene_type_control", context)
         self.assertIn("revelation_tracker", context)
         self.assertIn("state_tracker", context)
         self.assertIn("motif_budget", context)
@@ -257,8 +258,77 @@ class DeepSeekSupervisorTest(unittest.TestCase):
         self.assertIn('"required_state_change": ["string"]', messages[0]["content"])
         self.assertIn('"forbidden_repetition": ["string"]', messages[0]["content"])
         self.assertIn("不能只写气氛延长、余波延长或情绪回响", messages[0]["content"])
+        self.assertIn("scene_type_control", messages[0]["content"])
+        self.assertIn("transition / reflection` 连续不得超过 2 场", messages[0]["content"])
+        self.assertIn("discovery >= 20%", messages[0]["content"])
         self.assertIn("chapter_progress", messages[0]["content"])
         self.assertIn("avoid_motifs", messages[0]["content"])
+
+    def test_choose_scene_function_default_forces_strong_type_after_two_weak_scenes(self) -> None:
+        context = {
+            "chapter_progress": {
+                "remaining_scene_functions": ["过渡/氛围", "发现线索", "触发调查", "引发后果"],
+                "consecutive_transition_scene_count": 2,
+            },
+            "scene_type_control": {
+                "preferred_next_scene_types": ["decision", "discovery"],
+                "disallowed_next_scene_types": ["atmosphere", "transition", "reflection"],
+                "weak_scene_streak_count": 2,
+                "policy": {"max_consecutive_weak_scenes": 2},
+            },
+        }
+
+        scene_function = supervisor_module.choose_scene_function_default(context)
+
+        self.assertIn(scene_function, ["触发调查", "发现线索"])
+
+    def test_build_scene_type_control_detects_quota_gap_and_weak_streak(self) -> None:
+        context = {
+            "chapter_progress": {
+                "scene_summaries": [
+                    {"scene_id": "ch01_scene01", "scene_function": "过渡/氛围", "new_information_items": [], "protagonist_decision": "", "state_changes": [], "artifacts_changed": []},
+                    {"scene_id": "ch01_scene02", "scene_function": "过渡/氛围", "new_information_items": [], "protagonist_decision": "", "state_changes": [], "artifacts_changed": []},
+                    {"scene_id": "ch01_scene03", "scene_function": "发现线索", "new_information_items": ["确认平安符背后多了一道刻痕。"], "protagonist_decision": "把平安符收起。", "state_changes": ["protagonist_mode: 观察/求活 -> 隐匿/压制"], "artifacts_changed": [{"label": "平安符"}]},
+                    {"scene_id": "ch01_scene04", "scene_function": "过渡/氛围", "new_information_items": [], "protagonist_decision": "", "state_changes": [], "artifacts_changed": []},
+                    {"scene_id": "ch01_scene05", "scene_function": "过渡/氛围", "new_information_items": [], "protagonist_decision": "", "state_changes": [], "artifacts_changed": []},
+                ]
+            }
+        }
+
+        control = supervisor_module.build_scene_type_control(context)
+
+        self.assertEqual(control["weak_scene_streak_count"], 2)
+        self.assertIn("decision", control["preferred_next_scene_types"])
+        self.assertIn("atmosphere", control["disallowed_next_scene_types"])
+        self.assertTrue(control["quota_gaps"])
+
+    def test_build_next_scene_structural_defaults_uses_scene_type_control_when_weak_streak_hits_cap(self) -> None:
+        context = {
+            "chapter_progress": {
+                "remaining_scene_functions": ["过渡/氛围", "发现线索", "引发后果"],
+                "consecutive_transition_scene_count": 2,
+            },
+            "revelation_tracker": {"suspected_facts": ["阿绣与平安符有关"]},
+            "scene_type_control": {
+                "preferred_next_scene_types": ["consequence", "discovery"],
+                "disallowed_next_scene_types": ["atmosphere", "transition", "reflection"],
+                "weak_scene_streak_count": 2,
+                "quota_gaps": [{"scene_type": "consequence", "current": 0, "required_by_next": 1}],
+                "policy": {"max_consecutive_weak_scenes": 2},
+            },
+            "motif_budget": [],
+        }
+
+        defaults = supervisor_module.build_next_scene_structural_defaults(
+            "# task_id\nscene_510\n\n# goal\n继续推进。\n",
+            "03_locked/chapters/ch01_scene05.md",
+            {"motif_redundancy": {"repeated_motifs": []}},
+            context=context,
+        )
+
+        self.assertEqual(defaults["scene_function"], "引发后果")
+        self.assertIn("类型配额缺口", defaults["scene_purpose"])
+        self.assertTrue(any("transition / reflection / atmosphere" in item or "atmosphere / transition / reflection" in item for item in defaults["forbidden_repetition"]))
 
     def test_maybe_supervise_manual_decision_retries_with_recovery_prompt(self) -> None:
         task_text = """# task_id
