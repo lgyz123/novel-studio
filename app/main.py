@@ -17,6 +17,8 @@ from story_state import update_story_state_on_lock
 
 
 ROOT = Path(__file__).resolve().parent.parent
+PROSE_REPAIR = "prose_repair"
+STRUCTURAL_REPAIR = "structural_repair"
 
 
 def read_text(rel_path: str) -> str:
@@ -302,6 +304,7 @@ def build_scene_contract_summary(task_text: str) -> str:
     information_gain = extract_markdown_list_field(task_text, "required_information_gain")
     plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
     decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
     avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
 
     lines = ["# 当前 scene contract"]
@@ -315,6 +318,8 @@ def build_scene_contract_summary(task_text: str) -> str:
         lines.append(f"- 局面推进要求：{plot_progress}")
     if decision_shift:
         lines.append(f"- 决策偏移要求：{decision_shift}")
+    if required_state_change:
+        lines.append(f"- 状态变化要求：{'；'.join(required_state_change[:3])}")
     if avoid_motifs:
         lines.append(f"- 避免复用：{'；'.join(avoid_motifs[:4])}")
     return "\n".join(lines)
@@ -570,40 +575,136 @@ def load_repair_guidance(task_text: str) -> tuple[str | None, str | None, list[s
     return repair_mode, repair_plan_path, repair_actions
 
 
-def build_writer_repair_rules(repair_mode: str | None) -> list[str]:
+def load_lock_gate_report(task_id: str) -> dict[str, Any] | None:
+    normalized = str(task_id or "").strip()
+    if not normalized:
+        return None
+    path = ROOT / f"03_locked/reports/{normalized}_lock_gate_report.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def has_state_transition_evidence(reviewer_result: dict[str, Any], lock_gate_report: dict[str, Any] | None = None) -> bool:
+    information_gain = reviewer_result.get("information_gain", {}) if isinstance(reviewer_result, dict) else {}
+    plot_progress = reviewer_result.get("plot_progress", {}) if isinstance(reviewer_result, dict) else {}
+    character_decision = reviewer_result.get("character_decision", {}) if isinstance(reviewer_result, dict) else {}
+
+    if bool(information_gain.get("has_new_information")):
+        return True
+    if bool(plot_progress.get("has_plot_progress")):
+        return True
+    if bool(character_decision.get("has_decision_or_behavior_shift")):
+        return True
+
+    checks = lock_gate_report.get("checks", []) if isinstance(lock_gate_report, dict) else []
+    for check in checks:
+        if not isinstance(check, dict):
+            continue
+        if str(check.get("name") or "") == "state_transition_evidence" and bool(check.get("passed")):
+            return True
+    return False
+
+
+def choose_repair_focus(task_text: str, reviewer_result: dict[str, Any]) -> tuple[str, list[str]]:
+    information_gain = reviewer_result.get("information_gain", {}) if isinstance(reviewer_result, dict) else {}
+    plot_progress = reviewer_result.get("plot_progress", {}) if isinstance(reviewer_result, dict) else {}
+    character_decision = reviewer_result.get("character_decision", {}) if isinstance(reviewer_result, dict) else {}
+    task_id = extract_markdown_field(task_text, "task_id") or str(reviewer_result.get("task_id") or "").strip()
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
+    lock_gate_report = load_lock_gate_report(task_id)
+    reasons: list[str] = []
+
+    if information_gain and information_gain.get("has_new_information") is False:
+        reasons.append("缺少可验证的新信息")
+    if plot_progress and plot_progress.get("has_plot_progress") is False:
+        reasons.append("缺少明确的 plot progress")
+    if character_decision and character_decision.get("has_decision_or_behavior_shift") is False:
+        reasons.append("缺少可追踪的角色决策/行为偏移")
+    if required_state_change and not has_state_transition_evidence(reviewer_result, lock_gate_report=lock_gate_report):
+        reasons.append("required_state_change 尚未形成可验证落点")
+
+    all_issue_text = "\n".join(
+        [str(item).strip() for item in reviewer_result.get("major_issues", []) + reviewer_result.get("minor_issues", []) if str(item).strip()]
+    )
+    if any(marker in all_issue_text for marker in ["信息增量", "plot progress", "推进不足", "推进不够", "决策", "状态变化", "scene 功能", "scene_function", "功能失效"]):
+        reasons.append("reviewer 明确指出了结构缺口")
+
+    deduped: list[str] = []
+    for item in reasons:
+        if item not in deduped:
+            deduped.append(item)
+    if deduped:
+        return STRUCTURAL_REPAIR, deduped
+    return PROSE_REPAIR, []
+
+
+def build_writer_repair_rules(repair_mode: str | None, repair_focus: str | None = None) -> list[str]:
+    rules: list[str] = []
+    if repair_focus == PROSE_REPAIR:
+        rules.extend(
+            [
+                "本次是 prose repair，优先修复衔接、语言密度、节奏和表达不稳问题。",
+                "尽量局部修改，不主动引入大结构变化。",
+            ]
+        )
+    elif repair_focus == STRUCTURAL_REPAIR:
+        rules.extend(
+            [
+                "本次是 structural repair，本轮目标不是把句子修顺，而是补齐结构缺口。",
+                "允许补入一个关键动作、一个明确新事实、一个动作后果、一个结尾状态变化，或把 scene contract 的必要项补写落地。",
+                "如果原段落承载不了这些结构补丁，允许重组相关段落或改写结尾，但不要越界新增主线、制度设定或无关人物。",
+            ]
+        )
     if repair_mode == RepairMode.local_fix.value:
-        return [
-            "本次是局部修补，不要推倒整场重写。",
-            "优先保留旧稿已经可用的段落、动作顺序和场景结构。",
-            "只修 repair_plan 指向的问题段落与句子。",
-        ]
+        rules.extend(
+            [
+                "本次是局部修补，不要推倒整场重写。",
+                "优先保留旧稿已经可用的段落、动作顺序和场景结构。",
+                "只修 repair_plan 指向的问题段落与句子。",
+            ]
+        )
+        return rules
     if repair_mode == RepairMode.partial_redraft.value:
-        return [
-            "本次允许局部重写，但不要扩大成整场翻写。",
-            "优先保留方向正确的场景骨架，只重写受影响的段落块。",
-            "如果 repair_plan 未要求，不要更换场景地点、人物边界和核心推进方式。",
-        ]
+        rules.extend(
+            [
+                "本次允许局部重写，但不要扩大成整场翻写。",
+                "优先保留方向正确的场景骨架，只重写受影响的段落块。",
+                "如果 repair_plan 未要求，不要更换场景地点、人物边界和核心推进方式。",
+            ]
+        )
+        return rules
     if repair_mode == RepairMode.full_redraft.value:
-        return [
-            "本次允许整场重写，但仍须严格围绕 repair_plan 的核心问题。",
-            "重写时优先修复核心推进失败、约束冲突或场景功能错位。",
-            "即使整场重写，也不要擅自新增设定、人物或主线外扩。",
-        ]
-    return []
+        rules.extend(
+            [
+                "本次允许整场重写，但仍须严格围绕 repair_plan 的核心问题。",
+                "重写时优先修复核心推进失败、约束冲突或场景功能错位。",
+                "即使整场重写，也不要擅自新增设定、人物或主线外扩。",
+            ]
+        )
+        return rules
+    return rules
 
 
 def build_writer_repair_section(task_text: str) -> str:
     repair_mode, repair_plan_path, repair_actions = load_repair_guidance(task_text)
-    if not repair_mode and not repair_plan_path and not repair_actions:
+    repair_focus = (extract_markdown_field(task_text, "repair_focus") or "").strip()
+    if not repair_mode and not repair_focus and not repair_plan_path and not repair_actions:
         return ""
 
     lines = ["【修订执行计划】"]
     if repair_mode:
         lines.append(f"- repair_mode: {repair_mode}")
+    if repair_focus:
+        lines.append(f"- repair_focus: {repair_focus}")
     if repair_plan_path:
         lines.append(f"- repair_plan: {repair_plan_path}")
 
-    mode_rules = build_writer_repair_rules(repair_mode)
+    mode_rules = build_writer_repair_rules(repair_mode, repair_focus=repair_focus)
     if mode_rules:
         lines.append("- 执行边界：")
         lines.extend([f"  - {item}" for item in mode_rules])
@@ -632,9 +733,10 @@ def build_writer_structure_section(task_text: str) -> str:
     information_gain = extract_markdown_list_field(task_text, "required_information_gain")
     plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
     decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
     avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
 
-    if not any([scene_purpose, information_gain, plot_progress, decision_shift, avoid_motifs]):
+    if not any([scene_purpose, information_gain, plot_progress, decision_shift, required_state_change, avoid_motifs]):
         return ""
 
     lines = ["【本场结构硬约束】"]
@@ -647,6 +749,9 @@ def build_writer_structure_section(task_text: str) -> str:
         lines.append(f"- 必须完成的局面推进：{plot_progress}")
     if decision_shift:
         lines.append(f"- 主角必须出现的新动作/决策偏移：{decision_shift}")
+    if required_state_change:
+        lines.append("- 本场必须落地的状态变化：")
+        lines.extend([f"  - {item}" for item in required_state_change])
     if avoid_motifs:
         lines.append("- 本场避免原样复用的母题/触发物：")
         lines.extend([f"  - {item}" for item in avoid_motifs])
@@ -659,6 +764,7 @@ def build_structural_task_fields(task_text: str, reviewer_result: dict) -> dict[
     information_gain = extract_markdown_list_field(task_text, "required_information_gain")
     plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
     decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
     avoid_motifs = extract_markdown_list_field(task_text, "avoid_motifs")
 
     goal_text = strip_revision_prefix((extract_markdown_field(task_text, "goal") or "").strip())
@@ -691,6 +797,9 @@ def build_structural_task_fields(task_text: str, reviewer_result: dict) -> dict[
     if not avoid_motifs:
         avoid_motifs = [str(item).strip() for item in reviewer_motif.get("repeated_motifs", []) if str(item).strip()]
 
+    if not required_state_change:
+        required_state_change = ["至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"]
+
     deduped_information_gain: list[str] = []
     for item in information_gain:
         if item not in deduped_information_gain:
@@ -701,11 +810,17 @@ def build_structural_task_fields(task_text: str, reviewer_result: dict) -> dict[
         if item not in deduped_avoid_motifs:
             deduped_avoid_motifs.append(item)
 
+    deduped_required_state_change: list[str] = []
+    for item in required_state_change:
+        if item not in deduped_required_state_change:
+            deduped_required_state_change.append(item)
+
     return {
         "scene_purpose": scene_purpose,
         "required_information_gain": deduped_information_gain,
         "required_plot_progress": plot_progress,
         "required_decision_shift": decision_shift,
+        "required_state_change": deduped_required_state_change,
         "avoid_motifs": deduped_avoid_motifs,
     }
 
@@ -763,7 +878,10 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
     scene10_guardrails = build_scene10_prompt_guardrails(task_text)
-    repair_rules = build_writer_repair_rules(extract_markdown_field(task_text, "repair_mode"))
+    repair_rules = build_writer_repair_rules(
+        extract_markdown_field(task_text, "repair_mode"),
+        repair_focus=extract_markdown_field(task_text, "repair_focus"),
+    )
     repair_rule_lines = "\n".join([f"14. {item}" for item in repair_rules[:1]]) if repair_rules else ""
 
     prompt = f"""请根据以下输入写出 Markdown 草稿正文。
@@ -1267,6 +1385,8 @@ def strip_revision_prefix(goal: str) -> str:
         "对上一版草稿进行重写：",
         "基于上一版草稿进行局部修补：",
         "基于上一版草稿进行局部重写：",
+        "基于上一版草稿进行结构修复：",
+        "基于上一版草稿进行结构重写：",
         "基于上一版草稿整体重写当前 scene：",
         "基于上一版草稿重新写作：",
     ]
@@ -1300,6 +1420,11 @@ def sanitize_followup_constraints(constraints: str) -> str:
             skip_repair_action_lines = False
 
         if stripped.startswith("- 修订模式："):
+            continue
+        if stripped.startswith("- 修订焦点："):
+            continue
+        if stripped == "- structural_repair 触发原因：":
+            skip_repair_action_lines = True
             continue
         if stripped == "- repair_plan 执行动作：":
             skip_repair_action_lines = True
@@ -1519,7 +1644,7 @@ def build_followup_output_target(draft_file: str, mode: str) -> str:
     return path.with_name(f"{stem}{path.suffix}").as_posix()
 
 
-def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, task_text: str, repair_mode: str | None = None, repair_instructions: list[str] | None = None) -> str:
+def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, task_text: str, repair_mode: str | None = None, repair_focus: str | None = None, repair_instructions: list[str] | None = None) -> str:
     base_goal = strip_revision_prefix(original_goal)
     summary = str(reviewer_result.get("summary", "")).strip()
     filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
@@ -1529,7 +1654,11 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
         major_issues + minor_issues
     )
 
-    if mode == "rewrite":
+    if repair_focus == STRUCTURAL_REPAIR and mode == "rewrite":
+        prefix = "基于上一版草稿进行结构重写"
+    elif repair_focus == STRUCTURAL_REPAIR:
+        prefix = "基于上一版草稿进行结构修复"
+    elif mode == "rewrite":
         prefix = "基于上一版草稿重新写作"
     elif repair_mode == RepairMode.local_fix.value:
         prefix = "基于上一版草稿进行局部修补"
@@ -1562,7 +1691,7 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
     return f"{prefix}：{base_goal}。"
 
 
-def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mode: str | None = None, repair_instructions: list[str] | None = None) -> str:
+def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mode: str | None = None, repair_focus: str | None = None, repair_focus_reasons: list[str] | None = None, repair_instructions: list[str] | None = None) -> str:
     original_constraints = sanitize_followup_constraints(extract_markdown_field(task_text, "constraints") or "")
     filtered_major, filtered_minor = get_filtered_reviewer_issues(reviewer_result, task_text)
     major_issues = filter_usable_issues(filtered_major)
@@ -1578,6 +1707,17 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
 
     if repair_mode:
         blocks.append(f"- 修订模式：{repair_mode}")
+    if repair_focus:
+        blocks.append(f"- 修订焦点：{repair_focus}")
+        if repair_focus == STRUCTURAL_REPAIR:
+            blocks.append("- structural_repair 允许动作：")
+            blocks.append("- 允许补入一个关键动作、新事实、动作后果或结尾状态变化。")
+            blocks.append("- 必须把 scene contract 缺失项补写落地，不能只做语言微修。")
+            if repair_focus_reasons:
+                blocks.append("- structural_repair 触发原因：")
+                blocks.extend([f"- {item}" for item in repair_focus_reasons[:4]])
+        elif repair_focus == PROSE_REPAIR:
+            blocks.append("- prose_repair 约束：优先修衔接、语言密度、节奏与表达稳定性，尽量不改大结构。")
 
     if repair_instructions:
         blocks.append("- repair_plan 执行动作：")
@@ -1599,8 +1739,10 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     chapter_state = extract_markdown_field(task_text, "chapter_state")
     preferred_length = extract_markdown_field(task_text, "preferred_length")
     repair_mode = None
+    repair_focus = None
     repair_plan_path = None
     repair_instructions: list[str] = []
+    repair_focus_reasons: list[str] = []
 
     if mode == "revise":
         task_id_for_plan = extract_markdown_field(task_text, "task_id") or "generated-task"
@@ -1612,12 +1754,30 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
         except Exception:
             repair_plan_path = None
 
+    repair_focus, repair_focus_reasons = choose_repair_focus(task_text, reviewer_result)
+
     new_task_id = build_followup_task_id(task_id, mode)
-    new_goal = build_followup_goal(original_goal, reviewer_result, mode, task_text, repair_mode=repair_mode, repair_instructions=repair_instructions)
-    new_constraints = build_followup_constraints(task_text, reviewer_result, repair_mode=repair_mode, repair_instructions=repair_instructions)
+    new_goal = build_followup_goal(
+        original_goal,
+        reviewer_result,
+        mode,
+        task_text,
+        repair_mode=repair_mode,
+        repair_focus=repair_focus,
+        repair_instructions=repair_instructions,
+    )
+    new_constraints = build_followup_constraints(
+        task_text,
+        reviewer_result,
+        repair_mode=repair_mode,
+        repair_focus=repair_focus,
+        repair_focus_reasons=repair_focus_reasons,
+        repair_instructions=repair_instructions,
+    )
     new_output_target = build_followup_output_target(draft_file, mode)
     structural_fields = build_structural_task_fields(task_text, reviewer_result)
     information_gain_block = "\n".join(f"- {item}" for item in structural_fields["required_information_gain"])
+    state_change_block = "\n".join(f"- {item}" for item in structural_fields["required_state_change"])
     avoid_motifs_block = "\n".join(f"- {item}" for item in structural_fields["avoid_motifs"])
 
     sections = [
@@ -1628,6 +1788,7 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
         f"# required_information_gain\n{information_gain_block}",
         f"# required_plot_progress\n{structural_fields['required_plot_progress']}",
         f"# required_decision_shift\n{structural_fields['required_decision_shift']}",
+        f"# required_state_change\n{state_change_block}",
     ]
 
     if avoid_motifs_block:
@@ -1638,6 +1799,8 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
 
     if repair_mode:
         sections.append(f"# repair_mode\n{repair_mode}")
+    if repair_focus:
+        sections.append(f"# repair_focus\n{repair_focus}")
 
     if repair_plan_path:
         sections.append(f"# repair_plan\n{repair_plan_path}")

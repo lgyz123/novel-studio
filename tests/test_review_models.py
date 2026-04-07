@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from app.main import (
+    choose_repair_focus,
     compile_context,
     build_generated_task_content,
     build_locked_chapter_file,
@@ -269,6 +270,9 @@ scene_044
 # repair_mode
 local_fix
 
+# repair_focus
+prose_repair
+
 # repair_plan
 02_working/reviews/scene_044_repair_plan.json
 """
@@ -292,6 +296,7 @@ local_fix
 
             self.assertIn("【修订执行计划】", prompt)
             self.assertIn("repair_mode: local_fix", prompt)
+            self.assertIn("repair_focus: prose_repair", prompt)
             self.assertIn("scene_044_repair_plan.json", prompt)
             self.assertIn("本次是局部修补，不要推倒整场重写", prompt)
             self.assertIn("必须优先处理的修订动作", prompt)
@@ -339,6 +344,9 @@ local_fix
 # required_decision_shift
 主角必须改变原本的处理方式。
 
+# required_state_change
+- 风险等级必须变化。
+
 # avoid_motifs
 - 红绳尾端
 - 再次打结
@@ -355,6 +363,7 @@ local_fix
         self.assertIn("必须写出的新信息增量", prompt)
         self.assertIn("必须完成的局面推进：场景结尾前必须形成新的现实阻碍。", prompt)
         self.assertIn("主角必须出现的新动作/决策偏移：主角必须改变原本的处理方式。", prompt)
+        self.assertIn("本场必须落地的状态变化", prompt)
         self.assertIn("本场避免原样复用的母题/触发物", prompt)
 
     def test_writer_prompt_includes_hard_progress_obligations(self) -> None:
@@ -543,6 +552,9 @@ scene_301
 # required_decision_shift
 主角必须改变原先的处理方式。
 
+# required_state_change
+- 风险等级必须变化。
+
 # avoid_motifs
 - 原样重复旧物回想
 
@@ -554,6 +566,9 @@ scene_301
             "summary": "需要继续推进。",
             "major_issues": ["当前推进不够。"],
             "minor_issues": [],
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
         }
 
         content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_301.md", "rewrite")
@@ -562,7 +577,92 @@ scene_301
         self.assertIn("# required_information_gain\n- 确认新的风险条件。", content)
         self.assertIn("# required_plot_progress\n场景结尾前必须让阻碍升级。", content)
         self.assertIn("# required_decision_shift\n主角必须改变原先的处理方式。", content)
+        self.assertIn("# required_state_change\n- 风险等级必须变化。", content)
+        self.assertIn("# repair_focus\nstructural_repair", content)
         self.assertIn("# avoid_motifs\n- 原样重复旧物回想", content)
+
+    def test_choose_repair_focus_returns_structural_for_missing_structural_signals(self) -> None:
+        task_text = """# task_id
+scene_401
+
+# goal
+继续处理当前 scene。
+
+# required_state_change
+- 物件位置必须变化。
+"""
+        reviewer_result = {
+            "task_id": "scene_401",
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+            "major_issues": ["scene 功能没有落地。"],
+            "minor_issues": [],
+        }
+
+        focus, reasons = choose_repair_focus(task_text, reviewer_result)
+
+        self.assertEqual(focus, "structural_repair")
+        self.assertTrue(any("新信息" in item for item in reasons))
+        self.assertTrue(any("required_state_change" in item for item in reasons))
+
+    def test_generated_task_content_marks_prose_repair_for_local_language_issues(self) -> None:
+        task_text = """# task_id
+scene_402
+
+# goal
+修订当前 scene。
+
+# constraints
+- 保持单视角
+
+# output_target
+02_working/drafts/scene_402.md
+"""
+        reviewer_result = {
+            "task_id": "scene_402",
+            "summary": "语言略显冗长。",
+            "major_issues": [],
+            "minor_issues": ["第2段语言略显重复，需要压缩。"],
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认新线索存在。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面继续向前。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角继续原计划。"},
+        }
+
+        content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_402.md", "revise")
+
+        self.assertIn("# repair_focus\nprose_repair", content)
+        self.assertIn("- 修订焦点：prose_repair", content)
+
+    def test_generated_task_content_marks_structural_repair_and_allows_structural_changes(self) -> None:
+        task_text = """# task_id
+scene_403
+
+# goal
+修订当前 scene。
+
+# scene_purpose
+让 scene function 真正落地。
+
+# output_target
+02_working/drafts/scene_403.md
+"""
+        reviewer_result = {
+            "task_id": "scene_403",
+            "summary": "当前写法只是换说法重复旧内容。",
+            "major_issues": ["缺少信息增量，scene 功能失效。"],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+        }
+
+        content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_403.md", "revise")
+
+        self.assertIn("# repair_focus\nstructural_repair", content)
+        self.assertIn("基于上一版草稿进行结构修复", content)
+        self.assertIn("- structural_repair 允许动作：", content)
+        self.assertIn("- 必须把 scene contract 缺失项补写落地，不能只做语言微修。", content)
 
     def test_build_validation_errors_rejects_empty_draft(self) -> None:
         task_text = """# task_id
