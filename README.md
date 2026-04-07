@@ -88,6 +88,7 @@
 ### 辅助脚本
 - `app/rebuild_story_state.py`：基于 locked 文件重建 `story_state`
 - `app/set_current_task.py`：切换当前任务
+- `app/analyze_scene_sequence.py`：离线扫描整章 locked scenes，输出每场结构体检、scene type 序列、motif 重复、artifact drift / reveal 风险与合并/重写建议
 - `app/smoke_test_runner.py` 与 `app/run_five_scene_smoke_test.py`：烟雾测试工具
 
 ## 当前已经具备的能力

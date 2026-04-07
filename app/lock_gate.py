@@ -5,6 +5,14 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from chapter_trackers import (
+    classify_scene_function,
+    detect_artifact_state_conflicts,
+    detect_forbidden_reveal_violations,
+    load_tracker_bundle,
+)
+from deepseek_supervisor import SCENE_FUNCTION_TO_TYPE, build_scene_type_control, load_scene_type_policy
+
 from review_models import (
     RepairMode,
     ReviewIssue,
@@ -15,6 +23,15 @@ from review_models import (
     build_repair_plan,
     build_structured_review_result,
 )
+
+
+ROOT = Path(__file__).resolve().parent.parent
+GENERIC_REDUNDANCY_REASONS = {"有新功能。", "无重复。", "母题复读。", "结构上可锁定。", "可锁定。"}
+INVESTIGATION_MARKERS = ["追问", "打听", "调查", "跟踪", "查清", "问清", "探查"]
+ARTIFACT_CHANGE_MARKERS = ["塞回", "藏在", "摸出来", "揣着", "露出", "挂着", "放在", "留在", "压在"]
+RELATIONSHIP_CHANGE_MARKERS = ["旧识", "相识", "认得", "名字", "两个人", "关系", "她曾", "她总"]
+RISK_CHANGE_MARKERS = ["差点", "险些", "暴露", "惹来", "更难", "盯上", "麻烦"]
+GOAL_CHANGE_MARKERS = ["决定", "改成", "暂缓", "转向", "放弃", "回去", "记下", "隐瞒"]
 
 
 class LockGateCheck(BaseModel):
@@ -54,6 +71,175 @@ def extract_markdown_field(task_text: str, field_name: str) -> str | None:
         return None
     value = match.group(1).strip()
     return value if value else None
+
+
+def extract_markdown_list_field(task_text: str, field_name: str) -> list[str]:
+    raw_value = extract_markdown_field(task_text, field_name)
+    if not raw_value:
+        return []
+    items: list[str] = []
+    for line in raw_value.splitlines():
+        cleaned = re.sub(r"^[-*]\s*", "", line).strip()
+        if cleaned and cleaned not in items:
+            items.append(cleaned)
+    return items
+
+
+def normalize_string_list(values: Any) -> list[str]:
+    if not isinstance(values, list):
+        return []
+    normalized: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if text and text not in normalized:
+            normalized.append(text)
+    return normalized
+
+
+def safe_load_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def infer_chapter_id(task_text: str) -> str:
+    for field in ("based_on", "output_target", "chapter_state", "task_id"):
+        value = extract_markdown_field(task_text, field) or ""
+        match = re.search(r"(ch\d+)_scene\d+", value)
+        if match:
+            return match.group(1)
+    return ""
+
+
+def infer_previous_scene_id(task_text: str) -> str | None:
+    based_on = extract_markdown_field(task_text, "based_on") or ""
+    match = re.search(r"(ch\d+_scene\d+)", based_on)
+    if match:
+        return match.group(1)
+    return None
+
+
+def read_task_path(task_text: str, field_name: str) -> tuple[str, str]:
+    rel_path = (extract_markdown_field(task_text, field_name) or "").strip()
+    if not rel_path:
+        return "", ""
+    path = ROOT / rel_path
+    if not path.exists():
+        return rel_path, ""
+    try:
+        return rel_path, path.read_text(encoding="utf-8")
+    except OSError:
+        return rel_path, ""
+
+
+def tokenize_text(text: str) -> list[str]:
+    return re.findall(r"[\u4e00-\u9fff]{1,6}|[A-Za-z0-9_]+", str(text or ""))
+
+
+def is_generic_requirement(text: str) -> bool:
+    return any(marker in str(text or "") for marker in ["至少", "必须", "新的", "新信息", "状态变量", "变化", "动作", "决策", "风险", "关系", "物件", "认知", "目标"])
+
+
+def requirement_matches_evidence(requirement: str, evidences: list[str], draft_text: str = "") -> bool:
+    requirement_text = str(requirement or "").strip()
+    if not requirement_text:
+        return True
+    haystacks = [str(item).strip() for item in evidences if str(item).strip()]
+    if draft_text:
+        haystacks.append(str(draft_text).strip())
+    compact_requirement = re.sub(r"\s+", "", requirement_text)
+    for haystack in haystacks:
+        compact_haystack = re.sub(r"\s+", "", haystack)
+        if compact_requirement and (compact_requirement in compact_haystack or compact_haystack in compact_requirement):
+            return True
+    requirement_tokens = [token for token in tokenize_text(requirement_text) if len(token) >= 2]
+    if not requirement_tokens:
+        return bool(haystacks)
+    for haystack in haystacks:
+        evidence_tokens = set(tokenize_text(haystack))
+        overlap = [token for token in requirement_tokens if token in evidence_tokens]
+        if len(overlap) >= min(2, len(requirement_tokens)):
+            return True
+        if is_generic_requirement(requirement_text) and overlap:
+            return True
+    return False
+
+
+def detect_local_canon_conflicts(draft_text: str, chapter_state_text: str, tracker_bundle: dict[str, Any]) -> list[str]:
+    conflicts: list[str] = []
+    revelation_tracker = tracker_bundle.get("revelation_tracker", {}) if isinstance(tracker_bundle, dict) else {}
+    artifact_state = tracker_bundle.get("artifact_state", {}) if isinstance(tracker_bundle, dict) else {}
+    conflicts.extend(detect_forbidden_reveal_violations(draft_text, revelation_tracker))
+    conflicts.extend(detect_artifact_state_conflicts(draft_text, artifact_state))
+    if chapter_state_text and ("尚未形成调查念头" in chapter_state_text or "不该主动追问" in chapter_state_text):
+        for marker in INVESTIGATION_MARKERS:
+            if marker in draft_text:
+                conflicts.append(f"chapter_state 明确禁止主动调查，但正文出现了“{marker}”式调查推进。")
+                break
+    deduped: list[str] = []
+    for item in conflicts:
+        text = str(item).strip()
+        if text and text not in deduped:
+            deduped.append(text)
+    return deduped[:4]
+
+
+def build_state_change_evidence(draft_text: str, legacy_result: dict[str, Any] | None) -> dict[str, bool]:
+    legacy_result = legacy_result or {}
+    information_gain = legacy_result.get("information_gain") or {}
+    plot_progress = legacy_result.get("plot_progress") or {}
+    character_decision = legacy_result.get("character_decision") or {}
+    joined_text = "\n".join(
+        [
+            draft_text,
+            "；".join(normalize_string_list(information_gain.get("new_information_items", []))),
+            str(plot_progress.get("progress_reason") or ""),
+            str(character_decision.get("decision_detail") or ""),
+        ]
+    )
+    return {
+        "物件位置变化": any(marker in joined_text for marker in ARTIFACT_CHANGE_MARKERS),
+        "物件状态变化": any(marker in joined_text for marker in ARTIFACT_CHANGE_MARKERS),
+        "主角认知变化": bool(normalize_string_list(information_gain.get("new_information_items", []))) or any(marker in joined_text for marker in ["确认", "意识到", "知道", "认出", "怀疑", "想起"]),
+        "关系变化": any(marker in joined_text for marker in RELATIONSHIP_CHANGE_MARKERS),
+        "风险等级变化": any(marker in joined_text for marker in RISK_CHANGE_MARKERS),
+        "目标变化": any(marker in joined_text for marker in GOAL_CHANGE_MARKERS),
+        "行动计划变化": any(marker in joined_text for marker in GOAL_CHANGE_MARKERS),
+    }
+
+
+def state_change_requirement_met(requirement: str, evidence: dict[str, bool], draft_text: str, legacy_result: dict[str, Any] | None) -> bool:
+    requirement_text = str(requirement or "").strip()
+    if not requirement_text:
+        return True
+    category_map = [
+        ("物件", ["物件位置变化", "物件状态变化"]),
+        ("位置", ["物件位置变化"]),
+        ("可见性", ["物件状态变化"]),
+        ("认知", ["主角认知变化"]),
+        ("判断", ["主角认知变化"]),
+        ("关系", ["关系变化"]),
+        ("风险", ["风险等级变化"]),
+        ("目标", ["目标变化", "行动计划变化"]),
+        ("计划", ["目标变化", "行动计划变化"]),
+        ("行动", ["行动计划变化"]),
+    ]
+    for keyword, fields in category_map:
+        if keyword in requirement_text and any(evidence.get(field) for field in fields):
+            return True
+    joined_evidence = [field for field, matched in evidence.items() if matched]
+    return requirement_matches_evidence(requirement_text, joined_evidence, draft_text=draft_text + "\n" + json.dumps(legacy_result or {}, ensure_ascii=False))
+
+
+def scene_function_to_type(scene_function: str) -> str:
+    scene_function = str(scene_function or "").strip()
+    if scene_function == "过渡/氛围":
+        return "transition"
+    return SCENE_FUNCTION_TO_TYPE.get(scene_function, "discovery")
 
 
 def extract_revision_count(task_id: str) -> int:
@@ -99,6 +285,125 @@ def is_chapter_metadata_complete(task_text: str) -> tuple[bool, str]:
     if missing:
         return False, f"missing: {', '.join(missing)}"
     return True, "complete"
+
+
+def build_requirement_lock_checks(task_text: str, legacy_result: dict[str, Any] | None) -> list[LockGateCheck]:
+    legacy_result = legacy_result or {}
+    required_information_gain = extract_markdown_list_field(task_text, "required_information_gain")
+    decision_requirement = (extract_markdown_field(task_text, "decision_requirement") or extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
+    expected_scene_function = (extract_markdown_field(task_text, "scene_function") or "").strip()
+
+    _, draft_text = read_task_path(task_text, "output_target")
+    _, based_on_text = read_task_path(task_text, "based_on")
+    _, chapter_state_text = read_task_path(task_text, "chapter_state")
+    chapter_id = infer_chapter_id(task_text)
+    story_state = safe_load_json(ROOT / "03_locked/state/story_state.json")
+    previous_scene_id = infer_previous_scene_id(task_text)
+    has_runtime_context = bool(draft_text and (based_on_text or chapter_state_text))
+    tracker_bundle = (
+        load_tracker_bundle(ROOT, chapter_id, chapter_state_text=chapter_state_text, story_state=story_state, upto_scene_id=previous_scene_id)
+        if chapter_id and has_runtime_context
+        else {}
+    )
+
+    information_gain = legacy_result.get("information_gain") or {}
+    plot_progress = legacy_result.get("plot_progress") or {}
+    character_decision = legacy_result.get("character_decision") or {}
+    motif_redundancy = legacy_result.get("motif_redundancy") or {}
+    canon_consistency = legacy_result.get("canon_consistency") or {}
+
+    new_information_items = normalize_string_list(information_gain.get("new_information_items", []))
+    information_ok = True
+    missing_information_reqs: list[str] = []
+    if required_information_gain:
+        information_ok = bool(new_information_items)
+        for item in required_information_gain:
+            if requirement_matches_evidence(item, new_information_items, draft_text=draft_text):
+                continue
+            if is_generic_requirement(item) and new_information_items:
+                continue
+            missing_information_reqs.append(item)
+        information_ok = information_ok and not missing_information_reqs
+
+    decision_ok = True
+    decision_detail = str(character_decision.get("decision_detail") or "").strip()
+    if decision_requirement:
+        decision_ok = bool(character_decision.get("has_decision_or_behavior_shift")) and (
+            requirement_matches_evidence(decision_requirement, [decision_detail], draft_text=draft_text)
+            or (is_generic_requirement(decision_requirement) and bool(decision_detail))
+        )
+
+    state_change_evidence = build_state_change_evidence(draft_text, legacy_result)
+    matched_state_changes = [item for item in required_state_change if state_change_requirement_met(item, state_change_evidence, draft_text, legacy_result)]
+    state_change_ok = True if not required_state_change else bool(matched_state_changes)
+
+    actual_scene_function = classify_scene_function(draft_text) if draft_text else ""
+    scene_function_ok = True
+    if expected_scene_function and draft_text:
+        scene_function_ok = actual_scene_function == expected_scene_function
+
+    local_canon_conflicts = detect_local_canon_conflicts(draft_text, chapter_state_text, tracker_bundle) if has_runtime_context else []
+    canon_ok = bool(canon_consistency.get("is_consistent", True)) and not local_canon_conflicts
+
+    repeated_motifs = normalize_string_list(motif_redundancy.get("repeated_motifs", []))
+    stale_function_motifs = normalize_string_list(motif_redundancy.get("stale_function_motifs", []))
+    repeated_same_function_motifs = normalize_string_list(motif_redundancy.get("repeated_same_function_motifs", []))
+    consecutive_same_function_motifs = normalize_string_list(motif_redundancy.get("consecutive_same_function_motifs", []))
+    redundancy_reason = str(motif_redundancy.get("redundancy_reason") or "").strip()
+    motif_high_risk = bool(stale_function_motifs or repeated_same_function_motifs or consecutive_same_function_motifs or (repeated_motifs and not motif_redundancy.get("repetition_has_new_function", True)) or not motif_redundancy.get("same_function_reuse_allowed", True))
+    motif_reason_specific = bool(redundancy_reason and redundancy_reason not in GENERIC_REDUNDANCY_REASONS and len(redundancy_reason) >= 8)
+    motif_risk_ok = not motif_high_risk or (motif_reason_specific and bool(motif_redundancy.get("repetition_has_new_function", False)) and bool(motif_redundancy.get("same_function_reuse_allowed", False)))
+
+    weak_scene_quota_ok = True
+    weak_scene_details = "not a weak-scene lock"
+    if has_runtime_context and tracker_bundle:
+        chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle, dict) else {}
+        scene_type_control = build_scene_type_control({"chapter_progress": chapter_progress}, scene_type_policy=load_scene_type_policy())
+        current_scene_type = scene_function_to_type(actual_scene_function or expected_scene_function)
+        disallowed_next_scene_types = normalize_string_list(scene_type_control.get("disallowed_next_scene_types", []))
+        weak_scene_quota_ok = current_scene_type not in disallowed_next_scene_types
+        weak_scene_details = (
+            f"current={current_scene_type}, streak={scene_type_control.get('weak_scene_streak_count')}, disallowed={','.join(disallowed_next_scene_types) or 'none'}"
+        )
+
+    return [
+        LockGateCheck(
+            name="required_information_gain",
+            passed=information_ok,
+            details=("matched" if information_ok or not required_information_gain else f"missing: {'；'.join(missing_information_reqs[:3])}"),
+        ),
+        LockGateCheck(
+            name="decision_requirement",
+            passed=decision_ok,
+            details=(decision_detail or decision_requirement or "not specified") if decision_ok else (decision_detail or "missing required decision landing"),
+        ),
+        LockGateCheck(
+            name="required_state_change",
+            passed=state_change_ok,
+            details=("matched: " + "；".join(matched_state_changes[:3])) if state_change_ok and required_state_change else ("not specified" if not required_state_change else "missing required state change evidence"),
+        ),
+        LockGateCheck(
+            name="scene_function_landed",
+            passed=scene_function_ok,
+            details=(f"expected={expected_scene_function or 'n/a'} actual={actual_scene_function or 'n/a'}"),
+        ),
+        LockGateCheck(
+            name="chapter_state_alignment",
+            passed=canon_ok,
+            details=("；".join((local_canon_conflicts or normalize_string_list(canon_consistency.get("consistency_issues", [])))[:3]) or "consistent"),
+        ),
+        LockGateCheck(
+            name="motif_high_risk_explained",
+            passed=motif_risk_ok,
+            details=redundancy_reason or ("no motif risk" if not motif_high_risk else "high-risk motif reuse without sufficient explanation"),
+        ),
+        LockGateCheck(
+            name="weak_scene_quota",
+            passed=weak_scene_quota_ok,
+            details=weak_scene_details,
+        ),
+    ]
 
 
 def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[LockGateCheck]:
@@ -194,6 +499,7 @@ def build_lock_gate_report(
         LockGateCheck(name="chapter_metadata_complete", passed=metadata_ok, details=metadata_details),
     ]
     checks.extend(build_structural_lock_checks(legacy_result))
+    checks.extend(build_requirement_lock_checks(task_text, legacy_result))
 
     return LockGateReport(
         task_id=task_id,
