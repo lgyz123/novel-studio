@@ -17,13 +17,13 @@ writer:
   provider: deepseek
   model: deepseek-chat
   base_url: https://api.deepseek.com
-  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
+  api_key_env: My_DEEPSEEK_API_KEY
 
 reviewer:
   provider: deepseek
   model: deepseek-chat
   base_url: https://api.deepseek.com
-  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
+  api_key_env: My_DEEPSEEK_API_KEY
   num_ctx: 4096
   temperature: 0.0
   request_timeout: 1200
@@ -38,7 +38,7 @@ supervisor:
   enabled: true
   model: deepseek-chat
   base_url: https://api.deepseek.com
-  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
+  api_key_env: My_DEEPSEEK_API_KEY
   request_timeout: 120
   max_retries: 3
   retry_backoff_base: 1.0
