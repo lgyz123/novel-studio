@@ -1,5 +1,55 @@
-.venv/
-__pycache__/
-.DS_Store
+# ---------------------------------------------------------------
+# Git ignore file for the novel-studio project
+# This file defines which files and directories should not be tracked
+# by Git. It focuses on excluding build artefacts, temporary files,
+# virtual environments and intermediate data produced by the writing
+# pipeline.
+
+## General Python artefacts
 *.pyc
-02_working/logs/*.log
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+## Virtual environments
+.venv/
+venv/
+
+## Editor / OS metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+## Application logs and temporary data
+02_working/logs/
+02_working/context/
+02_working/test_artifacts/
+
+## Intermediate drafts, rewrites and reviews
+02_working/drafts/
+02_working/reviews/
+02_working/canon_updates/
+02_working/outlines/
+
+## Auto-generated tasks and life notes
+01_inputs/tasks/generated/
+01_inputs/life_notes/
+
+## Candidate chapters and state history (locked output only retains final versions)
+03_locked/candidates/
+03_locked/state/history/
+
+## Build & packaging artefacts
+build/
+dist/
+*.egg-info/
+
+## Compressed archives
+*.zip
+*.tar.gz
+*.tar
+
+# End of .gitignore
