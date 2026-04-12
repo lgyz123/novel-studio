@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=0, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构重写：写出《无住人间》第一章第八个短场景：孟浮灯在回水湾遭遇威胁后，决定采取更隐蔽的调查方式，利用收尸工作的便利，在白天前往码头附近，试图从日常劳动中观察脚夫或船家的异常，但遭遇新的阻力（如被监视、线索被清理），从而将调查从实地探查转向日常观察，并引发一次微小的后果（如确认被盯上、风险升级）。本场重点：引发后果、提高风险、扩展世界信息。本次重点解决：方向基本正确，但本场结构推进信号仍不足。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…；他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…；那里平时堆着些破渔网、烂木桶，还有几块不知从哪条船上拆下来的旧船板。此刻…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开。有个年轻些的，扛着一袋…"
+    },
+    {
+      "name": "character_decision",
+      "passed": false,
+      "details": "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 那截红绳, 麻绳, 红绳, 麻袋，且本场至少为 那截红绳, 麻绳, 红绳 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…；他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…；那里平时堆着些破渔网、烂木桶，还有几块不知从哪条船上拆下来的旧船板。此刻…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=提高风险"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 那截红绳, 麻绳, 红绳, 麻袋，且本场至少为 那截红绳, 麻绳, 红绳 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=consequence, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

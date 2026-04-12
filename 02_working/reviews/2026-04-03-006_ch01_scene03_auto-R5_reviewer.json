@@ -1,0 +1,75 @@
+{
+  "summary": "高频母题复读但未承担新功能：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "红绳先被拿出来，放在桌上。灯下看，它比在水边时更显旧了，颜色不是鲜红，而…",
+      "灯光昏黄，字迹又淡，他不得不把符纸凑得更近些。字是用墨写的，不是朱砂，墨…",
+      "这个动作毫无意义。字是别人写的，他描一遍，什么也不会改变。可他就是这么做…"
+    ]
+  },
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "该收起来了。像往常处理那些从尸体旁捡来的、无主的零碎东西一样，找个地方放好，不去多想。他起身，走…"
+  },
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+      "物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。",
+      "物件“麻绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "new_function_motifs": [
+      "红绳"
+    ],
+    "stale_function_motifs": [
+      "麻绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 麻绳, 红绳, 和平安符, 掌心被麻绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R5",
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：红绳先被拿出来，放在桌上。灯下看，它比在水边时更显旧了，颜色不是鲜红，而… 灯光昏黄，字迹又淡，他不得不把符纸凑得更近些。字是用墨写的，不是朱砂，墨…",
+    "本场新增信息：红绳先被拿出来，放在桌上。灯下看，它比在水边时更显旧了，颜色不是鲜红，而…；灯光昏黄，字迹又淡，他不得不把符纸凑得更近些。字是用墨写的，不是朱砂，墨…",
+    "场景结尾处，孟浮灯只将红绳放入木匣，而将平安符留在桌上，这可能暗示一个决策偏移，但作为'现实动作'略显模糊，未明确说明平安符的最终处理方式。"
+  ],
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+    "母题同功能连续复用已超限：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+    "canon 一致性风险：物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。"
+  ],
+  "recommended_next_step": "create_revision_task"
+}

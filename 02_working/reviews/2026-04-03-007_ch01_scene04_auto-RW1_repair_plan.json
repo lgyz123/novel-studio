@@ -1,0 +1,36 @@
+{
+  "task_id": "2026-04-03-007_ch01_scene04_auto-RW1",
+  "mode": "full_redraft",
+  "actions": [
+    {
+      "target": "2026-04-03-007_ch01_scene04_auto-RW1",
+      "issue_id": "ISSUE-001",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：已达到修订阈值 5 轮，建议人工介入。"
+    },
+    {
+      "target": "2026-04-03-007_ch01_scene04_auto-RW1",
+      "issue_id": "ISSUE-002",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：锁定闸门未通过：required_information_gain: missing: 货栈的基本环境描述（如位置、布局、货物堆放方式）；掌柜或伙计对孟浮灯买绳的典型反应（如例行公事、简短对话）；货栈中绳子的种类、来源或常见用途信息"
+    },
+    {
+      "target": "2026-04-03-007_ch01_scene04_auto-RW1",
+      "issue_id": "ISSUE-003",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。"
+    },
+    {
+      "target": "2026-04-03-007_ch01_scene04_auto-RW1",
+      "issue_id": "ISSUE-004",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：本场新增信息：走出一段，他拐进一条更窄的巷子。巷子两边是低矮的土墙，墙头枯草在风里抖。… 昨夜那截红绳的触感，在这两种之间吗？他闭了闭眼。记不清了。当时太暗，水太…"
+    },
+    {
+      "target": "2026-04-03-007_ch01_scene04_auto-RW1",
+      "issue_id": "ISSUE-005",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：本场新增信息：走出一段，他拐进一条更窄的巷子。巷子两边是低矮的土墙，墙头枯草在风里抖。…；昨夜那截红绳的触感，在这两种之间吗？他闭了闭眼。记不清了。当时太暗，水太…"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=4, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：写出《无住人间》第一章第十一个短场景：孟浮灯在运河边收尸后，回到住处，发现藏匿平安符的扁木盒被轻微挪动，确认有人趁他外出时搜查过他的物品，从而引发一次微小的后果（如确认风险升级、线索进一步中断），并扩展世界信息。本场重点：引发后果、提高风险、扩展世界信息。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：Scene ends with '搜查的人没' (the searcher didn't) incomplete, and fails to describe a clear resistance consequence or risk escalation as mandated by task requirements ('结尾必须描述明确阻力后果'). No explicit state change like risk level increase or decision shift is articulated.；根据该问题执行局部修补，避免不必要的整场重写。问题：Scene mentions '天已经黑透了' (sky is completely dark) and '窗外的灰蓝色又深了一层' (gray-blue outside the window deepens), but does not explicitly connect to previous scene's time (evening or night) as required, though it's implied. Could be clearer for coherence.；根据该问题执行局部修补，避免不必要的整场重写。问题：Some details about the search (e.g., rope direction, fingerprints, kang mat indentation) are repeated from the based_on_text, though with variation. This may reduce information novelty but is acceptable for scene reinforcement."
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "这不是第一次有人搜他的住处。刚来运河头半年，几乎每个月都有一次。有时是坊…；但这次不一样。搜查的人没留下任何财物损失，没弄乱表面，甚至尽量复原了痕迹…；平安符没被动，说明搜查的人要么不认识这东西，要么认识但故意不动。如果是后…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "也许这些都不是孤立的事。搜查住处，运河边的动静，管事的提醒——它们可能连着同一条线。有人不想让他…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 麻绳, 掌心被麻绳, 平安符, 铜钱，且本场至少为 麻绳, 掌心被麻绳, 平安符 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "这不是第一次有人搜他的住处。刚来运河头半年，几乎每个月都有一次。有时是坊…；但这次不一样。搜查的人没留下任何财物损失，没弄乱表面，甚至尽量复原了痕迹…；平安符没被动，说明搜查的人要么不认识这东西，要么认识但故意不动。如果是后…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": false,
+      "details": "missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": false,
+      "details": "风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=制造错误判断"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 麻绳, 掌心被麻绳, 平安符, 铜钱，且本场至少为 麻绳, 掌心被麻绳, 平安符 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=reflection, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

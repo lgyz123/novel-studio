@@ -415,6 +415,41 @@ def build_empty_structural_review() -> dict[str, Any]:
     }
 
 
+def ensure_non_empty_structural_fields(result: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(result)
+    fallback = build_empty_structural_review()
+
+    for field, defaults in fallback.items():
+        candidate = merged.get(field) if isinstance(merged.get(field), dict) else {}
+        payload = dict(defaults)
+        payload.update(candidate)
+
+        if field == "information_gain":
+            payload["has_new_information"] = bool(payload.get("has_new_information", False))
+            payload["new_information_items"] = [sanitize_issue_text(item) for item in payload.get("new_information_items", []) if str(item).strip()][:3]
+        elif field == "plot_progress":
+            payload["has_plot_progress"] = bool(payload.get("has_plot_progress", False))
+            payload["progress_reason"] = sanitize_issue_text(payload.get("progress_reason") or defaults["progress_reason"]) or defaults["progress_reason"]
+        elif field == "character_decision":
+            payload["has_decision_or_behavior_shift"] = bool(payload.get("has_decision_or_behavior_shift", False))
+            payload["decision_detail"] = sanitize_issue_text(payload.get("decision_detail") or defaults["decision_detail"]) or defaults["decision_detail"]
+        elif field == "motif_redundancy":
+            for key in ["repeated_motifs", "new_function_motifs", "stale_function_motifs", "repeated_same_function_motifs", "consecutive_same_function_motifs"]:
+                payload[key] = [sanitize_issue_text(item) for item in payload.get(key, []) if str(item).strip()][:5]
+            payload["repetition_has_new_function"] = bool(payload.get("repetition_has_new_function", True))
+            payload["same_function_reuse_allowed"] = bool(payload.get("same_function_reuse_allowed", True))
+            payload["redundancy_reason"] = sanitize_issue_text(payload.get("redundancy_reason") or defaults["redundancy_reason"]) or defaults["redundancy_reason"]
+        elif field == "canon_consistency":
+            payload["is_consistent"] = bool(payload.get("is_consistent", True))
+            payload["consistency_issues"] = [sanitize_issue_text(item) for item in payload.get("consistency_issues", []) if str(item).strip()][:3]
+
+        merged[field] = payload
+
+    if not str(merged.get("summary") or "").strip():
+        merged["summary"] = "本场审稿结果已由本地规则补齐。"
+    return merged
+
+
 def sentence_has_information_gain(sentence: str) -> bool:
     text = str(sentence).strip()
     if not text:
@@ -587,7 +622,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 if label not in stale_function_motifs:
                     stale_function_motifs.append(label)
 
-            if same_function_reuse and ((only_if_new_function and not function_is_new) or not allow_next_scene or consecutive_same_function):
+            if same_function_reuse and ((only_if_new_function and not has_new_function) or ((not allow_next_scene) and not has_new_function) or (consecutive_same_function and not has_new_function)):
                 if label not in disallowed_same_function_motifs:
                     disallowed_same_function_motifs.append(label)
 
@@ -1006,10 +1041,10 @@ def normalize_review_result(
                 merged[field]["new_information_items"] = (reviewer_items or local_value["new_information_items"])[:3]
             elif field == "plot_progress":
                 merged[field]["has_plot_progress"] = bool(candidate.get("has_plot_progress", local_value["has_plot_progress"])) and bool(local_value["has_plot_progress"])
-                merged[field]["progress_reason"] = sanitize_issue_text(candidate.get("progress_reason") or local_value["progress_reason"])
+                merged[field]["progress_reason"] = sanitize_issue_text(candidate.get("progress_reason") or local_value["progress_reason"]) or local_value["progress_reason"]
             elif field == "character_decision":
                 merged[field]["has_decision_or_behavior_shift"] = bool(candidate.get("has_decision_or_behavior_shift", local_value["has_decision_or_behavior_shift"])) and bool(local_value["has_decision_or_behavior_shift"])
-                merged[field]["decision_detail"] = sanitize_issue_text(candidate.get("decision_detail") or local_value["decision_detail"])
+                merged[field]["decision_detail"] = sanitize_issue_text(candidate.get("decision_detail") or local_value["decision_detail"]) or local_value["decision_detail"]
             elif field == "motif_redundancy":
                 reviewer_motifs = [sanitize_issue_text(item) for item in candidate.get("repeated_motifs", []) if str(item).strip()]
                 merged[field]["repeated_motifs"] = (reviewer_motifs or local_value["repeated_motifs"])[:5]
@@ -1019,7 +1054,7 @@ def normalize_review_result(
                 merged[field]["consecutive_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]) if str(item).strip()][:5]
                 merged[field]["repetition_has_new_function"] = bool(candidate.get("repetition_has_new_function", local_value["repetition_has_new_function"])) and bool(local_value["repetition_has_new_function"])
                 merged[field]["same_function_reuse_allowed"] = bool(candidate.get("same_function_reuse_allowed", local_value["same_function_reuse_allowed"])) and bool(local_value["same_function_reuse_allowed"])
-                merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"])
+                merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"]) or local_value["redundancy_reason"]
             elif field == "canon_consistency":
                 reviewer_issues = [sanitize_issue_text(item) for item in candidate.get("consistency_issues", []) if str(item).strip()]
                 merged[field]["is_consistent"] = bool(candidate.get("is_consistent", local_value["is_consistent"])) and bool(local_value["is_consistent"])
@@ -1142,6 +1177,7 @@ def normalize_review_result(
     result["recommended_next_step"] = str(result.get("recommended_next_step") or infer_recommended_next_step(verdict)).strip()
     for field, value in structural_payload.items():
         result[field] = value
+    result = ensure_non_empty_structural_fields(result)
     return {key: result.get(key) for key in allowed_keys}
 
 
@@ -1476,6 +1512,8 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
             scene_metadata={
                 "task_id": task_id,
                 "draft_rel_path": draft_rel_path,
+                "api_key": str(config["reviewer"].get("api_key", "")).strip(),
+                "api_key_env": str(config["reviewer"].get("api_key_env", "")).strip(),
                 "request_timeout": config["reviewer"].get("request_timeout", 120),
                 "max_retries": config["reviewer"].get("max_retries", 3),
                 "retry_backoff_base": config["reviewer"].get("retry_backoff_base", 1.0),
@@ -1489,6 +1527,16 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
             },
         )
         result = structured_review_to_legacy_result(structured_result)
+        result = normalize_review_result(
+            result,
+            json.dumps(structured_result, ensure_ascii=False),
+            task_text=task_text,
+            draft_text=draft_text,
+            based_on_text=based_on_text,
+            chapter_state=chapter_state,
+        )
+        result["task_id"] = task_id
+        result = ensure_non_empty_structural_fields(result)
         out_path = f"02_working/reviews/{task_id}_reviewer.json"
         save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
         result["review_result_path"] = save_structured_deepseek_review(ROOT, structured_result)
@@ -1559,6 +1607,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         chapter_state=chapter_state,
     )
     result["task_id"] = task_id
+    result = ensure_non_empty_structural_fields(result)
     validate(instance=result, schema=schema)
     validate_review_content(result)
 

@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R2",
+  "goal": "基于上一版草稿进行结构修复：承接 ch01_scene02，写出《无住人间》第一章第三个短场景：孟浮灯在完成收尸工作后，返回日常居所或歇脚处，让“阿绣”这个名字从被压住的记挂转化为一个微小的现实动作，但不展开主动调查。本次重点解决：高频母题复读但未承担新功能：那截红绳, 麻绳, 红绳, 和平安符。",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene03_v2.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene03_v3.md"
+}

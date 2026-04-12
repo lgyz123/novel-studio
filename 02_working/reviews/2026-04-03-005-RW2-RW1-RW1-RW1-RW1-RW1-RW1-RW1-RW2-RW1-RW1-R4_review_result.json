@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+  "status": "revise",
+  "summary": "重复问题未收敛：continuity, knowledge, scene_purpose",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+      "message": "重复问题未收敛：continuity, knowledge, scene_purpose",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "local",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+      "message": "文本在'墙是土坯的'处被截断，句子不完整，导致阅读中断，不符合连贯性修复要求。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+      "message": "canon_context中平安符状态为'状态待确认'，但scene_text中未明确提及平安符，只提到红绳和铜钱，可能导致物件状态冲突或不一致。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+      "message": "铜钱作为新信息，但缺乏具体风险细节或环境线索，信息增量不足，不符合required_information_gain要求。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R4",
+      "message": "结尾形成局面推进，但'墙是土坯的'截断导致模糊，可能未充分展示阻碍变化或行动启动。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "重复问题未收敛：continuity, knowledge, scene_purpose"
+}

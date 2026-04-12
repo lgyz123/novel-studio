@@ -1,11 +1,60 @@
 {
-  "recommended_next_step": "lock_scene",
-  "major_issues": [],
-  "task_id": "2026-04-03-009_ch01_scene06_auto",
-  "minor_issues": [
-    "Reviewer 原始输出主要是无效英文分析，已降权处理。"
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
   ],
-  "task_goal_fulfilled": true,
-  "verdict": "lock",
-  "summary": "当前 scene 已满足任务目标与约束条件，可直接锁定。"
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "孟浮灯把拧干的布叠好，放进另一个空桶。他站起身，提着桶往石阶上走。脚夫们已经开始卸货了，从停靠在…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：晨雾还没散，河面上浮着一层灰白的薄气。对岸的船影模模糊糊，能听见桨声，一… 孟浮灯坐在那儿，看着河面。雾散了些，能看见对岸的柳树，枝条垂下来，几乎要…",
+    "本场新增信息：晨雾还没散，河面上浮着一层灰白的薄气。对岸的船影模模糊糊，能听见桨声，一…；孟浮灯坐在那儿，看着河面。雾散了些，能看见对岸的柳树，枝条垂下来，几乎要…",
+    "场景展示了阻力（如船家回避、洗衣妇警惕），但缺乏明确的错误判断（如误以为某线索相关实则无关）和微小后果（如被注意、线索中断）。任务要求本场结束时调查受阻，风险提高，但当前阻力不够突出，后果未明确描述。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "麻袋",
+      "在码头"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "麻袋",
+      "在码头"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻袋",
+      "在码头"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻袋",
+      "在码头"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 麻袋, 在码头，且本场至少为 麻绳, 麻袋, 在码头 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-009_ch01_scene06_auto",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "晨雾还没散，河面上浮着一层灰白的薄气。对岸的船影模模糊糊，能听见桨声，一…",
+      "孟浮灯坐在那儿，看着河面。雾散了些，能看见对岸的柳树，枝条垂下来，几乎要…",
+      "“这附近，有没有哪儿能捡到绳子？”孟浮灯说，语气尽量平常，“粗点的，麻绳…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "“谢了。”他说，递回去。"
+  },
+  "summary": "场景描写了孟浮灯在运河边以洗衣为掩护，尝试从洗衣妇、脚夫、船家处间接打听旧麻绳来源，但遭遇回避和警惕，初步引入阻力。然而，场景未完全满足任务要求：缺少次日白天的明确时间设定，洗衣场景可能被视为夜间延续；未展示明确的错误判断或微小后果；风险等级提升和主角认知变化不够清晰；motif使用可能违反禁止项。需要修订以强化阻力、后果和状态变化。"
 }

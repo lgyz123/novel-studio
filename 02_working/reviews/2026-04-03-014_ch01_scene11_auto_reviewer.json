@@ -1,13 +1,61 @@
 {
-  "minor_issues": [
-    "Reviewer 原始输出主要是无效英文分析，已降权处理。"
-  ],
-  "major_issues": [
-    "当前草稿未充分完成 task 的核心推进目标。"
-  ],
-  "verdict": "revise",
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
   "task_goal_fulfilled": false,
+  "major_issues": [
+    "锁定闸门未通过：required_information_gain: missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）；scene_function_landed: expected=引发后果 actual=发现线索"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边… 矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…",
+    "本场新增信息：盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边…；矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…"
+  ],
+  "recommended_next_step": "rewrite_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "几本旧账册",
+      "麻袋",
+      "什么",
+      "了什么"
+    ],
+    "new_function_motifs": [
+      "几本旧账册",
+      "麻袋",
+      "什么",
+      "了什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "几本旧账册",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "几本旧账册",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 几本旧账册, 麻袋, 什么, 了什么，且本场至少为 几本旧账册, 麻袋, 什么 提供了新的叙事功能。"
+  },
   "task_id": "2026-04-03-014_ch01_scene11_auto",
-  "summary": "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。",
-  "recommended_next_step": "create_revision_task"
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边…",
+      "矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…",
+      "草铺上的草席，边缘原本是卷起来压在被褥下面的。现在，靠近墙角的那一侧，草…"
+    ]
+  },
+  "verdict": "rewrite",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他没有立刻去碰盒子。他站起身，退开两步，目光在屋里缓缓扫过。"
+  },
+  "summary": "锁定闸门未通过：required_information_gain: missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）；scene_function_landed: expected=引发后果 actual=发现线索"
 }

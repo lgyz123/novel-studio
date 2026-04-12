@@ -1,0 +1,59 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "尸体是个男人，年纪不大，脸上泡得发白，嘴唇乌紫。身上穿着一件粗布短褂，褂子湿透了，紧贴在身上。孟…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：从乱葬岗回来，天已经擦黑。孟浮灯把板车停在巷口，没急着卸车。他蹲在墙根下… 尸体是在一处浅滩发现的。那地方离码头远，平时少有人来，只有几块大石头半浸…",
+    "本场新增信息：从乱葬岗回来，天已经擦黑。孟浮灯把板车停在巷口，没急着卸车。他蹲在墙根下…；尸体是在一处浅滩发现的。那地方离码头远，平时少有人来，只有几块大石头半浸…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "胸口",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "胸口",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 胸口, 什么，且本场至少为 麻绳, 胸口, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "从乱葬岗回来，天已经擦黑。孟浮灯把板车停在巷口，没急着卸车。他蹲在墙根下…",
+      "尸体是在一处浅滩发现的。那地方离码头远，平时少有人来，只有几块大石头半浸…",
+      "孟浮灯把板车停在岸上，从车上取下工具。一根铁钩，钩头磨得发亮 一块粗布，…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他提着铁钩走下浅滩。水很凉，没过脚踝，浸湿了裤腿。他走到尸体旁边，用钩子勾住尸体的腋下，慢慢往岸…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+}

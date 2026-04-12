@@ -1,0 +1,68 @@
+{
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“红绳和平安符”当前持有者应为“孟浮灯”，但正文写法与现有 artifact_state 不一致。",
+      "物件“麻绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。",
+      "物件“红绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "canon 一致性风险：物件“红绳和平安符”当前持有者应为“孟浮灯”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“麻绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "绳结打得很紧，已经勒进了皮肉里。他试着解了两次，没解开，便从怀里掏出小刀，贴着皮肤割断。麻绳断开…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：绳结打得很紧，已经勒进了皮肉里。他试着解了两次，没解开，便从怀里掏出小刀… 他把割断的麻绳揣进怀里，重新裹好草席。风又起来了，吹得枯草倒伏一片。他走…",
+    "本场新增信息：绳结打得很紧，已经勒进了皮肉里。他试着解了两次，没解开，便从怀里掏出小刀…；他把割断的麻绳揣进怀里，重新裹好草席。风又起来了，吹得枯草倒伏一片。他走…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "平安符",
+      "气味"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "平安符",
+      "气味"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "平安符",
+      "气味"
+    ],
+    "consecutive_same_function_motifs": [
+      "平安符",
+      "气味"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 红绳, 和平安符, 平安符，且本场至少为 麻绳, 红绳, 和平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-012_ch01_scene09_auto-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "绳结打得很紧，已经勒进了皮肉里。他试着解了两次，没解开，便从怀里掏出小刀…",
+      "他把割断的麻绳揣进怀里，重新裹好草席。风又起来了，吹得枯草倒伏一片。他走…",
+      "不是偶然。不是野狗刨坟，也不是雨水冲刷。野狗不会把尸体摆正，雨水不会翻出…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他把割断的麻绳揣进怀里，重新裹好草席。风又起来了，吹得枯草倒伏一片。他走回坑边，看着那具被摆正的…"
+  },
+  "summary": "canon 一致性风险：物件“红绳和平安符”当前持有者应为“孟浮灯”，但正文写法与现有 artifact_state 不一致。"
+}

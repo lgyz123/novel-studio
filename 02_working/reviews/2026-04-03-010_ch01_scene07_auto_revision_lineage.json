@@ -9,50 +9,19 @@
         "scene_purpose"
       ],
       "issues_fixed": [],
-      "decision": "revise"
+      "decision": "rewrite"
     },
     {
       "round": 2,
-      "task_id": "2026-04-03-010_ch01_scene07_auto-R1",
-      "draft_id": "ch01_scene07_v2",
+      "task_id": "2026-04-03-010_ch01_scene07_auto-RW1",
+      "draft_id": "ch01_scene07_rewrite",
       "issues": [
         "scene_purpose",
-        "redundancy"
+        "continuity",
+        "knowledge"
       ],
       "issues_fixed": [],
       "decision": "revise"
-    },
-    {
-      "round": 3,
-      "task_id": "2026-04-03-010_ch01_scene07_auto-R2",
-      "draft_id": "ch01_scene07_v3",
-      "issues": [
-        "scene_purpose"
-      ],
-      "issues_fixed": [
-        "redundancy"
-      ],
-      "decision": "revise"
-    },
-    {
-      "round": 4,
-      "task_id": "2026-04-03-010_ch01_scene07_auto-R3",
-      "draft_id": "ch01_scene07_v4",
-      "issues": [
-        "scene_purpose"
-      ],
-      "issues_fixed": [],
-      "decision": "revise"
-    },
-    {
-      "round": 5,
-      "task_id": "2026-04-03-010_ch01_scene07_auto-R4",
-      "draft_id": "ch01_scene07_v5",
-      "issues": [
-        "scene_purpose"
-      ],
-      "issues_fixed": [],
-      "decision": "lock"
     }
   ],
   "recurring_issue_types": [

@@ -1,0 +1,47 @@
+{
+  "task_id": "2026-04-03-009_ch01_scene06_auto-RW1",
+  "status": "lock",
+  "summary": "场景成功实现了从观察转向试探，引入阻力并制造了微小后果。孟浮灯通过洗衣妇、脚夫和船家的闲谈间接获取信息，遭遇回避和警告，结尾暗示风险升级。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-009_ch01_scene06_auto-RW1",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-009_ch01_scene06_auto-RW1",
+      "message": "本场新增信息：孟浮灯走过去，在离船家几步远的地方蹲下，继续晾他的布。他等船家把鱼倒进一… 孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-009_ch01_scene06_auto-RW1",
+      "message": "本场新增信息：孟浮灯走过去，在离船家几步远的地方蹲下，继续晾他的布。他等船家把鱼倒进一…；孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-009_ch01_scene06_auto-RW1",
+      "message": "场景在关键决策点被截断，未完整展示孟浮灯的决定或明确阻力后果，可能影响连贯性。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "场景成功实现了从观察转向试探，引入阻力并制造了微小后果。孟浮灯通过洗衣妇、脚夫和船家的闲谈间接获取信息，遭遇回避和警告，结尾暗示风险升级。"
+  ],
+  "decision_reason": "场景成功实现了从观察转向试探，引入阻力并制造了微小后果。孟浮灯通过洗衣妇、脚夫和船家的闲谈间接获取信息，遭遇回避和警告，结尾暗示风险升级。"
+}

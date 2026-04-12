@@ -1,0 +1,74 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：character_decision: 全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "锁定闸门未通过：character_decision: 全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "Reviewer 没有给出可核对的 `decision_detail`，本地规则也未识别到明确决策动词或动作结果。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排… 他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-006",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…；他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-007",
+      "type": "style",
+      "severity": "low",
+      "scope": "global",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+      "message": "对脚夫和船家的观察描述稍显冗长，可能分散对核心阻力（清理痕迹、被监视）的注意力，可精简以聚焦主线。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：character_decision: 全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+}

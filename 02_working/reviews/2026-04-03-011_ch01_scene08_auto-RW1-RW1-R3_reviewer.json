@@ -1,0 +1,64 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：麻绳, 麻袋, 气味, 什么。",
+    "母题同功能连续复用已超限：麻绳, 什么。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "对方知道他在这儿。不是可能，是确实。从他蹲在槐树下开始，或许更早，从他昨夜离开回水湾开始，就有人…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：几艘货船靠了岸，脚夫们扛着麻包、木箱，踩着跳板上下。汗味、鱼腥、桐油和霉… 孟浮灯盯着那油布。暗红色，不是常见的靛青或土黄。裹得严实，形状却有些古怪…",
+    "本场新增信息：几艘货船靠了岸，脚夫们扛着麻包、木箱，踩着跳板上下。汗味、鱼腥、桐油和霉…；孟浮灯盯着那油布。暗红色，不是常见的靛青或土黄。裹得严实，形状却有些古怪…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "麻袋",
+      "气味",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻袋",
+      "气味",
+      "什么"
+    ],
+    "stale_function_motifs": [
+      "麻绳"
+    ],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 麻绳, 什么 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R3",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "几艘货船靠了岸，脚夫们扛着麻包、木箱，踩着跳板上下。汗味、鱼腥、桐油和霉…",
+      "孟浮灯盯着那油布。暗红色，不是常见的靛青或土黄。裹得严实，形状却有些古怪…",
+      "不是错觉。那一眼太快，太自然，反而显得刻意。监工按完油布，站起身，朝码头…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "空地上那些废弃船板之间，有几处脚印。脚印很新，踩在湿泥里，边缘还没干透。不止一个人的——有深有浅…"
+  },
+  "summary": "高频母题复读但未承担新功能：麻绳, 麻袋, 气味, 什么。"
+}

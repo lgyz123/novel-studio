@@ -1,5 +1,5 @@
 {
-  "task_id": "2026-04-03-010_ch01_scene07_auto-R4",
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1-R4",
   "locked_file": "03_locked/chapters/ch01_scene07.md",
   "based_on_state": "03_locked/state/story_state.json",
   "timeline_updates": {
@@ -9,8 +9,8 @@
   },
   "character_updates": {
     "protagonist": {
-      "location": null,
-      "physical_state": "持续劳作、未麻木",
+      "location": "运河边",
+      "physical_state": "持续劳作",
       "mental_state": null,
       "known_facts_to_add": [],
       "active_goals_to_add": [],
@@ -19,7 +19,40 @@
   },
   "unresolved_promises_to_add": [],
   "revealed_secrets_to_add": [],
-  "item_updates": [],
+  "item_updates": [
+    {
+      "id": "ITEM-106",
+      "name": "没有绳",
+      "owner": "待确认",
+      "status": "状态待确认",
+      "last_seen_in": "ch01_scene07",
+      "notes": "没有绳子。"
+    },
+    {
+      "id": "ITEM-107",
+      "name": "不是刀",
+      "owner": "孟浮灯",
+      "status": "状态待确认",
+      "last_seen_in": "ch01_scene07",
+      "notes": "孟浮灯盯着那几道划痕看了一会儿。划痕很新——至少比木板本身新。木板泡得发黑，划痕却还留着浅色的木茬，在夜里也能看出一点不一样的反光。他凑近些，想看清划痕的形状。不是刀斧砍的，也不像石头磨的，倒像是用铁钩子一类的东西，一下一下，用力刮出来的。刮痕很乱，没有规律，但集中在木板中间一块巴掌大的地方。"
+    },
+    {
+      "id": "ITEM-108",
+      "name": "倒像是用铁钩",
+      "owner": "孟浮灯",
+      "status": "状态待确认",
+      "last_seen_in": "ch01_scene07",
+      "notes": "孟浮灯盯着那几道划痕看了一会儿。划痕很新——至少比木板本身新。木板泡得发黑，划痕却还留着浅色的木茬，在夜里也能看出一点不一样的反光。他凑近些，想看清划痕的形状。不是刀斧砍的，也不像石头磨的，倒像是用铁钩子一类的东西，一下一下，用力刮出来的。刮痕很乱，没有规律，但集中在木板中间一块巴掌大的地方。"
+    },
+    {
+      "id": "ITEM-109",
+      "name": "那里别着一把短刀",
+      "owner": "孟浮灯",
+      "status": "贴身保留",
+      "last_seen_in": "ch01_scene07",
+      "notes": "孟浮灯猛地转身，看向芦苇丛。芦苇秆在风里摇晃，叶子哗啦啦响，看不清里面有什么。他屏住呼吸，慢慢蹲下身，把木板轻轻放在脚边，手摸向腰间——那里别着一把短刀，收尸时用来割缠住尸体的水草用的。刀不长，但够快。"
+    }
+  ],
   "relationship_deltas_to_add": [],
-  "decision_reason": "同步时间线与最近事件；补入主角位置、身心状态与当前张力"
+  "decision_reason": "同步时间线与最近事件；补入主角位置、身心状态与当前张力；同步物品归属与状态"
 }

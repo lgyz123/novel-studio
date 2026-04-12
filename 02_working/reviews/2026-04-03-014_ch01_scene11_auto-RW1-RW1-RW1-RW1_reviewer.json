@@ -1,0 +1,66 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "锁定闸门未通过：required_information_gain: missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；decision_requirement: 盒子表面没有漆，木纹在昏暗光线下泛着淡淡的黄。他拿起盒子，指尖在盒盖上停了一瞬——盒盖边缘，靠近…"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：原本该在里面的东西——那枚从浮尸身上取下的、泡烂的平安符，还有缠着符的半… 门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出底下编得稀疏的草茎。…",
+    "本场新增信息：原本该在里面的东西——那枚从浮尸身上取下的、泡烂的平安符，还有缠着符的半…；门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出底下编得稀疏的草茎。…"
+  ],
+  "recommended_next_step": "rewrite_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 红绳, 平安符, 什么，且本场至少为 麻绳, 红绳, 平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "原本该在里面的东西——那枚从浮尸身上取下的、泡烂的平安符，还有缠着符的半…",
+      "门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出底下编得稀疏的草茎。…",
+      "他伸手捏起一点那泥，在指尖捻开。泥已经干了，一捻就碎成粉末，里面混着极细…"
+    ]
+  },
+  "verdict": "rewrite",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "盒子表面没有漆，木纹在昏暗光线下泛着淡淡的黄。他拿起盒子，指尖在盒盖上停了一瞬——盒盖边缘，靠近…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

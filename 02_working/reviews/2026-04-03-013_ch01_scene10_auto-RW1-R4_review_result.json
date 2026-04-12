@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：required_information_gain: missing: 运河边收尸的具体流程细节（如尸体打捞点、临时停放处、处理工具）；尸体被提前处理的迹象（如伤口被掩盖、衣物被更换）；现场被清理的痕迹（如脚印被抹平、物品被移走）；decision_requirement: 运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+      "message": "锁定闸门未通过：required_information_gain: missing: 运河边收尸的具体流程细节（如尸体打捞点、临时停放处、处理工具）；尸体被提前处理的迹象（如伤口被掩盖、衣物被更换）；现场被清理的痕迹（如脚印被抹平、物品被移走）；decision_requirement: 运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+      "message": "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤… 不是完全干透，但不像刚从水里捞出来的样子。运河边的尸体，捞上来时衣服应该…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+      "message": "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤…；不是完全干透，但不像刚从水里捞出来的样子。运河边的尸体，捞上来时衣服应该…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-013_ch01_scene10_auto-RW1-R4",
+      "message": "场景提到尸体脸上有石灰粉，暗示有人洗过脸，但未解释石灰粉的来源或目的，可能超出日常收尸流程的常识范围。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：required_information_gain: missing: 运河边收尸的具体流程细节（如尸体打捞点、临时停放处、处理工具）；尸体被提前处理的迹象（如伤口被掩盖、衣物被更换）；现场被清理的痕迹（如脚印被抹平、物品被移走）；decision_requirement: 运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…"
+}

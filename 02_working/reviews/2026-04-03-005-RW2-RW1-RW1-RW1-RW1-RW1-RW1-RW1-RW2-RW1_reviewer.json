@@ -1,0 +1,14 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "文本在'一点带着'处截断，句子未完成，严重影响阅读连贯性和场景完整性。"
+  ],
+  "minor_issues": [
+    "未形成明确的局面推进，如阻碍变化、关系变化或行动启动，不符合required_plot_progress要求。",
+    "藏匿平安符的后果未充分展示，如心理影响或后续计划变化，不符合repair_focus要求。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "场景从乱葬岗埋葬后开始，孟浮灯确认平安符上'阿绣'二字并藏匿，补充了平安符细节和藏匿动作，但文本在关键处截断，未完成句子，导致连贯性问题，且未充分展示动作后果或形成明确结尾推进。"
+}

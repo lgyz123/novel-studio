@@ -1,0 +1,24 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R4",
+  "mode": "full_redraft",
+  "actions": [
+    {
+      "target": "结尾部分",
+      "issue_id": "ISSUE-001",
+      "action": "扩展结尾以明确孟浮灯确认被监视，风险升级至critical，并完成required_plot_progress和required_information_gain。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：场景以对话中断，未完成required_plot_progress要求的'是已经被盯上了...脚印是...'和required_information_gain要求的'他确认了...对方知道他...'，导致风险未从high升至critical，状态变化不明确。"
+    },
+    {
+      "target": "麻袋元素",
+      "issue_id": "ISSUE-002",
+      "action": "减少或替换麻袋的描述，避免与avoid_motifs冲突。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：场景中提到了麻袋，但基于avoid_motifs，应避免重复使用麻袋元素，可能引起冗余。"
+    },
+    {
+      "target": "油布包裹细节",
+      "issue_id": "ISSUE-003",
+      "action": "增强油布包裹的感官细节，如触感、气味，以提供更多信息增量。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：油布包裹的细节（如形状、质地）描述不够具体，未完全满足required_information_gain中'油布、暗红色的包裹...'的要求，可能影响信息增量。"
+    }
+  ]
+}

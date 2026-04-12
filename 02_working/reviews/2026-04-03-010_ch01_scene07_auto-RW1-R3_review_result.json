@@ -1,0 +1,65 @@
+{
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+  "status": "revise",
+  "summary": "重复问题未收敛：knowledge, scene_purpose",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "重复问题未收敛：knowledge, scene_purpose",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "当前草稿未充分完成 task 的核心推进目标。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "本场新增信息：坡下那片泥滩在夜里看起来更宽，也更黑。白天还能看见水边堆着些烂木头、破筐… 孟浮灯蹲下身，手按在坡上。土是湿的，一按一个坑，有水从指缝里渗出来。他往…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "本场新增信息：坡下那片泥滩在夜里看起来更宽，也更黑。白天还能看见水边堆着些烂木头、破筐…；孟浮灯蹲下身，手按在坡上。土是湿的，一按一个坑，有水从指缝里渗出来。他往…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-006",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+      "message": "环境危险的紧迫感和具体细节不够突出，例如泥滩陷脚但未强调致命风险（如暗流、深坑），削弱了'引发后果'的紧迫感。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "重复问题未收敛：knowledge, scene_purpose"
+}

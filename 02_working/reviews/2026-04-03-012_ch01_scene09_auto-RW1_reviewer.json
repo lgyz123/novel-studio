@@ -1,0 +1,75 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：麻绳, 掌心被麻绳, 平安符, 铜钱。",
+    "母题同功能连续复用已超限：麻绳, 掌心被麻绳, 平安符, 铜钱。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他蹲下来，开始挖坑。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下… 坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…",
+    "本场新增信息：乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下…；坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "掌心被麻绳",
+      "平安符",
+      "铜钱",
+      "带着土腥味"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "铜钱",
+      "带着土腥味",
+      "胸口",
+      "什么"
+    ],
+    "stale_function_motifs": [
+      "掌心被麻绳",
+      "平安符"
+    ],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "掌心被麻绳",
+      "平安符",
+      "铜钱",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "掌心被麻绳",
+      "铜钱",
+      "什么"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 麻绳, 掌心被麻绳, 铜钱, 什么 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-012_ch01_scene09_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下…",
+      "坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…",
+      "现在那些碎片不见了。"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下来。尸体很沉，裹着的草席…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

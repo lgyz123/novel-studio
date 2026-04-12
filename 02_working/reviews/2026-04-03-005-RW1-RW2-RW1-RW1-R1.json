@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-R1",
+  "goal": "基于上一版草稿进行结构修复：补全scene结尾，明确展示孟浮灯决定暂时压下‘阿绣’相关信息；处理麻绳、红绳、平安符、铜钱状态与artifact_state的一致性；描述埋葬后的具体动作与判断。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 结尾不完整：文本在描述乱葬岗土包后戛然而止，没有明确展示孟浮灯的决定如何落地（如离开乱葬岗、返回棚屋、后续动作），也没有形成新的局面推进或状态变化。这违反了 required_plot_progress 和 required_decision_shift。；根据该问题执行局部修补，避免不必要的整场重写。问题：物件位置与 artifact_state 不一致：在 scene_text 中，红绳和平安符被包进布包并塞回怀里（位置为孟浮灯怀中），麻绳和铜钱被埋入乱葬岗洼地（位置为乱葬岗），但 artifact_state 中这些物件的 location 均为“状态待确认”。这可能导致后续跟踪混乱。；根据该问题执行局部修补，避免不必要的整场重写。问题：新信息补充不足：虽然引入了铜钱上的划痕作为新细节，但缺乏更具体的物件状态、关系变化或风险条件信息，如红绳的绳结细节、平安符的保存状态、或埋藏物件的风险考量。",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite_v7.md"
+}

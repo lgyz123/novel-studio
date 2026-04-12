@@ -1,0 +1,50 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R3",
+  "status": "revise",
+  "summary": "场景在乱葬岗埋葬后展开，基本符合劳动流程和文风要求，但存在句子截断、物件状态不一致、信息增量不足和结尾推进模糊等问题，需要局部修补以对齐任务目标。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "local",
+      "target": "结尾句子",
+      "message": "文本在'只留下一枚被划坏的铜'处被截断，句子不完整，导致阅读中断，不符合连贯性修复要求。",
+      "suggested_action": "补全句子，例如'只留下一枚被划坏的铜钱'或类似表达，确保句子完整。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "平安符状态",
+      "message": "平安符在canon_context中为'状态待确认'，但scene_text中未明确提及平安符，只提到红绳和铜钱，可能导致物件状态冲突或不一致。",
+      "suggested_action": "在scene_text中补充对平安符的提及或确认其状态，例如描述孟浮灯检查平安符或将其与红绳、铜钱一起处理。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "信息增量",
+      "message": "铜钱作为新信息，但缺乏具体风险细节或环境线索，信息增量不足，不符合required_information_gain要求。",
+      "suggested_action": "补充铜钱的风险细节，如划痕可能暗示的威胁、环境线索如乱葬岗的其他发现，或孟浮灯对其的推测。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "结尾推进",
+      "message": "场景未形成明确局面推进，如阻碍变化、关系变化或行动启动，结尾缺乏新决策或状态变化，不符合required_plot_progress要求。",
+      "suggested_action": "在结尾部分强化孟浮灯的决定后果，例如增加心理影响、暗示后续行动或新约束落地。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和感官细节，符合要求",
+    "劳动流程描写真实，展现了疲惫感和职业习惯",
+    "孟浮灯藏匿物件的动作符合决策变化要求",
+    "场景从乱葬岗埋葬后开始，时间线连贯"
+  ],
+  "decision_reason": "场景基本遵循了任务目标，但存在句子截断、物件状态不一致、信息增量不足和结尾推进模糊等关键问题，需要局部修补以对齐required_information_gain、required_plot_progress等要求，因此status设为revise。"
+}

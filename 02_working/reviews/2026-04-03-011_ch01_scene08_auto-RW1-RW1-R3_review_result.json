@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R3",
+  "status": "revise",
+  "summary": "场景描述了孟浮灯白天在码头观察，发现暗红色油布包裹和脚印，暗示被监视，但未明确完成风险升级和状态变化。结尾中断，未满足required_plot_progress和required_information_gain要求。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "结尾部分",
+      "message": "场景结尾以'但泥地上留'中断，未完成required_plot_progress要求的'是已经被盯上了...脚印是...'和required_information_gain要求的'他确认了...对方知道他...'，导致风险未从high升至critical，状态变化不明确。",
+      "suggested_action": "补全结尾，明确描述孟浮灯确认被盯上、风险升级，并形成新的可验证变化，如决策偏移或状态变量变化。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "油布包裹描述",
+      "message": "油布包裹的细节（如形状、质地）描述不够具体，未完全满足required_information_gain中'油布、暗红色的包裹...'的要求，可能影响信息增量。",
+      "suggested_action": "增强油布包裹的细节描述，如质地、异常点，以提供更清晰的信息增益。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "redundancy",
+      "severity": "low",
+      "scope": "scene",
+      "target": "麻袋、红绳等元素",
+      "message": "场景中提到了麻袋、红绳（间接），但基于avoid_motifs，应避免重复使用红绳、麻袋等元素，可能引起冗余。",
+      "suggested_action": "检查并确保不违反avoid_motifs，避免不必要的重复。"
+    }
+  ],
+  "strengths": [
+    "文风克制，画面感强，符合日常观察动作和阻力体现。",
+    "时间线明确为白天，与前一场景夜间过渡清晰。",
+    "视角保持孟浮灯核心，未引入新角色或制度性设定。"
+  ],
+  "decision_reason": "场景基本符合目标，但结尾不完整，未实现风险升级和状态变化，需修订以完成required_plot_progress和required_information_gain。"
+}

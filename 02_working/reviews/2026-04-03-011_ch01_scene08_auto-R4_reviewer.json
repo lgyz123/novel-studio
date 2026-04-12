@@ -1,0 +1,61 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "是已经被盯上了。从他蹲在槐树下看卸货开始，或许更早，从他昨夜离开回水湾开始，就有人看着他。脚印是…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：又多了几处脚印。和槐树下的一样，不大，但深。这次脚印更近，离他的鞋尖只差… 但脚印留下来了。两次。",
+    "本场新增信息：又多了几处脚印。和槐树下的一样，不大，但深。这次脚印更近，离他的鞋尖只差…；但脚印留下来了。两次。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "红绳",
+      "麻袋",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "麻袋",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻袋"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻袋"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 红绳, 麻袋, 什么，且本场至少为 那截红绳, 红绳, 麻袋 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-R4",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "又多了几处脚印。和槐树下的一样，不大，但深。这次脚印更近，离他的鞋尖只差…",
+      "但脚印留下来了。两次。",
+      "孟浮灯走回板车旁，没立刻推车走。他蹲下身，从怀里摸出那截红绳——从回水湾…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯走回板车旁，没立刻推车走。他蹲下身，从怀里摸出那截红绳——从回水湾那具尸体旁捞起的红绳。绳…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

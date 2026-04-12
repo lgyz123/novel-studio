@@ -1,0 +1,64 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": true,
+  "major_issues": [],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "席子铺得不算平整，靠墙那头微微翘起，是他早上出门前随手一抻的结果。现在，翘起的角度似乎小了一点。…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗麻绳，绳头散在地上，… 席子铺得不算平整，靠墙那头微微翘起，是他早上出门前随手一抻的结果。现在，…",
+    "本场新增信息：屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗麻绳，绳头散在地上，…；席子铺得不算平整，靠墙那头微微翘起，是他早上出门前随手一抻的结果。现在，…"
+  ],
+  "recommended_next_step": "lock_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "那个扁木盒",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "那个扁木盒",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 红绳, 平安符, 那个扁木盒，且本场至少为 麻绳, 红绳, 平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-RW2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗麻绳，绳头散在地上，…",
+      "席子铺得不算平整，靠墙那头微微翘起，是他早上出门前随手一抻的结果。现在，…",
+      "他抽出砖，伸手进去，摸到那个扁木盒。"
+    ]
+  },
+  "verdict": "lock",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "盒子表面没有漆，木纹在昏暗光线下泛着淡淡的黄。他拿起盒子，指尖在盒盖上停了一瞬——盒盖边缘，靠近…"
+  },
+  "summary": "当前 scene 已满足任务目标与约束条件，且通过结构硬检查，可直接锁定。"
+}

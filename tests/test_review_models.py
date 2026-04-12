@@ -11,11 +11,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from app.main import (
+    build_existing_draft_result,
     choose_repair_focus,
     compile_context,
     build_generated_task_content,
     build_locked_chapter_file,
     build_validation_errors,
+    call_writer_model,
     clean_model_output,
     contains_script_style,
     detect_scene10_old_pattern_reuse,
@@ -23,6 +25,7 @@ from app.main import (
     extract_supervisor_round,
     has_supervisor_retry_budget,
     maybe_prepare_supervisor_rescue_draft,
+    should_use_deepseek_writer,
     should_continue_after_lock,
     write_draft,
 )
@@ -45,6 +48,75 @@ from app.review_models import (
 
 
 class ReviewModelsTest(unittest.TestCase):
+    def test_should_use_deepseek_writer_when_provider_is_configured(self) -> None:
+        config = {
+            "writer": {
+                "provider": "deepseek",
+                "model": "deepseek-chat",
+                "base_url": "https://api.deepseek.com",
+            }
+        }
+
+        self.assertTrue(should_use_deepseek_writer(config))
+
+    def test_call_writer_model_uses_deepseek_client(self) -> None:
+        import app.main as main_module
+
+        captured: dict[str, object] = {}
+
+        class FakeCompletions:
+            def create(self, **kwargs: object):
+                captured.update(kwargs)
+
+                class FakeMessage:
+                    content = "生成的正文"
+
+                class FakeChoice:
+                    message = FakeMessage()
+
+                class FakeResponse:
+                    choices = [FakeChoice()]
+
+                return FakeResponse()
+
+        class FakeOpenAI:
+            def __init__(self, api_key: str, base_url: str) -> None:
+                captured["api_key"] = api_key
+                captured["base_url"] = base_url
+                self.chat = type("Chat", (), {"completions": FakeCompletions()})()
+
+        previous_openai = main_module.OpenAI
+        try:
+            main_module.OpenAI = FakeOpenAI
+            content = call_writer_model(
+                {
+                    "writer": {
+                        "provider": "deepseek",
+                        "model": "deepseek-chat",
+                        "base_url": "https://api.deepseek.com",
+                        "api_key_env": "sk-test-key",
+                    },
+                    "generation": {
+                        "request_timeout": 30,
+                        "write_num_ctx": 2048,
+                    },
+                },
+                "system prompt",
+                "user prompt",
+                temperature=0.3,
+                num_predict=1200,
+            )
+        finally:
+            main_module.OpenAI = previous_openai
+
+        self.assertEqual(content, "生成的正文")
+        self.assertEqual(captured["api_key"], "sk-test-key")
+        self.assertEqual(captured["base_url"], "https://api.deepseek.com")
+        self.assertEqual(captured["model"], "deepseek-chat")
+        self.assertEqual(captured["messages"][0]["role"], "system")
+        self.assertEqual(captured["messages"][1]["role"], "user")
+        self.assertEqual(captured["max_tokens"], 1200)
+
     def test_writer_system_prompt_only_requests_markdown_prose(self) -> None:
         prompt = Path("/Users/guan/git/novel-studio/prompts/writer_system.md").read_text(encoding="utf-8")
 
@@ -81,6 +153,114 @@ class ReviewModelsTest(unittest.TestCase):
         cleaned = clean_model_output(raw)
 
         self.assertEqual(cleaned, "孟浮灯把门关上，潮气还贴在手背上。")
+
+    def test_build_generated_task_content_prefers_configured_length_override(self) -> None:
+        task_text = """# task_id
+scene_200
+
+# goal
+继续写当前 scene
+
+# preferred_length
+500-900字
+
+# constraints
+- 保持单视角
+"""
+        reviewer_result = {
+            "summary": "需要整体重写。",
+            "major_issues": ["推进不足。"],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["他确认袖口里夹着一张旧票。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他决定不立刻交差。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他先把旧票藏起来。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复风险。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        content = build_generated_task_content(
+            task_text,
+            reviewer_result,
+            "02_working/drafts/scene_200.md",
+            "rewrite",
+            config={"generation": {"preferred_length_override": "2000-3600字"}},
+        )
+
+        self.assertIn("# preferred_length\n2000-3600字", content)
+        self.assertNotIn("# preferred_length\n500-900字", content)
+
+    def test_build_existing_draft_result_skips_when_review_is_newer(self) -> None:
+        import app.main as main_module
+
+        task_text = """# task_id
+scene_201
+
+# output_target
+02_working/drafts/scene_201.md
+"""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            draft_path = root / "02_working/drafts/scene_201.md"
+            reviewer_path = root / "02_working/reviews/scene_201_reviewer.json"
+            draft_path.parent.mkdir(parents=True, exist_ok=True)
+            reviewer_path.parent.mkdir(parents=True, exist_ok=True)
+            draft_path.write_text("draft", encoding="utf-8")
+            reviewer_path.write_text("{}", encoding="utf-8")
+
+            draft_timestamp = 100
+            reviewer_timestamp = 200
+            draft_path.touch()
+            reviewer_path.touch()
+            draft_path.chmod(0o644)
+            reviewer_path.chmod(0o644)
+            import os
+            os.utime(draft_path, (draft_timestamp, draft_timestamp))
+            os.utime(reviewer_path, (reviewer_timestamp, reviewer_timestamp))
+
+            previous_root = main_module.ROOT
+            try:
+                main_module.ROOT = root
+                result = build_existing_draft_result(task_text)
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIsNone(result)
+
+    def test_build_existing_draft_result_reuses_when_draft_is_newer(self) -> None:
+        import app.main as main_module
+        import os
+
+        task_text = """# task_id
+scene_202
+
+# output_target
+02_working/drafts/scene_202.md
+"""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            draft_path = root / "02_working/drafts/scene_202.md"
+            reviewer_path = root / "02_working/reviews/scene_202_reviewer.json"
+            draft_path.parent.mkdir(parents=True, exist_ok=True)
+            reviewer_path.parent.mkdir(parents=True, exist_ok=True)
+            draft_path.write_text("draft", encoding="utf-8")
+            reviewer_path.write_text("{}", encoding="utf-8")
+
+            reviewer_timestamp = 100
+            draft_timestamp = 200
+            os.utime(reviewer_path, (reviewer_timestamp, reviewer_timestamp))
+            os.utime(draft_path, (draft_timestamp, draft_timestamp))
+
+            previous_root = main_module.ROOT
+            try:
+                main_module.ROOT = root
+                result = build_existing_draft_result(task_text)
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result["draft_file"], "02_working/drafts/scene_202.md")
 
     def test_invalid_issue_category_rejected(self) -> None:
         with self.assertRaises(ValidationError):

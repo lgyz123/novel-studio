@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-R1",
+  "goal": "基于上一版草稿进行结构修复：在孟浮灯铲土后，明确展示他确认平安符上'阿绣'二字，并做出暂时压下不声张的决定，同时修正开头重复部分。本次重点解决锁定闸门未通过的问题：补充新信息、推进情节、展示决策转变、提供状态变化证据、对齐物件状态为'状态待确认'。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 中描述了红绳缠在麻绳上、平安符被孟浮灯收起，但根据 tracker_bundle 的 artifact_state，红绳、平安符、麻绳的 location 应为'状态待确认'，而正文写法暗示了更具体的状态（如红绳被卷进麻绳、平安符被孟浮灯藏起），这可能与现有 artifact_state 不一致，需要调整以对齐。；根据该问题执行局部修补，避免不必要的整场重写。问题：根据 required_information_gain，需要补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。Scene 中新增了红绳断口参差不齐、平安符被小心展开等细节，但不够突出或新颖，可能未完全满足要求。；根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 展示了孟浮灯压下不声张的决定，但决策转变不够明确或 impactful。他选择独自留下检查平安符，但未清晰展示这个动作如何改变他接下来的处理局面（如形成新计划或风险）。",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene02_rewrite_v2_rewrite3_v3_rewrite3_v4_rewrite_v6_rewrite.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene02_rewrite_v2_rewrite3_v3_rewrite3_v4_rewrite_v6_rewrite_v7.md"
+}

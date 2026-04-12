@@ -1,0 +1,18 @@
+{
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R4",
+  "mode": "partial_redraft",
+  "actions": [
+    {
+      "target": "Ending action",
+      "issue_id": "ISSUE-001",
+      "action": "Consider adding a brief final action, such as him touching the talisman again or making a small note, to reinforce the private investigation without overstepping.",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：The scene ends with Meng Fudeng placing only the red cord in the box, leaving the talisman out; this could be interpreted as a decision shift, but it's slightly ambiguous whether this constitutes a 'reality action' as required. It might benefit from a clearer, more explicit minor action related to 'A Xiu'."
+    },
+    {
+      "target": "Motif usage",
+      "issue_id": "ISSUE-002",
+      "action": "Ensure in next scenes that these motifs continue to evolve or are supplemented with new elements to maintain novelty.",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：The motifs of red cord and talisman are reused from previous scenes, but they serve a new function (private examination and comparison), aligning with repair focus to avoid redundancy. No critical issue, but monitor for overuse in future scenes."
+    }
+  ]
+}

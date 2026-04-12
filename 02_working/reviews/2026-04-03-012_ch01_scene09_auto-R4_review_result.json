@@ -1,0 +1,65 @@
+{
+  "task_id": "2026-04-03-012_ch01_scene09_auto-R4",
+  "status": "revise",
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "已达到修订阈值 5 轮，建议人工介入。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "canon 一致性风险：物件“铜钱”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "本场新增信息：乱葬岗在城西三里外的土坡上。坡上没什么树，只有些枯草，风一吹就伏下去，露… 他把车停在坡顶，卸下尸体。尸体裹在一张旧草席里，席子边缘已经磨得发毛。孟…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "本场新增信息：乱葬岗在城西三里外的土坡上。坡上没什么树，只有些枯草，风一吹就伏下去，露…；他把车停在坡顶，卸下尸体。尸体裹在一张旧草席里，席子边缘已经磨得发毛。孟…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-006",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-R4",
+      "message": "正文部分描述（如'眼白混浊'）符合文风要求，但整体可更强化动作和触感细节以匹配'优先写动作、触感、寒冷、疲惫、气味、工具、尸体处理细节'。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

@@ -1,0 +1,53 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "锁定闸门未通过：required_information_gain: missing: 运河边收尸的具体流程细节（如尸体打捞点、临时停放处、处理工具）；尸体被提前处理的迹象（如伤口被掩盖、衣物被更换）；现场被清理的痕迹（如脚印被抹平、物品被移走）；decision_requirement: 运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "拉到石板上，他松开钩子，喘了口气。风从河面上刮过来，带着水汽和远处船坞飘来的桐油味。他蹲下来，开…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤… 他用的是一根旧竹竿，一头绑着铁钩。这钩子不是专门打捞用的，原本是码头货栈…",
+    "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤…；他用的是一根旧竹竿，一头绑着铁钩。这钩子不是专门打捞用的，原本是码头货栈…"
+  ],
+  "recommended_next_step": "rewrite_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "胸口",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "胸口",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 胸口, 什么，且本场至少为 胸口, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤…",
+      "他用的是一根旧竹竿，一头绑着铁钩。这钩子不是专门打捞用的，原本是码头货栈…",
+      "今天这具尸体是个男人，四十上下，脸朝下趴在水边。孟浮灯把他翻过来，看见一…"
+    ]
+  },
+  "verdict": "rewrite",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

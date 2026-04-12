@@ -10,9 +10,62 @@
       ],
       "issues_fixed": [],
       "decision": "lock"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-008_ch01_scene05_auto-R1",
+      "draft_id": "ch01_scene05_v2",
+      "issues": [
+        "scene_purpose",
+        "redundancy",
+        "foreshadowing"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 3,
+      "task_id": "2026-04-03-008_ch01_scene05_auto-R2",
+      "draft_id": "ch01_scene05_v3",
+      "issues": [
+        "redundancy"
+      ],
+      "issues_fixed": [
+        "scene_purpose",
+        "foreshadowing"
+      ],
+      "decision": "lock"
+    },
+    {
+      "round": 4,
+      "task_id": "2026-04-03-008_ch01_scene05_auto-R3",
+      "draft_id": "ch01_scene05_v4",
+      "issues": [
+        "scene_purpose",
+        "redundancy",
+        "knowledge"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 5,
+      "task_id": "2026-04-03-008_ch01_scene05_auto-R4",
+      "draft_id": "ch01_scene05_v5",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [
+        "redundancy",
+        "knowledge"
+      ],
+      "decision": "lock"
     }
   ],
-  "recurring_issue_types": [],
+  "recurring_issue_types": [
+    "redundancy",
+    "scene_purpose"
+  ],
   "escalate_after": 5,
   "escalation_reason": ""
 }

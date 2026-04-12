@@ -1,29 +1,8 @@
 {
   "task_id": "2026-04-03-011_ch01_scene08_auto",
-  "status": "revise",
-  "summary": "审稿分析认为当前 scene 方向基本正确，但仍有若干问题需要小修。",
-  "issues": [
-    {
-      "id": "ISSUE-001",
-      "type": "scene_purpose",
-      "severity": "critical",
-      "scope": "scene",
-      "target": "2026-04-03-011_ch01_scene08_auto",
-      "message": "当前草稿未充分完成 task 的核心推进目标。",
-      "suggested_action": "rewrite_scene"
-    },
-    {
-      "id": "ISSUE-002",
-      "type": "scene_purpose",
-      "severity": "medium",
-      "scope": "scene",
-      "target": "2026-04-03-011_ch01_scene08_auto",
-      "message": "Reviewer 原始输出主要是无效英文分析，已降权处理。",
-      "suggested_action": "rewrite_local"
-    }
-  ],
-  "strengths": [
-    "审稿分析认为当前 scene 方向基本正确，但仍有若干问题需要小修。"
-  ],
-  "decision_reason": "审稿分析认为当前 scene 方向基本正确，但仍有若干问题需要小修。"
+  "status": "manual_intervention",
+  "summary": "DeepSeek reviewer 输出不可用，转人工介入。",
+  "issues": [],
+  "strengths": [],
+  "decision_reason": "DeepSeek reviewer schema 校验失败：1 validation error for StructuredReviewResult\nissues.1.type\n  Input should be 'continuity', 'timeline', 'pov', 'knowledge', 'style', 'scene_purpose', 'foreshadowing' or 'redundancy' [type=enum, input_value='required_plot_progress', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/enum"
 }

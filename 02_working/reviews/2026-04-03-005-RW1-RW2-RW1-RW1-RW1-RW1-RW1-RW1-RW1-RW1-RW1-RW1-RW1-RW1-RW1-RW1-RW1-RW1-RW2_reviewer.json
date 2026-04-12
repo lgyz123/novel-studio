@@ -1,0 +1,18 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "Scene 开头提到麻绳缠在孟浮灯腰上，但基于上一版草稿（canon_context），麻绳在床脚，状态为‘湿漉漉的一团’，且孟浮灯计划明天处理。这里直接带到乱葬岗，与之前计划不一致，缺乏过渡。",
+    "红绳、平安符、麻绳在 artifact_state 中位置为‘状态待确认’，但 scene 中红绳和平安符被孟浮灯从怀里掏出并摊在床上，麻绳被处理在乱葬岗，与状态不一致，且未明确更新状态。"
+  ],
+  "minor_issues": [
+    "Scene 从埋葬尸体到回到住处，时间描述模糊（‘天边已经透出些灰白’到‘天已经蒙蒙亮’），但缺乏明确的时间流逝感，可能影响节奏。",
+    "Scene 包含了新信息（如麻绳的活扣细节、铜钱的磨损）、现实动作（埋葬、处理麻绳）和状态变化（孟浮灯决定压下‘阿绣’信息），但结尾被截断，未完整展示决策落地，可能影响 required_information_gain 等要求。",
+    "部分描述（如‘它们身上还沾着活气’）稍显抒情，可能偏离了文风要求的‘情绪克制’和‘优先写动作、触感’。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

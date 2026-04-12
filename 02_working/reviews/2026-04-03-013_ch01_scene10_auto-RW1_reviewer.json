@@ -1,0 +1,58 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "这不是他第一次来这个打捞点。运河这一段水流缓，岸边有几块大石，尸体常被水推到石缝里卡住。往常他会…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：这不是他第一次来这个打捞点。运河这一段水流缓，岸边有几块大石，尸体常被水… 他把布摊在旁边的干地上，用短柄锹压住一角。布的面积不小，如果原本是件外衫…",
+    "本场新增信息：这不是他第一次来这个打捞点。运河这一段水流缓，岸边有几块大石，尸体常被水…；他把布摊在旁边的干地上，用短柄锹压住一角。布的面积不小，如果原本是件外衫…",
+    "场景开头未明确承接上一场的时间线（白天或傍晚），且未提及乱葬岗确认调查转入被动后的状态。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻袋",
+      "胸口",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻袋",
+      "胸口",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻袋, 胸口, 什么，且本场至少为 麻袋, 胸口, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "这不是他第一次来这个打捞点。运河这一段水流缓，岸边有几块大石，尸体常被水…",
+      "他把布摊在旁边的干地上，用短柄锹压住一角。布的面积不小，如果原本是件外衫…",
+      "粗布短衫的领口是歪的。不是被水冲歪的那种松散，而是系带的位置错了——左边…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他蹲下来，仔细看那些拖痕。痕迹边缘不整齐，像是用什么东西勾着尸体拖过来的，不是竹竿或木棍那种平滑…"
+  },
+  "summary": "场景描述了孟浮灯在运河边处理无名尸，发现尸体和环境异常，但未完全满足任务要求，如风险升级、决策转变和明确后果。"
+}

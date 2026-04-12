@@ -1,0 +1,69 @@
+{
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“平安符”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+      "物件“铜钱”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+      "物件“子和符”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "canon 一致性风险：物件“平安符”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“铜钱”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+    "场景以'他回到矮柜前，拉开下面那个'中断，未完成描述，且未明确描述阻力后果或风险升级，如确认住处被搜查、风险升级等，违反了任务要求的'结尾必须描述明确阻力后果'。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "接着是土炕。炕席边缘有一处不起眼的折痕，靠近炕沿的位置。折痕很细，像是有人掀起炕席一角，又匆匆放…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗… 柜子有两个抽屉。上面那个没锁，里面放着几件换洗衣物，叠得不算整齐，但也没…",
+    "本场新增信息：他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；柜子有两个抽屉。上面那个没锁，里面放着几件换洗衣物，叠得不算整齐，但也没…",
+    "场景承接上一场为傍晚或夜间，但未明确时间细节，可能影响连贯性。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "平安符",
+      "铜钱",
+      "他走到窗边",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "平安符",
+      "铜钱",
+      "他走到窗边",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "平安符",
+      "铜钱",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "铜钱",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 平安符, 铜钱, 他走到窗边, 什么，且本场至少为 平安符, 铜钱, 他走到窗边 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…",
+      "柜子有两个抽屉。上面那个没锁，里面放着几件换洗衣物，叠得不算整齐，但也没…",
+      "盒盖没有完全合拢，左侧露出一条细缝，大约半根麦秆的宽度。他记得清楚，早上…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "原本压在盒底的那张平安符不见了。符是纸的，泡过水，已经烂了大半，但背面用墨写的“阿绣”两个字还能…"
+  },
+  "summary": "canon 一致性风险：物件“平安符”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。"
+}

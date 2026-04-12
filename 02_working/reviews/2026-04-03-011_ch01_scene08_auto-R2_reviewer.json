@@ -1,0 +1,58 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "孟浮灯低下头，继续叠布。布上还沾着昨晚的泥水，一摊暗褐色，已经干了，摸上去硬邦邦的。他把布角对折…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯把板车停在离码头二十几步远的一棵枯柳树下。这个位置能看到码头全貌，… 孟浮灯叠好一块布，换另一块。他眼睛没离开码头，但视线不是直直盯着，而是散…",
+    "本场新增信息：孟浮灯把板车停在离码头二十几步远的一棵枯柳树下。这个位置能看到码头全貌，…；孟浮灯叠好一块布，换另一块。他眼睛没离开码头，但视线不是直直盯着，而是散…",
+    "场景开始于'天刚亮'，与前一场景夜间过渡清晰，符合要求，但细节可更明确。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻袋",
+      "在码头",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻袋",
+      "在码头",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻袋, 在码头, 什么，且本场至少为 麻袋, 在码头, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯把板车停在离码头二十几步远的一棵枯柳树下。这个位置能看到码头全貌，…",
+      "孟浮灯叠好一块布，换另一块。他眼睛没离开码头，但视线不是直直盯着，而是散…",
+      "那不是无意的。"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯把板车停在离码头二十几步远的一棵枯柳树下。这个位置能看到码头全貌，又不会太近。他蹲下身，假…"
+  },
+  "summary": "场景基本符合任务要求，但存在结构性问题：结尾不完整，未能明确展示风险升级和决策偏移，且部分细节与约束冲突。需要补充结尾以完成scene purpose。"
+}

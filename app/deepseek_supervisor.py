@@ -981,6 +981,7 @@ def build_task_content_from_supervisor_decision(
     task_text: str,
     draft_file: str,
     repair_plan_path: str | None = None,
+    preferred_length_override: str | None = None,
 ) -> str | None:
     validated = SupervisorDecision.from_dict(decision)
     if validated.action == SupervisorAction.manual_intervention or validated.next_task is None:
@@ -989,7 +990,7 @@ def build_task_content_from_supervisor_decision(
     mode = "revise" if validated.action == SupervisorAction.continue_revise else "rewrite"
     chapter_state = extract_markdown_field(task_text, "chapter_state")
     current_supervisor_round = int(extract_markdown_field(task_text, "supervisor_round") or "0")
-    preferred_length = validated.next_task.preferred_length.strip() or (extract_markdown_field(task_text, "preferred_length") or "").strip()
+    preferred_length = (preferred_length_override or "").strip() or validated.next_task.preferred_length.strip() or (extract_markdown_field(task_text, "preferred_length") or "").strip()
     new_task_id = build_followup_task_id(validated.task_id, mode)
     new_output_target = build_followup_output_target(draft_file, mode)
     constraint_lines = [str(item).strip() for item in validated.next_task.constraints if str(item).strip()]
@@ -1539,7 +1540,7 @@ def save_supervisor_rescue_record(root: Path, record: dict[str, Any]) -> str:
     return rel_path
 
 
-def build_next_scene_task_content(plan: dict[str, Any], task_text: str, locked_file: str) -> str:
+def build_next_scene_task_content(plan: dict[str, Any], task_text: str, locked_file: str, preferred_length_override: str | None = None) -> str:
     enriched_plan = enrich_next_scene_plan_payload(plan, task_text, locked_file, {}, context={})
     validated = NextSceneTaskDraft.model_validate(enriched_plan) if hasattr(NextSceneTaskDraft, "model_validate") else NextSceneTaskDraft.parse_obj(enriched_plan)
     _, output_target = build_next_scene_task_defaults(task_text, locked_file)
@@ -1579,8 +1580,9 @@ def build_next_scene_task_content(plan: dict[str, Any], task_text: str, locked_f
     if chapter_state:
         sections.append(f"# chapter_state\n{chapter_state}")
     sections.append(f"# constraints\n{constraints_block}")
-    if validated.preferred_length.strip():
-        sections.append(f"# preferred_length\n{validated.preferred_length.strip()}")
+    preferred_length = (preferred_length_override or "").strip() or validated.preferred_length.strip()
+    if preferred_length:
+        sections.append(f"# preferred_length\n{preferred_length}")
     sections.append(f"# output_target\n{output_target}")
     return "\n\n".join(sections) + "\n"
 

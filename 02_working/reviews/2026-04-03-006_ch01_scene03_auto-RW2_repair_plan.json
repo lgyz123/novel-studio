@@ -1,0 +1,24 @@
+{
+  "task_id": "2026-04-03-006_ch01_scene03_auto-RW2",
+  "mode": "partial_redraft",
+  "actions": [
+    {
+      "target": "2026-04-03-006_ch01_scene03_auto-RW2",
+      "issue_id": "ISSUE-001",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。"
+    },
+    {
+      "target": "2026-04-03-006_ch01_scene03_auto-RW2",
+      "issue_id": "ISSUE-002",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：本场新增信息：院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半… 不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…"
+    },
+    {
+      "target": "2026-04-03-006_ch01_scene03_auto-RW2",
+      "issue_id": "ISSUE-003",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：本场新增信息：院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半…；不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "task_id": "2026-04-03-014_ch01_scene11_auto",
-  "status": "revise",
-  "summary": "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：required_information_gain: missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）；scene_function_landed: expected=引发后果 actual=发现线索",
   "issues": [
     {
       "id": "ISSUE-001",
@@ -9,7 +9,7 @@
       "severity": "critical",
       "scope": "scene",
       "target": "2026-04-03-014_ch01_scene11_auto",
-      "message": "当前草稿未充分完成 task 的核心推进目标。",
+      "message": "锁定闸门未通过：required_information_gain: missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）；scene_function_landed: expected=引发后果 actual=发现线索",
       "suggested_action": "rewrite_scene"
     },
     {
@@ -18,12 +18,30 @@
       "severity": "medium",
       "scope": "scene",
       "target": "2026-04-03-014_ch01_scene11_auto",
-      "message": "Reviewer 原始输出主要是无效英文分析，已降权处理。",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto",
+      "message": "本场新增信息：盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边… 矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto",
+      "message": "本场新增信息：盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边…；矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…",
       "suggested_action": "rewrite_local"
     }
   ],
   "strengths": [
-    "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。"
+    "草稿整体方向可用，问题主要集中在局部完成度。"
   ],
-  "decision_reason": "当前 scene 方向正确，但动作牵引与场景闭环仍不够完整，更适合先小修。"
+  "decision_reason": "锁定闸门未通过：required_information_gain: missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）；scene_function_landed: expected=引发后果 actual=发现线索"
 }

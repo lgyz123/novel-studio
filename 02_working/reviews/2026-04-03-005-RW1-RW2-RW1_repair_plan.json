@@ -1,0 +1,30 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1",
+  "mode": "full_redraft",
+  "actions": [
+    {
+      "target": "scene_text 结尾",
+      "issue_id": "ISSUE-001",
+      "action": "补全 scene 结尾，描述孟浮灯收起红绳、平安符、铜钱的具体动作，明确展示他决定暂时压下 '阿绣' 相关信息，并突出疲惫感和职业习惯。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 文本在 '可能是逃难的。' 处被截断，未完成埋葬后的动作序列和状态变化，导致 required_decision_shift 和 required_state_change 未完全落地。"
+    },
+    {
+      "target": "required_decision_shift",
+      "issue_id": "ISSUE-002",
+      "action": "在结尾部分增加孟浮灯对红绳、平安符的处理决定，例如他决定暂时不告诉老张头，或将这些物品藏好，以形成新的现实动作。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：孟浮灯的决策（压下信息）不够突出，需要更明确的动作或内心决定来体现 required_decision_shift。"
+    },
+    {
+      "target": "required_state_change",
+      "issue_id": "ISSUE-003",
+      "action": "在结尾描述孟浮灯的疲惫感（如身体酸痛、精神倦怠）和职业习惯（如整理工具、反思工作），以改变已知信息或角色判断状态。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：状态变化（如疲惫、职业习惯）不够突出，需要更具体的描述来体现 required_state_change。"
+    },
+    {
+      "target": "artifact_state 一致性",
+      "issue_id": "ISSUE-004",
+      "action": "在补全结尾时，明确这些物品的 holder 和 location，以更新 artifact_state。",
+      "instruction": "根据该问题执行局部修补，避免不必要的整场重写。问题：红绳、平安符、铜钱的状态在 artifact_state 中为 '待确认'，但 scene_text 部分处理了这些物品，需要确保一致性。"
+    }
+  ]
+}

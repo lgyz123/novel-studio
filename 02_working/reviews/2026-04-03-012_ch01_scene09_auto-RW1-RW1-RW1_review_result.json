@@ -1,0 +1,38 @@
+{
+  "task_id": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-RW1",
+  "status": "lock",
+  "summary": "场景成功完成了任务目标，补全了required_information_gain和decision_requirement，实现了风险升级、决策偏移和信息增量，文风克制，符合约束。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-RW1",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-RW1",
+      "message": "本场新增信息：乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下… 坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-RW1",
+      "message": "本场新增信息：乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下…；坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "场景成功完成了任务目标，补全了required_information_gain和decision_requirement，实现了风险升级、决策偏移和信息增量，文风克制，符合约束。"
+  ],
+  "decision_reason": "场景成功完成了任务目标，补全了required_information_gain和decision_requirement，实现了风险升级、决策偏移和信息增量，文风克制，符合约束。"
+}

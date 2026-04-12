@@ -1,0 +1,770 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene03",
+  "locked_file": "03_locked/chapters/ch01_scene03.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene03",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半…",
+      "不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…",
+      "他打了三个这样的活扣，然后停住，看着手里那几段麻线。没什么用，只是顺手。…"
+    ],
+    "protagonist_decision": "外头传来鸡叫，一声，两声，拖长了调子。孟浮灯把平安符和那段麻绳分开，麻绳扔进灶膛。火舌卷上来，很…",
+    "state_changes": [
+      "protagonist_mode: 隐匿/压制 -> 行动推进"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "红绳",
+      "搭着的麻绳",
+      "出个扁木盒",
+      "磨秃的刻刀",
+      "手指触到盒",
+      "平安符",
+      "正面那些符",
+      "他把平安符",
+      "乎要嵌进绳",
+      "他捏着绳",
+      "又去看绳",
+      "挂着的麻绳",
+      "那段麻绳",
+      "拿起平安符",
+      "两条绳",
+      "手指在麻绳",
+      "了名字的符",
+      "从收尸的绳",
+      "火光照在绳",
+      "灯把平安符",
+      "和那段麻绳",
+      "很快把绳",
+      "才把平安符",
+      "些零碎铜钱",
+      "几本旧账册",
+      "包塞进铜钱",
+      "铜钱",
+      "手指在钱",
+      "那根湿麻绳",
+      "开盘好的绳",
+      "整根绳",
+      "浮灯把麻绳",
+      "能感觉到绳",
+      "搓到绳",
+      "他提起绳",
+      "比那根粗绳",
+      "自觉检查绳",
+      "他看见绳",
+      "手伸进铜钱",
+      "纸包被钱",
+      "捡来的铜钱",
+      "留着平安符",
+      "就像绳",
+      "箱子里铜钱",
+      "买根新麻绳",
+      "但绳",
+      "一股子潮气",
+      "旧木头的味",
+      "一股焦糊味",
+      "他等味",
+      "着河水的腥气",
+      "和泥土味",
+      "陈年的霉味",
+      "指节渐渐有",
+      "停在隔壁门口",
+      "这屋里",
+      "他回到屋里",
+      "转身回到屋里",
+      "的符",
+      "绳子就想理一"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索"
+      ],
+      "红绳": [
+        "发现线索"
+      ],
+      "搭着的麻绳": [
+        "发现线索"
+      ],
+      "出个扁木盒": [
+        "发现线索"
+      ],
+      "磨秃的刻刀": [
+        "发现线索"
+      ],
+      "手指触到盒": [
+        "发现线索"
+      ],
+      "平安符": [
+        "发现线索"
+      ],
+      "正面那些符": [
+        "发现线索"
+      ],
+      "他把平安符": [
+        "发现线索"
+      ],
+      "乎要嵌进绳": [
+        "发现线索"
+      ],
+      "他捏着绳": [
+        "发现线索"
+      ],
+      "又去看绳": [
+        "发现线索"
+      ],
+      "挂着的麻绳": [
+        "发现线索"
+      ],
+      "那段麻绳": [
+        "发现线索"
+      ],
+      "拿起平安符": [
+        "发现线索"
+      ],
+      "两条绳": [
+        "发现线索"
+      ],
+      "手指在麻绳": [
+        "发现线索"
+      ],
+      "了名字的符": [
+        "发现线索"
+      ],
+      "从收尸的绳": [
+        "发现线索"
+      ],
+      "火光照在绳": [
+        "发现线索"
+      ],
+      "灯把平安符": [
+        "发现线索"
+      ],
+      "和那段麻绳": [
+        "发现线索"
+      ],
+      "很快把绳": [
+        "发现线索"
+      ],
+      "才把平安符": [
+        "发现线索"
+      ],
+      "些零碎铜钱": [
+        "发现线索"
+      ],
+      "几本旧账册": [
+        "发现线索"
+      ],
+      "包塞进铜钱": [
+        "发现线索"
+      ],
+      "铜钱": [
+        "发现线索"
+      ],
+      "手指在钱": [
+        "发现线索"
+      ],
+      "那根湿麻绳": [
+        "发现线索"
+      ],
+      "开盘好的绳": [
+        "发现线索"
+      ],
+      "整根绳": [
+        "发现线索"
+      ],
+      "浮灯把麻绳": [
+        "发现线索"
+      ],
+      "能感觉到绳": [
+        "发现线索"
+      ],
+      "搓到绳": [
+        "发现线索"
+      ],
+      "他提起绳": [
+        "发现线索"
+      ],
+      "比那根粗绳": [
+        "发现线索"
+      ],
+      "自觉检查绳": [
+        "发现线索"
+      ],
+      "他看见绳": [
+        "发现线索"
+      ],
+      "手伸进铜钱": [
+        "发现线索"
+      ],
+      "纸包被钱": [
+        "发现线索"
+      ],
+      "捡来的铜钱": [
+        "发现线索"
+      ],
+      "留着平安符": [
+        "发现线索"
+      ],
+      "就像绳": [
+        "发现线索"
+      ],
+      "箱子里铜钱": [
+        "发现线索"
+      ],
+      "买根新麻绳": [
+        "发现线索"
+      ],
+      "但绳": [
+        "发现线索"
+      ],
+      "一股子潮气": [
+        "发现线索"
+      ],
+      "旧木头的味": [
+        "发现线索"
+      ],
+      "一股焦糊味": [
+        "发现线索"
+      ],
+      "他等味": [
+        "发现线索"
+      ],
+      "着河水的腥气": [
+        "发现线索"
+      ],
+      "和泥土味": [
+        "发现线索"
+      ],
+      "陈年的霉味": [
+        "发现线索"
+      ],
+      "指节渐渐有": [
+        "发现线索"
+      ],
+      "停在隔壁门口": [
+        "发现线索"
+      ],
+      "这屋里": [
+        "发现线索"
+      ],
+      "他回到屋里": [
+        "发现线索"
+      ],
+      "转身回到屋里": [
+        "发现线索"
+      ],
+      "的符": [
+        "发现线索"
+      ],
+      "绳子就想理一": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "搭着的麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "出个扁木盒",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "磨秃的刻刀",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手指触到盒",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility",
+          "significance_level"
+        ]
+      },
+      {
+        "label": "正面那些符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他把平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "乎要嵌进绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他捏着绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "又去看绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "挂着的麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那段麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "拿起平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "两条绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手指在麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "了名字的符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "从收尸的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "火光照在绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "灯把平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "和那段麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "很快把绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "才把平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "些零碎铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "几本旧账册",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "包塞进铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手指在钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那根湿麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "开盘好的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "整根绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "浮灯把麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "能感觉到绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "搓到绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他提起绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "比那根粗绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "自觉检查绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他看见绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手伸进铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "纸包被钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "捡来的铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "留着平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "就像绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "箱子里铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "买根新麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "但绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {
+      "confirmed_added": [
+        "院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半…",
+        "不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…",
+        "他打了三个这样的活扣，然后停住，看着手里那几段麻线。没什么用，只是顺手。…",
+        "巷子窄，两边墙皮剥落，露出底下黄泥和碎草"
+      ],
+      "suspected_added": [
+        "不是随手画的，像是认认真真写上去，又怕被人看见，所以藏在背面",
+        "绳子的颜色不是鲜红，是那种旧了的暗红，靠近结的地方颜色深些，像是被汗或别的什么浸过",
+        "红绳细，软，像是丝线混着棉搓的",
+        "可这手法也不算稀奇，码头扛活的、拉纤的、甚至捆柴的，都可能这么打",
+        "也许是上一个住客留下的，也许是更久以前的孩子画的",
+        "屋外，鸡又叫了一声，这次近了些，像是谁家的鸡跑出了笼",
+        "掌心似乎还残留着平安符纸背的触感，那点细微的凹凸，像刻进皮肤里的印记，一时半会儿消不掉"
+      ],
+      "protagonist_known_added": [
+        "院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半…",
+        "不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…",
+        "他打了三个这样的活扣，然后停住，看着手里那几段麻线。没什么用，只是顺手。…"
+      ],
+      "reader_known_added": [
+        "院子窄，靠墙堆着些劈好的柴，地上是湿泥。墙角有个半埋的破瓦缸，里头积了半…",
+        "不是死结。是那种捆东西时常用的活扣，一拉就紧，一扯就开。他打得很熟练，手…",
+        "他打了三个这样的活扣，然后停住，看着手里那几段麻线。没什么用，只是顺手。…",
+        "巷子窄，两边墙皮剥落，露出底下黄泥和碎草",
+        "不是随手画的，像是认认真真写上去，又怕被人看见，所以藏在背面"
+      ]
+    },
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene02",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene03",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene02",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene03",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch01_scene02",
+    "consecutive_transition_runs": []
+  }
+}

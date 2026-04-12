@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=0, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "写出《无住人间》第一章第十一个短场景：孟浮灯在运河边收尸后，回到住处，发现藏匿平安符的扁木盒被轻微挪动，确认有人趁他外出时搜查过他的物品，从而引发一次微小的后果（如确认风险升级、线索进一步中断），并扩展世界信息。本场重点：引发后果、提高风险、扩展世界信息。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边…；矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…；草铺上的草席，边缘原本是卷起来压在被褥下面的。现在，靠近墙角的那一侧，草…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "他没有立刻去碰盒子。他站起身，退开两步，目光在屋里缓缓扫过。"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 几本旧账册, 麻袋, 什么, 了什么，且本场至少为 几本旧账册, 麻袋, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "盒盖朝上的方向没变，但整个盒子不再紧贴墙根，而是微微向外挪了一点。盒盖边…；矮柜的门半开着，和他早上离开时一样。但他记得早上离开时，柜门是虚掩的，缝…；草铺上的草席，边缘原本是卷起来压在被褥下面的。现在，靠近墙角的那一侧，草…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": false,
+      "details": "missing: 孟浮灯住处的具体布局（如墙角杂物堆、矮柜位置、床铺朝向）；扁木盒被挪动的迹象（如位置偏移、灰尘痕迹、周围物品被翻动）；搜查者的手法特征（如翻动顺序、是否复原、遗漏之处）"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "他没有立刻去碰盒子。他站起身，退开两步，目光在屋里缓缓扫过。"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 主角认知变化：确认线索被系统性清理"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": false,
+      "details": "expected=引发后果 actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 几本旧账册, 麻袋, 什么, 了什么，且本场至少为 几本旧账册, 麻袋, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

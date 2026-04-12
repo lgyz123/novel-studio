@@ -1,0 +1,52 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "重复问题未收敛：continuity, knowledge, scene_purpose",
+    "Reviewer 没有给出可核对的 `decision_detail`，本地规则也未识别到明确决策动词或动作结果。",
+    "主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "“昨儿夜里，下游好像漂过去个东西。” 年长的妇人没抬头，继续拧她的褂子。年轻的妇人棒槌停了一下，…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：年长的妇人把拧干的褂子扔进另一个空盆里，直起腰，捶了捶后腰。“绳子？”她… 过了一会儿，那年轻妇人忽然低声说：“回水湾那儿……前阵子是不是捞上来个……",
+    "本场新增信息：年长的妇人把拧干的褂子扔进另一个空盆里，直起腰，捶了捶后腰。“绳子？”她…；过了一会儿，那年轻妇人忽然低声说：“回水湾那儿……前阵子是不是捞上来个……",
+    "任务要求本场结束时调查受阻，风险提高，但当前场景中阻力不够突出，后果未明确描述。洗衣妇的回避和船家的警惕虽有体现，但未形成明确的错误判断（如误以为某线索相关实则无关）或微小后果（如被注意、线索中断）。场景结尾被截断，船家部分未完成，无法评估完整后果。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻袋"
+    ],
+    "new_function_motifs": [
+      "麻袋"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻袋，且本场至少为 麻袋 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-009_ch01_scene06_auto-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "年长的妇人把拧干的褂子扔进另一个空盆里，直起腰，捶了捶后腰。“绳子？”她…",
+      "过了一会儿，那年轻妇人忽然低声说：“回水湾那儿……前阵子是不是捞上来个……"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": false,
+    "decision_detail": "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+  },
+  "summary": "重复问题未收敛：continuity, knowledge, scene_purpose",
+  "force_manual_intervention_reason": "重复问题未收敛：continuity, knowledge, scene_purpose"
+}

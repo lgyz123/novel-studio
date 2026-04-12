@@ -103,8 +103,8 @@ class StructuredReviewResult(BaseModel):
         issues = []
         for item in normalized.get("issues", []):
             issue = dict(item)
-            if issue.get("scope") == "global":
-                issue["scope"] = "global_"
+            if issue.get("scope") == "global_":
+                issue["scope"] = "global"
             issues.append(issue)
         normalized["issues"] = issues
         if hasattr(cls, "model_validate"):

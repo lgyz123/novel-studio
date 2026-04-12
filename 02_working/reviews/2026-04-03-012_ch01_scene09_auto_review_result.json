@@ -1,20 +1,40 @@
 {
   "task_id": "2026-04-03-012_ch01_scene09_auto",
-  "status": "lock",
-  "summary": "当前 scene 已满足任务目标与约束条件，可直接锁定。",
+  "status": "manual_intervention",
+  "summary": "Scene depicts Meng Fudeng at the mass grave, noticing soil disturbances and footprints, but fails to meet required plot progress, decision shift, and state changes; scene is incomplete and abruptly cut off.",
   "issues": [
     {
       "id": "ISSUE-001",
       "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "scene_text",
+      "message": "Scene does not fulfill required scene purpose: it should end with Meng Fudeng confirming clues are actively cleared, leading to risk escalation and strategy adjustment. Current scene shows soil disturbances and footprints but lacks explicit confirmation of clue clearing, risk upgrade, or decision shift.",
+      "suggested_action": "Revise to include explicit realization that clues (e.g., related to 'Axiu') are missing or tampered with, show risk perception change, and depict a micro-decision to adjust investigation strategy."
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "scene_text",
+      "message": "Scene is incomplete and abruptly ends with '吹得坡上的枯草簌', cutting off mid-sentence. This prevents reliable assessment of whether required elements are met.",
+      "suggested_action": "Complete the scene to include all required elements: required_information_gain, required_plot_progress, required_decision_shift, decision_requirement, and required_state_change."
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "knowledge",
       "severity": "medium",
       "scope": "scene",
-      "target": "2026-04-03-012_ch01_scene09_auto",
-      "message": "Reviewer 原始输出主要是无效英文分析，已降权处理。",
-      "suggested_action": "rewrite_local"
+      "target": "scene_text",
+      "message": "Motif usage may violate restrictions: scene includes '土' (soil) which is allowed, but lacks explicit use of '乱葬岗环境' as per motif_budget_for_scene. Need to verify if prohibited motifs (e.g., '麻绳') are inadvertently used.",
+      "suggested_action": "Review motif usage against allowed and prohibited lists; ensure '乱葬岗环境' is appropriately incorporated and banned motifs are avoided."
     }
   ],
   "strengths": [
-    "当前 scene 已满足任务目标与约束条件，可直接锁定。"
+    "Atmospheric description of mass grave setting",
+    "Detailed observation of environmental anomalies (soil disturbances, footprints)",
+    "Consistent with Meng Fudeng's cautious character"
   ],
-  "decision_reason": "当前 scene 已满足任务目标与约束条件，可直接锁定。"
+  "decision_reason": "Status set to manual_intervention because the scene is incomplete and fails to meet key requirements from task_text (e.g., required_plot_progress, required_decision_shift, required_state_change), making it impossible to reliably judge if it should be locked, revised, or rewritten without human review."
 }

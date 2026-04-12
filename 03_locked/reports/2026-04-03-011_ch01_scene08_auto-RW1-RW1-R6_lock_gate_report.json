@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R6",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": false,
+      "details": "revision_count=6, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：写出《无住人间》第一章第八个短场景：孟浮灯在回水湾遭遇威胁后，决定采取更隐蔽的调查方式，利用收尸工作的便利，在白天前往码头附近，试图从日常劳动中观察脚夫或船家的异常，但遭遇新的阻力（如被监视、线索被清理），从而将调查从实地探查转向日常观察，并引发一次微小的后果（如确认被盯上、风险升级）。本场重点：引发后果、提高风险、扩展世界信息。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：场景以对话中断，未完成required_plot_progress要求的'是已经被盯上了...脚印是...'和required_information_gain要求的'他确认了...对方知道他...'，导致风险未从high升至critical，状态变化不明确。；根据该问题执行局部修补，避免不必要的整场重写。问题：场景中提到了麻袋，但基于avoid_motifs，应避免重复使用麻袋元素，可能引起冗余。；根据该问题执行局部修补，避免不必要的整场重写。问题：油布包裹的细节（如形状、质地）描述不够具体，未完全满足required_information_gain中'油布、暗红色的包裹...'的要求，可能影响信息增量。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "孟浮灯直起身，继续推车往前走。他确认了。不是可能，是确实。对方知道他，留…；油布是新的，颜色深得像干涸的血，表面那层油腻的光，不是雨水，更像是浸过桐…；那股味道又飘过来。不是药材，也不是霉布，而是一种更刺鼻的、混合了石灰和某…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "码头那边传来吆喝声，几个脚夫扛着货从船上下来，步子踩得木板咚咚响。孟浮灯借着弯腰的姿势，余光往那…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "瘦子往前走了半步，脚尖几乎碰到板车的轱辘。他低头看了看地上的车辙印，又抬头看孟浮灯：“从哪儿过来…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 麻绳, 掌心麻绳, 着河水的腥气, 气味，且本场至少为 麻绳, 掌心麻绳, 着河水的腥气 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "孟浮灯直起身，继续推车往前走。他确认了。不是可能，是确实。对方知道他，留…；油布是新的，颜色深得像干涸的血，表面那层油腻的光，不是雨水，更像是浸过桐…；那股味道又飘过来。不是药材，也不是霉布，而是一种更刺鼻的、混合了石灰和某…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "瘦子往前走了半步，脚尖几乎碰到板车的轱辘。他低头看了看地上的车辙印，又抬头看孟浮灯：“从哪儿过来…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 麻绳, 掌心麻绳, 着河水的腥气, 气味，且本场至少为 麻绳, 掌心麻绳, 着河水的腥气 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

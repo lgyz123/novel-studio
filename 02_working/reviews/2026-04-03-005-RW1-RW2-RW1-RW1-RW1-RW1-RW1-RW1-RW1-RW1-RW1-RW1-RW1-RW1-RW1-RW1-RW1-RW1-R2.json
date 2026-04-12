@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-R2",
+  "goal": "基于上一版草稿进行结构修复：补全scene结尾，明确展示孟浮灯决定暂时压下‘阿绣’相关信息；处理麻绳、红绳、平安符、铜钱状态与artifact_state的一致性；描述埋葬后的具体动作与判断。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 在 '又拿起' 处戛然而止，未完成埋葬后的动作、判断或决策，不符合任务要求补全结尾。；根据该问题执行局部修补，避免不必要的整场重写。问题：正文提到红绳、平安符、麻绳被收起，但 artifact_state 中这些物件的位置仍为 '状态待确认'，未更新状态。；根据该问题执行局部修补，避免不必要的整场重写。问题：Scene 未提供足够的新具体信息，如物件状态细节、关系变化或风险条件。",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite_v7_rewrite4_v9_rewrite_v10_rewrite3_v11_rewrite_v12_rewrite3_v13_rewrite_v14_rewrite_v15.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite_v7_rewrite4_v9_rewrite_v10_rewrite3_v11_rewrite_v12_rewrite3_v13_rewrite_v14_rewrite_v16.md"
+}

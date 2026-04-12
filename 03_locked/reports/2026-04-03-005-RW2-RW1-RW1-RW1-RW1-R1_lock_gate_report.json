@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-R1",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：在孟浮灯铲土后，明确展示他确认平安符上'阿绣'二字，并做出暂时压下不声张的决定，同时修正开头重复部分。本次重点解决锁定闸门未通过的问题：补充新信息、推进情节、展示决策转变、提供状态变化证据、对齐物件状态为'状态待确认'。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：平安符被埋回土堆，与 tracker_bundle 中 artifact_state 的 'location: 状态待确认' 不一致，且可能过早处理线索，影响后续发展。；根据该问题执行局部修补，避免不必要的整场重写。问题：scene 补充了平安符背面字迹为针尖划刻的细节，但未完全满足 required_information_gain 的'补充至少一个新的具体信息'要求，信息较轻微。；根据该问题执行局部修补，避免不必要的整场重写。问题：孟浮灯决定埋回平安符和收起红绳，但决策转变不够突出，未清晰展示'暂时压下不声张'的内在动机和后果。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": false,
+      "details": "missing new information"
+    },
+    {
+      "name": "plot_progress",
+      "passed": false,
+      "details": "missing plot progress"
+    },
+    {
+      "name": "character_decision",
+      "passed": false,
+      "details": "missing decision or behavior shift"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": false,
+      "details": "missing chapter/artifact/revelation state change evidence"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": false,
+      "details": "missing: 补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": false,
+      "details": "missing required decision landing"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=揭示关系"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": false,
+      "details": "物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "no motif risk"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=relationship_shift, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

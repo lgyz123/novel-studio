@@ -1,0 +1,83 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+  "status": "revise",
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "已达到修订阈值 5 轮，建议人工介入。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "高频母题复读但未承担新功能：麻绳, 红绳, 和平安符, 平安符。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "母题同功能连续复用已超限：麻绳, 红绳, 和平安符, 平安符。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-006",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "本场新增信息：这不是第一次有人进这屋子。三年前他刚搬来时，就有人来翻过，大概是看看这新… 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆麻绳，是…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-007",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "本场新增信息：这不是第一次有人进这屋子。三年前他刚搬来时，就有人来翻过，大概是看看这新…；他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆麻绳，是…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-008",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-R5",
+      "message": "场景暗示搜查者拿走了布袋，但未明确线索被系统性清理或风险等级提升。描述较模糊，可能未充分体现'线索中断状态被明确'的要求。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

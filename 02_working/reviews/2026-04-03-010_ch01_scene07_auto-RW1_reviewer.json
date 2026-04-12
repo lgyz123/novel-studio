@@ -1,0 +1,62 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "场景描述了回水湾的环境（芦苇、泥滩、腥气），但环境危险的具体表现（如水流危险、地形险恶）不够突出，可能削弱‘引发后果’的紧迫感。根据任务要求，需要突出环境危险以引发后果和提高风险。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：他白天来过一次，是跟着老张头来收一具卡在芦苇根里的浮尸。那时日头还亮，只… 他走得慢，每一步都先试探。风灯的光圈在泥地上晃动，照见一些被水流冲上来的…",
+    "本场新增信息：他白天来过一次，是跟着老张头来收一具卡在芦苇根里的浮尸。那时日头还亮，只…；他走得慢，每一步都先试探。风灯的光圈在泥地上晃动，照见一些被水流冲上来的…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符",
+      "气味"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符",
+      "气味"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符"
+    ],
+    "consecutive_same_function_motifs": [
+      "那截红绳",
+      "红绳"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 红绳, 平安符, 气味，且本场至少为 那截红绳, 红绳, 平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "他白天来过一次，是跟着老张头来收一具卡在芦苇根里的浮尸。那时日头还亮，只…",
+      "他走得慢，每一步都先试探。风灯的光圈在泥地上晃动，照见一些被水流冲上来的…",
+      "越往里走，水声越清晰。不是哗哗的流淌，而是咕嘟咕嘟的，像是水底有东西在吐…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "越往里走，水声越清晰。不是哗哗的流淌，而是咕嘟咕嘟的，像是水底有东西在吐气。前面就是湾口了，河道…"
+  },
+  "summary": "场景描述了孟浮灯夜间前往回水湾探查，发现半只鞋并感知到潜在危险，但环境危险表现不足，未能完全满足引发后果和提高风险的要求。"
+}

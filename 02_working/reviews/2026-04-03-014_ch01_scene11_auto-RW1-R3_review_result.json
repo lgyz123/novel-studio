@@ -1,0 +1,50 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-R3",
+  "status": "revise",
+  "summary": "场景描述了孟浮灯回到住处发现被搜查的痕迹，但存在关键问题：红绳和平安符的位置与规范冲突，且缺乏明确决策和状态变化。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "high",
+      "scope": "scene",
+      "target": "红绳和平安符的位置",
+      "message": "根据tracker_bundle.artifact_state，ITEM-020（红绳和平安符）应'贴身保留'，但scene_text描述它们被藏在扁木盒中，这与规范位置冲突。",
+      "suggested_action": "修改场景，确保红绳和平安符始终贴身携带，例如在检查盒子时确认它们不在盒中，而是通过触摸胸口确认安全。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "决策偏移和状态变化",
+      "message": "scene_purpose要求孟浮灯做出新的现实动作并转向完全被动等待，但scene_text仅展示检查痕迹，缺乏明确决策或状态变化。",
+      "suggested_action": "添加一个明确的决策动作，例如决定不再调查、隐藏物品或改变行为模式，并明确描述风险升级和调查模式转变。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "线索中断和风险提升",
+      "message": "场景暗示搜查者拿走了布袋，但未明确线索被系统性清理或风险等级提升。",
+      "suggested_action": "强化后果描述，例如确认搜查者拿走了无关物品但可能已注意到线索，或增加内心活动以体现风险认知升级。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "continuity",
+      "severity": "low",
+      "scope": "scene",
+      "target": "时间线一致性",
+      "message": "场景开头提到'天已经黑透了'，但基于上一场时间应为傍晚或夜间，需确保时间线承接。",
+      "suggested_action": "微调描述以明确时间衔接，例如提及从运河返回后的时间流逝。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和触感描写",
+    "有效展示了搜查痕迹的细节",
+    "环境描写增强了氛围",
+    "符合单一视角和避免新增角色的约束"
+  ],
+  "decision_reason": "场景在文风和细节上符合要求，但存在关键知识冲突和未满足scene_purpose，需修订以解决红绳位置问题并添加决策和状态变化。"
+}

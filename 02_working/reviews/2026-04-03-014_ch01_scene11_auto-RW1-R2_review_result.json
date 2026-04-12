@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-R2",
+  "status": "revise",
+  "summary": "场景描述了孟浮灯发现住处被搜查的痕迹，但存在关键问题：红绳和平安符的位置与规范不一致，且缺乏明确的决策和状态变化。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "critical",
+      "scope": "global",
+      "target": "红绳和平安符的位置",
+      "message": "根据tracker_bundle.artifact_state，红绳和平安符（ITEM-020）应'贴身保留'，但scene_text描述它们被藏在布袋的暗袋中，这与规范位置冲突。",
+      "suggested_action": "修改scene_text，确保红绳和平安符始终被孟浮灯贴身携带，而不是放在布袋中。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "决策和状态变化",
+      "message": "scene_purpose要求孟浮灯做出新的现实动作并转向完全被动等待，但scene_text仅展示检查痕迹，缺乏明确决策或状态变化。",
+      "suggested_action": "在场景结尾添加孟浮灯的决定，例如确认风险升级、放弃主动调查念头，并明确转向被动等待。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "foreshadowing",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "线索中断",
+      "message": "场景暗示搜查者拿走了布袋，但未明确线索被系统性清理或风险等级提升。",
+      "suggested_action": "通过孟浮灯的内部思考或动作，明确表达风险从low升至medium，以及调查模式转向被动等待。"
+    }
+  ],
+  "strengths": [
+    "场景细节丰富，生动描绘了搜查痕迹和孟浮灯的观察过程。",
+    "文风符合要求，注重动作和触感，情绪克制。",
+    "布局描述清晰，符合required_information_gain。"
+  ],
+  "decision_reason": "场景存在关键规范不一致和未满足scene_purpose的问题，需要局部修补以解决红绳位置冲突并添加决策和状态变化，因此status设为revise。"
+}

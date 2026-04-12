@@ -1,0 +1,243 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene10",
+  "locked_file": "03_locked/chapters/ch01_scene10.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene10",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…",
+      "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…",
+      "他把尸体拖到石头边，松开麻绳，让尸体侧躺着。水从衣服里渗出来，在石头边上…"
+    ],
+    "protagonist_decision": "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，尸体容易搁浅。平时发现浮…",
+    "state_changes": [
+      "protagonist_mode: 调查/试探 -> 观察/求活",
+      "risk_level: high -> low"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "胸口",
+      "什么",
+      "上取下麻绳",
+      "和一根带钩",
+      "头绑着铁钩",
+      "铁钩",
+      "换麻绳",
+      "松开麻绳",
+      "寻常的口袋",
+      "连线头",
+      "股淡淡的腥气",
+      "草腐烂的味",
+      "胸口上",
+      "指节粗大",
+      "踩实了岸边",
+      "到了岸边",
+      "离石砌的码头",
+      "报给码头",
+      "得先在岸边",
+      "两趟是码头",
+      "远处码头"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索"
+      ],
+      "胸口": [
+        "触发调查",
+        "发现线索"
+      ],
+      "什么": [
+        "发现线索"
+      ],
+      "上取下麻绳": [
+        "发现线索"
+      ],
+      "和一根带钩": [
+        "发现线索"
+      ],
+      "头绑着铁钩": [
+        "发现线索"
+      ],
+      "铁钩": [
+        "发现线索"
+      ],
+      "换麻绳": [
+        "发现线索"
+      ],
+      "松开麻绳": [
+        "发现线索"
+      ],
+      "寻常的口袋": [
+        "发现线索"
+      ],
+      "连线头": [
+        "发现线索"
+      ],
+      "股淡淡的腥气": [
+        "发现线索"
+      ],
+      "草腐烂的味": [
+        "发现线索"
+      ],
+      "胸口上": [
+        "发现线索"
+      ],
+      "指节粗大": [
+        "发现线索"
+      ],
+      "踩实了岸边": [
+        "发现线索"
+      ],
+      "到了岸边": [
+        "发现线索"
+      ],
+      "离石砌的码头": [
+        "发现线索"
+      ],
+      "报给码头": [
+        "发现线索"
+      ],
+      "得先在岸边": [
+        "发现线索"
+      ],
+      "两趟是码头": [
+        "发现线索"
+      ],
+      "远处码头": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "上取下麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "和一根带钩",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "头绑着铁钩",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "铁钩",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "换麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "松开麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "寻常的口袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "连线头",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene02",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene06",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene02",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene03",
+    "first_investigation_trigger_scene_id": "ch01_scene05",
+    "first_artifact_change_scene_id": "ch01_scene02",
+    "consecutive_transition_runs": []
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1",
+  "status": "revise",
+  "summary": "场景从乱葬岗埋葬后开始，孟浮灯确认平安符上'阿绣'二字并藏匿，补充了平安符细节和藏匿动作，但文本在关键处截断，未完成句子，导致连贯性问题，且未充分展示动作后果或形成明确结尾推进。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "local",
+      "target": "scene_text结尾",
+      "message": "文本在'一点带着'处截断，句子未完成，严重影响阅读连贯性和场景完整性。",
+      "suggested_action": "补全句子，确保场景有完整结尾，可能描述孟浮灯的心理活动或动作后果。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "结尾部分",
+      "message": "未形成明确的局面推进，如阻碍变化、关系变化或行动启动，不符合required_plot_progress要求。",
+      "suggested_action": "在结尾添加一个具体变化，例如孟浮灯决定暂时不处理红绳、或老张头提出新约束。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "low",
+      "scope": "scene",
+      "target": "动作后果展示",
+      "message": "藏匿平安符的后果未充分展示，如心理影响或后续计划变化，不符合repair_focus要求。",
+      "suggested_action": "增加描述孟浮灯对瞒着老张头的感受，或暗示未来可能的风险。"
+    }
+  ],
+  "strengths": [
+    "文风克制，符合要求，注重动作和触感描写",
+    "成功确认'阿绣'二字并做出藏匿决定",
+    "时间线连贯，从乱葬岗开始避免重复"
+  ],
+  "decision_reason": "文本存在严重截断问题，导致不连贯，且未完全满足scene contract中的结尾推进和动作后果要求，但整体符合文风和基本目标，因此建议修订而非重写或手动干预。"
+}

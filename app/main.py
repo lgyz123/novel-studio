@@ -6,10 +6,12 @@ from typing import Any
 import requests
 import yaml
 from chapter_trackers import chapter_id_from_task_or_locked, load_tracker_bundle, update_trackers_on_lock
+from deepseek_reviewer import resolve_api_key
 from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, run_supervisor_rescue_draft, save_next_scene_task_plan, save_supervisor_decision, save_supervisor_rescue_record
 from issue_filters import filter_shared_issues
 from jsonschema import validate
 from lock_gate import apply_lock_gate, save_lock_gate_report
+from openai import OpenAI
 from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
@@ -83,6 +85,93 @@ def call_ollama(
 
     data = response.json()
     return data["message"]["content"]
+
+
+def should_use_deepseek_writer(config: dict) -> bool:
+    writer = config.get("writer", {})
+    base_url = str(writer.get("base_url", "")).rstrip("/")
+    model = str(writer.get("model", "")).strip()
+    provider = str(writer.get("provider", "")).strip().lower()
+    return provider == "deepseek" or (base_url == "https://api.deepseek.com" and model == "deepseek-chat")
+
+
+def extract_openai_message_content(response: Any) -> str:
+    choices = getattr(response, "choices", None) or []
+    if not choices:
+        raise ValueError("writer 响应缺少 choices")
+
+    message = getattr(choices[0], "message", None)
+    content = getattr(message, "content", None) if message is not None else None
+    if isinstance(content, str) and content.strip():
+        return content.strip()
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "text":
+                text = str(item.get("text", "")).strip()
+                if text:
+                    parts.append(text)
+        if parts:
+            return "\n".join(parts).strip()
+    raise ValueError("writer 响应缺少 message.content")
+
+
+def call_writer_model(
+    config: dict,
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    temperature: float,
+    num_predict: int,
+) -> str:
+    writer = config["writer"]
+    if should_use_deepseek_writer(config):
+        base_url = str(writer.get("base_url", "https://api.deepseek.com")).rstrip("/")
+        api_key = resolve_api_key(
+            str(writer.get("api_key", "")).strip() or None,
+            str(writer.get("api_key_env", "")).strip() or None,
+        )
+        if not api_key:
+            raise ValueError("writer 缺少 DeepSeek API key")
+
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        print(f"正在请求 DeepSeek writer: {writer['model']} @ {base_url}")
+        response = client.chat.completions.create(
+            model=writer["model"],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            stream=False,
+            temperature=temperature,
+            max_tokens=max(int(num_predict), 256),
+            timeout=config["generation"]["request_timeout"],
+        )
+        return extract_openai_message_content(response)
+
+    return call_ollama(
+        model=writer["model"],
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        base_url=writer["base_url"],
+        num_ctx=config["generation"]["write_num_ctx"],
+        temperature=temperature,
+        timeout=config["generation"]["request_timeout"],
+        num_predict=num_predict,
+    )
+
+
+def preferred_length_override(config: dict) -> str | None:
+    raw = str(config.get("generation", {}).get("preferred_length_override", "")).strip()
+    return raw or None
+
+
+def resolve_preferred_length(config: dict, task_text: str, explicit_value: str | None = None) -> str | None:
+    override = preferred_length_override(config)
+    if override:
+        return override
+    value = str(explicit_value or extract_markdown_field(task_text, "preferred_length") or "").strip()
+    return value or None
 
 
 def contains_forbidden_modern_terms(text: str) -> list[str]:
@@ -933,14 +1022,11 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
     user_prompt = build_writer_user_prompt(task_text, current_context, decision)
 
     print("正在请求模型生成草稿，请稍候...")
-    markdown_text = call_ollama(
-        model=config["writer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["writer"]["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
+    markdown_text = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
         temperature=config["generation"]["temperature"],
-        timeout=config["generation"]["request_timeout"],
         num_predict=1000,
     )
 
@@ -978,14 +1064,11 @@ def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) 
 """
 
     print("检测到剧本体，正在尝试自动改写为小说正文...")
-    rewritten = call_ollama(
-        model=config["writer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["writer"]["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
+    rewritten = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
         temperature=0.2,
-        timeout=config["generation"]["request_timeout"],
         num_predict=1200,
     )
 
@@ -1027,14 +1110,11 @@ def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> s
 """
 
     print("改写仍失败，正在尝试提纯为纯正文...")
-    refined = call_ollama(
-        model=config["writer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["writer"]["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
+    refined = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
         temperature=0.1,
-        timeout=config["generation"]["request_timeout"],
         num_predict=1200,
     )
 
@@ -1072,14 +1152,11 @@ def continue_truncated_draft(config: dict, current_context: str, bad_draft: str)
 """
 
     print("检测到草稿疑似截断，正在尝试自动续写补全...")
-    continued = call_ollama(
-        model=config["writer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["writer"]["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
+    continued = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
         temperature=0.2,
-        timeout=config["generation"]["request_timeout"],
         num_predict=1200,
     )
 
@@ -1117,14 +1194,11 @@ def repair_invalid_draft(config: dict, current_context: str, bad_draft: str, err
 """
 
     print("检测到草稿存在验收违规，正在尝试自动定向修复...")
-    repaired = call_ollama(
-        model=config["writer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["writer"]["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
+    repaired = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
         temperature=0.2,
-        timeout=config["generation"]["request_timeout"],
         num_predict=1200,
     )
 
@@ -1264,9 +1338,12 @@ def build_existing_draft_result(task_text: str) -> dict | None:
         return None
 
     reviewer_json_path = f"02_working/reviews/{task_id}_reviewer.json"
-    if not (ROOT / draft_file).exists():
+    draft_path = ROOT / draft_file
+    reviewer_path = ROOT / reviewer_json_path
+
+    if not draft_path.exists():
         return None
-    if (ROOT / reviewer_json_path).exists():
+    if reviewer_path.exists() and reviewer_path.stat().st_mtime >= draft_path.stat().st_mtime:
         return None
 
     decision_file = f"02_working/reviews/{task_id}.json"
@@ -1733,11 +1810,11 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
     return "\n".join(blocks).strip()
 
 
-def build_generated_task_content(task_text: str, reviewer_result: dict, draft_file: str, mode: str) -> str:
+def build_generated_task_content(task_text: str, reviewer_result: dict, draft_file: str, mode: str, config: dict | None = None) -> str:
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
     original_goal = extract_markdown_field(task_text, "goal") or "根据 reviewer 结果继续处理当前草稿"
     chapter_state = extract_markdown_field(task_text, "chapter_state")
-    preferred_length = extract_markdown_field(task_text, "preferred_length")
+    preferred_length = resolve_preferred_length(config or {}, task_text)
     repair_mode = None
     repair_focus = None
     repair_plan_path = None
@@ -2190,6 +2267,7 @@ def maybe_supervise_manual_decision(
         task_text,
         draft_file,
         repair_plan_path=repair_plan_path,
+        preferred_length_override=preferred_length_override(config),
     )
     if supervised_result.get("force_manual_intervention_reason"):
         return None, decision_path, None
@@ -2216,7 +2294,12 @@ def maybe_generate_next_scene_task_draft(
         return None, None
 
     plan_path = save_next_scene_task_plan(ROOT, plan)
-    task_content = build_next_scene_task_content(plan, task_text, locked_file)
+    task_content = build_next_scene_task_content(
+        plan,
+        task_text,
+        locked_file,
+        preferred_length_override=preferred_length_override(config),
+    )
     task_file = f"01_inputs/tasks/generated/{plan['task_id']}.md"
     save_text(task_file, task_content)
     return task_file, plan_path
@@ -2361,7 +2444,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
             suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
             task_file = f"{generated_dir}/{task_id}_{suffix}.md"
-            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode, config=config)
             save_text(task_file, task_content)
             created["task_file"] = task_file
             rescue_draft_file, rescue_record_file = maybe_prepare_supervisor_rescue_draft(
@@ -2412,7 +2495,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             mode = "revise" if supervised_result.get("verdict") == "revise" else "rewrite"
             suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
             task_file = f"{generated_dir}/{task_id}_{suffix}.md"
-            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode)
+            task_content = supervisor_task_content or build_generated_task_content(task_text, supervised_result, draft_file, mode, config=config)
             save_text(task_file, task_content)
             created["task_file"] = task_file
             rescue_draft_file, rescue_record_file = maybe_prepare_supervisor_rescue_draft(
@@ -2445,7 +2528,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
 
     suffix = "revision_auto" if mode == "revise" else "rewrite_auto"
     task_file = f"{generated_dir}/{task_id}_{suffix}.md"
-    task_content = build_generated_task_content(task_text, reviewer_result, draft_file, mode)
+    task_content = build_generated_task_content(task_text, reviewer_result, draft_file, mode, config=config)
     save_text(task_file, task_content)
     created["task_file"] = task_file
     return created
@@ -2587,14 +2670,13 @@ def main() -> None:
             if created_lock_gate_report and created_lock_gate_report != lock_gate_report_path:
                 print(f"已保存 lock gate 报告: {created_lock_gate_report}")
 
+            review_status = str(reviewer_result.get("verdict") or "")
             if "locked_file" in created:
                 review_status = "lock"
             elif "manual_intervention_file" in created:
                 review_status = "manual_intervention"
-            elif structured_review is not None:
+            elif not review_status and structured_review is not None:
                 review_status = structured_review.status.value
-            else:
-                review_status = reviewer_result.get("verdict")
             if review_status == "lock":
                 print(f"已自动锁定到 {created['locked_file']}")
                 print("如需人工修订，请直接编辑 locked 文件")

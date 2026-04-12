@@ -1,0 +1,15 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "Scene 文本在 '可能是逃难的。' 处被截断，未完成埋葬后的动作序列和状态变化，导致 required_decision_shift 和 required_state_change 未完全落地。"
+  ],
+  "minor_issues": [
+    "孟浮灯的决策（压下信息）不够突出，需要更明确的动作或内心决定来体现 required_decision_shift。",
+    "状态变化（如疲惫、职业习惯）不够突出，需要更具体的描述来体现 required_state_change。",
+    "红绳、平安符、铜钱的状态在 artifact_state 中为 '待确认'，但 scene_text 部分处理了这些物品，需要确保一致性。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "Scene 结尾被截断，未完成埋葬后的具体动作、判断和状态变化，如孟浮灯如何收起红绳、平安符、铜钱，以及他的疲惫感和决定。需要补全结尾以实现 required_decision_shift 和 required_state_change。"
+}

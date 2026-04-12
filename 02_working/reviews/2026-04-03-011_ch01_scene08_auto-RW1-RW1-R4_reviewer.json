@@ -1,0 +1,55 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "孟浮灯把板车停在离船十几步远的空地上，开始解草席上的绳子。他解得很慢，一根一根理，眼睛低垂，耳朵…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指… 那里正卸货。两艘平底船靠在木桩边，几个脚夫扛着麻包，踩着跳板上下。麻包很…",
+    "本场新增信息：运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指…；那里正卸货。两艘平底船靠在木桩边，几个脚夫扛着麻包，踩着跳板上下。麻包很…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "上的绳",
+      "在码头",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "上的绳",
+      "在码头",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 上的绳, 在码头, 什么，且本场至少为 麻绳, 上的绳, 在码头 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R4",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指…",
+      "那里正卸货。两艘平底船靠在木桩边，几个脚夫扛着麻包，踩着跳板上下。麻包很…",
+      "不是麻布。那颜色深，像干涸的血，又像陈年的漆。裹在外头的是一层油布，黑亮…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他站起身，拍了拍裤腿上的泥，推起板车往码头方向慢慢走。车轱辘碾过土路，吱呀作响。离得近了，能听见…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+}

@@ -1,0 +1,38 @@
+{
+  "task_id": "2026-04-03-005",
+  "status": "lock",
+  "summary": "场景成功承接scene01，完成尸体运送和处理流程，孟浮灯确认'阿绣'名字并决定暂时压下，符合任务要求。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005",
+      "message": "本场新增信息：坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上… 这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005",
+      "message": "本场新增信息：坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…；这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "场景成功承接scene01，完成尸体运送和处理流程，孟浮灯确认'阿绣'名字并决定暂时压下，符合任务要求。"
+  ],
+  "decision_reason": "场景成功承接scene01，完成尸体运送和处理流程，孟浮灯确认'阿绣'名字并决定暂时压下，符合任务要求。"
+}

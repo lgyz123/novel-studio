@@ -6,13 +6,61 @@
       "task_id": "2026-04-03-009_ch01_scene06_auto",
       "draft_id": "ch01_scene06",
       "issues": [
-        "scene_purpose"
+        "scene_purpose",
+        "continuity",
+        "knowledge",
+        "foreshadowing",
+        "redundancy"
       ],
       "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-009_ch01_scene06_auto-R1",
+      "draft_id": "ch01_scene06_v2",
+      "issues": [
+        "scene_purpose",
+        "continuity",
+        "knowledge"
+      ],
+      "issues_fixed": [
+        "foreshadowing",
+        "redundancy"
+      ],
+      "decision": "revise"
+    },
+    {
+      "round": 3,
+      "task_id": "2026-04-03-009_ch01_scene06_auto-R2",
+      "draft_id": "ch01_scene06_v3",
+      "issues": [
+        "scene_purpose",
+        "knowledge",
+        "continuity"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 4,
+      "task_id": "2026-04-03-009_ch01_scene06_auto-RW1",
+      "draft_id": "ch01_scene06_v3_rewrite",
+      "issues": [
+        "scene_purpose"
+      ],
+      "issues_fixed": [
+        "knowledge",
+        "continuity"
+      ],
       "decision": "lock"
     }
   ],
-  "recurring_issue_types": [],
+  "recurring_issue_types": [
+    "continuity",
+    "knowledge",
+    "scene_purpose"
+  ],
   "escalate_after": 5,
   "escalation_reason": ""
 }

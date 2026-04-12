@@ -1,0 +1,52 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": true,
+  "major_issues": [],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "“昨儿夜里，下游好像漂过去个东西。” 年长的妇人没抬头，继续拧她的褂子。年轻的妇人棒槌停了一下，…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯走过去，在离船家几步远的地方蹲下，继续晾他的布。他等船家把鱼倒进一… 孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子…",
+    "本场新增信息：孟浮灯走过去，在离船家几步远的地方蹲下，继续晾他的布。他等船家把鱼倒进一…；孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子…",
+    "场景在关键决策点被截断，未完整展示孟浮灯的决定或明确阻力后果，可能影响连贯性。"
+  ],
+  "recommended_next_step": "lock_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻袋"
+    ],
+    "new_function_motifs": [
+      "麻袋"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻袋"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻袋"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻袋，且本场至少为 麻袋 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-009_ch01_scene06_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯走过去，在离船家几步远的地方蹲下，继续晾他的布。他等船家把鱼倒进一…",
+      "孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子…",
+      "船家看了他一会儿，忽然笑了，那笑里没什么暖意。“后生，我在这河上摇了三十…"
+    ]
+  },
+  "verdict": "lock",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯没起身，手里摆弄着最后一块湿布。“我昨儿夜里看见下游漂过去一截绳子，看着挺粗，像是捆过重物…"
+  },
+  "summary": "场景成功实现了从观察转向试探，引入阻力并制造了微小后果。孟浮灯通过洗衣妇、脚夫和船家的闲谈间接获取信息，遭遇回避和警告，结尾暗示风险升级。"
+}

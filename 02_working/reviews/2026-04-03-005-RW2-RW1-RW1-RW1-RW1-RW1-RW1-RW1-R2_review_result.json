@@ -1,0 +1,41 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-R2",
+  "status": "revise",
+  "summary": "场景从埋葬后开始，展示了孟浮灯确认平安符上'阿绣'二字并做出压下决定，但存在物件状态不一致、时间线模糊和关键动作不明确的问题，需要局部修补以对齐canon_context和task_text要求。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "平安符的来源和状态",
+      "message": "scene_text描述平安符是从尸体攥紧的手里抠出来的，而canon_context中平安符在布囊里且缝得紧，未提及从手中抠出，导致物件状态不一致。",
+      "suggested_action": "修正平安符的来源描述，使其与canon_context中布囊状态对齐，例如改为从布囊中取出或保持模糊处理。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "low",
+      "scope": "scene",
+      "target": "时间线起始点",
+      "message": "scene_text开头'最后一锹土落下去'与canon_context中埋葬过程描述略有重叠，但整体从埋葬后开始，时间线基本连贯，可微调以避免重复。",
+      "suggested_action": "轻微调整开头，确保明确从埋葬完成后开始，避免与canon_context重复描述。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "明确展示压下不声张的决定",
+      "message": "scene_text在孟浮灯确认'阿绣'后，仅描述他塞回怀里并跟上老张头，未明确展示'做出暂时压下不声张的决定'的关键动作或内心活动，可能未完全满足task_text要求。",
+      "suggested_action": "添加简短动作或描述，如他决定暂不告诉老张头、或内心提醒自己保持沉默，以明确决策转变。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和触感描写",
+    "场景从埋葬后开始，避免了重复运河收尸过程",
+    "展示了孟浮灯对'阿绣'的确认和记忆",
+    "保持了劳动现场感和疲惫感"
+  ],
+  "decision_reason": "场景基本符合task_text要求，从埋葬后开始并推进了情节，但存在物件状态不一致和关键决策展示不足的问题，需要修订以对齐canon_context和明确决策动作，因此status设为revise。"
+}

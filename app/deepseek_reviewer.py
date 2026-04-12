@@ -95,13 +95,68 @@ def build_manual_intervention_review_result(task_id: str, error_message: str) ->
     ).to_dict()
 
 
+def normalize_issue_type(value: Any) -> str:
+    raw = str(value or "").strip().lower()
+    mapping = {
+        "information_gain": "knowledge",
+        "plot_progress": "scene_purpose",
+        "character_decision": "scene_purpose",
+        "decision_requirement": "scene_purpose",
+        "state_transition_evidence": "continuity",
+        "artifact_state": "continuity",
+        "artifact_state_alignment": "continuity",
+        "revelation_state": "continuity",
+        "chapter_state_alignment": "continuity",
+        "canon_consistency": "continuity",
+        "motif_redundancy": "redundancy",
+        "weak_scene_quota": "scene_purpose",
+        "scene_function_landed": "scene_purpose",
+    }
+    if raw in mapping:
+        return mapping[raw]
+    if any(token in raw for token in ("artifact", "chapter_state", "state", "timeline", "continuity")):
+        return "continuity"
+    if any(token in raw for token in ("knowledge", "information", "fact")):
+        return "knowledge"
+    if any(token in raw for token in ("style", "tone", "length", "prose")):
+        return "style"
+    if any(token in raw for token in ("motif", "redund", "repeat")):
+        return "redundancy"
+    return raw or "scene_purpose"
+
+
+def normalize_issue_scope(value: Any) -> str:
+    raw = str(value or "").strip().lower()
+    if raw in {"global", "global_"}:
+        return "global"
+    if raw in {"local", "scene", "chapter"}:
+        return raw
+    return "scene"
+
+
+def normalize_issue_payload(item: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(item)
+    normalized["type"] = normalize_issue_type(item.get("type"))
+    normalized["scope"] = normalize_issue_scope(item.get("scope"))
+    return normalized
+
+
+def normalize_review_payload(payload: dict[str, Any], task_id: str) -> dict[str, Any]:
+    normalized = dict(payload)
+    if not str(normalized.get("task_id", "")).strip():
+        normalized["task_id"] = task_id
+    issues = normalized.get("issues", [])
+    if isinstance(issues, list):
+        normalized["issues"] = [normalize_issue_payload(item) for item in issues if isinstance(item, dict)]
+    return normalized
+
+
 def parse_deepseek_review_result(task_id: str, raw_content: str) -> dict[str, Any]:
     payload = json.loads(raw_content)
     if not isinstance(payload, dict):
         raise ValueError("DeepSeek reviewer 没有返回 JSON object")
 
-    if not str(payload.get("task_id", "")).strip():
-        payload["task_id"] = task_id
+    payload = normalize_review_payload(payload, task_id)
 
     structured = StructuredReviewResult.from_dict(payload)
     return structured.to_dict()

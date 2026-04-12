@@ -6,13 +6,85 @@
       "task_id": "2026-04-03-012_ch01_scene09_auto",
       "draft_id": "ch01_scene09",
       "issues": [
+        "scene_purpose",
+        "continuity",
+        "knowledge"
+      ],
+      "issues_fixed": [],
+      "decision": "manual_intervention"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-012_ch01_scene09_auto-R1",
+      "draft_id": "ch01_scene09_v2",
+      "issues": [
+        "scene_purpose",
+        "continuity",
+        "knowledge"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 3,
+      "task_id": "2026-04-03-012_ch01_scene09_auto-R2",
+      "draft_id": "ch01_scene09_v3",
+      "issues": [],
+      "issues_fixed": [
+        "scene_purpose",
+        "continuity",
+        "knowledge"
+      ],
+      "decision": "lock"
+    },
+    {
+      "round": 4,
+      "task_id": "2026-04-03-012_ch01_scene09_auto-R3",
+      "draft_id": "ch01_scene09_v4",
+      "issues": [
+        "knowledge",
+        "redundancy",
         "scene_purpose"
       ],
       "issues_fixed": [],
-      "decision": "lock"
+      "decision": "revise"
+    },
+    {
+      "round": 5,
+      "task_id": "2026-04-03-012_ch01_scene09_auto-R4",
+      "draft_id": "ch01_scene09_v5",
+      "issues": [
+        "knowledge",
+        "redundancy",
+        "scene_purpose",
+        "continuity",
+        "style"
+      ],
+      "issues_fixed": [],
+      "decision": "revise"
+    },
+    {
+      "round": 6,
+      "task_id": "2026-04-03-012_ch01_scene09_auto-RW1",
+      "draft_id": "ch01_scene09_v5_rewrite",
+      "issues": [
+        "knowledge",
+        "redundancy",
+        "scene_purpose",
+        "continuity"
+      ],
+      "issues_fixed": [
+        "style"
+      ],
+      "decision": "revise"
     }
   ],
-  "recurring_issue_types": [],
+  "recurring_issue_types": [
+    "continuity",
+    "knowledge",
+    "redundancy",
+    "scene_purpose"
+  ],
   "escalate_after": 5,
-  "escalation_reason": ""
+  "escalation_reason": "已达到修订阈值 5 轮，建议人工介入。"
 }

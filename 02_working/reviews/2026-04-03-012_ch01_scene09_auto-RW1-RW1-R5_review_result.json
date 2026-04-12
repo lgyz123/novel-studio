@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+  "status": "rewrite",
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+      "message": "已达到修订阈值 5 轮，建议人工介入。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+      "message": "锁定闸门未通过：required_information_gain: missing: 乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下…；坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…；现在那些碎片不见了。；decision_requirement: 用皮扣重新固定好空了的板车。皮扣扣上时发出那声熟悉的闷响，在空旷的坡底显得格外清晰。他推起车，沿…",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+      "message": "本场新增信息：车轮压过湿土，留下两道深深的车辙。孟浮灯走得很慢，肩膀抵着车辕，每一步都… 从这一刻起，他知道，调查不能再是主动的寻找了。主动意味着暴露，意味着你会…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-012_ch01_scene09_auto-RW1-RW1-R5",
+      "message": "本场新增信息：车轮压过湿土，留下两道深深的车辙。孟浮灯走得很慢，肩膀抵着车辕，每一步都…；从这一刻起，他知道，调查不能再是主动的寻找了。主动意味着暴露，意味着你会…",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

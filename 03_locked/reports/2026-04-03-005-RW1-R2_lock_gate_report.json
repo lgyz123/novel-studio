@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-005-RW1-R2",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=2, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：承接 ch01_scene01，写出《无住人间》第一章第二个短场景：把尸体运到处理地点并完成当夜后续活计，同时让孟浮灯把“阿绣”这个名字先压在心里，不转成公开追问。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：required_information_gain 要求孟浮灯确认'阿绣'确实是平安符背面残存的字，不是自己一时看错。场景中孟浮灯看到布囊背面的'阿绣'二字并认为'不是看错'，但未明确展示他如何确认或消除疑虑，例如通过仔细查看、回忆或对比。；根据该问题执行局部修补，避免不必要的整场重写。问题：required_decision_shift 和 required_state_change 要求孟浮灯做出现实决定，暂时压下与'阿绣'有关的物件或信息，不对外声张，并从偶然看到变成决定先记住、先不说。场景中孟浮灯攥住布囊但未形成明确决策或结尾状态变化，只停留在'想那两个字'。；根据该问题执行局部修补，避免不必要的整场重写。问题：tracker_bundle 显示红绳、平安符等物件位置为'状态待确认'，但场景中未明确这些物件的最终处理，可能导致后续连续性混乱。例如，布囊被孟浮灯攥住，但未说明是否保留、丢弃或隐藏。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": false,
+      "details": "missing new information"
+    },
+    {
+      "name": "plot_progress",
+      "passed": false,
+      "details": "missing plot progress"
+    },
+    {
+      "name": "character_decision",
+      "passed": false,
+      "details": "missing decision or behavior shift"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": false,
+      "details": "missing chapter/artifact/revelation state change evidence"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": false,
+      "details": "missing: 孟浮灯确认“阿绣”确实是平安符背面残存的字，不是自己一时看错。"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": false,
+      "details": "missing required decision landing"
+    },
+    {
+      "name": "required_state_change",
+      "passed": false,
+      "details": "missing required state change evidence"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": false,
+      "details": "物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "no motif risk"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

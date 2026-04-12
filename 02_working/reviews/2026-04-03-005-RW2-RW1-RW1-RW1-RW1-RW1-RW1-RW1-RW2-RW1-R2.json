@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-R2",
+  "goal": "基于上一版草稿进行结构修复：基于上一版草稿进行定向重写：确保孟浮灯确认平安符上'阿绣'二字并做出暂时压下决定，同时修正物件状态对齐、补充新信息、明确结尾推进、展示动作后果。重点解决：平安符状态与正文不一致；新信息不够具体；结尾模糊；动作后果未充分展示。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：正文中孟浮灯将平安符藏匿在乱葬岗石头后，但任务要求是'确认平安符上'阿绣'二字并做出暂时压下决定'，且artifact_state中平安符位置为'状态待确认'，这导致状态不一致。藏匿动作可能过早改变物件归属，与'暂不声张/状态待后续确认'约束冲突。；根据该问题执行局部修补，避免不必要的整场重写。问题：场景结尾在'这道线不能破'处截断，句子未完成，导致阅读不连贯，且未明确形成新的局面推进（如阻碍变化、关系变化或行动启动），不符合required_plot_progress要求。；根据该问题执行局部修补，避免不必要的整场重写。问题：藏匿平安符的后果（心理影响或后续计划变化）展示不够充分：仅提到'负担'和'新的牵挂'，但未具体化如风险感知或行为调整细节，不符合repair_focus要求。",
+  "used_sources": [
+    "01_inputs/tasks/current_task.md",
+    "02_working/context/current_context.md",
+    "02_working/drafts/ch01_scene02_rewrite_v2_rewrite3_v3_rewrite3_v4_rewrite_v6_rewrite_v9_rewrite_v13_rewrite3_v14.md"
+  ],
+  "risks": [
+    "当前草稿依赖整理后的上下文，可能遗漏设定书中的局部细节。",
+    "若任务单未明确角色边界或场景目标，草稿需要人工复核是否越界。",
+    "本次任务限制新增设定，草稿需要人工检查是否有偷渡设定的句子。"
+  ],
+  "next_action": "human_review",
+  "draft_file": "02_working/drafts/ch01_scene02_rewrite_v2_rewrite3_v3_rewrite3_v4_rewrite_v6_rewrite_v9_rewrite_v13_rewrite3_v15.md"
+}

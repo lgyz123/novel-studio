@@ -1,0 +1,57 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": true,
+  "major_issues": [],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，… 打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…",
+    "本场新增信息：尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…；打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…"
+  ],
+  "recommended_next_step": "lock_scene",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "胸口",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "胸口",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 胸口, 什么，且本场至少为 麻绳, 胸口, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1-RW2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…",
+      "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…",
+      "他把尸体拖到石头边，松开麻绳，让尸体侧躺着。水从衣服里渗出来，在石头边上…"
+    ]
+  },
+  "verdict": "lock",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，尸体容易搁浅。平时发现浮…"
+  },
+  "summary": "当前 scene 已满足任务目标与约束条件，且通过结构硬检查，可直接锁定。"
+}

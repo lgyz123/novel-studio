@@ -1,0 +1,42 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+  "mode": "full_redraft",
+  "actions": [
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-001",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：已达到修订阈值 5 轮，建议人工介入。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-002",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：物件状态与 artifact_state 不一致：红绳、平安符、麻绳在正文中位置明确，但 artifact_state 中为‘状态待确认’，需要更新。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-003",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Scene 结尾不完整，以‘但这一切都得’中断，未形成明确的场景结束或状态变化，影响情节推进。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-004",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Scene 未形成新的局面推进，如阻碍变化或行动启动，仅停留在内部思考，缺乏外部动作或变化。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-005",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：Scene 提供了物件细节和思考，但未补充足够新的具体信息，如物件状态变化或风险条件。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+      "issue_id": "ISSUE-006",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：孟浮灯做出了决定（压下信息、计划处理麻绳），但缺乏明确的现实动作或选择改变局面，决策不够具体。"
+    }
+  ]
+}

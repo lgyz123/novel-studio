@@ -1,0 +1,29 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-R1",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；required_information_gain: missing: 补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。；decision_requirement: missing required decision landing；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "critical",
+      "scope": "chapter",
+      "target": "2026-04-03-005-RW2-RW1-R1",
+      "message": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；required_information_gain: missing: 补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。；decision_requirement: missing required decision landing；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "redundancy",
+      "severity": "low",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-R1",
+      "message": "场景开头'土盖下去，声音很闷。孟浮灯把最后一铲土拍实，用脚踩了踩。'与canon_context'土盖下去，声音很闷。孟浮灯把铁锹插在土堆旁，手在裤子上蹭了蹭，蹭不掉那股黏腻的湿冷。'有轻微重复，但已进行修正以避免完全一致。",
+      "suggested_action": "trim_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；required_information_gain: missing: 补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。；decision_requirement: missing required decision landing；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+}

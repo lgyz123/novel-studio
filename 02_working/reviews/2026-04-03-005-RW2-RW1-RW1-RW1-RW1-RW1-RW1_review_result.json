@@ -1,0 +1,50 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1",
+  "status": "revise",
+  "summary": "Scene 基本完成了任务，展示了孟浮灯确认平安符上的'阿绣'二字并决定压下不声张，但存在一些关键问题需要修正，包括物件状态不一致、信息增益不足、决策转变不够明确，以及文风上的冗余和节奏问题。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "物件状态",
+      "message": "Scene 中描述了红绳缠在麻绳上、平安符被孟浮灯收起，但根据 tracker_bundle 的 artifact_state，红绳、平安符、麻绳的 location 应为'状态待确认'，而正文写法暗示了更具体的状态（如红绳被卷进麻绳、平安符被孟浮灯藏起），这可能与现有 artifact_state 不一致，需要调整以对齐。",
+      "suggested_action": "修改相关描述，使物件状态更模糊或明确标注为'状态待确认'，例如避免指定红绳被卷进麻绳或平安符被孟浮灯收起，而是用'暂时处理'或'状态不明'等措辞。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "信息增益",
+      "message": "根据 required_information_gain，需要补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。Scene 中新增了红绳断口参差不齐、平安符被小心展开等细节，但不够突出或新颖，可能未完全满足要求。",
+      "suggested_action": "强化一个新信息点，例如明确红绳断口暗示了暴力拉扯、平安符材质或墨迹的特殊性，或孟浮灯对老张头态度的新观察，以提供更具体的信息增益。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "low",
+      "scope": "scene",
+      "target": "决策转变",
+      "message": "Scene 展示了孟浮灯压下不声张的决定，但决策转变不够明确或 impactful。他选择独自留下检查平安符，但未清晰展示这个动作如何改变他接下来的处理局面（如形成新计划或风险）。",
+      "suggested_action": "在结尾部分加强决策后果，例如暗示孟浮灯计划暂时隐藏平安符、或对老张头产生新戒备，以更明确地满足 required_decision_shift。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "redundancy",
+      "severity": "low",
+      "scope": "local",
+      "target": "文风描述",
+      "message": "部分描述略显冗余或节奏缓慢，例如对黑暗、触感的过度渲染，可能影响场景推进效率。",
+      "suggested_action": "精简一些重复的感官描述，聚焦于关键动作和决策点，以保持文风克制和推进节奏。"
+    }
+  ],
+  "strengths": [
+    "成功展示了孟浮灯确认'阿绣'二字的关键动作，符合 scene_purpose。",
+    "文风保持了克制和画面感，注重动作和触感描写。",
+    "场景结尾形成了新局面推进（孟浮灯独自留下处理平安符），满足 required_plot_progress。",
+    "状态变化（孟浮灯对平安符的记挂加深）基本实现，满足 required_state_change。"
+  ],
+  "decision_reason": "Status 设为 revise，因为 scene 整体完成了核心任务（确认'阿绣'并压下决定），但存在多个问题需要修正：物件状态与 tracker 不一致、信息增益不足、决策转变不够明确，以及文风冗余。这些问题属于中等严重性，可通过修订改进，无需完全重写或手动干预。"
+}

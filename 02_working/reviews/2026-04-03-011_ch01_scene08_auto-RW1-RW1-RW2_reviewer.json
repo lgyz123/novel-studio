@@ -1,0 +1,61 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "Reviewer 没有给出可核对的 `decision_detail`，本地规则也未识别到明确决策动词或动作结果。",
+    "主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开。有个年轻些的，扛着一袋…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排… 他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…",
+    "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…；他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…",
+    "对脚夫和船家的观察描述稍显冗长，可能分散对核心阻力（清理痕迹、被监视）的注意力，可精简以聚焦主线。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "麻袋",
+      "气味"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "麻袋",
+      "气味"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 麻绳, 红绳, 麻袋，且本场至少为 那截红绳, 麻绳, 红绳 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…",
+      "他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把…",
+      "那里平时堆着些破渔网、烂木桶，还有几块不知从哪条船上拆下来的旧船板。此刻…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": false,
+    "decision_detail": "全文主要停留在想起、发怔、感受发紧等内心反应，没有落成明确的动作结果或决策动词。"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

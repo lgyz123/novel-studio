@@ -1,0 +1,30 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW1",
+  "mode": "full_redraft",
+  "actions": [
+    {
+      "target": "2026-04-03-005-RW1-RW1",
+      "issue_id": "ISSUE-001",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：已达到修订阈值 5 轮，建议人工介入。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW1",
+      "issue_id": "ISSUE-002",
+      "action": "rewrite_local_block",
+      "instruction": "围绕该问题重写相关场段，确保核心目标与约束重新成立。问题：scene 结尾不完整，在描述麻绳缠绕后突然中断，没有完成埋葬过程或展示任何新变化，导致缺失 required_information_gain、required_plot_progress、required_decision_shift 和 required_state_change。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW1",
+      "issue_id": "ISSUE-003",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：正文提到了麻绳、红绳、平安符和铜钱，但它们的处理方式与 artifact_state 中的 '状态待确认' 不一致，例如麻绳被老张头缠起但未明确归属，红绳仍缠在尸体上但未更新状态。"
+    },
+    {
+      "target": "2026-04-03-005-RW1-RW1",
+      "issue_id": "ISSUE-004",
+      "action": "rewrite_local",
+      "instruction": "在对应位置局部改写，直接修复该问题，不扩散到整场。问题：scene_text 开头部分与 based_on_text 的结尾略有脱节，based_on_text 以孟浮灯思考麻绳结尾，而 scene_text 直接跳转到不能问老张头，可能造成时间线混淆。"
+    }
+  ]
+}

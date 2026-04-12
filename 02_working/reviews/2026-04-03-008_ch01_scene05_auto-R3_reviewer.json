@@ -1,0 +1,55 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "重复问题未收敛：redundancy",
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "脚夫们把麻袋扛到岸上一块空地，那里已经堆了不少。空地上站着另一个人，手里拿着块木板和炭条，每卸下…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯回到住处时，天已经擦黑。他把新买的麻绳搁在墙角，和那截旧的并排放着… 他蹲下身，没去碰新的，只把旧的那截拿了起来。手指触到绳身，能感觉到几处不…",
+    "本场新增信息：孟浮灯回到住处时，天已经擦黑。他把新买的麻绳搁在墙角，和那截旧的并排放着…；他蹲下身，没去碰新的，只把旧的那截拿了起来。手指触到绳身，能感觉到几处不…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "他捏着绳",
+      "这绳"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "他捏着绳",
+      "这绳"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 他捏着绳, 这绳，且本场至少为 麻绳, 他捏着绳, 这绳 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-008_ch01_scene05_auto-R3",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯回到住处时，天已经擦黑。他把新买的麻绳搁在墙角，和那截旧的并排放着…",
+      "他蹲下身，没去碰新的，只把旧的那截拿了起来。手指触到绳身，能感觉到几处不…",
+      "还没到岸边，先听见了声音。不是水声，是人声——压低了的吆喝，短促的号子，…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯站起身，把旧绳重新放回墙角。他走到门边，推开一条缝。外头的风灌进来，带着水汽和隐约的腥气。…"
+  },
+  "summary": "重复问题未收敛：redundancy",
+  "force_manual_intervention_reason": "重复问题未收敛：redundancy"
+}

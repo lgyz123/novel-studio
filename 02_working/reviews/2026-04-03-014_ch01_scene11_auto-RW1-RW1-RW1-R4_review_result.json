@@ -1,0 +1,47 @@
+{
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：required_information_gain: missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…；decision_requirement: 风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "critical",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+      "message": "锁定闸门未通过：required_information_gain: missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…；decision_requirement: 风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+      "message": "本场新增信息：这不是第一次有人搜他的住处。刚来运河头半年，几乎每个月都有一次。有时是坊… 但这次不一样。搜查的人没留下任何财物损失，没弄乱表面，甚至尽量复原了痕迹…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-014_ch01_scene11_auto-RW1-RW1-RW1-R4",
+      "message": "本场新增信息：这不是第一次有人搜他的住处。刚来运河头半年，几乎每个月都有一次。有时是坊…；但这次不一样。搜查的人没留下任何财物损失，没弄乱表面，甚至尽量复原了痕迹…",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：required_information_gain: missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…；decision_requirement: 风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…"
+}

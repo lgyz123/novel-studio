@@ -1,0 +1,57 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他蹲下身，从车板上拿起一块湿布，开始擦车。布是昨晚洗过的，还带着水腥气。他擦得很慢，一下，一下，…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：天光从东边漫上来，把码头边的水汽染成灰白。孟浮灯推着板车，车轮碾过湿漉漉… 栈桥边停着两条货船，船身吃水很深，压得船舷几乎贴到水面。几个脚夫正从船上…",
+    "本场新增信息：天光从东边漫上来，把码头边的水汽染成灰白。孟浮灯推着板车，车轮碾过湿漉漉…；栈桥边停着两条货船，船身吃水很深，压得船舷几乎贴到水面。几个脚夫正从船上…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻袋",
+      "不是麻袋",
+      "水腥气",
+      "带着水腥气",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻袋",
+      "不是麻袋",
+      "水腥气",
+      "带着水腥气",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻袋, 不是麻袋, 水腥气, 带着水腥气，且本场至少为 麻袋, 不是麻袋, 水腥气 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "天光从东边漫上来，把码头边的水汽染成灰白。孟浮灯推着板车，车轮碾过湿漉漉…",
+      "栈桥边停着两条货船，船身吃水很深，压得船舷几乎贴到水面。几个脚夫正从船上…",
+      "孟浮灯手里的布停了。他看见监工转过身，朝槐树这边看了一眼。那一眼很平常，…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯的目光跟着那些木箱。箱子被抬到岸上，堆在货栈门口的雨棚底下。雨棚是油毡搭的，边角破了几个洞…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+}

@@ -1,0 +1,15 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "场景未能明确展示孟浮灯决定暂时压下‘阿绣’相关信息，结尾停留在日常动作，未形成新的局面推进或决策变化。"
+  ],
+  "minor_issues": [
+    "缺少 required_information_gain：未补充至少一个新的具体信息，如物件状态、关系变化、风险条件或行动边界。",
+    "物件状态与 artifact_state 不一致：红绳和平安符在正文中从枕边塞回怀里，但 artifact_state 中位置为‘状态待确认’，未更新。",
+    "结尾不完整：场景在孟浮灯吃烧饼时戛然而止，未形成 required_plot_progress 或 required_state_change。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "Scene 描述了孟浮灯在埋葬后的日常动作，包括处理麻绳、结账、洗衣等，但未能完全满足任务要求：缺少明确的新信息、决策变化和状态变化，结尾不完整，物件状态与 artifact_state 不一致。"
+}

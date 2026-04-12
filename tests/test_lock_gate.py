@@ -31,6 +31,49 @@ scene_012_draft_05
 
 
 class LockGateTest(unittest.TestCase):
+    def test_lock_gate_matches_semantic_required_information_and_state_change(self) -> None:
+        task_text = BASE_TASK + """
+# required_information_gain
+- 孟浮灯确认“阿绣”确实是平安符背面残存的字，不是自己一时看错。
+
+# required_state_change
+- 到场景结尾，孟浮灯对“阿绣”从偶然看到，变成决定先记住、先不说。
+"""
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "当前 scene 满足锁定条件。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["他借着风灯又看清平安符背面的字，确认那是阿绣，不是自己眼花。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "尸体被送到处理地点并完成了掩埋。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他把这个名字先记着，今夜不对任何人提起。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters/ch01_scene11.md").write_text("前文。", encoding="utf-8")
+                (root / "03_locked/canon/ch01_state.md").write_text("阿绣目前只是被记住，还没有发展成调查念头。", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+                (root / "02_working/drafts/ch01_scene12.md").write_text("他借着风灯又看清平安符背面的字，确认那是阿绣，不是自己眼花。这个名字今夜先到这里，他记住了，也只由他一个人先记着，到了那一步再说。", encoding="utf-8")
+
+                structured = build_structured_review_result(reviewer_result)
+                report = build_lock_gate_report(task_text, structured, max_revisions=5, legacy_result=reviewer_result)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
+        self.assertTrue(next(check for check in report.checks if check.name == "required_information_gain").passed)
+        self.assertTrue(next(check for check in report.checks if check.name == "required_state_change").passed)
+
     def test_lock_gate_passes_clean_lock(self) -> None:
         reviewer_result = {
             "task_id": "scene_012_draft_05",

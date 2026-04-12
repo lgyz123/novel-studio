@@ -1,0 +1,60 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：着河水的腥气, 什么。",
+    "母题同功能连续复用已超限：着河水的腥气, 什么。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：棚屋里很暗，有一股霉味和老鼠屎的味道。他听见自己的呼吸声，很轻，但在这寂… 他走到屋后，那里放着收尸用的家什。一辆板车，几卷粗布，还有几捆备用的绳索…",
+    "本场新增信息：棚屋里很暗，有一股霉味和老鼠屎的味道。他听见自己的呼吸声，很轻，但在这寂…；他走到屋后，那里放着收尸用的家什。一辆板车，几卷粗布，还有几捆备用的绳索…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "着河水的腥气",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "什么"
+    ],
+    "stale_function_motifs": [
+      "着河水的腥气"
+    ],
+    "repeated_same_function_motifs": [
+      "着河水的腥气",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "着河水的腥气",
+      "什么"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 着河水的腥气, 什么 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2-RW1-R3",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "棚屋里很暗，有一股霉味和老鼠屎的味道。他听见自己的呼吸声，很轻，但在这寂…",
+      "他走到屋后，那里放着收尸用的家什。一辆板车，几卷粗布，还有几捆备用的绳索…",
+      "他推着车往码头走。车轮碾过土路，发出沉闷的滚动声。路两边的棚屋渐渐密起来…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他推着板车，慢慢往码头深处走。那里平时堆着些破渔网、烂木桶，还有几块不知从哪条船上拆下来的旧船板…"
+  },
+  "summary": "高频母题复读但未承担新功能：着河水的腥气, 什么。"
+}

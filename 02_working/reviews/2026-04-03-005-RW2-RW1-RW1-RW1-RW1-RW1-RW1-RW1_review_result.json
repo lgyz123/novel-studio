@@ -1,0 +1,41 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+  "status": "revise",
+  "summary": "场景从乱葬岗埋葬后开始，展示了孟浮灯确认平安符上'阿绣'二字并做出暂时压下不声张的决定，但存在时间线冲突和物件状态不一致问题。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "scene_text开头部分",
+      "message": "scene_text开头'最后一锹土落下去'与canon_context中'土盖到脖子的时候，他停了一下'存在时间线冲突，canon_context未描述埋葬完成，但scene_text直接开始于埋葬后，可能导致连续性断裂。",
+      "suggested_action": "调整scene_text开头以更平滑地衔接canon_context，例如从'土盖到脖子'后继续描述埋葬完成过程。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "knowledge",
+      "severity": "low",
+      "scope": "scene",
+      "target": "scene_text中木牌描述",
+      "message": "scene_text描述木牌从布囊中滑出，但canon_context中布囊是'泡得发胀、发黑，几乎看不出原色'且'缝得紧'，未明确提及木牌，可能导致物件状态不一致。",
+      "suggested_action": "确保木牌的引入与canon_context中布囊状态一致，例如描述布囊被水泡开后露出木牌。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "low",
+      "scope": "scene",
+      "target": "scene_text结尾",
+      "message": "scene_text在孟浮灯思考木牌和红绳时截断，未明确展示'做出暂时压下不声张的决定'的关键动作，可能未完全满足task_text要求。",
+      "suggested_action": "补充孟浮灯将木牌和红绳重新收起、决定暂不声张的具体动作或内心决策描述。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和感官细节，符合要求",
+    "从埋葬后开始，避免了重复运河收尸过程",
+    "成功展示了孟浮灯确认'阿绣'二字的过程",
+    "保持了孟浮灯作为核心视角，老张头角色适度"
+  ],
+  "decision_reason": "scene_text基本遵循了constraints，如从乱葬岗埋葬后开始、确认'阿绣'、文风克制等，但存在时间线冲突和物件状态不一致问题，需要修订以确保连续性。因此status设为revise。"
+}

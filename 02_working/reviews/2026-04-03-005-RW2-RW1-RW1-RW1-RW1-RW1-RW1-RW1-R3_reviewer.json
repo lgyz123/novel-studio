@@ -1,0 +1,16 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-R3",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "重复问题未收敛：continuity, knowledge, scene_purpose",
+    "scene_text 描述平安符是从布囊中取出，布囊是缝死的，这与 canon_context 中平安符是从尸体攥紧的手里抠出来的描述不一致，导致物件状态冲突。"
+  ],
+  "minor_issues": [
+    "scene_text 开头 '土已经拍实了' 与 canon_context 中 '最后一锹土落下去' 略有重叠，可能造成时间线重复感，但整体连贯。",
+    "scene_text 在孟浮灯确认'阿绣'后，描述了塞回怀里和跟上老张头，但决策转变的内心活动或关键动作展示不够明确，可能未完全满足 task_text 要求。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "重复问题未收敛：continuity, knowledge, scene_purpose",
+  "force_manual_intervention_reason": "重复问题未收敛：continuity, knowledge, scene_purpose"
+}

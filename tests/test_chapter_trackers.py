@@ -8,10 +8,49 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
-from app.chapter_trackers import detect_forbidden_reveal_violations, load_tracker_bundle, update_trackers_on_lock
+from app.chapter_trackers import detect_artifact_state_conflicts, detect_forbidden_reveal_violations, load_tracker_bundle, update_trackers_on_lock
 
 
 class ChapterTrackersTest(unittest.TestCase):
+    def test_detect_artifact_state_conflicts_ignores_unresolved_status_location(self) -> None:
+        conflicts = detect_artifact_state_conflicts(
+            "孟浮灯把红绳和平安符先裹进油布，贴身收着，暂不声张。",
+            {
+                "items": [
+                    {"label": "红绳", "holder": "待确认", "location": "状态待确认", "visibility": "unknown"},
+                    {"label": "平安符", "holder": "待确认", "location": "状态待确认", "visibility": "unknown"},
+                ]
+            },
+        )
+
+        self.assertEqual(conflicts, [])
+
+    def test_detect_artifact_state_conflicts_accepts_protagonist_alias_and_semantic_carry_location(self) -> None:
+        conflicts = detect_artifact_state_conflicts(
+            "孟浮灯把红绳和平安符分开包好，塞进最内侧的里襟，贴着胸口压平。",
+            {
+                "items": [
+                    {"label": "红绳和平安符", "holder": "主角", "location": "贴身保留", "visibility": "hidden"},
+                    {"label": "麻绳", "holder": "主角", "location": "随身携带", "visibility": "hidden"},
+                    {"label": "绳", "holder": "旧坑边沿", "location": "状态待确认", "visibility": "unknown"},
+                ]
+            },
+        )
+
+        self.assertEqual(conflicts, [])
+
+    def test_detect_artifact_state_conflicts_allows_private_inspection_of_hidden_item(self) -> None:
+        conflicts = detect_artifact_state_conflicts(
+            "孟浮灯把那截红绳放到桌上，在灯下看了一会儿，又重新包回油布里，塞进怀里。",
+            {
+                "items": [
+                    {"label": "那截红绳", "holder": "主角", "location": "随身携带", "visibility": "hidden"},
+                ]
+            },
+        )
+
+        self.assertEqual(conflicts, [])
+
     def test_update_trackers_on_lock_writes_expanded_revelation_artifact_and_chapter_state(self) -> None:
         task_text = """# task_id
 2026-04-07-010_ch01_scene02_auto

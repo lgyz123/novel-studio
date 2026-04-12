@@ -1,0 +1,62 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "槐树还在老地方，叶子落了大半，剩下几片枯黄的挂在枝头。树下堆着些麻包，几个脚夫正蹲在石阶上吃早饭…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：槐树还在老地方，叶子落了大半，剩下几片枯黄的挂在枝头。树下堆着些麻包，几… 又一件包裹被抬进去。这次油布一角松了，露出里头暗红色的布面，像是绸缎，但…",
+    "本场新增信息：槐树还在老地方，叶子落了大半，剩下几片枯黄的挂在枝头。树下堆着些麻包，几…；又一件包裹被抬进去。这次油布一角松了，露出里头暗红色的布面，像是绸缎，但…",
+    "场景中孟浮灯的决策偏移（从主动探查转向被动观察）不够明显，缺乏明确的内心决定描述。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "他把绳",
+      "在码头",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "他把绳",
+      "在码头",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 他把绳, 在码头, 什么，且本场至少为 麻绳, 他把绳, 在码头 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "槐树还在老地方，叶子落了大半，剩下几片枯黄的挂在枝头。树下堆着些麻包，几…",
+      "又一件包裹被抬进去。这次油布一角松了，露出里头暗红色的布面，像是绸缎，但…",
+      "解到第三个结时，货栈侧门又开了。出来的不是脚夫，是个穿着灰布短褂的男人，…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "槐树下那几个脚夫吃完了，把碗搁在石阶上，起身往栈桥走。其中一个年纪大些的，走到一半却停了，回头朝…"
+  },
+  "summary": "场景描述了孟浮灯在码头进行隐蔽观察，发现油布包裹、暗红色布面等异常，并感知到被监视，但未能完全满足任务要求，如风险升级至critical、避免特定母题、提供新信息增量等。"
+}

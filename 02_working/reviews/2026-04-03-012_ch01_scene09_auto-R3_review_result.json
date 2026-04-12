@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-012_ch01_scene09_auto-R3",
+  "status": "revise",
+  "summary": "Scene shows孟浮灯在乱葬岗发现尸体被清理，线索中断，风险升级，但存在canon不一致和motif过度使用问题。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "critical",
+      "scope": "global",
+      "target": "artifact_state",
+      "message": "正文提到'红绳和平安符'被拿走，但artifact_state显示红绳和平安符由孟浮灯持有，位置'贴身保留'或'随身携带'，visibility 'hidden'。正文写法与artifact_state不一致，违反task goal中'canon一致性风险'要求。",
+      "suggested_action": "调整正文描述，确保红绳和平安符仍由孟浮灯持有，或更新artifact_state以反映变化，但需符合chapter_state中'红绳和平安符'为已锁定线索。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "redundancy",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "motif usage",
+      "message": "正文中使用了'麻绳'、'红绳'、'平安符'等motifs，但chapter_motif_tracker显示这些motifs的allow_next_scene为false或redundancy_risk为high，且avoid_motifs列表包含'麻绳'、'红绳'、'平安符'，违反约束。",
+      "suggested_action": "减少或避免使用avoid_motifs中的元素，或赋予新功能以符合only_if_new_function要求。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "low",
+      "scope": "scene",
+      "target": "required_state_change",
+      "message": "Scene purpose要求风险等级从high升至critical，但正文中孟浮灯仅确认线索被清理，风险升级描述不够明确，可能未完全达到critical级别。",
+      "suggested_action": "强化风险升级的描述，明确从被监视到线索被阻断的转变，突出后果严重性。"
+    }
+  ],
+  "strengths": [
+    "环境描写生动，乱葬岗氛围营造到位",
+    "孟浮灯的动作细节符合文风要求，克制且具身体感",
+    "线索中断的发现过程自然，符合被动发现转向"
+  ],
+  "decision_reason": "Scene基本达成scene purpose，但存在关键canon不一致问题（红绳和平安符持有者冲突）和motif冗余，需修订以符合artifact_state和avoid_motifs约束。"
+}

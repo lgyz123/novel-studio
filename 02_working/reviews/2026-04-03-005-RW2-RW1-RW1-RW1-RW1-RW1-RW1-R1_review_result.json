@@ -1,0 +1,49 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-R1",
+  "status": "revise",
+  "summary": "Scene 展示了孟浮灯确认平安符上'阿绣'二字并暂时埋藏的决定，但存在物件状态不一致、决策转变不够明确、结尾不完整等问题，需要局部修订。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "红绳和平安符的状态",
+      "message": "Scene 中描述红绳被从麻绳上抽离并连同平安符埋入土中，但 tracker_bundle 的 artifact_state 要求红绳、平安符、麻绳的 location 为'状态待确认'，当前写法暗示了更具体状态，可能造成不一致。",
+      "suggested_action": "调整描述以对齐 artifact_state，例如模糊化埋藏动作或强调状态待后续确认，避免断言最终归属。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "决策转变的展示",
+      "message": "Scene 展示了孟浮灯埋藏平安符的决定，但根据 required_decision_shift，决策转变不够明确或 impactful；未清晰展示这个动作如何改变他接下来的处理局面（如形成新计划或风险）。",
+      "suggested_action": "在结尾部分加强决策后果的暗示，例如增加内心活动或轻微行动变化，以体现状态转移。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "continuity",
+      "severity": "low",
+      "scope": "scene",
+      "target": "结尾不完整",
+      "message": "Scene 以'老张头忽然开口，像是自言自语：“今晚这个……有点不一样。”孟'结尾，句子不完整，可能被截断，影响阅读连贯性。",
+      "suggested_action": "补全结尾句子或调整以形成完整场景收束。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "knowledge",
+      "severity": "low",
+      "scope": "scene",
+      "target": "新信息补充",
+      "message": "Scene 新增了红绳断口、平安符展开等细节，但根据 required_information_gain，需要补充至少一个新的具体信息（如物件状态、关系变化等），当前可能不够突出或新颖。",
+      "suggested_action": "在埋藏动作或后续描述中融入一个新信息，例如红绳的材质细节、埋藏地点的风险条件等。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和触感描写",
+    "有效展示了孟浮灯压下不声张的决定",
+    "场景氛围营造到位，符合劳动现场感"
+  ],
+  "decision_reason": "Scene 基本达成目标，但存在物件状态不一致、决策转变不够明确、结尾不完整等问题，需要局部修订以符合 tracker_bundle 和任务要求，因此 status 设为 revise。"
+}

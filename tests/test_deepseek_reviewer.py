@@ -134,6 +134,74 @@ class DeepSeekReviewerTest(unittest.TestCase):
         self.assertEqual(getattr(result["status"], "value", result["status"]), "manual_intervention")
         self.assertIn("schema 校验失败", result["decision_reason"])
 
+    def test_parse_deepseek_review_result_normalizes_extended_issue_enums(self) -> None:
+        result = deepseek_module.parse_deepseek_review_result(
+            "scene_062b",
+            json.dumps(
+                {
+                    "task_id": "scene_062b",
+                    "status": "revise",
+                    "summary": "需要补足结构推进。",
+                    "issues": [
+                        {
+                            "id": "ISSUE-001",
+                            "type": "information_gain",
+                            "severity": "high",
+                            "scope": "global",
+                            "target": "scene_062b",
+                            "message": "缺少新信息。",
+                            "suggested_action": "rewrite_local",
+                        },
+                        {
+                            "id": "ISSUE-002",
+                            "type": "state_transition_evidence",
+                            "severity": "medium",
+                            "scope": "weird",
+                            "target": "scene_062b",
+                            "message": "缺少状态变化证据。",
+                            "suggested_action": "revise_local",
+                        },
+                    ],
+                    "strengths": ["氛围稳定。"],
+                    "decision_reason": "结构推进不足。",
+                },
+                ensure_ascii=False,
+            ),
+        )
+
+        self.assertEqual(result["issues"][0]["type"], "knowledge")
+        self.assertEqual(result["issues"][0]["scope"], "global")
+        self.assertEqual(result["issues"][1]["type"], "continuity")
+        self.assertEqual(result["issues"][1]["scope"], "scene")
+
+    def test_parse_deepseek_review_result_falls_back_for_unknown_state_like_types(self) -> None:
+        result = deepseek_module.parse_deepseek_review_result(
+            "scene_062c",
+            json.dumps(
+                {
+                    "task_id": "scene_062c",
+                    "status": "revise",
+                    "summary": "需要修正物件状态。",
+                    "issues": [
+                        {
+                            "id": "ISSUE-001",
+                            "type": "artifact_state",
+                            "severity": "high",
+                            "scope": "chapter",
+                            "target": "scene_062c",
+                            "message": "物件状态不一致。",
+                            "suggested_action": "rewrite_scene",
+                        }
+                    ],
+                    "strengths": ["已有清晰动作线。"],
+                    "decision_reason": "需要先修正状态一致性。",
+                },
+                ensure_ascii=False,
+            ),
+        )
+
+        self.assertEqual(result["issues"][0]["type"], "continuity")
+
     def test_review_scene_with_deepseek_retries_transient_failure(self) -> None:
         fake_client = FakeClient(
             [
@@ -236,6 +304,144 @@ scene_064-R1
             repair_plan = load_repair_plan(root, "scene_064-R1")
             self.assertEqual(structured.status.value, "manual_intervention")
             self.assertEqual(repair_plan.task_id, "scene_064-R1")
+
+    def test_review_scene_file_passes_api_key_env_to_deepseek(self) -> None:
+        task_text = """# task_id
+scene_065
+
+# goal
+审查当前 scene。
+
+# based_on
+02_working/drafts/previous.md
+
+# chapter_state
+03_locked/canon/ch01_state.md
+
+# output_target
+02_working/drafts/ch01_scene65.md
+"""
+        captured: dict[str, object] = {}
+        config = {
+            "reviewer": {
+                "provider": "deepseek",
+                "base_url": "https://api.deepseek.com",
+                "model": "deepseek-chat",
+                "api_key_env": "sk-inline-test",
+                "request_timeout": 30,
+                "task_max_chars": 2000,
+                "chapter_state_max_chars": 2000,
+                "based_on_max_chars": 2000,
+                "draft_max_chars": 2000,
+            }
+        }
+
+        def fake_review_scene_with_deepseek(scene_text, scene_metadata, canon_context):
+            captured["scene_metadata"] = scene_metadata
+            captured["canon_context"] = canon_context
+            return {
+                "task_id": "scene_065",
+                "status": "lock",
+                "summary": "可锁定。",
+                "issues": [],
+                "strengths": [],
+                "decision_reason": "输出正常。",
+            }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks/current_task.md").write_text(task_text, encoding="utf-8")
+            (root / "02_working/drafts/current.md").write_text("当前场景正文", encoding="utf-8")
+            (root / "02_working/drafts/previous.md").write_text("前文", encoding="utf-8")
+            (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+
+            previous_root = review_scene_module.ROOT
+            previous_reviewer = review_scene_module.review_scene_with_deepseek
+            review_scene_module.ROOT = root
+            review_scene_module.review_scene_with_deepseek = fake_review_scene_with_deepseek
+            try:
+                result, _ = review_scene_module.review_scene_file(config, "02_working/drafts/current.md")
+            finally:
+                review_scene_module.ROOT = previous_root
+                review_scene_module.review_scene_with_deepseek = previous_reviewer
+
+        self.assertEqual(result["task_id"], "scene_065")
+        self.assertEqual(captured["scene_metadata"]["api_key_env"], "sk-inline-test")
+
+    def test_review_scene_file_deepseek_path_fills_structural_fields(self) -> None:
+        task_text = """# task_id
+scene_066
+
+# goal
+承接上一场，把尸体运到处理地点，并让主角确认名字后先压下不说。
+
+# based_on
+02_working/drafts/previous.md
+
+# chapter_state
+03_locked/canon/ch01_state.md
+
+# required_information_gain
+- 孟浮灯确认“阿绣”确实是平安符背面残存的字。
+
+# output_target
+02_working/drafts/ch01_scene66.md
+"""
+        config = {
+            "reviewer": {
+                "provider": "deepseek",
+                "base_url": "https://api.deepseek.com",
+                "model": "deepseek-chat",
+                "request_timeout": 30,
+                "task_max_chars": 2000,
+                "chapter_state_max_chars": 2000,
+                "based_on_max_chars": 2000,
+                "draft_max_chars": 2000,
+            }
+        }
+
+        def fake_review_scene_with_deepseek(scene_text, scene_metadata, canon_context):
+            return {
+                "task_id": "scene_066",
+                "status": "lock",
+                "summary": "可锁定。",
+                "issues": [],
+                "strengths": [],
+                "decision_reason": "输出正常。",
+            }
+
+        draft_text = "孟浮灯把尸体运到坡后的浅坑里，确认平安符背后那两个字确实是阿绣，又把红绳和符先裹进油布里，决定今夜不对老张头提起。"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks/current_task.md").write_text(task_text, encoding="utf-8")
+            (root / "02_working/drafts/current.md").write_text(draft_text, encoding="utf-8")
+            (root / "02_working/drafts/previous.md").write_text("孟浮灯在船上看见泡烂的平安符。", encoding="utf-8")
+            (root / "03_locked/canon/ch01_state.md").write_text("阿绣目前只是被记住，还没有发展成调查念头。", encoding="utf-8")
+
+            previous_root = review_scene_module.ROOT
+            previous_reviewer = review_scene_module.review_scene_with_deepseek
+            review_scene_module.ROOT = root
+            review_scene_module.review_scene_with_deepseek = fake_review_scene_with_deepseek
+            try:
+                result, _ = review_scene_module.review_scene_file(config, "02_working/drafts/current.md")
+            finally:
+                review_scene_module.ROOT = previous_root
+                review_scene_module.review_scene_with_deepseek = previous_reviewer
+
+        self.assertEqual(result["verdict"], "lock")
+        self.assertIn("information_gain", result)
+        self.assertTrue(result["information_gain"]["has_new_information"])
+        self.assertIn("plot_progress", result)
+        self.assertTrue(result["plot_progress"]["has_plot_progress"])
+        self.assertIn("character_decision", result)
+        self.assertTrue(result["character_decision"]["has_decision_or_behavior_shift"])
 
 
 if __name__ == "__main__":

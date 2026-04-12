@@ -1,36 +1,56 @@
 {
   "task_id": "2026-04-03-010_ch01_scene07_auto",
-  "status": "revise",
-  "summary": "草稿未满足任务核心要求，需重新构思并加入阿绣联想",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：required_information_gain: missing: 回水湾或黑石滩的环境细节（如水流、堆积物、痕迹）；孟浮灯在探查中发现的异常线索（如破损物品、可疑痕迹）；探查过程中遭遇的阻力细节（如环境危险、被跟踪感）；scene_function_landed: expected=引发后果 actual=制造错误判断",
   "issues": [
     {
       "id": "ISSUE-001",
       "type": "scene_purpose",
-      "severity": "high",
+      "severity": "critical",
       "scope": "scene",
       "target": "2026-04-03-010_ch01_scene07_auto",
-      "message": "未提及‘阿绣’名字，未触发其联想",
+      "message": "锁定闸门未通过：required_information_gain: missing: 回水湾或黑石滩的环境细节（如水流、堆积物、痕迹）；孟浮灯在探查中发现的异常线索（如破损物品、可疑痕迹）；探查过程中遭遇的阻力细节（如环境危险、被跟踪感）；scene_function_landed: expected=引发后果 actual=制造错误判断",
       "suggested_action": "rewrite_scene"
     },
     {
       "id": "ISSUE-002",
       "type": "scene_purpose",
-      "severity": "high",
+      "severity": "medium",
       "scope": "scene",
       "target": "2026-04-03-010_ch01_scene07_auto",
-      "message": "缺乏对红绳的心理暗示与联想",
-      "suggested_action": "rewrite_scene"
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
     },
     {
       "id": "ISSUE-003",
       "type": "scene_purpose",
-      "severity": "high",
+      "severity": "medium",
       "scope": "scene",
       "target": "2026-04-03-010_ch01_scene07_auto",
-      "message": "未体现孟浮灯的思绪被外界干扰而短暂浮现的情境",
-      "suggested_action": "rewrite_scene"
+      "message": "本场新增信息：风从河面上刮过来，带着一股子湿冷的腥气。不是鱼腥，是水底淤泥混着腐烂水草… 越靠近水边，那股腥气越重。水声也听得清楚了，不是哗啦啦的急流，而是闷闷的…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto",
+      "message": "本场新增信息：风从河面上刮过来，带着一股子湿冷的腥气。不是鱼腥，是水底淤泥混着腐烂水草…；越靠近水边，那股腥气越重。水声也听得清楚了，不是哗啦啦的急流，而是闷闷的…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-010_ch01_scene07_auto",
+      "message": "场景描述了回水湾的环境（芦苇、泥滩、腥气），但环境危险的具体表现（如水流危险、地形险恶）不够突出，可能削弱‘引发后果’的紧迫感。",
+      "suggested_action": "rewrite_local"
     }
   ],
-  "strengths": [],
-  "decision_reason": "草稿未满足任务核心要求，需重新构思并加入阿绣联想"
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：required_information_gain: missing: 回水湾或黑石滩的环境细节（如水流、堆积物、痕迹）；孟浮灯在探查中发现的异常线索（如破损物品、可疑痕迹）；探查过程中遭遇的阻力细节（如环境危险、被跟踪感）；scene_function_landed: expected=引发后果 actual=制造错误判断"
 }

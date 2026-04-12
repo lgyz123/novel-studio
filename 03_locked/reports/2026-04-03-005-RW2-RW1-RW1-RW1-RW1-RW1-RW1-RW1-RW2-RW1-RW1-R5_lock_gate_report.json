@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=5, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行定向修订：修复句子截断（如'墙是土坯的'处）、明确平安符状态为'状态待确认'、补充铜钱的具体风险细节或环境线索、并确保结尾形成明确局面推进（如阻碍变化或行动启动）。重点解决：文本不连贯、物件状态冲突、信息增量不足、结尾模糊。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": false,
+      "details": "missing new information"
+    },
+    {
+      "name": "plot_progress",
+      "passed": false,
+      "details": "missing plot progress"
+    },
+    {
+      "name": "character_decision",
+      "passed": false,
+      "details": "missing decision or behavior shift"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": false,
+      "details": "missing chapter/artifact/revelation state change evidence"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=触发调查"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": false,
+      "details": "物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "no motif risk"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=decision, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

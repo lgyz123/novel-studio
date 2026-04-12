@@ -1,0 +1,65 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "孟浮灯把绳子收起来，站起身。他不能再像之前那样，借着收尸的便利四处走动观察了。对方已经 [已截断…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。”… 一个人影在巷口晃了一下，缩了回去。动作很快，但孟浮灯看清了那人的身形——…",
+    "本场新增信息：“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。”…；一个人影在巷口晃了一下，缩了回去。动作很快，但孟浮灯看清了那人的身形——…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "红绳",
+      "在码头",
+      "孟浮灯把绳",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "在码头",
+      "孟浮灯把绳",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "在码头",
+      "孟浮灯把绳"
+    ],
+    "consecutive_same_function_motifs": [
+      "在码头",
+      "孟浮灯把绳"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 红绳, 在码头, 孟浮灯把绳，且本场至少为 那截红绳, 红绳, 在码头 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2-RW1-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。”…",
+      "一个人影在巷口晃了一下，缩了回去。动作很快，但孟浮灯看清了那人的身形——…",
+      "孟浮灯站起身，拍了拍手上的灰。他推起板车，沿着河岸继续往前走。这回他没有…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。” 孟浮灯停下脚步。“白天呢…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

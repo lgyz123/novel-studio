@@ -1,0 +1,47 @@
+{
+  "summary": "场景成功承接scene01，完成尸体运送和处理流程，孟浮灯确认'阿绣'名字并决定暂时压下，符合任务要求。",
+  "verdict": "lock",
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": true,
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上堆着烂席、断木牌和半锈的…"
+  },
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…",
+      "这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
+      "人放平之后，还得把身上的湿麻布理开，免得拧成一团，明早再来不好收拾。孟浮…"
+    ]
+  },
+  "task_id": "2026-04-03-005",
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳"
+    ],
+    "new_function_motifs": [
+      "那截红绳"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳，且本场至少为 那截红绳 提供了新的叙事功能。"
+  },
+  "major_issues": [],
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上… 这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
+    "本场新增信息：坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…；这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…"
+  ],
+  "recommended_next_step": "lock_scene"
+}

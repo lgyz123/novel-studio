@@ -9,34 +9,17 @@
         "scene_purpose"
       ],
       "issues_fixed": [],
-      "decision": "revise"
+      "decision": "rewrite"
     },
     {
       "round": 2,
-      "task_id": "2026-04-03-013_ch01_scene10_auto-R1",
-      "draft_id": "ch01_scene10_v2",
+      "task_id": "2026-04-03-013_ch01_scene10_auto-RW1",
+      "draft_id": "ch01_scene10_rewrite",
       "issues": [
-        "scene_purpose"
-      ],
-      "issues_fixed": [],
-      "decision": "revise"
-    },
-    {
-      "round": 3,
-      "task_id": "2026-04-03-013_ch01_scene10_auto-R2",
-      "draft_id": "ch01_scene10_v3",
-      "issues": [
-        "scene_purpose"
-      ],
-      "issues_fixed": [],
-      "decision": "revise"
-    },
-    {
-      "round": 4,
-      "task_id": "2026-04-03-013_ch01_scene10_auto-R3",
-      "draft_id": "ch01_scene10_v4",
-      "issues": [
-        "scene_purpose"
+        "scene_purpose",
+        "continuity",
+        "knowledge",
+        "foreshadowing"
       ],
       "issues_fixed": [],
       "decision": "revise"
@@ -46,5 +29,5 @@
     "scene_purpose"
   ],
   "escalate_after": 5,
-  "escalation_reason": "重复问题未收敛：scene_purpose"
+  "escalation_reason": ""
 }

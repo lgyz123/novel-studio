@@ -1,0 +1,41 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1",
+  "status": "revise",
+  "summary": "Scene 基本完成了物件状态更新和主角决策，但存在关键问题：结尾不完整，缺少明确的决策落地和状态变化，且物件位置与 artifact_state 不一致。需要补充结尾动作或描述，以符合 required_information_gain、required_plot_progress、required_decision_shift 和 required_state_change。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "scene_text 结尾部分",
+      "message": "Scene 结尾不完整：文本在描述乱葬岗土包后戛然而止，没有明确展示孟浮灯的决定如何落地（如离开乱葬岗、返回棚屋、后续动作），也没有形成新的局面推进或状态变化。这违反了 required_plot_progress 和 required_decision_shift。",
+      "suggested_action": "补写结尾部分，例如描述孟浮灯离开乱葬岗、返回棚屋后的具体动作（如检查藏好的红绳和平安符、思考七日之约），以明确决策后果和状态变化。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "物件状态（红绳、平安符、麻绳、铜钱）",
+      "message": "物件位置与 artifact_state 不一致：在 scene_text 中，红绳和平安符被包进布包并塞回怀里（位置为孟浮灯怀中），麻绳和铜钱被埋入乱葬岗洼地（位置为乱葬岗），但 artifact_state 中这些物件的 location 均为“状态待确认”。这可能导致后续跟踪混乱。",
+      "suggested_action": "更新 artifact_state 以反映物件的新位置，或在 scene 中更明确地描述这些变化，确保一致性。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "required_information_gain",
+      "message": "新信息补充不足：虽然引入了铜钱上的划痕作为新细节，但缺乏更具体的物件状态、关系变化或风险条件信息，如红绳的绳结细节、平安符的保存状态、或埋藏物件的风险考量。",
+      "suggested_action": "在结尾部分补充一个具体信息，例如描述红绳绳结的象征意义、平安符的脆弱状态、或埋藏物件的潜在风险（如被动物挖出）。"
+    }
+  ],
+  "strengths": [
+    "文风克制，符合要求，注重动作和感官细节",
+    "成功展示了孟浮灯压下‘阿绣’信息的决定，通过藏起红绳和平安符、埋掉麻绳和铜钱",
+    "引入了新信息（铜钱上的划痕），增加了神秘感",
+    "保持了劳动现场感和迟滞感，符合 chapter_state 要求"
+  ],
+  "decision_reason": "Status 设为 revise，因为 scene 在核心任务（物件状态更新、主角决策）上基本完成，但结尾不完整且缺少明确的 plot progress 和 state change，需要修订以补全结尾并确保所有 required 项落地。"
+}

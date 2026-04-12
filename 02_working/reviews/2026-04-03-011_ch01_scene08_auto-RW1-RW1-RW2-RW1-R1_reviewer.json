@@ -1,0 +1,58 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排着队，等着扛货。孟浮灯把…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开… 孟浮灯手里的抹布停了一下。他继续擦车，但擦的方向变了——他侧过身，用身体…",
+    "本场新增信息：他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开…；孟浮灯手里的抹布停了一下。他继续擦车，但擦的方向变了——他侧过身，用身体…",
+    "场景虽推进了观察和发现线索，但未充分体现从实地探查转向日常观察的决策偏移，结尾动作（拉车离开）略显模糊，未形成新的可验证变化。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "平安符"
+    ],
+    "consecutive_same_function_motifs": [
+      "平安符"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 红绳, 平安符, 什么，且本场至少为 红绳, 平安符, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2-RW1-R1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开…",
+      "孟浮灯手里的抹布停了一下。他继续擦车，但擦的方向变了——他侧过身，用身体…",
+      "孟浮灯低下头，继续擦车。他擦得很用力，车板上的干泥被刮下来，簌簌落在地上…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "擦到第三遍时，他停下手，直起身。他朝码头方向走了几步，停在土路与码头石板地的交界处。这里离卸货的…"
+  },
+  "summary": "场景展示了孟浮灯在码头进行隐蔽观察，发现了船板被清理和疑似监视者，但结尾缺少明确的状态变化和风险升级，未能完全满足scene purpose的要求。"
+}

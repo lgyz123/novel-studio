@@ -1,0 +1,41 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-R2",
+  "status": "revise",
+  "summary": "场景基本符合任务要求，但存在结构性问题：结尾不完整，未能明确展示风险升级和决策偏移，且部分细节与约束冲突。需要补充结尾以完成scene purpose。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "结尾部分",
+      "message": "场景文本在'就在这时，他听见身后有脚步声。不是脚夫那种沉重拖沓'处突然中断，未完成结尾。根据task要求，本场必须确认被盯上、风险从high升至critical、调查转为被动观察，并引发微小后果。当前结尾缺失这些关键元素，导致scene purpose未达成。",
+      "suggested_action": "补充结尾段落，明确描述孟浮灯确认被监视、风险升级、决定转为隐蔽观察，并采取具体行动（如改变路线或隐藏意图）。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "knowledge",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "避免的母题",
+      "message": "场景中提到了'麻袋'、'绳子'、'木板'等，这些在avoid_motifs列表中应避免使用（如麻绳、木板）。虽然上下文不同，但可能违反约束。",
+      "suggested_action": "检查并调整用词，避免直接使用禁止的母题，或确保其功能新颖。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "continuity",
+      "severity": "low",
+      "scope": "scene",
+      "target": "时间线",
+      "message": "场景开始于'天刚亮'，与前一场景夜间过渡清晰，符合要求，但细节可更明确。",
+      "suggested_action": "微调描述以强化白天与夜晚的对比，确保时间线连贯。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和感官细节",
+    "成功展示了码头白天卸货流程",
+    "通过穿灰褂人物的行为暗示监视",
+    "主角观察行为隐蔽且符合角色状态"
+  ],
+  "decision_reason": "场景在信息增量和观察细节方面表现良好，但结尾不完整导致关键任务要求未满足。status设为revise，因为需要补充结尾以完成结构修复，确保风险升级、决策偏移和后果明确。"
+}

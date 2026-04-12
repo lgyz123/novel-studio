@@ -1,0 +1,50 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R1",
+  "status": "revise",
+  "summary": "场景从乱葬岗埋葬后开始，描述了孟浮灯处理尸体后的疲惫和内心挣扎，他决定将红绳和平安符分开藏匿，并绕路去废弃土窑。文本在关键处被截断，导致句子不完整，影响连贯性。场景符合文风要求，但未完成结尾推进，缺少新信息、状态变化和明确局面推进。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "scene_text结尾",
+      "message": "文本在'灯笼的光'处被截断，句子不完整，导致阅读中断，不符合任务要求的连贯性修复。",
+      "suggested_action": "补写完整句子，确保场景结尾流畅，并基于任务要求推进情节。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "整体场景",
+      "message": "场景未提供具体新信息（如藏匿地点的风险细节或环境线索），不符合required_information_gain要求。",
+      "suggested_action": "在后续部分补充一个具体新信息，例如描述废窑的环境细节、风险条件或物件状态变化。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "场景结尾",
+      "message": "场景结尾未形成明确局面推进（如阻碍变化或行动启动），不符合required_plot_progress要求。",
+      "suggested_action": "在结尾部分展示孟浮灯的新动作或选择，改变后续处理局面，例如引入风险或启动新计划。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "low",
+      "scope": "scene",
+      "target": "整体场景",
+      "message": "场景未明确展示状态变量变化（如已知信息、风险等级等），不符合required_state_change要求。",
+      "suggested_action": "在场景中让至少一个状态变量发生变化，例如孟浮灯对藏匿风险的认知提升或行动计划调整。"
+    }
+  ],
+  "strengths": [
+    "文风克制，注重动作和感官细节，符合要求",
+    "场景从乱葬岗开始，时间线连贯",
+    "孟浮灯视角一致，内心活动自然",
+    "物件处理（红绳、平安符分开藏）符合角色逻辑"
+  ],
+  "decision_reason": "场景在关键处被截断，导致不连贯，且未满足任务要求的补充新信息、结尾推进和状态变化，需要局部修补以对齐任务目标。"
+}

@@ -1,9 +1,65 @@
 {
-  "minor_issues": [],
-  "major_issues": [],
-  "verdict": "lock",
-  "task_goal_fulfilled": true,
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "棚子外头传来人声，是脚夫们开始上工了。声音隔着一段距离，混着车轱辘碾过石板路的响动，还有船家吆喝…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：他昨晚没睡实。回水湾那几道划痕还在他脑子里，还有那把短刀插进土里的手感。… 码头比他夜里看到的要大。白天光线足，能看清整个布局：一条主栈桥伸进河里，…",
+    "本场新增信息：他昨晚没睡实。回水湾那几道划痕还在他脑子里，还有那把短刀插进土里的手感。…；码头比他夜里看到的要大。白天光线足，能看清整个布局：一条主栈桥伸进河里，…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "着河水的腥气",
+      "麻袋",
+      "不是麻袋",
+      "水腥气"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "着河水的腥气",
+      "麻袋",
+      "不是麻袋",
+      "水腥气"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "着河水的腥气",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "着河水的腥气",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 着河水的腥气, 麻袋, 不是麻袋，且本场至少为 麻绳, 着河水的腥气, 麻袋 提供了新的叙事功能。"
+  },
   "task_id": "2026-04-03-011_ch01_scene08_auto-R1",
-  "summary": "稿件已完成核心目标：在日常打扫中通过红线触发阿绣记忆，未展开调查，符合低烈度推进与人物边界。",
-  "recommended_next_step": "lock_scene"
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "他昨晚没睡实。回水湾那几道划痕还在他脑子里，还有那把短刀插进土里的手感。…",
+      "码头比他夜里看到的要大。白天光线足，能看清整个布局：一条主栈桥伸进河里，…",
+      "这会儿正是卸货的时候。几条货船靠在栈桥边，船身吃水深，船舱里堆着麻袋、木…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "孟浮灯在离栈桥十几步远的地方停下，靠在一棵老槐树的树干上。树皮粗糙，硌着后背。他从怀里摸出半个冷…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
 }

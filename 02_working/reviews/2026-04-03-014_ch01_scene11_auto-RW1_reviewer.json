@@ -1,0 +1,73 @@
+{
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。",
+      "物件“那截红绳”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。",
+      "物件“红绳”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "canon 一致性风险：物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“那截红绳”当前所在位置应为“随身携带”，但正文写法与现有 artifact_state 不一致。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他伸出手，指尖轻轻碰了碰扁木盒的边缘。没有灰尘。他记得这块地方平时会落灰，矮柜不常擦，砖缝里更是…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：巷子窄，风从巷口灌进来，贴着墙根走，吹得门板吱呀一声。孟浮灯推开门，屋里… 他走到矮柜前，蹲下身。柜子底下有一块松动的砖，砖缝里塞着东西。他伸手去摸…",
+    "本场新增信息：巷子窄，风从巷口灌进来，贴着墙根走，吹得门板吱呀一声。孟浮灯推开门，屋里…；他走到矮柜前，蹲下身。柜子底下有一块松动的砖，砖缝里塞着东西。他伸手去摸…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符",
+      "但绳",
+      "麻袋"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符",
+      "但绳",
+      "麻袋"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "平安符",
+      "但绳",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "那截红绳",
+      "红绳",
+      "但绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 红绳, 平安符, 但绳，且本场至少为 那截红绳, 红绳, 平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "巷子窄，风从巷口灌进来，贴着墙根走，吹得门板吱呀一声。孟浮灯推开门，屋里…",
+      "他走到矮柜前，蹲下身。柜子底下有一块松动的砖，砖缝里塞着东西。他伸手去摸…",
+      "他伸出手，指尖轻轻碰了碰扁木盒的边缘。没有灰尘。他记得这块地方平时会落灰…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他把木盒放在柜面上，没有立刻打开。他盯着盒盖看。盒盖边缘有一道很浅的印子，像是被什么东西蹭过，印…"
+  },
+  "summary": "canon 一致性风险：物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。"
+}

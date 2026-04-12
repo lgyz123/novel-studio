@@ -1,0 +1,50 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "场景描述了泥滩、斜坡和柳树，但环境危险的紧迫感和具体细节（如水流危险、地形险恶）不够突出，削弱了'引发后果'的紧迫感。例如，泥滩陷脚但未强调致命风险，斜坡塌陷但未描述更危险的细节如暗流或深坑。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：夜里的运河，水声听着比白天沉。孟浮灯推着空车，沿着河岸往下游走。车轴吱呀… 越往下走，岸边的芦苇越密，风灯的光被苇秆割得支离破碎。脚下的路渐渐没了硬…",
+    "本场新增信息：夜里的运河，水声听着比白天沉。孟浮灯推着空车，沿着河岸往下游走。车轴吱呀…；越往下走，岸边的芦苇越密，风灯的光被苇秆割得支离破碎。脚下的路渐渐没了硬…",
+    "场景提供了回水湾的环境细节和探查动作，但新的信息增量（如异常线索）较弱，仅发现烂衫子和船桨柄，未充分推动调查。任务要求必须产生新的信息增量。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "离渡口"
+    ],
+    "new_function_motifs": [
+      "离渡口"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 离渡口，且本场至少为 离渡口 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "夜里的运河，水声听着比白天沉。孟浮灯推着空车，沿着河岸往下游走。车轴吱呀…",
+      "越往下走，岸边的芦苇越密，风灯的光被苇秆割得支离破碎。脚下的路渐渐没了硬…",
+      "他沿着水线慢慢走，眼睛扫过每一处堆积物。风灯的光晃过水面，能看见靠近岸边…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "越往下走，岸边的芦苇越密，风灯的光被苇秆割得支离破碎。脚下的路渐渐没了硬土，变成湿软的泥地，一脚…"
+  },
+  "summary": "场景描述了孟浮灯夜间前往回水湾探查，环境细节和动作描写到位，但未满足任务要求：环境危险紧迫感不足，未明确描述阻力后果导致风险升级，且使用了应避免的母题'草绳'。"
+}

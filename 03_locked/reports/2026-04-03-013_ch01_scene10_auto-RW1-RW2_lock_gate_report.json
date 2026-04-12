@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-03-013_ch01_scene10_auto-RW1-RW2",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=0, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构重写：写出《无住人间》第一章第十个短场景：孟浮灯在乱葬岗确认调查转入被动后，回到日常收尸工作中，利用一次运河边处理无名尸的机会，尝试以更隐蔽的方式观察环境，但遭遇新的阻力（如尸体被提前处理、现场被清理），从而引发一次微小的后果（如确认风险升级、线索进一步中断），并扩展世界信息。本场重点：引发后果、提高风险、扩展世界信息。本次重点解决：锁定闸门未通过：required_information_gain: missing: 运河边收尸的具体流程细节（如尸体打捞点、临时停放处、处理工具）；尸体被提前处理的迹象（如伤口被掩盖、衣物被更换）；现场被清理的痕迹（如脚印被抹平、物品被移走）；decision_requirement: 运河边的风很冷，孟浮灯蹲下身，把尸体从浅滩拖上来。水很浅，只到小腿，但淤泥深，每走一步都像被什么…"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…；打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…；他把尸体拖到石头边，松开麻绳，让尸体侧躺着。水从衣服里渗出来，在石头边上…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，尸体容易搁浅。平时发现浮…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 麻绳, 胸口, 什么，且本场至少为 麻绳, 胸口, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…；打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…；他把尸体拖到石头边，松开麻绳，让尸体侧躺着。水从衣服里渗出来，在石头边上…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，尸体容易搁浅。平时发现浮…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 麻绳, 胸口, 什么，且本场至少为 麻绳, 胸口, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

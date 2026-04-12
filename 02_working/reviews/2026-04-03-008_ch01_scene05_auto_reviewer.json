@@ -1,11 +1,69 @@
 {
-  "recommended_next_step": "lock_scene",
-  "major_issues": [],
-  "task_id": "2026-04-03-008_ch01_scene05_auto",
-  "minor_issues": [
-    "Reviewer 原始输出主要是无效英文分析，已降权处理。"
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：麻绳, 这绳, 深色的绳, 股混杂的气味。",
+    "母题同功能连续复用已超限：麻绳, 这绳, 深色的绳, 股混杂的气味。"
   ],
-  "task_goal_fulfilled": true,
-  "verdict": "lock",
-  "summary": "当前 scene 已满足任务目标与约束条件，可直接锁定。"
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯回到住处时，天还没黑透。他把新买的麻绳挂在门后，旧的那截还揣在怀里… 他伸手进怀里，摸出那截旧麻绳。绳子在暗处看更黑，几乎辨不出原本的颜色。指…",
+    "本场新增信息：孟浮灯回到住处时，天还没黑透。他把新买的麻绳挂在门后，旧的那截还揣在怀里…；他伸手进怀里，摸出那截旧麻绳。绳子在暗处看更黑，几乎辨不出原本的颜色。指…",
+    "场景结尾略显仓促，孟浮灯观察运河边后没有明确结束动作或微决策，可能影响状态转移的清晰度。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "这绳",
+      "深色的绳",
+      "股混杂的气味"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "这绳",
+      "股混杂的气味"
+    ],
+    "stale_function_motifs": [
+      "深色的绳"
+    ],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "这绳",
+      "深色的绳",
+      "股混杂的气味"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "这绳",
+      "深色的绳",
+      "股混杂的气味"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 麻绳, 这绳, 深色的绳, 股混杂的气味 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-008_ch01_scene05_auto",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯回到住处时，天还没黑透。他把新买的麻绳挂在门后，旧的那截还揣在怀里…",
+      "他伸手进怀里，摸出那截旧麻绳。绳子在暗处看更黑，几乎辨不出原本的颜色。指…",
+      "绳结还在，是个活扣，但打得有些歪。结头那里污渍最重，几乎糊成了一团。他试…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "窗外的吆喝声又响了一串，这次近了些，像是船靠了岸。孟浮灯把绳子揣回去，站起身。灶膛是冷的，柴火堆…"
+  },
+  "summary": "高频母题复读但未承担新功能：麻绳, 这绳, 深色的绳, 股混杂的气味。"
 }

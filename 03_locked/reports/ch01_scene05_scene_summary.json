@@ -1,0 +1,723 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene05",
+  "locked_file": "03_locked/chapters/ch01_scene05.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene05",
+    "scene_function": "触发调查",
+    "new_information_items": [
+      "孟浮灯从怀里掏出那截旧绳，放在掌心，借着远处风灯那点摇曳的光，对比着看。…"
+    ],
+    "protagonist_decision": "孟浮灯站起身，把旧绳重新放回墙角。他走到门边，推开一条缝。外头的风灌进来，带着水汽和隐约的腥气。…",
+    "state_changes": [
+      "protagonist_mode: 隐匿/压制 -> 调查/试探",
+      "risk_level: low -> medium"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "他捏着绳",
+      "这绳",
+      "股混杂的气味",
+      "新买的麻绳",
+      "强能看清绳",
+      "手指触到绳",
+      "不是绳",
+      "旧绳",
+      "起那截旧绳",
+      "上堆着麻袋",
+      "正扛着麻袋",
+      "麻袋",
+      "夫们把麻袋",
+      "每卸下一袋",
+      "在那些麻袋",
+      "子用粗麻绳",
+      "在袋",
+      "夫扛着麻袋",
+      "肩上的麻袋",
+      "那绳",
+      "子在麻袋",
+      "出那截旧绳",
+      "码头麻袋",
+      "上的绳",
+      "码头上的绳",
+      "方正的麻袋",
+      "不是麻袋",
+      "纤绳",
+      "他把绳",
+      "也不是纤绳",
+      "脚夫也用绳",
+      "会让绳",
+      "那半截红绳",
+      "系着平安符",
+      "旧麻绳",
+      "收来的散绳",
+      "也许这绳",
+      "丢弃的绳",
+      "普通的旧绳",
+      "他把旧绳",
+      "手里那截绳",
+      "夫怎么用绳",
+      "知道了旧绳",
+      "和隐约的腥气",
+      "带着土腥味",
+      "水腥气",
+      "汗馊味",
+      "似铁锈的腥气",
+      "被前两种味",
+      "淡的铁锈味",
+      "气味",
+      "胸口",
+      "他凑到窗边",
+      "在码头",
+      "还没到岸边",
+      "就是运河码头",
+      "看了一眼码头",
+      "却还留着码头",
+      "想起货栈伙计那句",
+      "想起傍晚捞起的那"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索"
+      ],
+      "红绳": [
+        "发现线索"
+      ],
+      "平安符": [
+        "发现线索",
+        "触发调查"
+      ],
+      "他捏着绳": [
+        "发现线索",
+        "触发调查"
+      ],
+      "这绳": [
+        "发现线索",
+        "触发调查"
+      ],
+      "股混杂的气味": [
+        "发现线索",
+        "触发调查"
+      ],
+      "新买的麻绳": [
+        "触发调查"
+      ],
+      "强能看清绳": [
+        "触发调查"
+      ],
+      "手指触到绳": [
+        "触发调查"
+      ],
+      "不是绳": [
+        "触发调查"
+      ],
+      "旧绳": [
+        "触发调查"
+      ],
+      "起那截旧绳": [
+        "触发调查"
+      ],
+      "上堆着麻袋": [
+        "触发调查"
+      ],
+      "正扛着麻袋": [
+        "触发调查"
+      ],
+      "麻袋": [
+        "触发调查"
+      ],
+      "夫们把麻袋": [
+        "触发调查"
+      ],
+      "每卸下一袋": [
+        "触发调查"
+      ],
+      "在那些麻袋": [
+        "触发调查"
+      ],
+      "子用粗麻绳": [
+        "触发调查"
+      ],
+      "在袋": [
+        "触发调查"
+      ],
+      "夫扛着麻袋": [
+        "触发调查"
+      ],
+      "肩上的麻袋": [
+        "触发调查"
+      ],
+      "那绳": [
+        "触发调查"
+      ],
+      "子在麻袋": [
+        "触发调查"
+      ],
+      "出那截旧绳": [
+        "触发调查"
+      ],
+      "码头麻袋": [
+        "触发调查"
+      ],
+      "上的绳": [
+        "触发调查"
+      ],
+      "码头上的绳": [
+        "触发调查"
+      ],
+      "方正的麻袋": [
+        "触发调查"
+      ],
+      "不是麻袋": [
+        "触发调查"
+      ],
+      "纤绳": [
+        "触发调查"
+      ],
+      "他把绳": [
+        "触发调查"
+      ],
+      "也不是纤绳": [
+        "触发调查"
+      ],
+      "脚夫也用绳": [
+        "触发调查"
+      ],
+      "会让绳": [
+        "触发调查"
+      ],
+      "那半截红绳": [
+        "触发调查"
+      ],
+      "系着平安符": [
+        "触发调查"
+      ],
+      "旧麻绳": [
+        "触发调查"
+      ],
+      "收来的散绳": [
+        "触发调查"
+      ],
+      "也许这绳": [
+        "触发调查"
+      ],
+      "丢弃的绳": [
+        "触发调查"
+      ],
+      "普通的旧绳": [
+        "触发调查"
+      ],
+      "他把旧绳": [
+        "触发调查"
+      ],
+      "手里那截绳": [
+        "触发调查"
+      ],
+      "夫怎么用绳": [
+        "触发调查"
+      ],
+      "知道了旧绳": [
+        "触发调查"
+      ],
+      "和隐约的腥气": [
+        "触发调查"
+      ],
+      "带着土腥味": [
+        "触发调查"
+      ],
+      "水腥气": [
+        "触发调查"
+      ],
+      "汗馊味": [
+        "触发调查"
+      ],
+      "似铁锈的腥气": [
+        "触发调查"
+      ],
+      "被前两种味": [
+        "触发调查"
+      ],
+      "淡的铁锈味": [
+        "触发调查"
+      ],
+      "气味": [
+        "触发调查"
+      ],
+      "胸口": [
+        "触发调查"
+      ],
+      "他凑到窗边": [
+        "触发调查"
+      ],
+      "在码头": [
+        "触发调查"
+      ],
+      "还没到岸边": [
+        "触发调查"
+      ],
+      "就是运河码头": [
+        "触发调查"
+      ],
+      "看了一眼码头": [
+        "触发调查"
+      ],
+      "却还留着码头": [
+        "触发调查"
+      ],
+      "想起货栈伙计那句": [
+        "触发调查"
+      ],
+      "想起傍晚捞起的那": [
+        "触发调查"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "这绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "新买的麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "强能看清绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手指触到绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "不是绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "起那截旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "上堆着麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "正扛着麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "夫们把麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "每卸下一袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "在那些麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "子用粗麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "在袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "夫扛着麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "肩上的麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "子在麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "出那截旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "码头麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "上的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "码头上的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "方正的麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "不是麻袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "纤绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他把绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "也不是纤绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "脚夫也用绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "会让绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那半截红绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "系着平安符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "旧麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "收来的散绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "也许这绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "丢弃的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "普通的旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "他把旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "手里那截绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "夫怎么用绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "知道了旧绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {
+      "suspected_added": [
+        "新的那卷颜色深些，旧的则泛着灰白，像是被水泡过又晒干了许多回",
+        "手指触到绳身，能感觉到几处不规则的硬结，不是绳股本身的疙瘩，倒像是沾了什么东西干涸后留下的"
+      ]
+    },
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene02",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "触发调查"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene02",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene03",
+    "first_investigation_trigger_scene_id": "ch01_scene05",
+    "first_artifact_change_scene_id": "ch01_scene02",
+    "consecutive_transition_runs": []
+  }
+}

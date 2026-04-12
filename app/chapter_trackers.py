@@ -34,6 +34,8 @@ TRANSITION_MARKERS = ["疲惫", "寒气", "气味", "风", "冷", "潮气", "想
 GENERIC_FAMILIARITY_MARKERS = ["总爱", "总会", "从前", "以前", "那年", "一起", "替他", "替她", "并肩", "笑着", "住在", "相识", "旧识", "熟悉"]
 CARRIED_ARTIFACT_MARKERS = ["怀里", "袖里", "袖中", "贴身", "腰间", "身上", "怀中", "揣着", "带着", "塞回", "摸出来"]
 LOCATION_CHANGE_MARKERS = ["放在", "藏在", "塞进", "挂在", "留在", "压在"]
+PROTAGONIST_HOLDER_ALIASES = {"主角", "孟浮灯"}
+BODY_CARRY_LOCATION_MARKERS = ["贴着胸口", "胸前", "里襟", "最内侧", "贴肉", "贴身保留"]
 
 ARTIFACT_PATTERNS = [
     re.compile(r"([\u4e00-\u9fff]{1,4}(?:绳|符|钱|铃|牌|佩|匣|盒|袋|册|刀|钩|线头|木牌|纸条))"),
@@ -272,6 +274,7 @@ SUSPECTED_FACT_MARKERS = ["似乎", "像是", "仿佛", "也许", "可能", "隐
 READER_KNOWN_MARKERS = ["看见", "看到", "摸到", "露出", "写着", "发现", "认出", "听见"]
 VISIBILITY_OPEN_MARKERS = ["手里", "桌上", "门口", "窗边", "露出", "挂着", "看见", "亮出来"]
 VISIBILITY_HIDDEN_MARKERS = ["袖里", "袖中", "怀里", "贴身", "腰间", "藏在", "塞回", "压在", "揣着"]
+VISIBILITY_EXTERNALIZATION_MARKERS = ["递给", "亮给", "给人看", "摊给", "挂到门口", "挂到窗边", "让人看见", "摆到门口", "摆到窗边", "当众"]
 RISK_LEVEL_MARKERS = {
     "high": ["差点", "险些", "暴露", "惹来", "盯上", "失手", "追上"],
     "medium": ["麻烦", "不敢", "更难", "迟疑", "阻力", "后果"],
@@ -885,6 +888,44 @@ def detect_forbidden_reveal_violations(draft_text: str, revelation_tracker: dict
 
 
 def detect_artifact_state_conflicts(draft_text: str, artifact_state: dict[str, Any]) -> list[str]:
+    def is_unresolved(value: str) -> bool:
+        normalized = value.strip()
+        return not normalized or normalized == "待确认" or "待确认" in normalized
+
+    def label_present(label: str) -> bool:
+        if not label:
+            return False
+        if len(label) <= 1:
+            return False
+        if label in draft_text:
+            return True
+        if "和" in label:
+            parts = [part.strip() for part in label.split("和") if part.strip()]
+            if len(parts) >= 2 and all(part in draft_text for part in parts):
+                return True
+        return False
+
+    def holder_matches(holder: str) -> bool:
+        if holder in PROTAGONIST_HOLDER_ALIASES:
+            return any(alias in draft_text for alias in PROTAGONIST_HOLDER_ALIASES)
+        return holder in draft_text
+
+    def location_matches(location: str) -> bool:
+        if location in draft_text:
+            return True
+        if location in {"随身携带", "贴身保留"}:
+            return any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS + BODY_CARRY_LOCATION_MARKERS)
+        return False
+
+    def hidden_visibility_violated(label: str) -> bool:
+        relevant_sentences = [sentence for sentence in split_sentences(draft_text) if label in sentence]
+        if not relevant_sentences:
+            return False
+        for sentence in relevant_sentences:
+            if any(marker in sentence for marker in VISIBILITY_EXTERNALIZATION_MARKERS):
+                return True
+        return False
+
     conflicts: list[str] = []
     for item in artifact_state.get("items", []) if isinstance(artifact_state, dict) else []:
         if not isinstance(item, dict):
@@ -893,13 +934,13 @@ def detect_artifact_state_conflicts(draft_text: str, artifact_state: dict[str, A
         holder = str(item.get("holder") or "").strip()
         location = str(item.get("location") or "").strip()
         visibility = str(item.get("visibility") or "").strip()
-        if not label or label not in draft_text:
+        if not label_present(label):
             continue
-        if holder and holder not in {"待确认", ""} and holder not in draft_text and any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS):
+        if holder and not is_unresolved(holder) and not holder_matches(holder) and any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS):
             conflicts.append(f"物件“{label}”当前持有者应为“{holder}”，但正文写法与现有 artifact_state 不一致。")
-        if location and location not in {"待确认", ""} and location not in draft_text and any(marker in draft_text for marker in LOCATION_CHANGE_MARKERS + CARRIED_ARTIFACT_MARKERS):
+        if location and not is_unresolved(location) and not location_matches(location) and any(marker in draft_text for marker in LOCATION_CHANGE_MARKERS + CARRIED_ARTIFACT_MARKERS + BODY_CARRY_LOCATION_MARKERS):
             conflicts.append(f"物件“{label}”当前所在位置应为“{location}”，但正文写法与现有 artifact_state 不一致。")
-        if visibility == "hidden" and any(marker in draft_text for marker in VISIBILITY_OPEN_MARKERS):
+        if visibility == "hidden" and hidden_visibility_violated(label):
             conflicts.append(f"物件“{label}”当前应保持隐藏，但正文把它写成对外可见。")
     return conflicts[:3]
 

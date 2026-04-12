@@ -1,0 +1,72 @@
+{
+  "summary": "高频母题复读但未承担新功能：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "然后，他把这个小包塞进了怀里，贴肉放着。不是和火折子、零钱放在一起的外层…"
+    ]
+  },
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他把手巾在桌上摊开，拿起平安符，放在手巾中央。符纸太湿，一放上去，就在粗布上洇开一小片更深的水痕…"
+  },
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "该收起来了。像往常处理那些从尸体旁捡来的、无主的零碎东西一样，找个地方放好，不去多想。他起身，走…"
+  },
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+      "物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。",
+      "物件“麻绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "new_function_motifs": [
+      "红绳"
+    ],
+    "stale_function_motifs": [
+      "麻绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "和平安符",
+      "掌心被麻绳"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 麻绳, 红绳, 和平安符, 掌心被麻绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R11",
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：然后，他把这个小包塞进了怀里，贴肉放着。不是和火折子、零钱放在一起的外层…",
+    "场景以'这些念头像水底'截断，虽保持文风克制，但可能削弱结尾的清晰度或情感余韵。"
+  ],
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+    "母题同功能连续复用已超限：麻绳, 红绳, 和平安符, 掌心被麻绳。",
+    "canon 一致性风险：物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。"
+  ],
+  "recommended_next_step": "create_revision_task"
+}

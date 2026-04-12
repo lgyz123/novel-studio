@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "critical",
+      "scope": "chapter",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+      "message": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "local",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+      "message": "文本在'脑子里'处截断，导致句子不完整，破坏了阅读流畅性和场景收尾。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+      "message": "平安符在正文中被描述为'烂得不成样子'，但 constraints 要求状态为'状态待确认'，存在冲突。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+      "message": "结尾虽暗示后续计划，但缺乏明确局面推进如阻碍变化或行动启动，不符合 constraints 要求。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "redundancy",
+      "severity": "low",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW2-RW1-RW1-R5",
+      "message": "铜钱切口描述（如削掉'宝'字头）在文中重复出现，可能略显冗余。",
+      "suggested_action": "trim_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+}

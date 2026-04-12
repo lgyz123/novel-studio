@@ -1,0 +1,54 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：货栈在镇子西头，挨着一条半干的河沟。门脸不大，两扇旧木板门敞着，里头光线… 他想起灶膛里烧掉的那截红绳。那绳子很细，比眼前这些最细的还要细上两圈，颜…",
+    "本场新增信息：货栈在镇子西头，挨着一条半干的河沟。门脸不大，两扇旧木板门敞着，里头光线…；他想起灶膛里烧掉的那截红绳。那绳子很细，比眼前这些最细的还要细上两圈，颜…",
+    "红绳的细节（编法、材质）虽有提及，但未与货栈绳子进行更深入的针对性比对，隐蔽试探感较弱，未能充分触发调查动作。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 麻绳, 红绳，且本场至少为 那截红绳, 麻绳, 红绳 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-007_ch01_scene04_auto-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "货栈在镇子西头，挨着一条半干的河沟。门脸不大，两扇旧木板门敞着，里头光线…",
+      "他想起灶膛里烧掉的那截红绳。那绳子很细，比眼前这些最细的还要细上两圈，颜…",
+      "掌柜似乎没觉得这问题奇怪，只“嗯”了一声。“三股拧，还能怎么编？费那工夫…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他想起灶膛里烧掉的那截红绳。那绳子很细，比眼前这些最细的还要细上两圈，颜色也不是麻的本色，是染过…"
+  },
+  "summary": "场景基本完成货栈环境描述和绳子比对，但隐蔽试探不足，未充分体现从私藏记忆转向外部试探的转折，且结尾缺少明确的调查动作或阻力强化。"
+}

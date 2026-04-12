@@ -1,0 +1,40 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1",
+  "status": "revise",
+  "summary": "Scene 基本符合要求，但结尾不完整，缺少明确的决策动作和状态变化，导致 required_information_gain、required_plot_progress、required_decision_shift 和 required_state_change 未完全落地。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "scene结尾",
+      "message": "Scene 结尾不完整，在 '孟浮灯把竹筒递回去，手伸进怀里，指尖碰到' 处戛然而止，没有完成 required_decision_shift（主角必须做出新的现实动作或选择）和 required_state_change（至少让一个状态变量发生变化）。",
+      "suggested_action": "补全结尾，明确展示孟浮灯决定暂时压下 '阿绣' 相关信息的具体动作，并让一个状态变量（如物件位置、风险等级或行动计划）发生变化。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "物件状态",
+      "message": "Scene 描述了红绳、平安符、铜钱在孟浮灯怀里的状态，但与 artifact_state 中的 '状态待确认' 不一致，且未明确这些物件的最终位置或可见性变化。",
+      "suggested_action": "在结尾处明确这些物件的暂时处理方式（如收起、隐藏），并更新 artifact_state 以反映状态变化。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "剧情推进",
+      "message": "Scene 引入了新信息（如红绳断口、平安符笔迹、铜钱勒痕），但未形成新的局面推进（如阻碍变化、关系变化、行动启动或新约束落地），required_plot_progress 未完全满足。",
+      "suggested_action": "在结尾处添加一个小的情节推进，例如孟浮灯决定将物件藏于特定地点，或老张头给出进一步警告，以改变后续处理方式。"
+    }
+  ],
+  "strengths": [
+    "文风克制，符合要求，注重动作、触感和细节描写",
+    "成功展示了孟浮灯对 '阿绣' 的记挂和内心冲突",
+    "老张头的对话自然，符合角色设定，推动了情节"
+  ],
+  "decision_reason": "Scene 在文风和内容上基本符合要求，但结尾不完整，导致关键任务（如决策变化、状态变化）未完成，因此状态设为 'revise'，需要作者补全结尾以满足所有 required 条件。"
+}

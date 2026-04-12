@@ -1,0 +1,33 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1",
+  "revisions": [
+    {
+      "round": 1,
+      "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-R1",
+      "draft_id": "ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite_v7",
+      "issues": [
+        "continuity",
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "rewrite"
+    },
+    {
+      "round": 2,
+      "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1",
+      "draft_id": "ch01_scene02_rewrite_v3_rewrite_v4_rewrite3_v6_rewrite_v7_rewrite",
+      "issues": [
+        "continuity",
+        "scene_purpose"
+      ],
+      "issues_fixed": [],
+      "decision": "rewrite"
+    }
+  ],
+  "recurring_issue_types": [
+    "continuity",
+    "scene_purpose"
+  ],
+  "escalate_after": 5,
+  "escalation_reason": ""
+}

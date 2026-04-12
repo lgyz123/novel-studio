@@ -1,0 +1,60 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：柜子里东西不多：两件换洗的粗布衣、一包盐、半块干饼、几枚铜钱。衣服叠得整… 不是他的油。",
+    "本场新增信息：柜子里东西不多：两件换洗的粗布衣、一包盐、半块干饼、几枚铜钱。衣服叠得整…；不是他的油。",
+    "场景暗示搜查者拿走了布袋，但未明确线索被系统性清理或风险等级提升。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "平安符",
+      "铜钱"
+    ],
+    "new_function_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "平安符",
+      "铜钱"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "那截红绳"
+    ],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 那截红绳, 麻绳, 红绳, 平安符，且本场至少为 那截红绳, 麻绳, 红绳 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-R3",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "柜子里东西不多：两件换洗的粗布衣、一包盐、半块干饼、几枚铜钱。衣服叠得整…",
+      "不是他的油。",
+      "箱盖虚掩着，他掀开盖子。箱子里堆着些零碎：几块碎布、一截麻绳、一把生锈的…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "灰还在，但柜子靠墙的那一侧，灰被蹭掉了一小片。他蹲下身，借着门缝的光看。柜脚边的地上有几道很浅的…"
+  },
+  "summary": "场景描述了孟浮灯回到住处发现被搜查的痕迹，但存在关键问题：红绳和平安符的位置与规范冲突，且缺乏明确决策和状态变化。"
+}

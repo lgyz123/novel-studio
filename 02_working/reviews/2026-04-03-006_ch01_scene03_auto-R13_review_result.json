@@ -1,0 +1,83 @@
+{
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R13",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：revise_policy: revision_count=13, max=5；motif_redundancy: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。；motif_high_risk_explained: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "锁定闸门未通过：revise_policy: revision_count=13, max=5；motif_redundancy: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。；motif_high_risk_explained: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "高频母题复读但未承担新功能：那截红绳, 麻绳, 掌心麻绳, 红绳。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "母题同功能连续复用已超限：那截红绳, 麻绳, 掌心麻绳, 红绳。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-006",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "本场新增信息：巷子窄，两边墙皮剥落，露出底下黄泥和碎草。几户人家门板紧闭，门缝里透不出… 正面那些符纹早就糊了，只剩些墨迹晕开的痕迹。他翻过来，背面那两个字还在—…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-007",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "本场新增信息：巷子窄，两边墙皮剥落，露出底下黄泥和碎草。几户人家门板紧闭，门缝里透不出…；正面那些符纹早就糊了，只剩些墨迹晕开的痕迹。他翻过来，背面那两个字还在—…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-008",
+      "type": "redundancy",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-006_ch01_scene03_auto-R13",
+      "message": "红绳和平安符的检查功能与上一场景重复，未赋予新的叙事功能，如材质来源联想或与日常物件对比。",
+      "suggested_action": "trim_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：revise_policy: revision_count=13, max=5；motif_redundancy: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。；motif_high_risk_explained: 母题 那截红绳, 麻绳, 掌心麻绳, 红绳 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+}

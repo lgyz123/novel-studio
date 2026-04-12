@@ -1,0 +1,47 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2",
+  "status": "rewrite",
+  "summary": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "critical",
+      "scope": "chapter",
+      "target": "2026-04-03-005-RW1-RW2",
+      "message": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW1-RW2",
+      "message": "Scene 结尾被截断，未完成埋葬后的具体动作、判断和状态变化，如孟浮灯如何收起红绳、平安符、铜钱，以及他的疲惫感和决定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW1-RW2",
+      "message": "Scene 中提到了红绳、平安符、铜钱，但未明确其 holder 和 location 更新，与 tracker_bundle 中的 artifact_state 不一致。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-005-RW1-RW2",
+      "message": "Scene 未完全实现 task_text 中的 required_decision_shift 和 required_state_change，孟浮灯的决策（压下信息）和状态变化（如疲惫、职业习惯）不够突出。",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "锁定闸门未通过：information_gain: missing new information；plot_progress: missing plot progress；character_decision: missing decision or behavior shift；state_transition_evidence: missing chapter/artifact/revelation state change evidence；chapter_state_alignment: 物件“红绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“平安符”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。；物件“麻绳”当前所在位置应为“状态待确认”，但正文写法与现有 artifact_state 不一致。"
+}

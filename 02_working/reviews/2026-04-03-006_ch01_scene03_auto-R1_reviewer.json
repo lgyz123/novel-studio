@@ -1,0 +1,74 @@
+{
+  "summary": "高频母题复读但未承担新功能：那截红绳, 麻绳, 红绳, 和平安符。",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯伸出手，用指尖碰了碰那枚平安符。符纸表面粗糙，能摸到纸浆纤维的纹理…",
+      "他起身，走到窗边。窗台上放着一个陶碗，碗底还剩一点水。他蘸了点水在指尖，…",
+      "“阿”字的左边那一撇，起笔处有个小小的顿挫，像是写字的人下笔时犹豫了一下…"
+    ]
+  },
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他把绳子和符纸并排放在一起，看着它们。黑暗里，它们只是两个模糊的轮廓。但在他眼里，这两个轮廓开始…"
+  },
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他没有立刻去看，只是坐着，听着自己的呼吸。巷子外又响起脚步声，这次更轻，也更慢，像是有人在犹豫要…"
+  },
+  "canon_consistency": {
+    "is_consistent": false,
+    "consistency_issues": [
+      "物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+      "物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。",
+      "物件“麻绳”当前持有者应为“主角”，但正文写法与现有 artifact_state 不一致。"
+    ]
+  },
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "和平安符"
+    ],
+    "new_function_motifs": [
+      "红绳",
+      "和平安符"
+    ],
+    "stale_function_motifs": [
+      "那截红绳",
+      "麻绳"
+    ],
+    "repeated_same_function_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "和平安符"
+    ],
+    "consecutive_same_function_motifs": [
+      "那截红绳",
+      "麻绳",
+      "红绳",
+      "和平安符"
+    ],
+    "repetition_has_new_function": false,
+    "same_function_reuse_allowed": false,
+    "redundancy_reason": "母题 那截红绳, 麻绳, 红绳, 和平安符 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
+  },
+  "task_id": "2026-04-03-006_ch01_scene03_auto-R1",
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯伸出手，用指尖碰了碰那枚平安符。符纸表面粗糙，能摸到纸浆纤维的纹理… 他起身，走到窗边。窗台上放着一个陶碗，碗底还剩一点水。他蘸了点水在指尖，…",
+    "本场新增信息：孟浮灯伸出手，用指尖碰了碰那枚平安符。符纸表面粗糙，能摸到纸浆纤维的纹理…；他起身，走到窗边。窗台上放着一个陶碗，碗底还剩一点水。他蘸了点水在指尖，…"
+  ],
+  "major_issues": [
+    "Reviewer 放过了母题同功能连续复用，但本地规则判定该复用已超预算，需按结构风险处理。",
+    "高频母题复读但未承担新功能：那截红绳, 麻绳, 红绳, 和平安符。",
+    "母题同功能连续复用已超限：那截红绳, 麻绳, 红绳, 和平安符。",
+    "canon 一致性风险：物件“绳”当前持有者应为“旧坑边沿”，但正文写法与现有 artifact_state 不一致。",
+    "canon 一致性风险：物件“红绳和平安符”当前所在位置应为“贴身保留”，但正文写法与现有 artifact_state 不一致。"
+  ],
+  "recommended_next_step": "create_revision_task"
+}

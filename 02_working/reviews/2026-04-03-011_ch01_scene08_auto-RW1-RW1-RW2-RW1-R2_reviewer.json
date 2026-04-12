@@ -1,0 +1,66 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩，发出沉闷的、有节奏的响声。脚夫们…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：孟浮灯把车停在烂木桩旁。天是灰的，水也是灰的，水面漂着些枯叶和烂草，一动… 他站起身，把拧干的布搭在车辕上晾着。然后他走到车后，从板车底下抽出一根撬…",
+    "本场新增信息：孟浮灯把车停在烂木桩旁。天是灰的，水也是灰的，水面漂着些枯叶和烂草，一动…；他站起身，把拧干的布搭在车辕上晾着。然后他走到车后，从板车底下抽出一根撬…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "气味",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "气味",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "平安符",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 红绳, 平安符, 气味，且本场至少为 麻绳, 红绳, 平安符 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2-RW1-R2",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "孟浮灯把车停在烂木桩旁。天是灰的，水也是灰的，水面漂着些枯叶和烂草，一动…",
+      "他站起身，把拧干的布搭在车辕上晾着。然后他走到车后，从板车底下抽出一根撬…",
+      "走到一堆废弃的缆绳旁时，他停了下来。缆绳盘得像一堆死蛇，上面沾满了泥和干…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽，黏在喉咙口。船家是个黑瘦老汉，正把一筐鱼拖到船…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+}

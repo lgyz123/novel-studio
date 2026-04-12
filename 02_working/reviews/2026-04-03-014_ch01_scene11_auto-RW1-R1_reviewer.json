@@ -1,0 +1,65 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：不是水腥气，也不是尸臭。是灰，被人翻动过的灰。孟浮灯在门槛外站了片刻，才… 他走到桌边，伸手摸了摸桌面。指尖沾了一层薄灰。他出门前擦过桌子，灰不该这…",
+    "本场新增信息：不是水腥气，也不是尸臭。是灰，被人翻动过的灰。孟浮灯在门槛外站了片刻，才…；他走到桌边，伸手摸了摸桌面。指尖沾了一层薄灰。他出门前擦过桌子，灰不该这…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "铜钱",
+      "麻袋",
+      "水腥气",
+      "那个扁木盒",
+      "不是尸臭"
+    ],
+    "new_function_motifs": [
+      "铜钱",
+      "麻袋",
+      "水腥气",
+      "那个扁木盒",
+      "不是尸臭"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "铜钱",
+      "不是尸臭",
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "铜钱",
+      "不是尸臭",
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 铜钱, 麻袋, 水腥气, 那个扁木盒，且本场至少为 铜钱, 麻袋, 水腥气 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-014_ch01_scene11_auto-RW1-R1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "不是水腥气，也不是尸臭。是灰，被人翻动过的灰。孟浮灯在门槛外站了片刻，才…",
+      "他走到桌边，伸手摸了摸桌面。指尖沾了一层薄灰。他出门前擦过桌子，灰不该这…",
+      "孟浮灯转身，走到矮柜前。柜门虚掩着，他拉开。里面叠着几件旧衣裳，最上面那…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "不是水腥气，也不是尸臭。是灰，被人翻动过的灰。孟浮灯在门槛外站了片刻，才抬脚进去。门轴吱呀一声，…"
+  },
+  "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。"
+}

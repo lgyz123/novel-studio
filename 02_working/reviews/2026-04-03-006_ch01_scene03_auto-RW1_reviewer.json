@@ -1,0 +1,59 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "已达到修订阈值 5 轮，建议人工介入。",
+    "方向基本正确，但本场结构推进信号仍不足。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：巷子窄，两边墙皮剥落，露出底下黄泥和碎草。几户人家门板紧闭，门缝里透不出… 他拿出油纸包，回到灶边，借着火光打开。里头是那枚平安符。正面那些符纹早就…",
+    "本场新增信息：巷子窄，两边墙皮剥落，露出底下黄泥和碎草。几户人家门板紧闭，门缝里透不出…；他拿出油纸包，回到灶边，借着火光打开。里头是那枚平安符。正面那些符纹早就…"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "麻绳",
+      "红绳"
+    ],
+    "new_function_motifs": [
+      "麻绳",
+      "红绳"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "麻绳",
+      "红绳"
+    ],
+    "consecutive_same_function_motifs": [
+      "麻绳",
+      "红绳"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 麻绳, 红绳，且本场至少为 麻绳, 红绳 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-006_ch01_scene03_auto-RW1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "巷子窄，两边墙皮剥落，露出底下黄泥和碎草。几户人家门板紧闭，门缝里透不出…",
+      "他拿出油纸包，回到灶边，借着火光打开。里头是那枚平安符。正面那些符纹早就…",
+      "他把平安符拿起来，凑到眼前。红绳的结打得很紧，是个死结，绳头留得短，几乎…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "外头传来鸡叫，一声，两声，拖长了调子。孟浮灯把平安符和那段麻绳分开，麻绳扔进灶膛。火舌卷上来，很…"
+  },
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "force_manual_intervention_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

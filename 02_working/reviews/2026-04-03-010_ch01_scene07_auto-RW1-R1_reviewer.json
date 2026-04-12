@@ -1,0 +1,50 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "场景描述了漩涡和泥滩，但环境危险的紧迫感和具体细节（如水流危险、地形险恶）不够突出，削弱了‘引发后果’的紧迫感。任务要求突出环境危险以引发后果和提高风险。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "水已经漫到了小腿。漩涡离他不到三步远，那股吸力隔着水面都能感觉到，像有无数只手在往下拽。孟浮灯稳…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：他退到稍硬实些的滩边，喘了口气。裤腿湿透了，冰凉地贴在皮肤上。刚才那一下… 这地方不能久留。孟浮灯抹了把脸上的水渍，转身往回走。脚步比来时更轻，也更…",
+    "本场新增信息：他退到稍硬实些的滩边，喘了口气。裤腿湿透了，冰凉地贴在皮肤上。刚才那一下…；这地方不能久留。孟浮灯抹了把脸上的水渍，转身往回走。脚步比来时更轻，也更…",
+    "场景提供了环境细节和探查发现（如半只鞋、被吞绳子），但信息增量可能不够新颖或具体，需确保产生新的信息增量。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "着一把短刀"
+    ],
+    "new_function_motifs": [
+      "着一把短刀"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 着一把短刀，且本场至少为 着一把短刀 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1-R1",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "他退到稍硬实些的滩边，喘了口气。裤腿湿透了，冰凉地贴在皮肤上。刚才那一下…",
+      "这地方不能久留。孟浮灯抹了把脸上的水渍，转身往回走。脚步比来时更轻，也更…",
+      "走到那堆烂木头旁边时，他停顿了一下。半只鞋还在原处，但位置似乎挪动了一点…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他退到稍硬实些的滩边，喘了口气。裤腿湿透了，冰凉地贴在皮肤上。刚才那一下，离漩涡只差两步。他回头…"
+  },
+  "summary": "场景描述了孟浮灯在回水湾夜间探查，遭遇环境危险（漩涡、泥滩）和被跟踪感，但环境危险表现不足，风险提升不够明显，且使用了应避免的母题（草绳），结尾阻力后果不够明确，未达到critical风险等级。"
+}

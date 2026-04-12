@@ -14,12 +14,16 @@ agent:
   mode: prototype
 
 writer:
-  model: qwen3:14b
-  base_url: http://192.168.1.11:11434
+  provider: deepseek
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
 
 reviewer:
-  model: gpt-oss:20b
-  base_url: http://192.168.1.11:11434
+  provider: deepseek
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+  api_key_env: sk-50ad2813cd3047fba34fa710672bbc12
   num_ctx: 4096
   temperature: 0.0
   request_timeout: 1200
@@ -60,6 +64,7 @@ generation:
   write_num_ctx: 2048
   temperature: 0.4
   request_timeout: 600
+  preferred_length_override: 2000-3600字
   max_auto_revisions: 5
   auto_continue_until_scene: 15
   max_supervisor_rounds: 8

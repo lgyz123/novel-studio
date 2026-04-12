@@ -1,0 +1,56 @@
+{
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+  "status": "revise",
+  "summary": "已达到修订阈值 5 轮，建议人工介入。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+      "message": "已达到修订阈值 5 轮，建议人工介入。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "high",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+      "message": "方向基本正确，但本场结构推进信号仍不足。",
+      "suggested_action": "rewrite_scene"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+      "message": "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+      "message": "本场新增信息：瘦子往前走了半步，脚尖几乎碰到板车的轱辘。他低头看了看地上的车辙印，又抬… “从南边过来，”孟浮灯说，声音不高，“有户人家托我运点东西。” 瘦子没接…",
+      "suggested_action": "rewrite_local"
+    },
+    {
+      "id": "ISSUE-005",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-R5",
+      "message": "本场新增信息：瘦子往前走了半步，脚尖几乎碰到板车的轱辘。他低头看了看地上的车辙印，又抬…；“从南边过来，”孟浮灯说，声音不高，“有户人家托我运点东西。” 瘦子没接…",
+      "suggested_action": "rewrite_local"
+    }
+  ],
+  "strengths": [
+    "草稿整体方向可用，问题主要集中在局部完成度。"
+  ],
+  "decision_reason": "已达到修订阈值 5 轮，建议人工介入。"
+}

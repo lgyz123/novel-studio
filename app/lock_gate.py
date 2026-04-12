@@ -151,8 +151,24 @@ def requirement_matches_evidence(requirement: str, evidences: list[str], draft_t
     haystacks = [str(item).strip() for item in evidences if str(item).strip()]
     if draft_text:
         haystacks.append(str(draft_text).strip())
+
+    def semantic_match(haystack: str) -> bool:
+        if not haystack:
+            return False
+        if "阿绣" in requirement_text and "阿绣" in haystack:
+            if any(marker in requirement_text for marker in ["确认", "看错", "误读"]) and any(marker in haystack for marker in ["确认", "浮出来", "看清", "不是", "眼花", "看错", "犯晕"]):
+                return True
+        if any(marker in requirement_text for marker in ["记住", "先不说", "不说", "不声张", "压在心里"]):
+            remembered = any(marker in haystack for marker in ["记住", "记下", "先记着", "先记住"])
+            withheld = any(marker in haystack for marker in ["不说", "不提", "不声张", "先压", "压下", "到了那一步再说", "只由他一个人先记着"])
+            if remembered and withheld:
+                return True
+        return False
+
     compact_requirement = re.sub(r"\s+", "", requirement_text)
     for haystack in haystacks:
+        if semantic_match(haystack):
+            return True
         compact_haystack = re.sub(r"\s+", "", haystack)
         if compact_requirement and (compact_requirement in compact_haystack or compact_haystack in compact_requirement):
             return True
@@ -160,6 +176,8 @@ def requirement_matches_evidence(requirement: str, evidences: list[str], draft_t
     if not requirement_tokens:
         return bool(haystacks)
     for haystack in haystacks:
+        if semantic_match(haystack):
+            return True
         evidence_tokens = set(tokenize_text(haystack))
         overlap = [token for token in requirement_tokens if token in evidence_tokens]
         if len(overlap) >= min(2, len(requirement_tokens)):

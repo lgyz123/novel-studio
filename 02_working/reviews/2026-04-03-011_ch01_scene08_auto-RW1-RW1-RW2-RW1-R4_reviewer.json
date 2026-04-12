@@ -1,0 +1,56 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他先看脚夫。大多是熟面孔，膀子粗，腰背弯，扛货时脖颈上的青筋绷得像要裂开。有个年轻些的，扛着一袋…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排… 板车上没什么东西，只有几块裹尸用的粗布，叠得整整齐齐。孟浮灯蹲下身，假装…",
+    "本场新增信息：码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…；板车上没什么东西，只有几块裹尸用的粗布，叠得整整齐齐。孟浮灯蹲下身，假装…",
+    "管事警告“最近水边不太平，夜里少来”可能暗示威胁，但未明确与回水湾事件关联，导致后果不清晰。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [
+      "从船舱",
+      "什么"
+    ],
+    "new_function_motifs": [
+      "从船舱",
+      "什么"
+    ],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [
+      "什么"
+    ],
+    "consecutive_same_function_motifs": [
+      "什么"
+    ],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "复现母题 从船舱, 什么，且本场至少为 从船舱, 什么 提供了新的叙事功能。"
+  },
+  "task_id": "2026-04-03-011_ch01_scene08_auto-RW1-RW1-RW2-RW1-R4",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "码头上已经聚了些人。卸货的船靠在岸边，船身随着水波轻轻磕着木桩。脚夫们排…",
+      "板车上没什么东西，只有几块裹尸用的粗布，叠得整整齐齐。孟浮灯蹲下身，假装…",
+      "他站起身，拍了拍手上的灰，推着板车往码头更深处走。那里停着几条空船，船身…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他又看船家。有条船正在卸鱼，腥气飘过来，混着水汽。船家是个黑瘦老汉，正把一筐鱼从船舱里拖出来，倒…"
+  },
+  "summary": "场景描述了孟浮灯白天在码头观察，发现拖痕等异常，遭遇码头管事警告，但结尾未形成明确的状态变化或决策偏移，未满足引发后果、提高风险的要求。"
+}

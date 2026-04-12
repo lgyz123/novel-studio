@@ -196,6 +196,74 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertEqual(normalized["verdict"], "revise")
         self.assertEqual(normalized["recommended_next_step"], "create_revision_task")
 
+    def test_ensure_non_empty_structural_fields_fills_empty_decision_detail(self) -> None:
+        payload = {
+            "summary": "需要继续修订。",
+            "character_decision": {
+                "has_decision_or_behavior_shift": False,
+                "decision_detail": "",
+            },
+            "plot_progress": {
+                "has_plot_progress": False,
+                "progress_reason": "",
+            },
+            "motif_redundancy": {
+                "repeated_motifs": [],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "",
+            },
+        }
+
+        normalized = review_scene_module.ensure_non_empty_structural_fields(payload)
+
+        self.assertTrue(normalized["character_decision"]["decision_detail"])
+        self.assertTrue(normalized["plot_progress"]["progress_reason"])
+
+    def test_normalize_review_result_never_returns_empty_structural_strings(self) -> None:
+        result = {
+            "task_id": "scene_107",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["推进不足。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "需要修订。",
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+            "motif_redundancy": {
+                "repeated_motifs": [],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            raw_review_text="Reviewer output was malformed.",
+            task_text="# constraints\n- 保持单视角\n",
+            low_confidence=False,
+            draft_text="孟浮灯站在原地发怔。",
+            based_on_text="孟浮灯刚收工。",
+            chapter_state="阿绣这个名字已经留在他心里，但目前仍只是被记住。",
+        )
+
+        self.assertTrue(normalized["character_decision"]["decision_detail"])
+        self.assertTrue(normalized["plot_progress"]["progress_reason"])
+        self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
+        self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
+
     def test_normalize_review_result_drops_unexpected_fields(self) -> None:
         result = {
             "task_id": "scene_102",
@@ -393,6 +461,38 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
                     task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
                     draft_text="红绳这次露出背面刻着一个新字样，他立刻把那截红绳收进袖里。",
                     based_on_text="孟浮灯看见红绳，什么也没做。",
+                    chapter_state="章节状态",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("红绳", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertIn("红绳", signals["motif_redundancy"]["new_function_motifs"])
+        self.assertTrue(signals["motif_redundancy"]["repetition_has_new_function"])
+        self.assertTrue(signals["motif_redundancy"]["same_function_reuse_allowed"])
+
+    def test_build_structural_review_signals_allows_same_scene_function_when_local_gain_is_new(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    '{"chapter_id": "ch01", "active_motifs": [{"motif_id": "artifact_motif_hongsheng", "category": "artifact_motif", "label": "红绳", "narrative_functions": ["触发调查"], "status": "active", "recent_scene_ids": ["ch01_scene02"], "recent_usage_count": 2, "recent_functions": ["触发调查"], "last_function": "触发调查", "function_novelty_score": 0.2, "allow_next_scene": false, "only_if_new_function": true, "redundancy_risk": "high", "notes": "repeated"}]}',
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["触发调查"], "consecutive_transition_scene_count": 1}', encoding="utf-8")
+
+                signals = review_scene_module.build_structural_review_signals(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene03_auto\n\n# scene_function\n触发调查\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    draft_text="他把红绳放到灯下，看见绳脚磨白的一段，立刻拿油布包好，塞进里襟。",
+                    based_on_text="孟浮灯昨夜已经把红绳收了起来。",
                     chapter_state="章节状态",
                 )
             finally:

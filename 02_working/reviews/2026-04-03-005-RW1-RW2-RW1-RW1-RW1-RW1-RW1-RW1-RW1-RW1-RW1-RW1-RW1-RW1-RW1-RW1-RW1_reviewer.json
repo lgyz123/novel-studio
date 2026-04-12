@@ -1,0 +1,15 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1-RW1",
+  "verdict": "revise",
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "Scene 文本在 '平安符的' 处截断，未完成结尾，导致 required_information_gain、required_plot_progress、required_decision_shift 和 required_state_change 未落地。"
+  ],
+  "minor_issues": [
+    "Scene 中物件状态（如红绳、平安符、麻绳）与 tracker_bundle 中的 artifact_state 不一致，例如红绳和平安符在 scene 中已塞入暗袋，但 artifact_state 仍为 '状态待确认'。",
+    "缺少新的情节推进，如阻碍变化、关系变化或行动启动，以形成 required_plot_progress。",
+    "老张头关于尸体 '太干净了' 和 '怕人认出来' 的对话可能过早暗示主线，需确保不违反 constraints 中 '不急于抛出主线真相'。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "summary": "Scene 结尾不完整，缺少明确的状态变化和决策落地，物件状态与 artifact_state 不一致，需要补全结尾并解决信息增益和情节推进问题。"
+}

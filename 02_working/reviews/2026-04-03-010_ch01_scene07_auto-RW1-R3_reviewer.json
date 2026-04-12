@@ -1,0 +1,48 @@
+{
+  "canon_consistency": {
+    "is_consistent": true,
+    "consistency_issues": []
+  },
+  "task_goal_fulfilled": false,
+  "major_issues": [
+    "重复问题未收敛：knowledge, scene_purpose",
+    "当前草稿未充分完成 task 的核心推进目标。"
+  ],
+  "plot_progress": {
+    "has_plot_progress": true,
+    "progress_reason": "他蹲在一块大石头后面，借着石头的阴影藏住身形，往滩上扫视。石头缝里卡着不少东西：破渔网、烂草席、…"
+  },
+  "minor_issues": [
+    "Reviewer 未列出 `new_information_items`，已由本地规则补做信息增量判定。",
+    "本场新增信息：坡下那片泥滩在夜里看起来更宽，也更黑。白天还能看见水边堆着些烂木头、破筐… 孟浮灯蹲下身，手按在坡上。土是湿的，一按一个坑，有水从指缝里渗出来。他往…",
+    "本场新增信息：坡下那片泥滩在夜里看起来更宽，也更黑。白天还能看见水边堆着些烂木头、破筐…；孟浮灯蹲下身，手按在坡上。土是湿的，一按一个坑，有水从指缝里渗出来。他往…",
+    "环境危险的紧迫感和具体细节不够突出，例如泥滩陷脚但未强调致命风险（如暗流、深坑），削弱了'引发后果'的紧迫感。"
+  ],
+  "recommended_next_step": "create_revision_task",
+  "motif_redundancy": {
+    "repeated_motifs": [],
+    "new_function_motifs": [],
+    "stale_function_motifs": [],
+    "repeated_same_function_motifs": [],
+    "consecutive_same_function_motifs": [],
+    "repetition_has_new_function": true,
+    "same_function_reuse_allowed": true,
+    "redundancy_reason": "未识别到明显的高频母题复读。"
+  },
+  "task_id": "2026-04-03-010_ch01_scene07_auto-RW1-R3",
+  "information_gain": {
+    "has_new_information": true,
+    "new_information_items": [
+      "坡下那片泥滩在夜里看起来更宽，也更黑。白天还能看见水边堆着些烂木头、破筐…",
+      "孟浮灯蹲下身，手按在坡上。土是湿的，一按一个坑，有水从指缝里渗出来。他往…",
+      "不是风声，也不是水声，是另一种声音——很轻，像是有人踩在烂泥上，一步，又…"
+    ]
+  },
+  "verdict": "revise",
+  "character_decision": {
+    "has_decision_or_behavior_shift": true,
+    "decision_detail": "他直起身，往黑石滩方向看。那边离得远些，得绕过一片芦苇丛。芦苇长得密，夜里看过去黑压压一片，风一…"
+  },
+  "summary": "重复问题未收敛：knowledge, scene_purpose",
+  "force_manual_intervention_reason": "重复问题未收敛：knowledge, scene_purpose"
+}

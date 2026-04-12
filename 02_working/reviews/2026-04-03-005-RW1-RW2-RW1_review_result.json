@@ -1,0 +1,50 @@
+{
+  "task_id": "2026-04-03-005-RW1-RW2-RW1",
+  "status": "revise",
+  "summary": "Scene 结尾被截断，未完成埋葬后的具体动作、判断和状态变化，如孟浮灯如何收起红绳、平安符、铜钱，以及他的疲惫感和决定。需要补全结尾以实现 required_decision_shift 和 required_state_change。",
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "type": "continuity",
+      "severity": "high",
+      "scope": "scene",
+      "target": "scene_text 结尾",
+      "message": "Scene 文本在 '可能是逃难的。' 处被截断，未完成埋葬后的动作序列和状态变化，导致 required_decision_shift 和 required_state_change 未完全落地。",
+      "suggested_action": "补全 scene 结尾，描述孟浮灯收起红绳、平安符、铜钱的具体动作，明确展示他决定暂时压下 '阿绣' 相关信息，并突出疲惫感和职业习惯。"
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "required_decision_shift",
+      "message": "孟浮灯的决策（压下信息）不够突出，需要更明确的动作或内心决定来体现 required_decision_shift。",
+      "suggested_action": "在结尾部分增加孟浮灯对红绳、平安符的处理决定，例如他决定暂时不告诉老张头，或将这些物品藏好，以形成新的现实动作。"
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "scene_purpose",
+      "severity": "medium",
+      "scope": "scene",
+      "target": "required_state_change",
+      "message": "状态变化（如疲惫、职业习惯）不够突出，需要更具体的描述来体现 required_state_change。",
+      "suggested_action": "在结尾描述孟浮灯的疲惫感（如身体酸痛、精神倦怠）和职业习惯（如整理工具、反思工作），以改变已知信息或角色判断状态。"
+    },
+    {
+      "id": "ISSUE-004",
+      "type": "knowledge",
+      "severity": "low",
+      "scope": "scene",
+      "target": "artifact_state 一致性",
+      "message": "红绳、平安符、铜钱的状态在 artifact_state 中为 '待确认'，但 scene_text 部分处理了这些物品，需要确保一致性。",
+      "suggested_action": "在补全结尾时，明确这些物品的 holder 和 location，以更新 artifact_state。"
+    }
+  ],
+  "strengths": [
+    "文风克制，符合画面先于说明的要求",
+    "动作和触感描写细致，增强了现场感",
+    "符合 constraints，未引入禁止元素",
+    "保持了孟浮灯的核心视角"
+  ],
+  "decision_reason": "Scene 结尾被截断，导致 required_decision_shift 和 required_state_change 未完全实现，需要补全以完成 structural_repair。status 设为 revise，因为问题明确且可修复。"
+}
