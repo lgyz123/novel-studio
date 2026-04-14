@@ -45,6 +45,7 @@
 ### `02_working/`
 - `context/`：当前上下文拼装结果
 - `drafts/`：writer 当前工作草稿
+- `planning/`：写前 bootstrap proposal，如世界观/时间线/角色补全与前置状态机
 - `reviews/`：reviewer / supervisor 输出 JSON
 - `canon_updates/`：notes、state、tracker 等工作中提案
 - `logs/`：失败稿、失败原因、调试痕迹
@@ -101,6 +102,7 @@
 - **章节级 tracker**：motif / revelation / artifact / progress 已改成动态 chapter-scoped tracker，而不是全局硬编码词表
 - **锁后状态落盘**：只有在 `lock` 后才会把 `story_state` 与 tracker 的实际更新写入正典状态
 - **状态重建**：可以从 `03_locked/chapters/` 反推重建 `story_state`
+- **写前 planning bootstrap**：会在编译上下文前生成 `worldview_patch / timeline_patch / character_patch / chapter outline / 前置状态机`
 - **测试覆盖**：已有 reviewer / supervisor / lock gate / story_state / revision lineage 等回归测试
 
 ## 当前架构上的几个关键设计点

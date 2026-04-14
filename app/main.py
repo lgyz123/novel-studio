@@ -12,10 +12,14 @@ from issue_filters import filter_shared_issues
 from jsonschema import validate
 from lock_gate import apply_lock_gate, save_lock_gate_report
 from openai import OpenAI
+from planning_bootstrap import run_planning_bootstrap
+from prewrite_checks import build_prewrite_review, save_prewrite_review
 from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
+from skill_router import render_skill_router_markdown, route_writer_skills
 from story_state import update_story_state_on_lock
+from writer_skills import build_skill_section
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -534,8 +538,52 @@ def build_prose_reference_section(task_text: str) -> str:
     based_on_text = clip_tail_text(prose_seed, 280)
     return f"# 少量必要 prose 参考\n来源文件：{based_on_path}\n- 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。\n\n{based_on_text}"
 
+
+def build_default_writer_skill_section(task_text: str) -> str:
+    output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
+    if output_target and not output_target.startswith("02_working/drafts/"):
+        return ""
+
+    return build_skill_section(
+        ROOT,
+        "continuity-guard",
+        heading="# 默认写作 skill：continuity-guard",
+        body_max_chars=800,
+        references=["checklist.md", "conflicts.md"],
+        reference_max_chars=320,
+    )
+
+
+def build_scene_writing_skill_router_section(task_text: str) -> str:
+    output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
+    if output_target and not output_target.startswith("02_working/drafts/"):
+        return ""
+
+    chapter_state = (extract_markdown_field(task_text, "chapter_state") or "").strip()
+    state_signals: dict[str, Any] = {}
+    if chapter_state:
+        state_signals["has_chapter_state"] = True
+    if (ROOT / "03_locked/state/story_state.json").exists():
+        state_signals["has_story_state"] = True
+    if (ROOT / "03_locked/state/trackers").exists():
+        state_signals["has_trackers"] = True
+
+    result = route_writer_skills(
+        phase="scene_writing",
+        task_text=task_text,
+        project_manifest_text="\n".join(
+            [
+                read_text("00_manifest/novel_manifest.md"),
+                read_text("00_manifest/world_bible.md"),
+            ]
+        ),
+        state_signals=state_signals,
+    )
+    return render_skill_router_markdown(result, heading="# scene writing skill router")
+
 def compile_context(config: dict) -> str:
-    task_text = clip_text(read_text("01_inputs/tasks/current_task.md"), 1600)
+    task_text_full = read_text("01_inputs/tasks/current_task.md")
+    task_text = clip_text(task_text_full, 1600)
     novel_manifest = clip_text(read_text("00_manifest/novel_manifest.md"), 900)
     world_bible = clip_text(read_text("00_manifest/world_bible.md"), 700)
     character_bible_full = read_text("00_manifest/character_bible.md")
@@ -565,12 +613,62 @@ def compile_context(config: dict) -> str:
 [警告：未找到该文件，无法载入章节状态]
 """
 
+    prewrite_review = build_prewrite_review(
+        ROOT,
+        task_text_full,
+        chapter_state_text=read_text(chapter_state_path.strip()) if chapter_state_path and (ROOT / chapter_state_path.strip()).exists() else "",
+    )
+    prewrite_review_file = save_prewrite_review(ROOT, prewrite_review)
+    prewrite_review_text = clip_text(read_text(prewrite_review_file), 1400)
+    planning_outputs = run_planning_bootstrap(
+        ROOT,
+        task_text_full,
+        chapter_state_text=read_text(chapter_state_path.strip()) if chapter_state_path and (ROOT / chapter_state_path.strip()).exists() else "",
+    )
+    worldview_patch_text = clip_text(read_text(planning_outputs["worldview_patch_file"]), 1000)
+    timeline_patch_text = clip_text(read_text(planning_outputs["timeline_patch_file"]), 1000)
+    character_patch_text = clip_text(read_text(planning_outputs["character_patch_file"]), 900)
+    outline_text = clip_text(read_text(planning_outputs["outline_file"]), 1000)
+    state_machine_text = clip_text(read_text(planning_outputs["state_machine_file"]), 900)
+
     scene_contract_section = build_scene_contract_summary(task_text)
     recent_scene_summaries_section = build_recent_scene_summaries_section(task_text)
     tracker_slices_section = build_writer_tracker_slices_section(task_text)
     prose_reference_section = build_prose_reference_section(task_text)
+    default_writer_skill_section = build_default_writer_skill_section(task_text_full)
+    scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text_full)
 
-    compiled = f"""{scene_contract_section}
+    compiled = f"""# 写前诊断
+来源文件：{prewrite_review_file}
+
+{prewrite_review_text}
+
+# planner/bootstrap agent
+来源文件：{planning_outputs["state_machine_file"]}
+
+{state_machine_text}
+
+# 世界观补全 proposal
+来源文件：{planning_outputs["worldview_patch_file"]}
+
+{worldview_patch_text}
+
+# 时间线补全 proposal
+来源文件：{planning_outputs["timeline_patch_file"]}
+
+{timeline_patch_text}
+
+# 角色补全 proposal
+来源文件：{planning_outputs["character_patch_file"]}
+
+{character_patch_text}
+
+# 章节工作大纲
+来源文件：{planning_outputs["outline_file"]}
+
+{outline_text}
+
+{scene_contract_section}
 
 # 本次必须遵守的项目总纲
 {novel_manifest}
@@ -592,6 +690,10 @@ def compile_context(config: dict) -> str:
 {recent_scene_summaries_section}
 
 {tracker_slices_section}
+
+{scene_writing_skill_router_section}
+
+{default_writer_skill_section}
 
 {prose_reference_section}
 """
@@ -967,6 +1069,8 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
     scene10_guardrails = build_scene10_prompt_guardrails(task_text)
+    default_writer_skill_section = build_default_writer_skill_section(task_text)
+    scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text)
     repair_rules = build_writer_repair_rules(
         extract_markdown_field(task_text, "repair_mode"),
         repair_focus=extract_markdown_field(task_text, "repair_focus"),
@@ -997,6 +1101,7 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 19. 禁止把“名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心”当作推进完成；除非它同时伴随明确决定、新事实暴露、物件状态变化或关系变化
 20. 如果正文没有交出新事实、新动作、新后果、新状态变化中的至少若干项，该稿就算未完成 task
 21. 优先使用 current scene contract、latest chapter_state、recent structured scene summaries、revelation/artifact/chapter_progress 切片来完成任务；不要顺着旧 scene 正文的文风滑行
+22. 本轮默认启用 `continuity-guard`：不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
 {repair_rule_lines}
 【任务单】
 {task_text}
@@ -1007,6 +1112,10 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 {repair_section}
 
 {structure_section}
+
+{scene_writing_skill_router_section}
+
+{default_writer_skill_section}
 
 {scene10_guardrails}
 

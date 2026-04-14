@@ -569,6 +569,28 @@ prose_repair
         self.assertIn("名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心", prompt)
         self.assertIn("不要顺着旧 scene 正文的文风滑行", prompt)
 
+    def test_writer_prompt_defaults_to_continuity_guard(self) -> None:
+        task_text = """# task_id
+2026-04-14-100_ch01_scene01_auto
+
+# goal
+承接上一场继续写。
+
+# output_target
+02_working/drafts/ch01_scene01.md
+"""
+
+        prompt = build_writer_user_prompt(
+            task_text,
+            "上下文内容",
+            {"task_id": "2026-04-14-100_ch01_scene01_auto", "goal": "承接上一场继续写。"},
+        )
+
+        self.assertIn("本轮默认启用 `continuity-guard`", prompt)
+        self.assertIn("# scene writing skill router", prompt)
+        self.assertIn("# 默认写作 skill：continuity-guard", prompt)
+        self.assertIn("skills/continuity-guard/SKILL.md", prompt)
+
     def test_compile_context_prefers_structured_inputs_and_small_prose_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -705,13 +727,27 @@ prose_repair
                 main_module.ROOT = previous_root
 
             self.assertIn("# 当前 scene contract", context)
+            self.assertIn("# planner/bootstrap agent", context)
+            self.assertIn("# 世界观补全 proposal", context)
+            self.assertIn("# 时间线补全 proposal", context)
+            self.assertIn("# 角色补全 proposal", context)
+            self.assertIn("# 章节工作大纲", context)
             self.assertIn("# 最近结构化场景摘要", context)
             self.assertIn("ch01_scene02｜发现线索", context)
             self.assertIn("# 相关 tracker 摘要", context)
             self.assertIn("平安符（持有者：主角；位置：袖里；可见性：hidden）", context)
+            self.assertIn("# scene writing skill router", context)
+            self.assertIn("continuity-guard｜mode=scene-canon", context)
+            self.assertIn("# 默认写作 skill：continuity-guard", context)
+            self.assertIn("skills/continuity-guard/SKILL.md", context)
             self.assertIn("# 少量必要 prose 参考", context)
             self.assertIn("结尾参考：他把平安符压回袖里", context)
             self.assertNotIn("开头旧稿气氛开头旧稿气氛开头旧稿气氛", context)
+            self.assertTrue((root / "02_working/planning/worldview_patch.md").exists())
+            self.assertTrue((root / "02_working/planning/timeline_patch.md").exists())
+            self.assertTrue((root / "02_working/planning/character_patch.md").exists())
+            self.assertTrue((root / "02_working/planning/bootstrap_state_machine.md").exists())
+            self.assertTrue((root / "02_working/outlines/ch01_outline.md").exists())
 
     def test_generated_task_content_carries_structural_fields(self) -> None:
         task_text = """# task_id
