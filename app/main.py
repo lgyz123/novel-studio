@@ -19,7 +19,7 @@ from review_scene import review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
 from skill_router import render_skill_router_markdown, route_writer_skills
 from story_state import update_story_state_on_lock
-from writer_skills import build_skill_section
+from writer_skills import build_selected_skill_sections
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -539,25 +539,18 @@ def build_prose_reference_section(task_text: str) -> str:
     return f"# 少量必要 prose 参考\n来源文件：{based_on_path}\n- 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。\n\n{based_on_text}"
 
 
-def build_default_writer_skill_section(task_text: str) -> str:
+def get_scene_writing_skill_router_result(task_text: str) -> dict[str, Any]:
     output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
     if output_target and not output_target.startswith("02_working/drafts/"):
-        return ""
-
-    return build_skill_section(
-        ROOT,
-        "continuity-guard",
-        heading="# 默认写作 skill：continuity-guard",
-        body_max_chars=800,
-        references=["checklist.md", "conflicts.md"],
-        reference_max_chars=320,
-    )
-
-
-def build_scene_writing_skill_router_section(task_text: str) -> str:
-    output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
-    if output_target and not output_target.startswith("02_working/drafts/"):
-        return ""
+        return {
+            "phase": "scene_writing",
+            "genre_tags": [],
+            "trope_tags": [],
+            "demand_tags": [],
+            "selected_skills": [],
+            "rejected_candidates": [],
+            "risk_flags": ["non_draft_output_target"],
+        }
 
     chapter_state = (extract_markdown_field(task_text, "chapter_state") or "").strip()
     state_signals: dict[str, Any] = {}
@@ -568,7 +561,7 @@ def build_scene_writing_skill_router_section(task_text: str) -> str:
     if (ROOT / "03_locked/state/trackers").exists():
         state_signals["has_trackers"] = True
 
-    result = route_writer_skills(
+    return route_writer_skills(
         phase="scene_writing",
         task_text=task_text,
         project_manifest_text="\n".join(
@@ -579,7 +572,19 @@ def build_scene_writing_skill_router_section(task_text: str) -> str:
         ),
         state_signals=state_signals,
     )
+
+
+def build_scene_writing_skill_router_section(task_text: str) -> str:
+    result = get_scene_writing_skill_router_result(task_text)
     return render_skill_router_markdown(result, heading="# scene writing skill router")
+
+
+def build_selected_writer_skill_sections(task_text: str) -> str:
+    result = get_scene_writing_skill_router_result(task_text)
+    selected = result.get("selected_skills", [])
+    if not selected:
+        return ""
+    return build_selected_skill_sections(ROOT, selected, heading_prefix="# writer skill")
 
 def compile_context(config: dict) -> str:
     task_text_full = read_text("01_inputs/tasks/current_task.md")
@@ -635,8 +640,8 @@ def compile_context(config: dict) -> str:
     recent_scene_summaries_section = build_recent_scene_summaries_section(task_text)
     tracker_slices_section = build_writer_tracker_slices_section(task_text)
     prose_reference_section = build_prose_reference_section(task_text)
-    default_writer_skill_section = build_default_writer_skill_section(task_text_full)
     scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text_full)
+    selected_writer_skill_sections = build_selected_writer_skill_sections(task_text_full)
 
     compiled = f"""# 写前诊断
 来源文件：{prewrite_review_file}
@@ -693,7 +698,7 @@ def compile_context(config: dict) -> str:
 
 {scene_writing_skill_router_section}
 
-{default_writer_skill_section}
+{selected_writer_skill_sections}
 
 {prose_reference_section}
 """
@@ -1069,8 +1074,11 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
     scene10_guardrails = build_scene10_prompt_guardrails(task_text)
-    default_writer_skill_section = build_default_writer_skill_section(task_text)
     scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text)
+    selected_writer_skill_sections = build_selected_writer_skill_sections(task_text)
+    router_result = get_scene_writing_skill_router_result(task_text)
+    selected_skill_names = [str(item.get("skill") or "").strip() for item in router_result.get("selected_skills", []) if str(item.get("skill") or "").strip()]
+    selected_skill_summary = "、".join(selected_skill_names) if selected_skill_names else "无"
     repair_rules = build_writer_repair_rules(
         extract_markdown_field(task_text, "repair_mode"),
         repair_focus=extract_markdown_field(task_text, "repair_focus"),
@@ -1101,7 +1109,8 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 19. 禁止把“名字再次浮现、疑问沉入心里、身体疲惫蔓延、某物硌在胸口/掌心”当作推进完成；除非它同时伴随明确决定、新事实暴露、物件状态变化或关系变化
 20. 如果正文没有交出新事实、新动作、新后果、新状态变化中的至少若干项，该稿就算未完成 task
 21. 优先使用 current scene contract、latest chapter_state、recent structured scene summaries、revelation/artifact/chapter_progress 切片来完成任务；不要顺着旧 scene 正文的文风滑行
-22. 本轮默认启用 `continuity-guard`：不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
+22. 本轮启用的 writer skills：{selected_skill_summary}
+23. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
 {repair_rule_lines}
 【任务单】
 {task_text}
@@ -1115,7 +1124,7 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 
 {scene_writing_skill_router_section}
 
-{default_writer_skill_section}
+{selected_writer_skill_sections}
 
 {scene10_guardrails}
 
