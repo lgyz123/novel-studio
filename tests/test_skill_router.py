@@ -37,6 +37,17 @@ class SkillRouterTest(unittest.TestCase):
         self.assertIn("continuity-guard", markdown)
         self.assertIn("scene_writing", markdown)
 
+    def test_scene_writing_can_add_character_and_naming_skills(self) -> None:
+        result = route_writer_skills(
+            phase="scene_writing",
+            task_text="# goal\n补人物设定并给人物取名。\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+            project_manifest_text="玄幻 仙侠",
+            state_signals={"has_story_state": True},
+        )
+
+        selected = [item["skill"] for item in result["selected_skills"]]
+        self.assertEqual(selected, ["continuity-guard", "character-design", "naming"])
+
 
 if __name__ == "__main__":
     unittest.main()

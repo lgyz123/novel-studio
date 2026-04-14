@@ -586,10 +586,36 @@ prose_repair
             {"task_id": "2026-04-14-100_ch01_scene01_auto", "goal": "承接上一场继续写。"},
         )
 
-        self.assertIn("本轮默认启用 `continuity-guard`", prompt)
+        self.assertIn("本轮启用的 writer skills：continuity-guard", prompt)
         self.assertIn("# scene writing skill router", prompt)
-        self.assertIn("# 默认写作 skill：continuity-guard", prompt)
+        self.assertIn("# writer skill：continuity-guard", prompt)
         self.assertIn("skills/continuity-guard/SKILL.md", prompt)
+
+    def test_writer_prompt_injects_selected_character_and_naming_skills(self) -> None:
+        task_text = """# task_id
+2026-04-14-101_ch01_scene01_auto
+
+# goal
+补人物设定并给角色取名。
+
+# output_target
+02_working/drafts/ch01_scene01.md
+
+# chapter_state
+03_locked/canon/ch01_state.md
+"""
+
+        prompt = build_writer_user_prompt(
+            task_text,
+            "上下文内容",
+            {"task_id": "2026-04-14-101_ch01_scene01_auto", "goal": "补人物设定并给角色取名。"},
+        )
+
+        self.assertIn("本轮启用的 writer skills：continuity-guard、character-design、naming", prompt)
+        self.assertIn("# writer skill：character-design", prompt)
+        self.assertIn("skills/character-design/SKILL.md", prompt)
+        self.assertIn("# writer skill：naming", prompt)
+        self.assertIn("skills/naming/SKILL.md", prompt)
 
     def test_compile_context_prefers_structured_inputs_and_small_prose_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -738,7 +764,7 @@ prose_repair
             self.assertIn("平安符（持有者：主角；位置：袖里；可见性：hidden）", context)
             self.assertIn("# scene writing skill router", context)
             self.assertIn("continuity-guard｜mode=scene-canon", context)
-            self.assertIn("# 默认写作 skill：continuity-guard", context)
+            self.assertIn("# writer skill：continuity-guard", context)
             self.assertIn("skills/continuity-guard/SKILL.md", context)
             self.assertIn("# 少量必要 prose 参考", context)
             self.assertIn("结尾参考：他把平安符压回袖里", context)
