@@ -1,7 +1,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - next_stage：第一章撰写
 

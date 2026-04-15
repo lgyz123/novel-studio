@@ -42,7 +42,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - next_stage：第一章撰写
 
@@ -91,7 +91,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -135,7 +135,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
@@ -187,7 +187,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -228,7 +228,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch02_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-009_ch02_scene01_auto
+- task_id：2026-04-15-021_ch02_scene01_auto
 - chapter_id：ch02
 - 写入位置：02_working/outlines/ch02_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。

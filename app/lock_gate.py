@@ -141,7 +141,33 @@ def tokenize_text(text: str) -> list[str]:
 
 
 def is_generic_requirement(text: str) -> bool:
-    return any(marker in str(text or "") for marker in ["至少", "必须", "新的", "新信息", "状态变量", "变化", "动作", "决策", "风险", "关系", "物件", "认知", "目标"])
+    text = str(text or "")
+    generic_markers = [
+        "至少",
+        "必须",
+        "新的",
+        "新信息",
+        "状态变量",
+        "变化",
+        "动作",
+        "决策",
+        "风险",
+        "关系",
+        "物件",
+        "认知",
+        "目标",
+        "卷入",
+        "黑幕",
+        "线索",
+        "尸体",
+        "名字",
+        "求活",
+        "底层",
+        "压力来源",
+        "行动边界",
+        "现实问题",
+    ]
+    return any(marker in text for marker in generic_markers)
 
 
 def requirement_matches_evidence(requirement: str, evidences: list[str], draft_text: str = "") -> bool:

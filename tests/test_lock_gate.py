@@ -74,6 +74,45 @@ class LockGateTest(unittest.TestCase):
         self.assertTrue(next(check for check in report.checks if check.name == "required_information_gain").passed)
         self.assertTrue(next(check for check in report.checks if check.name == "required_state_change").passed)
 
+    def test_lock_gate_treats_story_blurb_requirement_as_generic_when_evidence_overlaps(self) -> None:
+        task_text = BASE_TASK + """
+# required_information_gain
+- 保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。
+"""
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "当前 scene 满足锁定条件。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["他从那具尸体腰间摸到刻着名字的旧牌，意识到自己已被卷进码头背后的黑幕。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "主角因此决定去找老船工核对来处。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他先把旧牌藏进袖口，再去找老船工。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters/ch01_scene11.md").write_text("前文。", encoding="utf-8")
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态。", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+                (root / "02_working/drafts/ch01_scene12.md").write_text("他从那具尸体腰间摸到刻着名字的旧牌，意识到自己已被卷进码头背后的黑幕，于是先把旧牌藏进袖口，再去找老船工。", encoding="utf-8")
+
+                structured = build_structured_review_result(reviewer_result)
+                report = build_lock_gate_report(task_text, structured, max_revisions=5, legacy_result=reviewer_result)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
+        self.assertTrue(next(check for check in report.checks if check.name == "required_information_gain").passed)
+
     def test_lock_gate_passes_clean_lock(self) -> None:
         reviewer_result = {
             "task_id": "scene_012_draft_05",

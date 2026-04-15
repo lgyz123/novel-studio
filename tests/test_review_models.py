@@ -28,6 +28,7 @@ from app.main import (
     get_effective_manual_intervention_threshold,
     extract_supervisor_round,
     has_supervisor_retry_budget,
+    is_likely_truncated,
     is_supervisor_runtime_available,
     is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
@@ -580,6 +581,56 @@ scene_043-R1
         self.assertIn("# review_trace", content)
         self.assertIn("mode: deterministic_fallback", content)
         self.assertIn("deterministic_fallback: yes", content)
+
+    def test_local_revision_task_uses_minimal_contract_after_r1(self) -> None:
+        task_text = """# task_id
+scene_200-R1
+
+# goal
+继续修订当前 scene
+
+# constraints
+- 保持连续小说 prose，不写说明、提纲或分镜。
+- 主角核心仍是 孟浮灯。
+
+# output_target
+02_working/drafts/scene_200_v2.md
+"""
+        reviewer_result = {
+            "task_id": "scene_200-R1",
+            "verdict": "revise",
+            "summary": "需要继续修订。",
+            "major_issues": ["缺少明确的 plot progress。"],
+            "minor_issues": ["[skill audit][planning_bootstrap] planning_bootstrap router 当前启用：worldbuilding、scene-outline。"],
+            "recommended_next_step": "create_revision_task",
+            "task_goal_fulfilled": False,
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": "局面没有发生明确变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": "主角没有形成可追踪的新动作。"},
+            "motif_redundancy": {
+                "repeated_motifs": [],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "未识别到明显复读。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        content = build_generated_task_content(
+            task_text,
+            reviewer_result,
+            "02_working/drafts/scene_200_v2.md",
+            "revise",
+            config={"writer": {"provider": "ollama"}},
+        )
+        self.assertIn("本轮只做最小可过审修订", content)
+        self.assertIn("900-1400字", content)
+        self.assertNotIn("planning_bootstrap", content)
+        self.assertNotIn("skill audit", content)
 
     def test_writer_prompt_includes_repair_plan_guidance(self) -> None:
         legacy_result = {
@@ -1276,6 +1327,121 @@ scene_parenthetical
 
         self.assertIn("出现多行列表式提纲，不像连续小说正文", problems)
 
+    def test_is_likely_truncated_flags_short_tail_fragment_without_terminal_punctuation(self) -> None:
+        self.assertTrue(
+            is_likely_truncated(
+                "孟浮灯把尸体拖到浅滩边，先摸到一枚冷硬铜牌。河面起雾后，他抬头看见对岸新立的石碑，"
+                "“玄机渡”三个字"
+            )
+        )
+
+    def test_validation_rejects_title_and_inline_meta_markers(self) -> None:
+        draft = """**《无住人间》第二卷·山门卷**
+**第一章：符签**
+
+孟浮灯把麻绳攥紧。
+
+（新事实：司命署开始介入码头）
+"""
+
+        errors = build_validation_errors("# task_id\nscene_meta\n", draft)
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_validation_rejects_title_only_output(self) -> None:
+        errors = build_validation_errors("# task_id\nscene_title\n", "**《无住人间》第二卷·山门卷**")
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_repair_invalid_draft_uses_continued_attempt_after_truncation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_continue_repair
+
+# goal
+写一个短场景。
+
+# output_target
+02_working/drafts/scene_continue_repair.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_generate_decision_json = main_module.generate_decision_json
+            original_generate_markdown_draft = main_module.generate_markdown_draft
+            original_continue = main_module.continue_truncated_draft
+            original_repair = main_module.repair_invalid_draft
+            main_module.ROOT = root
+            captured_bad_drafts: list[str] = []
+            try:
+                main_module.generate_decision_json = lambda config, current_context: {
+                    "task_id": "scene_continue_repair",
+                    "goal": "写一个短场景。",
+                    "used_sources": [],
+                    "risks": [],
+                    "next_action": "draft",
+                    "draft_file": "02_working/drafts/scene_continue_repair.md",
+                }
+                main_module.generate_markdown_draft = lambda config, current_context, decision: "孟浮灯低头看见"
+                main_module.continue_truncated_draft = lambda config, current_context, bad_draft: """**第一章：符签**
+
+孟浮灯低头看见河水里翻出的冷光。
+
+（新事实：司命署开始介入码头）
+"""
+
+                def fake_repair(config, current_context, bad_draft, errors):
+                    captured_bad_drafts.append(bad_draft)
+                    return "孟浮灯低头看见河水里翻出的冷光，便先把那块冷铁塞进袖口，转身去找老船工。"
+
+                main_module.repair_invalid_draft = fake_repair
+
+                result = write_draft(
+                    {
+                        "writer": {"provider": "ollama", "model": "fake", "base_url": "http://example.com"},
+                        "generation": {"write_num_ctx": 2048, "temperature": 0.4, "request_timeout": 10},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.generate_decision_json = original_generate_decision_json
+                main_module.generate_markdown_draft = original_generate_markdown_draft
+                main_module.continue_truncated_draft = original_continue
+                main_module.repair_invalid_draft = original_repair
+                main_module.ROOT = previous_root
+
+            self.assertEqual(result["draft_file"], "02_working/drafts/scene_continue_repair.md")
+            self.assertTrue(captured_bad_drafts)
+            self.assertNotEqual(captured_bad_drafts[0], "孟浮灯低头看见")
+            self.assertTrue("河水里翻出的冷光" in captured_bad_drafts[0] or captured_bad_drafts[0] == "")
+
     def test_write_draft_recovers_truncated_output_via_continuation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -1449,10 +1615,12 @@ scene_modern
 
             previous_root = main_module.ROOT
             original_call_ollama = main_module.call_ollama
+            original_rewrite = main_module.rewrite_script_to_prose
             original_repair = main_module.repair_invalid_draft
             main_module.ROOT = root
             try:
                 main_module.call_ollama = lambda **kwargs: "远处传来运尸车碾过石板的闷响。"
+                main_module.rewrite_script_to_prose = lambda config, current_context, bad_draft: "远处传来板车碾过石板的闷响。"
                 main_module.repair_invalid_draft = lambda config, current_context, bad_draft, errors: "远处传来板车碾过石板的闷响。"
 
                 result = write_draft(
@@ -1465,13 +1633,14 @@ scene_modern
                 )
             finally:
                 main_module.call_ollama = original_call_ollama
+                main_module.rewrite_script_to_prose = original_rewrite
                 main_module.repair_invalid_draft = original_repair
                 main_module.ROOT = previous_root
 
             saved_draft = (root / "02_working/drafts/scene_modern.md").read_text(encoding="utf-8")
             self.assertEqual(result["draft_file"], "02_working/drafts/scene_modern.md")
             self.assertEqual(saved_draft, "远处传来板车碾过石板的闷响。")
-            self.assertTrue((root / "02_working/logs/scene_modern_repaired_attempt.md").exists())
+            self.assertTrue((root / "02_working/logs/scene_modern_rewritten_attempt.md").exists())
 
     def test_generated_followup_task_strips_accumulated_revision_pollution(self) -> None:
         task_text = """# task_id

@@ -1318,14 +1318,6 @@ def normalize_review_result(
         if item not in cleaned_major:
             cleaned_major.insert(0, item)
 
-    skill_major, skill_minor = audit_all_skill_router_phases(ROOT, task_text)
-    for item in reversed(skill_minor):
-        if item not in cleaned_minor:
-            cleaned_minor.insert(0, item)
-    for item in reversed(skill_major):
-        if item not in cleaned_major:
-            cleaned_major.insert(0, item)
-
     if not cleaned_major and verdict in {"revise", "rewrite"}:
         cleaned_major = ["当前草稿未充分完成 task 的核心推进目标。"]
 
@@ -1355,21 +1347,13 @@ def normalize_review_result(
             result["verdict"] = "revise"
             result["recommended_next_step"] = "create_revision_task"
 
-    positive_summary_markers = ["方向正确", "基本满足", "可作为终稿"]
-    negative_summary_markers = ["未完成", "不足", "需要小修", "仍需", "还需", "不够", "偏弱"]
-    heavy_minor_markers = ["核心推进", "未完成", "不足", "偏弱", "不够", "需要补", "需要加强"]
-    minor_is_light = len(cleaned_minor) <= 2 and not any(
-        any(marker in item for marker in heavy_minor_markers) for item in cleaned_minor
-    )
-    if (
-        verdict == "revise"
-        and len(cleaned_major) == 1
-        and not hard_failures
-        and any(marker in summary for marker in positive_summary_markers)
-        and not any(marker in summary for marker in negative_summary_markers)
-        and minor_is_light
+    if should_auto_lock_from_structural_signals(
+        structural_payload=structural_payload,
+        summary=summary,
+        major_issues=cleaned_major,
+        minor_issues=cleaned_minor,
+        hard_failures=hard_failures,
     ):
-        cleaned_minor = cleaned_major + cleaned_minor
         cleaned_major = []
         verdict = "lock"
         result["verdict"] = "lock"
@@ -1547,6 +1531,53 @@ def build_local_review_fallback(
         "motif_redundancy": structural_signals["motif_redundancy"],
         "canon_consistency": structural_signals["canon_consistency"],
     }
+
+
+def should_auto_lock_from_structural_signals(
+    *,
+    structural_payload: dict[str, Any],
+    summary: str,
+    major_issues: list[str],
+    minor_issues: list[str],
+    hard_failures: list[str],
+) -> bool:
+    if hard_failures:
+        return False
+    if not structural_payload.get("information_gain", {}).get("has_new_information"):
+        return False
+    if not structural_payload.get("plot_progress", {}).get("has_plot_progress"):
+        return False
+    if not structural_payload.get("character_decision", {}).get("has_decision_or_behavior_shift"):
+        return False
+    if not structural_payload.get("canon_consistency", {}).get("is_consistent", True):
+        return False
+
+    positive_summary_markers = [
+        "方向正确",
+        "基本满足",
+        "可作为终稿",
+        "具备信息增量",
+        "情节推进",
+        "行为偏移",
+        "未发现明显母题空转",
+        "未发现明显母题空转或 canon 漂移",
+    ]
+    negative_summary_markers = ["未完成", "不足", "需要小修", "仍需", "还需", "不够", "偏弱"]
+    if not any(marker in summary for marker in positive_summary_markers):
+        return False
+    if any(marker in summary for marker in negative_summary_markers):
+        return False
+
+    placeholder_major = {"当前草稿未充分完成 task 的核心推进目标。"}
+    meaningful_major = [item for item in major_issues if item not in placeholder_major]
+    meaningful_minor = [
+        item
+        for item in minor_issues
+        if "无效英文分析" not in item
+        and not item.startswith("[skill audit][")
+        and not item.startswith("本场新增信息：")
+    ]
+    return not meaningful_major and len(meaningful_minor) <= 1
 
 
 def load_skill_audit_entries(root: Path) -> list[dict[str, Any]]:

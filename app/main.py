@@ -211,6 +211,15 @@ def is_supervisor_runtime_available(config: dict | None = None) -> bool:
         return False
 
 
+def should_use_minimal_local_revision_task(config: dict | None, task_text: str, mode: str) -> bool:
+    if mode not in {"revise", "rewrite"}:
+        return False
+    if not is_local_writer_mode(config):
+        return False
+    task_id = extract_markdown_field(task_text, "task_id") or ""
+    return extract_revision_count(task_id) >= 1
+
+
 def extract_openai_message_content(response: Any) -> str:
     choices = getattr(response, "choices", None) or []
     if not choices:
@@ -367,6 +376,13 @@ def is_likely_truncated(text: str) -> bool:
     if not stripped:
         return False
 
+    terminal_quotes = "”’」』\"'"
+    core = stripped
+    while core and core[-1] in terminal_quotes:
+        core = core[:-1].rstrip()
+    if core and core[-1] in {"。", "！", "？", "…"}:
+        return False
+
     suspicious_endings = [
         "（",
         "(",
@@ -383,6 +399,17 @@ def is_likely_truncated(text: str) -> bool:
     ]
     if any(stripped.endswith(x) for x in suspicious_endings):
         return True
+
+    paired_quotes = [("“", "”"), ("‘", "’"), ("「", "」"), ("『", "』"), ("(", ")"), ("（", "）")]
+    for opener, closer in paired_quotes:
+        if stripped.count(opener) > stripped.count(closer):
+            return True
+
+    if core and core[-1] not in {"。", "！", "？", "…"}:
+        sentence_parts = re.split(r"[。！？!?]", core)
+        tail_fragment = sentence_parts[-1].strip() if sentence_parts else core
+        if len(core) >= 120 and len(tail_fragment) <= 28:
+            return True
 
     # 末尾如果明显像半截句，也算可疑
     if len(stripped) >= 1 and stripped[-1].isalnum():
@@ -424,8 +451,11 @@ def detect_forbidden_characters(task_text: str, draft_text: str) -> list[str]:
 
 EDITORIAL_HEADING_PATTERNS = [
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:修订说明|修改说明|说明|执行说明|推进说明|写作说明|改写说明|补充说明|内容说明|思路说明|本次说明)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
+    r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:场景正文|正文)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:以下为正文|以下正文|正文如下|以下是正文|以下是修改说明|以下是修订说明)(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:注|备注|附注)(?:\*\*)?\s*[:：].*$",
+    r"^\s*(?:\*\*)?《[^》]{2,}》.*(?:\*\*)?\s*$",
+    r"^\s*(?:\*\*)?第[一二三四五六七八九十百零0-9]+[章节卷部][^*]{0,24}(?:\*\*)?\s*$",
 ]
 
 
@@ -439,6 +469,8 @@ def contains_editorial_explanation(text: str) -> list[str]:
         "以下为",
         "以下正文",
         "正文如下",
+        "【场景正文】",
+        "场景正文",
         "改写说明",
         "修订说明",
         "执行说明",
@@ -446,6 +478,10 @@ def contains_editorial_explanation(text: str) -> list[str]:
         "写作说明",
         "注：",
         "备注：",
+        "**《",
+        "（新事实：",
+        "（新后果：",
+        "（状态变化：",
     ]
     found = [m for m in markers if m in text]
     for line in text.splitlines():
@@ -1608,6 +1644,8 @@ def should_force_prose_rewrite(errors: list[str]) -> bool:
         "分镜体",
         "提纲/列表式",
         "说明性附加文本",
+        "包含不允许的现代词汇",
+        "草稿疑似被截断",
     ]
     return any(marker in text for marker in markers)
 
@@ -1705,6 +1743,7 @@ def write_draft(config: dict, current_context: str) -> dict:
         if any("草稿疑似被截断" in e for e in errors):
             continued = continue_truncated_draft(config, current_context, raw_markdown_text)
             fallbacks_used.append("continue_truncated_draft")
+            markdown_text = continued
             save_failed_draft(task_id, continued, "continued_attempt")
             continued_errors = build_validation_errors(task_text, continued)
             if not continued_errors:
@@ -1747,7 +1786,7 @@ def write_draft(config: dict, current_context: str) -> dict:
                 markdown_text = refined
 
         elif errors:
-            repaired = repair_invalid_draft(config, current_context, raw_markdown_text, errors)
+            repaired = repair_invalid_draft(config, current_context, markdown_text, errors)
             fallbacks_used.append("repair_invalid_draft")
             save_failed_draft(task_id, repaired, "repaired_attempt")
             repaired_errors = build_validation_errors(task_text, repaired)
@@ -2568,6 +2607,62 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
     return "\n".join(blocks).strip()
 
 
+def build_minimal_local_revision_goal(original_goal: str, structural_fields: dict[str, Any]) -> str:
+    base_goal = strip_revision_prefix(original_goal)
+    scene_purpose = str(structural_fields.get("scene_purpose") or "").strip()
+    info_items = [str(item).strip() for item in structural_fields.get("required_information_gain", []) if str(item).strip()]
+    plot_progress = str(structural_fields.get("required_plot_progress") or "").strip()
+    decision_shift = str(structural_fields.get("required_decision_shift") or "").strip()
+
+    fragments = [base_goal]
+    if scene_purpose:
+        fragments.append(f"本次只解决一个核心目标：{scene_purpose}")
+    if info_items:
+        fragments.append(f"必须补出一个新事实：{info_items[0]}")
+    if decision_shift:
+        fragments.append(f"必须补出一个带后果的新动作/新决定：{decision_shift}")
+    elif plot_progress:
+        fragments.append(f"必须让局面前进一步：{plot_progress}")
+    return "。".join([item for item in fragments if item]) + "。"
+
+
+def build_minimal_local_revision_constraints(task_text: str, structural_fields: dict[str, Any]) -> str:
+    original_constraints = sanitize_followup_constraints(extract_markdown_field(task_text, "constraints") or "")
+    required_state_change = [str(item).strip() for item in structural_fields.get("required_state_change", []) if str(item).strip()]
+    avoid_motifs = [str(item).strip() for item in structural_fields.get("avoid_motifs", []) if str(item).strip()]
+
+    lines: list[str] = []
+    if original_constraints:
+        for line in original_constraints.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if any(marker in stripped for marker in ["skill audit", "planning_bootstrap", "character_creation", "timeline_bootstrap", "scene_writing", "repair_plan", "修订模式", "修订焦点"]):
+                continue
+            lines.append(line)
+
+    lines.extend(
+        [
+            "- 本轮只做最小可过审修订，不扩写世界观，不新增人物，不新增机构名词。",
+            "- 只允许补一个新事实、一个新动作/新决定、一个直接后果或结尾状态变化。",
+            "- 不要再写成大场面、不要跳成新设定展示、不要引入新的组织或职位称呼。",
+            "- 结尾必须留下一个明确状态变化，不能只停在气氛、回想或疑问。",
+        ]
+    )
+
+    if required_state_change:
+        lines.append(f"- 必须落地的状态变化：{required_state_change[0]}")
+    if avoid_motifs:
+        lines.append(f"- 避免重复母题：{avoid_motifs[0]}")
+
+    deduped: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped and stripped not in deduped:
+            deduped.append(stripped)
+    return "\n".join(deduped)
+
+
 def build_generated_task_content(task_text: str, reviewer_result: dict, draft_file: str, mode: str, config: dict | None = None) -> str:
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
     original_goal = extract_markdown_field(task_text, "goal") or "根据 reviewer 结果继续处理当前草稿"
@@ -2592,26 +2687,34 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     repair_focus, repair_focus_reasons = choose_repair_focus(task_text, reviewer_result)
 
     new_task_id = build_followup_task_id(task_id, mode)
-    planning_repair_brief_path = save_planning_repair_brief(new_task_id, reviewer_result)
-    new_goal = build_followup_goal(
-        original_goal,
-        reviewer_result,
-        mode,
-        task_text,
-        repair_mode=repair_mode,
-        repair_focus=repair_focus,
-        repair_instructions=repair_instructions,
-    )
-    new_constraints = build_followup_constraints(
-        task_text,
-        reviewer_result,
-        repair_mode=repair_mode,
-        repair_focus=repair_focus,
-        repair_focus_reasons=repair_focus_reasons,
-        repair_instructions=repair_instructions,
-    )
     new_output_target = build_followup_output_target(draft_file, mode)
     structural_fields = build_structural_task_fields(task_text, reviewer_result)
+    minimal_task_probe = f"# task_id\n{new_task_id}\n"
+    use_minimal_local_revision = should_use_minimal_local_revision_task(config, minimal_task_probe, mode)
+    planning_repair_brief_path = None if use_minimal_local_revision else save_planning_repair_brief(new_task_id, reviewer_result)
+    if use_minimal_local_revision:
+        new_goal = build_minimal_local_revision_goal(original_goal, structural_fields)
+        new_constraints = build_minimal_local_revision_constraints(task_text, structural_fields)
+        if is_local_writer_mode(config):
+            preferred_length = "900-1400字"
+    else:
+        new_goal = build_followup_goal(
+            original_goal,
+            reviewer_result,
+            mode,
+            task_text,
+            repair_mode=repair_mode,
+            repair_focus=repair_focus,
+            repair_instructions=repair_instructions,
+        )
+        new_constraints = build_followup_constraints(
+            task_text,
+            reviewer_result,
+            repair_mode=repair_mode,
+            repair_focus=repair_focus,
+            repair_focus_reasons=repair_focus_reasons,
+            repair_instructions=repair_instructions,
+        )
     information_gain_block = "\n".join(f"- {item}" for item in structural_fields["required_information_gain"])
     state_change_block = "\n".join(f"- {item}" for item in structural_fields["required_state_change"])
     avoid_motifs_block = "\n".join(f"- {item}" for item in structural_fields["avoid_motifs"])

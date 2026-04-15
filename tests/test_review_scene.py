@@ -596,8 +596,39 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
             finally:
                 review_scene_module.ROOT = previous_root
 
-        self.assertTrue(any("[skill audit][planning_bootstrap]" in item for item in normalized["minor_issues"]))
-        self.assertTrue(any("[skill audit][scene_writing]" in item for item in normalized["major_issues"]))
+        self.assertFalse(any("[skill audit][" in item for item in normalized["minor_issues"]))
+        self.assertFalse(any("[skill audit][" in item for item in normalized["major_issues"]))
+
+    def test_normalize_review_result_auto_locks_when_structural_signals_are_all_green(self) -> None:
+        result = {
+            "task_id": "scene_109",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["当前草稿未充分完成 task 的核心推进目标。"],
+            "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
+            "recommended_next_step": "create_revision_task",
+            "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他摸到尸体腰间多了一块冷玉。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他因此改了交差顺序。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他先把冷玉塞进袖口。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "未识别到明显的高频母题复读。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            raw_review_text="We need to produce a JSON object.",
+            task_text="# task_id\nscene_109\n",
+            low_confidence=True,
+            draft_text="孟浮灯摸到尸体腰间多了一块冷玉，决定先把那东西塞进袖口，随后改了交差顺序。",
+            based_on_text="孟浮灯原本只想把尸体拖上岸。",
+            chapter_state="当前仍处于求活观察阶段。",
+        )
+
+        self.assertEqual(normalized["verdict"], "lock")
+        self.assertEqual(normalized["recommended_next_step"], "lock_scene")
+        self.assertTrue(normalized["task_goal_fulfilled"])
+        self.assertEqual(normalized["major_issues"], [])
 
     def test_build_structural_review_signals_marks_new_function_reuse_as_allowed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
