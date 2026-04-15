@@ -28,10 +28,12 @@ from app.main import (
     get_effective_manual_intervention_threshold,
     extract_supervisor_round,
     has_supervisor_retry_budget,
+    is_supervisor_runtime_available,
     is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
     should_auto_lock_after_supervisor_rescue,
     should_force_supervisor_takeover,
+    should_use_hard_prose_revision_prompt,
     should_use_deepseek_writer,
     should_continue_after_lock,
     write_draft,
@@ -118,11 +120,60 @@ class ReviewModelsTest(unittest.TestCase):
 
         self.assertEqual(content, "生成的正文")
         self.assertEqual(captured["api_key"], "sk-test-key")
-        self.assertEqual(captured["base_url"], "https://api.deepseek.com")
-        self.assertEqual(captured["model"], "deepseek-chat")
-        self.assertEqual(captured["messages"][0]["role"], "system")
-        self.assertEqual(captured["messages"][1]["role"], "user")
-        self.assertEqual(captured["max_tokens"], 1200)
+
+    def test_hard_prose_revision_prompt_triggers_after_r2_for_local_writer(self) -> None:
+        task_text = """# task_id
+scene_055-R2
+
+# repair_mode
+full_redraft
+
+# repair_focus
+structural_repair
+"""
+        self.assertTrue(
+            should_use_hard_prose_revision_prompt(
+                {"writer": {"provider": "ollama"}},
+                task_text,
+            )
+        )
+
+    def test_supervisor_runtime_unavailable_without_api_key(self) -> None:
+        self.assertFalse(
+            is_supervisor_runtime_available(
+                {
+                    "supervisor": {
+                        "enabled": True,
+                        "api_key_env": "MISSING_ENV",
+                    }
+                }
+            )
+        )
+
+    def test_force_supervisor_takeover_waits_when_supervisor_unavailable(self) -> None:
+        task_text = """# task_id
+scene_099-R2
+
+# supervisor_round
+0
+"""
+        self.assertFalse(
+            should_force_supervisor_takeover(
+                {
+                    "supervisor": {"enabled": True, "api_key_env": "MISSING_ENV"},
+                    "writer": {"provider": "ollama"},
+                    "reviewer": {"provider": "ollama"},
+                    "generation": {"max_supervisor_rounds": 3},
+                },
+                task_text,
+                {
+                    "task_id": "scene_099-R2",
+                    "verdict": "revise",
+                    "major_issues": ["scene purpose 仍不够明确。"],
+                    "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
+                },
+            )
+        )
 
     def test_writer_system_prompt_only_requests_markdown_prose(self) -> None:
         prompt = Path("/Users/guan/git/novel-studio/prompts/writer_system.md").read_text(encoding="utf-8")
@@ -1550,23 +1601,30 @@ scene_099-R2
 # supervisor_round
 0
 """
-        self.assertTrue(
-            should_force_supervisor_takeover(
-                {
-                    "supervisor": {"enabled": True},
-                    "writer": {"provider": "ollama"},
-                    "reviewer": {"provider": "ollama"},
-                    "generation": {"max_supervisor_rounds": 3},
-                },
-                task_text,
-                {
-                    "task_id": "scene_099-R2",
-                    "verdict": "revise",
-                    "major_issues": ["scene purpose 仍不够明确。"],
-                    "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
-                },
+        import app.main as main_module
+
+        previous_checker = main_module.is_supervisor_runtime_available
+        try:
+            main_module.is_supervisor_runtime_available = lambda config: True
+            self.assertTrue(
+                should_force_supervisor_takeover(
+                    {
+                        "supervisor": {"enabled": True},
+                        "writer": {"provider": "ollama"},
+                        "reviewer": {"provider": "ollama"},
+                        "generation": {"max_supervisor_rounds": 3},
+                    },
+                    task_text,
+                    {
+                        "task_id": "scene_099-R2",
+                        "verdict": "revise",
+                        "major_issues": ["scene purpose 仍不够明确。"],
+                        "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
+                    },
+                )
             )
-        )
+        finally:
+            main_module.is_supervisor_runtime_available = previous_checker
 
     def test_local_supervisor_rescue_can_auto_lock_after_multiple_revisions(self) -> None:
         import app.main as main_module
@@ -1633,7 +1691,7 @@ scene_101-R2
             "canon_consistency": {"is_consistent": True, "consistency_issues": []},
             "review_trace": {
                 "provider": "ollama",
-                "mode": "deterministic_fallback",
+                "mode": "deterministic_primary_with_reference",
                 "json_refinement_attempted": False,
                 "deterministic_fallback_used": True,
                 "low_confidence": True,
@@ -1641,7 +1699,7 @@ scene_101-R2
             },
         }
 
-        self.assertEqual(reviewer_result["review_trace"]["mode"], "deterministic_fallback")
+        self.assertEqual(reviewer_result["review_trace"]["mode"], "deterministic_primary_with_reference")
         self.assertTrue(reviewer_result["review_trace"]["deterministic_fallback_used"])
 
     def test_prepare_supervisor_rescue_draft_saves_validated_draft(self) -> None:

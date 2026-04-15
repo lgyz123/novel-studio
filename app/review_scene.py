@@ -32,6 +32,38 @@ def should_use_deepseek(config: dict) -> bool:
     return provider == "deepseek" or (base_url == "https://api.deepseek.com" and model == "deepseek-chat")
 
 
+def is_local_reviewer_mode(config: dict | None = None) -> bool:
+    if not config:
+        return False
+    reviewer = config.get("reviewer", {})
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    return provider not in {"", "deepseek"}
+
+
+def should_use_compact_local_review_prompt(config: dict | None = None) -> bool:
+    return is_local_reviewer_mode(config)
+
+
+def get_local_reviewer_strategy(config: dict | None = None) -> str:
+    if not is_local_reviewer_mode(config):
+        return "llm_primary"
+    reviewer = (config or {}).get("reviewer", {})
+    strategy = str(reviewer.get("local_review_strategy", "")).strip().lower()
+    if strategy in {"deterministic_primary", "llm_primary"}:
+        return strategy
+    return "deterministic_primary"
+
+
+def should_consult_local_reviewer_reference(config: dict | None = None) -> bool:
+    if not is_local_reviewer_mode(config):
+        return False
+    reviewer = (config or {}).get("reviewer", {})
+    value = reviewer.get("use_local_reference", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
+
+
 def read_text(rel_path: str) -> str:
     path = ROOT / rel_path
     return path.read_text(encoding="utf-8")
@@ -1606,6 +1638,7 @@ def extract_markdown_field(task_text: str, field_name: str) -> str | None:
 
 
 def build_review_prompt(
+    config: dict | None,
     task_text: str,
     chapter_state: str,
     based_on_text: str,
@@ -1639,6 +1672,46 @@ def build_review_prompt(
             "chapter_progress": tracker_bundle.get("chapter_progress", {}),
         }
     tracker_summary_text = json.dumps(prompt_tracker_summary, ensure_ascii=False, indent=2) if prompt_tracker_summary else "{}"
+    if should_use_compact_local_review_prompt(config):
+        return f"""你是小说 scene 审稿器。只输出一个 JSON 对象，不要解释，不要英文分析。
+
+必须检查并输出这些字段：
+- task_id
+- verdict
+- task_goal_fulfilled
+- major_issues
+- minor_issues
+- recommended_next_step
+- summary
+- information_gain
+- plot_progress
+- character_decision
+- motif_redundancy
+- canon_consistency
+
+判定规则：
+1. 没有新信息，不能 lock。
+2. 没有情节推进，不能 lock。
+3. 主角没有明确动作/决策偏移，不能 lock。
+4. 有 canon 冲突，不能 lock。
+5. 如果只是小问题，用 revise；方向错了才用 rewrite。
+6. `summary`、问题条目、结构字段说明必须用中文。
+
+【任务】
+{task_text}
+
+【chapter_state】
+{chapter_state}
+
+【tracker 摘要】
+{tracker_summary_text}
+
+【前文参考】
+{normalized_based_on}
+
+【待审草稿】
+{normalized_draft}
+"""
     return f"""请审查下面这段 scene 草稿。
 
 你只能输出一个合法 JSON 对象。
@@ -1814,67 +1887,88 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
 
     system_prompt = read_text("prompts/reviewer_system.md")
     schema = json.loads(read_text("prompts/reviewer_output_schema.json"))
+    local_reviewer_strategy = get_local_reviewer_strategy(config)
+    consulted_local_reference = False
 
     user_prompt = build_review_prompt(
+        config,
         task_text=task_text,
         chapter_state=chapter_state,
         based_on_text=based_on_text,
         draft_text=draft_text,
     )
 
-    raw_response = call_ollama(
-        model=config["reviewer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["reviewer"]["base_url"],
-        num_ctx=config["reviewer"]["num_ctx"],
-        temperature=config["reviewer"].get("temperature", 0.1),
-        timeout=config["reviewer"]["request_timeout"],
-        num_predict=config["reviewer"].get("num_predict", 900),
-        response_format=schema,
-    )
-    raw_output = extract_message_text(raw_response)
+    raw_output = ""
     raw_output_for_retry = raw_output
     raw_output_meta = {"low_value_english": False, "repeated_fragments": 0, "truncated": False}
     review_mode = "direct_json"
     json_refinement_attempted = False
     deterministic_fallback_used = False
 
-    try:
-        result = extract_json_object(raw_output)
-    except Exception:
-        raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
-        print("Reviewer 原始输出如下：")
-        print("=" * 40)
-        print(raw_output_for_retry)
-        print("=" * 40)
-        if not raw_output.strip():
-            print("Reviewer 原始响应摘要：")
-            print(summarize_response_for_debug(raw_response))
-            raise ValueError(
-                "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
+    if local_reviewer_strategy == "deterministic_primary":
+        if should_consult_local_reviewer_reference(config):
+            consulted_local_reference = True
+            raw_response = call_ollama(
+                model=config["reviewer"]["model"],
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                base_url=config["reviewer"]["base_url"],
+                num_ctx=config["reviewer"]["num_ctx"],
+                temperature=config["reviewer"].get("temperature", 0.1),
+                timeout=config["reviewer"]["request_timeout"],
+                num_predict=config["reviewer"].get("reference_num_predict", 400),
+                response_format=None,
             )
-        if should_skip_json_refinement_for_local_reviewer(config, raw_output_for_retry, raw_output_meta):
-            print("检测到本地 reviewer 输出为低价值分析或元话语，直接切换到 deterministic reviewer 兜底。")
-            review_mode = "deterministic_fallback"
-            deterministic_fallback_used = True
-            result = build_local_review_fallback(
-                task_id,
-                raw_output_for_retry,
-                task_text=task_text,
-                draft_text=draft_text,
-                based_on_text=based_on_text,
-                chapter_state=chapter_state,
-                low_confidence=True,
-            )
-        else:
-            print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
-            json_refinement_attempted = True
-            try:
-                result = extract_reviewer_json(config, task_id, raw_output_for_retry)
-                review_mode = "json_refined"
-            except Exception:
-                print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+            raw_output = extract_message_text(raw_response)
+            raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
+            if raw_output_for_retry:
+                print("本地 reviewer 补充参考输出如下：")
+                print("=" * 40)
+                print(raw_output_for_retry)
+                print("=" * 40)
+
+        review_mode = "deterministic_primary"
+        deterministic_fallback_used = True
+        result = build_local_review_fallback(
+            task_id,
+            raw_output_for_retry,
+            task_text=task_text,
+            draft_text=draft_text,
+            based_on_text=based_on_text,
+            chapter_state=chapter_state,
+            low_confidence=bool(raw_output_meta.get("low_value_english")),
+        )
+    else:
+        raw_response = call_ollama(
+            model=config["reviewer"]["model"],
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            base_url=config["reviewer"]["base_url"],
+            num_ctx=config["reviewer"]["num_ctx"],
+            temperature=config["reviewer"].get("temperature", 0.1),
+            timeout=config["reviewer"]["request_timeout"],
+            num_predict=config["reviewer"].get("num_predict", 900),
+            response_format=schema,
+        )
+        raw_output = extract_message_text(raw_response)
+        raw_output_for_retry = raw_output
+
+        try:
+            result = extract_json_object(raw_output)
+        except Exception:
+            raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
+            print("Reviewer 原始输出如下：")
+            print("=" * 40)
+            print(raw_output_for_retry)
+            print("=" * 40)
+            if not raw_output.strip():
+                print("Reviewer 原始响应摘要：")
+                print(summarize_response_for_debug(raw_response))
+                raise ValueError(
+                    "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
+                )
+            if should_skip_json_refinement_for_local_reviewer(config, raw_output_for_retry, raw_output_meta):
+                print("检测到本地 reviewer 输出为低价值分析或元话语，直接切换到 deterministic reviewer 兜底。")
                 review_mode = "deterministic_fallback"
                 deterministic_fallback_used = True
                 result = build_local_review_fallback(
@@ -1884,8 +1978,27 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
                     draft_text=draft_text,
                     based_on_text=based_on_text,
                     chapter_state=chapter_state,
-                    low_confidence=raw_output_meta["low_value_english"],
+                    low_confidence=True,
                 )
+            else:
+                print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
+                json_refinement_attempted = True
+                try:
+                    result = extract_reviewer_json(config, task_id, raw_output_for_retry)
+                    review_mode = "json_refined"
+                except Exception:
+                    print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+                    review_mode = "deterministic_fallback"
+                    deterministic_fallback_used = True
+                    result = build_local_review_fallback(
+                        task_id,
+                        raw_output_for_retry,
+                        task_text=task_text,
+                        draft_text=draft_text,
+                        based_on_text=based_on_text,
+                        chapter_state=chapter_state,
+                        low_confidence=raw_output_meta["low_value_english"],
+                    )
 
     result = normalize_review_result(
         result,
@@ -1902,7 +2015,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
     validate_review_content(result)
     result["review_trace"] = build_reviewer_trace(
         provider=reviewer_provider,
-        mode=review_mode,
+        mode=f"{review_mode}_with_reference" if consulted_local_reference and review_mode == "deterministic_primary" else review_mode,
         json_refinement_attempted=json_refinement_attempted,
         deterministic_fallback_used=deterministic_fallback_used,
         low_confidence=bool(raw_output_meta.get("low_value_english")),

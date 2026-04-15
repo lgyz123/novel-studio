@@ -175,6 +175,11 @@ class ProjectRuntimeTest(unittest.TestCase):
             finally:
                 main_module.ROOT = previous_root
 
+    def test_restart_mode_skips_existing_draft_reuse_for_all_rounds(self) -> None:
+        self.assertTrue(main_module.should_skip_existing_draft_reuse({"run": {"mode": "restart"}}, 1))
+        self.assertTrue(main_module.should_skip_existing_draft_reuse({"run": {"mode": "restart"}}, 3))
+        self.assertFalse(main_module.should_skip_existing_draft_reuse({"run": {"mode": "continue"}}, 3))
+
     def test_prepare_runtime_start_overwrites_current_task_in_restart_mode(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

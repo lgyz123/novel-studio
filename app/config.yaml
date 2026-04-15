@@ -25,10 +25,14 @@ reviewer:
   provider: ollama
   model: gpt-oss:20b
   base_url: http://192.168.1.11:11434
+  # 本地 reviewer 默认以 deterministic 规则为主，模型只做补充参考，避免被复述提示词带偏
+  local_review_strategy: deterministic_primary
+  use_local_reference: true
   num_ctx: 6144
   temperature: 0.0
   request_timeout: 1200
   num_predict: 700
+  reference_num_predict: 400
   refine_num_predict: 500
   task_max_chars: 1600
   chapter_state_max_chars: 1600

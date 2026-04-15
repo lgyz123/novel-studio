@@ -14,6 +14,7 @@ import app.review_scene as review_scene_module
 class ReviewSceneSanitizationTest(unittest.TestCase):
     def test_build_review_prompt_marks_based_on_as_reference_only(self) -> None:
         prompt = review_scene_module.build_review_prompt(
+            None,
             task_text="# task_id\nscene11\n",
             chapter_state="chapter state",
             based_on_text="【scene10】前文内容",
@@ -49,6 +50,7 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
                 )
 
                 prompt = review_scene_module.build_review_prompt(
+                    None,
                     task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
                     chapter_state="# ch01 当前状态\n\n## 暂不展开的内容\n- 不提前揭示阿绣替他收过尸账\n",
                     based_on_text="【scene01】孟浮灯摸到红绳。",
@@ -157,6 +159,25 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
                 sanitized,
                 meta,
             )
+        )
+
+    def test_build_review_prompt_uses_compact_variant_for_local_reviewer(self) -> None:
+        prompt = review_scene_module.build_review_prompt(
+            {"reviewer": {"provider": "ollama"}},
+            task_text="# task_id\nscene11\n",
+            chapter_state="chapter state",
+            based_on_text="前文",
+            draft_text="当前草稿",
+        )
+
+        self.assertIn("你是小说 scene 审稿器", prompt)
+        self.assertIn("只输出一个 JSON 对象", prompt)
+        self.assertNotIn("你不是文风评论员", prompt)
+
+    def test_local_reviewer_strategy_defaults_to_deterministic_primary(self) -> None:
+        self.assertEqual(
+            review_scene_module.get_local_reviewer_strategy({"reviewer": {"provider": "ollama"}}),
+            "deterministic_primary",
         )
 
     def test_build_reviewer_trace_marks_deterministic_fallback(self) -> None:

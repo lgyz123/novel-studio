@@ -185,6 +185,32 @@ def is_local_reviewer_mode(config: dict | None = None) -> bool:
     return provider not in {"", "deepseek"}
 
 
+def should_use_hard_prose_revision_prompt(config: dict | None, task_text: str) -> bool:
+    if not is_local_writer_mode(config):
+        return False
+    task_id = extract_markdown_field(task_text, "task_id") or ""
+    repair_mode = str(extract_markdown_field(task_text, "repair_mode") or "").strip()
+    repair_focus = str(extract_markdown_field(task_text, "repair_focus") or "").strip()
+    revision_count = extract_revision_count(task_id)
+    if revision_count >= 2:
+        return True
+    if repair_mode == RepairMode.full_redraft.value and repair_focus == STRUCTURAL_REPAIR:
+        return True
+    return False
+
+
+def is_supervisor_runtime_available(config: dict | None = None) -> bool:
+    if not config or not is_supervisor_enabled(config):
+        return False
+    supervisor = config.get("supervisor", {})
+    api_key = str(supervisor.get("api_key") or "").strip() or None
+    api_key_env = str(supervisor.get("api_key_env") or "").strip() or None
+    try:
+        return bool(resolve_api_key(api_key, api_key_env))
+    except Exception:
+        return False
+
+
 def extract_openai_message_content(response: Any) -> str:
     choices = getattr(response, "choices", None) or []
     if not choices:
@@ -1270,6 +1296,35 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
         repair_focus=extract_markdown_field(task_text, "repair_focus"),
     )
     repair_rule_lines = "\n".join([f"14. {item}" for item in repair_rules[:1]]) if repair_rules else ""
+    if should_use_hard_prose_revision_prompt(config, task_text):
+        prompt = f"""请只输出一版可直接保存的小说正文，不要标题、列表、说明、JSON、注释。
+
+硬规则：
+1. 只能写连续 prose，绝不能写成提纲、列表、剧本、分镜、人物名加冒号。
+2. 本轮是失败后重修，优先补齐结构缺口：新信息、明确动作/决策、现实后果、结尾状态变化。
+3. 至少命中三项中的两项：新信息 / 新动作或决策 / 现实后果。
+4. 结尾必须让一个状态变量发生变化：已知信息、判断、行动计划、风险、关系、物件位置或可见性。
+5. 不新增任务单未允许的人物、设定、制度、主线钩子。
+6. 不要只写气氛、回想、疲惫、 lingering 疑问。
+7. 如果原稿方向不够，就直接重写成更清楚的 scene，不要保留提纲腔。
+8. 全文只输出正文，一写完就停止。
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{current_context}
+
+{repair_section}
+
+{structure_section}
+
+{scene10_guardrails}
+
+【决策信息】
+{json.dumps(decision, ensure_ascii=False, indent=2)}
+"""
+        return prompt.replace("\n\n\n", "\n\n")
 
     if should_use_compact_writer_prompt(config):
         prompt = f"""请根据以下输入直接写出可保存的小说正文。
@@ -1940,7 +1995,7 @@ def get_run_mode(config: dict) -> str:
 
 
 def should_skip_existing_draft_reuse(config: dict, loop_round: int) -> bool:
-    return get_run_mode(config) == "restart" and loop_round == 1
+    return get_run_mode(config) == "restart"
 
 
 def get_runtime_target_chapter(config: dict) -> int | None:
@@ -2847,6 +2902,8 @@ def get_effective_manual_intervention_threshold(config: dict, max_revisions: int
 def should_force_supervisor_takeover(config: dict, task_text: str, reviewer_result: dict) -> bool:
     if not is_supervisor_enabled(config):
         return False
+    if not is_supervisor_runtime_available(config):
+        return False
     if not has_supervisor_retry_budget(config, task_text):
         return False
     if not (is_local_reviewer_mode(config) or is_local_writer_mode(config)):
@@ -2860,7 +2917,7 @@ def should_force_supervisor_takeover(config: dict, task_text: str, reviewer_resu
     local_reviewer_noise = any("无效英文分析" in item for item in reviewer_result.get("minor_issues", []))
     repetitive_loop = revision_count >= 2
 
-    if local_reviewer_noise:
+    if local_reviewer_noise and revision_count >= 2:
         return True
     if repetitive_loop and major_issues:
         return True
