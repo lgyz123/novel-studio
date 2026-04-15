@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from app.main import (
     build_existing_draft_result,
+    build_followup_task_id,
     choose_repair_focus,
     compile_context,
     build_generated_task_content,
@@ -19,11 +20,14 @@ from app.main import (
     build_validation_errors,
     call_writer_model,
     clean_model_output,
+    contains_outline_style,
     contains_script_style,
     detect_scene10_old_pattern_reuse,
     build_writer_user_prompt,
+    extract_revision_count,
     extract_supervisor_round,
     has_supervisor_retry_budget,
+    is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
     should_use_deepseek_writer,
     should_continue_after_lock,
@@ -129,6 +133,40 @@ class ReviewModelsTest(unittest.TestCase):
         self.assertIn("至少命中以下三项中的两项", prompt)
         self.assertNotIn("第一部分：JSON", prompt)
 
+    def test_build_writer_user_prompt_uses_compact_mode_for_local_models(self) -> None:
+        prompt = build_writer_user_prompt(
+            "# task_id\nscene_001\n",
+            "上下文",
+            {"task_id": "scene_001", "draft_file": "02_working/drafts/scene_001.md"},
+            config={"writer": {"provider": "ollama", "compact_prompt": "auto"}},
+        )
+
+        self.assertIn("请根据以下输入直接写出可保存的小说正文。", prompt)
+        self.assertIn("硬规则：", prompt)
+        self.assertNotIn("不要输出 [JSON]", prompt)
+
+    def test_build_followup_task_id_increments_rewrite_rounds(self) -> None:
+        self.assertEqual(build_followup_task_id("scene_080-RW1", "rewrite"), "scene_080-RW2")
+        self.assertEqual(build_followup_task_id("scene_080-R3", "rewrite"), "scene_080-RW1")
+
+    def test_extract_revision_count_supports_rewrite_rounds(self) -> None:
+        self.assertEqual(extract_revision_count("scene_080-RW6"), 6)
+        self.assertEqual(extract_revision_count("scene_080-R3"), 3)
+
+    def test_is_safe_auto_lock_reason_requires_explicit_no_more_actionable_work(self) -> None:
+        self.assertTrue(
+            is_safe_auto_lock_reason(
+                "reviewer 未继续给出可执行修订任务",
+                {"major_issues": ["未继续给出可执行修订任务"]},
+            )
+        )
+        self.assertFalse(
+            is_safe_auto_lock_reason(
+                "已达到修订阈值 5 轮，建议人工介入。",
+                {"major_issues": ["当前草稿未充分完成 task 的核心推进目标。"]},
+            )
+        )
+
     def test_validation_rejects_editorial_tail_blocks(self) -> None:
         draft = """孟浮灯把麻绳搭回肩头，顺着冷风往前走。
 
@@ -141,6 +179,16 @@ class ReviewModelsTest(unittest.TestCase):
 
         self.assertTrue(any("说明性附加文本" in item for item in errors))
         self.assertTrue(any("修订说明" in item or "**修订说明**" in item for item in errors))
+
+    def test_validation_rejects_outline_style_output(self) -> None:
+        draft = """1. 孟浮灯回屋
+2. 他发现袖里有异物
+3. 他决定先藏起来
+"""
+
+        errors = build_validation_errors("# task_id\nscene_001\n", draft)
+
+        self.assertTrue(any("提纲/列表式格式" in item for item in errors))
 
     def test_clean_model_output_truncates_editorial_tail_blocks(self) -> None:
         raw = """孟浮灯把门关上，潮气还贴在手背上。
@@ -766,6 +814,11 @@ prose_repair
             self.assertIn("continuity-guard｜mode=scene-canon", context)
             self.assertIn("# writer skill：continuity-guard", context)
             self.assertIn("skills/continuity-guard/SKILL.md", context)
+            self.assertIn("# skill audit", context)
+            self.assertIn("planning_bootstrap router 当前启用：worldbuilding、scene-outline。", context)
+            self.assertIn("character_creation router 当前启用：character-design、naming。", context)
+            self.assertIn("timeline_bootstrap router 当前启用：timeline-history。", context)
+            self.assertIn("scene_writing router 当前启用：continuity-guard。", context)
             self.assertIn("# 少量必要 prose 参考", context)
             self.assertIn("结尾参考：他把平安符压回袖里", context)
             self.assertNotIn("开头旧稿气氛开头旧稿气氛开头旧稿气氛", context)
@@ -775,9 +828,68 @@ prose_repair
             self.assertTrue((root / "02_working/planning/bootstrap_state_machine.md").exists())
             self.assertTrue((root / "02_working/planning/planning_bootstrap_skill_router.json").exists())
             self.assertTrue((root / "02_working/planning/character_creation_skill_router.json").exists())
+            self.assertTrue((root / "02_working/planning/timeline_bootstrap_skill_router.json").exists())
             self.assertTrue((root / "02_working/planning/scene_writing_skill_router.json").exists())
             self.assertTrue((root / "02_working/planning/scene_writing_skill_router.md").exists())
+            self.assertTrue((root / "02_working/planning/skill_audit.json").exists())
+            self.assertTrue((root / "02_working/planning/skill_audit.md").exists())
             self.assertTrue((root / "02_working/outlines/ch01_outline.md").exists())
+
+    def test_compile_context_loads_planning_repair_brief_when_task_references_it(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            for rel_dir in [
+                "00_manifest",
+                "01_inputs/tasks",
+                "01_inputs/life_notes",
+                "02_working/context",
+                "02_working/planning",
+                "03_locked/canon",
+                "03_locked/state",
+            ]:
+                (root / rel_dir).mkdir(parents=True, exist_ok=True)
+
+            (root / "00_manifest/novel_manifest.md").write_text("总纲", encoding="utf-8")
+            (root / "00_manifest/world_bible.md").write_text("世界设定", encoding="utf-8")
+            (root / "00_manifest/character_bible.md").write_text("### 孟浮灯\n- 核心视角人物", encoding="utf-8")
+            (root / "01_inputs/life_notes/latest.md").write_text("潮气、疲惫、风声", encoding="utf-8")
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_405-R1
+
+# goal
+继续修订当前 scene。
+
+# chapter_state
+03_locked/canon/ch01_state.md
+
+# planning_repair_brief
+02_working/planning/scene_405-R1_planning_repair.md
+
+# output_target
+02_working/drafts/ch01_scene05_v2.md
+""",
+                encoding="utf-8",
+            )
+            (root / "03_locked/canon/ch01_state.md").write_text("当前章节状态", encoding="utf-8")
+            (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+            (root / "02_working/planning/scene_405-R1_planning_repair.md").write_text(
+                "# planning repair brief\n\n## repair targets\n\n### timeline_bootstrap\n- artifact：02_working/planning/timeline_patch.md\n",
+                encoding="utf-8",
+            )
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                context = compile_context({"output": {"context_file": "02_working/context/current_context.md"}})
+            finally:
+                main_module.ROOT = previous_root
+
+            self.assertIn("# planning repair brief", context)
+            self.assertIn("scene_405-R1_planning_repair.md", context)
+            self.assertIn("### timeline_bootstrap", context)
 
     def test_generated_task_content_carries_structural_fields(self) -> None:
         task_text = """# task_id
@@ -910,6 +1022,59 @@ scene_403
         self.assertIn("- structural_repair 允许动作：", content)
         self.assertIn("- 必须把 scene contract 缺失项补写落地，不能只做语言微修。", content)
 
+    def test_generated_task_content_prioritizes_skill_audit_repair_hints(self) -> None:
+        task_text = """# task_id
+scene_404
+
+# goal
+修订当前 scene。
+
+# constraints
+- 保持单视角
+
+# output_target
+02_working/drafts/scene_404.md
+"""
+        reviewer_result = {
+            "task_id": "scene_404",
+            "summary": "当前修订前需要先纠偏 planning skill。",
+            "major_issues": [
+                "[skill audit][planning_bootstrap] planning_bootstrap router 漏选关键 skill：scene-outline。",
+                "[skill audit][timeline_bootstrap] timeline_bootstrap router 漏选关键 skill：timeline-history。",
+            ],
+            "minor_issues": [
+                "[skill audit][scene_writing] scene_writing router 当前启用：continuity-guard。"
+            ],
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": ""},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": ""},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_404.md", "revise")
+            finally:
+                main_module.ROOT = previous_root
+
+            self.assertIn("先核对 `02_working/planning/worldview_patch.md`", content)
+            self.assertIn("先核对 `02_working/planning/timeline_patch.md`", content)
+            self.assertIn("- skill audit 纠偏优先级：", content)
+            self.assertIn("scene_writing_skill_router.json", content)
+            self.assertIn("# planning_repair_brief", content)
+            self.assertIn("scene_404-R1_planning_repair.md", content)
+            brief_path = root / "02_working/planning/scene_404-R1_planning_repair.md"
+            self.assertTrue(brief_path.exists())
+            brief = brief_path.read_text(encoding="utf-8")
+            self.assertIn("### planning_bootstrap", brief)
+            self.assertIn("02_working/planning/worldview_patch.md", brief)
+            self.assertIn("### timeline_bootstrap", brief)
+            self.assertIn("02_working/planning/timeline_patch.md", brief)
+
     def test_build_validation_errors_rejects_empty_draft(self) -> None:
         task_text = """# task_id
 scene_200
@@ -994,6 +1159,16 @@ scene_parenthetical
         problems = contains_script_style("（他把木箱挪开半寸，风从缝里钻了进来，煤油灯晃了一下。）")
 
         self.assertIn("整段文本为括号包裹的舞台说明", problems)
+
+    def test_contains_outline_style_flags_list_heavy_output(self) -> None:
+        problems = contains_outline_style(
+            """1. 孟浮灯回屋
+2. 他发现袖里有异物
+3. 他决定先藏起来
+"""
+        )
+
+        self.assertIn("出现多行列表式提纲，不像连续小说正文", problems)
 
     def test_write_draft_recovers_truncated_output_via_continuation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

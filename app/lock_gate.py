@@ -261,7 +261,7 @@ def scene_function_to_type(scene_function: str) -> str:
 
 
 def extract_revision_count(task_id: str) -> int:
-    match = re.search(r"-R(\d+)$", task_id)
+    match = re.search(r"-(?:R|RW)(\d+)$", task_id)
     if not match:
         return 0
     return int(match.group(1))

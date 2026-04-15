@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import requests
-import yaml
+from chapter_orchestrator import build_chapter_opening_task, get_start_progress, should_rollover_after_lock
 from chapter_trackers import chapter_id_from_task_or_locked, load_tracker_bundle, update_trackers_on_lock
 from deepseek_reviewer import resolve_api_key
 from deepseek_supervisor import apply_supervisor_decision_to_reviewer_result, build_next_scene_task_content, build_task_content_from_supervisor_decision, is_supervisor_enabled, run_supervisor_decision, run_supervisor_next_scene_task, run_supervisor_rescue_draft, save_next_scene_task_plan, save_supervisor_decision, save_supervisor_rescue_record
@@ -14,9 +14,12 @@ from lock_gate import apply_lock_gate, save_lock_gate_report
 from openai import OpenAI
 from planning_bootstrap import run_planning_bootstrap
 from prewrite_checks import build_prewrite_review, save_prewrite_review
+from project_inputs import load_human_input, render_human_input_markdown
 from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
+from runtime_config import load_runtime_config
+from skill_audit import audit_skill_router_result, save_skill_audit_outputs
 from skill_router import render_skill_router_markdown, route_writer_skills, save_skill_router_outputs
 from story_state import update_story_state_on_lock
 from writer_skills import build_selected_skill_sections
@@ -30,12 +33,6 @@ STRUCTURAL_REPAIR = "structural_repair"
 def read_text(rel_path: str) -> str:
     path = ROOT / rel_path
     return path.read_text(encoding="utf-8")
-
-
-def load_yaml(rel_path: str) -> dict:
-    path = ROOT / rel_path
-    with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
 
 
 def save_text(rel_path: str, content: str) -> None:
@@ -91,12 +88,85 @@ def call_ollama(
     return data["message"]["content"]
 
 
+def should_validate_local_models(config: dict | None = None) -> bool:
+    if not config:
+        return True
+    value = config.get("agent", {}).get("validate_local_models_on_start", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
+
+
+def fetch_ollama_model_names(base_url: str, timeout: int = 8) -> list[str]:
+    url = f"{str(base_url).rstrip('/')}/api/tags"
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    data = response.json()
+    models = data.get("models", []) if isinstance(data, dict) else []
+    names: list[str] = []
+    for item in models:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def validate_local_model_endpoints(config: dict) -> None:
+    if not should_validate_local_models(config):
+        return
+
+    roles = []
+    for role_name in ["writer", "reviewer"]:
+        role = config.get(role_name, {})
+        provider = str(role.get("provider", "")).strip().lower()
+        base_url = str(role.get("base_url", "")).strip()
+        model = str(role.get("model", "")).strip()
+        if provider == "deepseek" or not base_url or not model:
+            continue
+        roles.append((role_name, base_url, model))
+
+    if not roles:
+        return
+
+    cached_models: dict[str, list[str]] = {}
+    for role_name, base_url, model in roles:
+        if base_url not in cached_models:
+            try:
+                cached_models[base_url] = fetch_ollama_model_names(base_url)
+            except requests.exceptions.RequestException as error:
+                raise ValueError(f"{role_name} 本地模型服务不可达：{base_url}；请先确认 Ollama 服务已启动。原始错误：{error}") from error
+
+        available = cached_models[base_url]
+        if model not in available:
+            preview = "、".join(available[:12]) if available else "无"
+            raise ValueError(
+                f"{role_name} 配置的模型 `{model}` 不在 {base_url} 的已加载列表中。当前可见模型：{preview}"
+            )
+
+        print(f"本地模型预检通过：{role_name} -> {model} @ {base_url}")
+
+
 def should_use_deepseek_writer(config: dict) -> bool:
     writer = config.get("writer", {})
     base_url = str(writer.get("base_url", "")).rstrip("/")
     model = str(writer.get("model", "")).strip()
     provider = str(writer.get("provider", "")).strip().lower()
     return provider == "deepseek" or (base_url == "https://api.deepseek.com" and model == "deepseek-chat")
+
+
+def should_use_compact_writer_prompt(config: dict | None = None) -> bool:
+    if not config:
+        return False
+
+    writer = config.get("writer", {})
+    mode = str(writer.get("compact_prompt", "auto")).strip().lower()
+    if mode in {"1", "true", "yes", "on", "compact"}:
+        return True
+    if mode in {"0", "false", "no", "off", "full"}:
+        return False
+    return not should_use_deepseek_writer(config)
 
 
 def extract_openai_message_content(response: Any) -> str:
@@ -233,6 +303,23 @@ def contains_script_style(text: str) -> list[str]:
     return problems
 
 
+def contains_outline_style(text: str) -> list[str]:
+    problems = []
+    lines = [line.strip() for line in str(text).splitlines() if line.strip()]
+    if not lines:
+        return problems
+
+    bullet_lines = [line for line in lines if re.match(r"^(?:[-*•]|\d+[.)])\s+", line)]
+    heading_lines = [line for line in lines if re.match(r"^#{1,6}\s+\S+", line)]
+
+    if len(bullet_lines) >= 3:
+        problems.append("出现多行列表式提纲，不像连续小说正文")
+    if len(heading_lines) >= 2:
+        problems.append("出现多个标题分段，不像单段场景草稿")
+
+    return problems
+
+
 def is_likely_truncated(text: str) -> bool:
     stripped = text.rstrip()
     if not stripped:
@@ -349,6 +436,10 @@ def build_validation_errors(task_text: str, draft_text: str) -> list[str]:
     script_style = contains_script_style(draft_text)
     if script_style:
         errors.append("文本呈现剧本体/分镜体痕迹，不符合小说正文要求")
+
+    outline_style = contains_outline_style(draft_text)
+    if outline_style:
+        errors.append("文本呈现提纲/列表式格式，不符合小说正文要求")
 
     forbidden_characters = detect_forbidden_characters(task_text, draft_text)
     if forbidden_characters:
@@ -646,8 +737,44 @@ def compile_context(config: dict) -> str:
     recent_scene_summaries_section = build_recent_scene_summaries_section(task_text)
     tracker_slices_section = build_writer_tracker_slices_section(task_text)
     prose_reference_section = build_prose_reference_section(task_text)
-    scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text_full)
+    human_input_section = render_human_input_markdown(load_human_input(ROOT))
+    planning_repair_brief_path = (extract_markdown_field(task_text_full, "planning_repair_brief") or "").strip()
+    planning_repair_brief_section = ""
+    if planning_repair_brief_path:
+        try:
+            planning_repair_brief_text = clip_text(read_text(planning_repair_brief_path), 1000)
+            planning_repair_brief_section = f"""
+
+# planning repair brief
+来源文件：{planning_repair_brief_path}
+
+{planning_repair_brief_text}
+"""
+        except FileNotFoundError:
+            planning_repair_brief_section = f"""
+
+# planning repair brief
+来源文件：{planning_repair_brief_path}
+
+[警告：未找到该文件，无法载入 planning repair brief]
+"""
+    scene_writing_router_result = get_scene_writing_skill_router_result(task_text_full)
+    scene_writing_router_saved = save_skill_router_outputs(
+        ROOT,
+        "02_working/planning/scene_writing_skill_router",
+        scene_writing_router_result,
+        heading="# scene writing skill router",
+    )
+    scene_writing_skill_router_section = f"# scene writing skill router\n来源文件：{scene_writing_router_saved['md_file']}\n\n" + read_text(scene_writing_router_saved["md_file"]).split("\n", 1)[1]
     selected_writer_skill_sections = build_selected_writer_skill_sections(task_text_full)
+    skill_audits = [
+        audit_skill_router_result("planning_bootstrap", planning_outputs.get("planning_skill_router", {})),
+        audit_skill_router_result("character_creation", planning_outputs.get("character_creation_skill_router", {})),
+        audit_skill_router_result("timeline_bootstrap", planning_outputs.get("timeline_bootstrap_skill_router", {})),
+        audit_skill_router_result("scene_writing", scene_writing_router_result),
+    ]
+    skill_audit_files = save_skill_audit_outputs(ROOT, "02_working/planning/skill_audit", skill_audits)
+    skill_audit_text = clip_text(read_text(skill_audit_files["md_file"]), 1200)
 
     compiled = f"""# 写前诊断
 来源文件：{prewrite_review_file}
@@ -679,6 +806,8 @@ def compile_context(config: dict) -> str:
 
 {outline_text}
 
+{planning_repair_brief_section}
+
 {scene_contract_section}
 
 # 本次必须遵守的项目总纲
@@ -689,6 +818,9 @@ def compile_context(config: dict) -> str:
 
 # 本次相关人物设定
 {relevant_characters}
+
+# 人工输入总表
+{human_input_section or "[未提供 human_input.yaml，当前主要依赖 manifest / task / state。]"}
 
 # 本次生活素材使用规则
 - 生活素材只能提取气氛、感官、情绪、节奏、意象
@@ -705,6 +837,11 @@ def compile_context(config: dict) -> str:
 {scene_writing_skill_router_section}
 
 {selected_writer_skill_sections}
+
+# skill audit
+来源文件：{skill_audit_files["md_file"]}
+
+{skill_audit_text}
 
 {prose_reference_section}
 """
@@ -1076,7 +1213,7 @@ def detect_scene10_old_pattern_reuse(draft_text: str) -> list[str]:
     return deduped
 
 
-def build_writer_user_prompt(task_text: str, current_context: str, decision: dict) -> str:
+def build_writer_user_prompt(task_text: str, current_context: str, decision: dict, config: dict | None = None) -> str:
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
     scene10_guardrails = build_scene10_prompt_guardrails(task_text)
@@ -1091,7 +1228,42 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
     )
     repair_rule_lines = "\n".join([f"14. {item}" for item in repair_rules[:1]]) if repair_rules else ""
 
-    prompt = f"""请根据以下输入写出 Markdown 草稿正文。
+    if should_use_compact_writer_prompt(config):
+        prompt = f"""请根据以下输入直接写出可保存的小说正文。
+
+硬规则：
+1. 只输出正文，不要标题、JSON、列表、说明、注释、修订说明。
+2. 必须是连续 prose，不要剧本体、分镜体、人物名加冒号、整段括号说明。
+3. 不能擅自新增人物、设定、制度、主线钩子；人物出场边界必须服从任务单。
+4. 若任务单提供 `scene_purpose / required_information_gain / required_plot_progress / required_decision_shift / avoid_motifs`，必须落实成正文里的可见事件结果。
+5. 不能只写气氛、回想、疲惫或 lingering 疑问；本场至少交出两项：新信息 / 新动作或决策 / 现实后果。
+6. 结尾时至少一个状态变量必须变化：已知信息、判断、行动计划、风险、关系、物件位置或可见性。
+7. 优先使用 current scene contract、chapter_state、scene summaries、tracker 切片，不要顺着旧文风空转。
+8. 本轮启用的 writer skills：{selected_skill_summary}
+9. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移。
+{repair_rule_lines}
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{current_context}
+
+{repair_section}
+
+{structure_section}
+
+{scene_writing_skill_router_section}
+
+{selected_writer_skill_sections}
+
+{scene10_guardrails}
+
+【决策信息】
+{json.dumps(decision, ensure_ascii=False, indent=2)}
+"""
+    else:
+        prompt = f"""请根据以下输入写出 Markdown 草稿正文。
 
 要求：
 1. 只输出 Markdown 正文
@@ -1143,7 +1315,7 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 def generate_markdown_draft(config: dict, current_context: str, decision: dict) -> str:
     system_prompt = read_text("prompts/writer_system.md")
     task_text = read_text("01_inputs/tasks/current_task.md")
-    user_prompt = build_writer_user_prompt(task_text, current_context, decision)
+    user_prompt = build_writer_user_prompt(task_text, current_context, decision, config=config)
 
     print("正在请求模型生成草稿，请稍候...")
     markdown_text = call_writer_model(
@@ -1653,9 +1825,28 @@ def extract_scene_number(text: str | None) -> int | None:
     return int(match.group(1))
 
 
-def get_auto_continue_target_scene(config: dict) -> int | None:
-    generation = config.get("generation", {})
-    value = generation.get("auto_continue_until_scene")
+def extract_chapter_number(text: str | None) -> int | None:
+    if not text:
+        return None
+    match = re.search(r"ch(\d+)", str(text), re.IGNORECASE)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def get_run_mode(config: dict) -> str:
+    run = config.get("run", {})
+    mode = str(run.get("mode") or "continue").strip().lower()
+    return mode if mode in {"continue", "restart"} else "continue"
+
+
+def should_skip_existing_draft_reuse(config: dict, loop_round: int) -> bool:
+    return get_run_mode(config) == "restart" and loop_round == 1
+
+
+def get_runtime_target_chapter(config: dict) -> int | None:
+    run = config.get("run", {})
+    value = run.get("target_chapter")
     if value in (None, "", 0):
         return None
     try:
@@ -1665,15 +1856,97 @@ def get_auto_continue_target_scene(config: dict) -> int | None:
     return target if target > 0 else None
 
 
+def get_runtime_target_scene(config: dict) -> int | None:
+    run = config.get("run", {})
+    value = run.get("target_scene")
+    if value not in (None, "", 0):
+        try:
+            target = int(value)
+        except (TypeError, ValueError):
+            return None
+        return target if target > 0 else None
+
+    generation = config.get("generation", {})
+    legacy_value = generation.get("auto_continue_until_scene")
+    if legacy_value in (None, "", 0):
+        return None
+    try:
+        target = int(legacy_value)
+    except (TypeError, ValueError):
+        return None
+    return target if target > 0 else None
+
+
+def extract_task_progress(task_text: str) -> tuple[int | None, int | None]:
+    output_target = extract_markdown_field(task_text, "output_target") or ""
+    return extract_chapter_number(output_target or task_text), extract_scene_number(output_target or task_text)
+
+
+def latest_locked_file_for_bootstrap(start_chapter: int) -> str | None:
+    chapter_dir = ROOT / "03_locked/chapters"
+    if not chapter_dir.exists():
+        return None
+    candidates: list[tuple[tuple[int, int], Path]] = []
+    for path in chapter_dir.glob("ch*_scene*.md"):
+        chapter_number = extract_chapter_number(path.name)
+        scene_number = extract_scene_number(path.name)
+        if chapter_number is None or scene_number is None:
+            continue
+        if chapter_number > start_chapter:
+            continue
+        candidates.append(((chapter_number, scene_number), path))
+    if not candidates:
+        return None
+    return str(sorted(candidates, key=lambda item: item[0])[-1][1].relative_to(ROOT).as_posix())
+
+
+def prepare_runtime_start(config: dict) -> str | None:
+    if get_run_mode(config) != "restart":
+        return None
+
+    run = config.get("run", {})
+    restart_from_task = str(run.get("restart_from_task") or "").strip()
+    if restart_from_task:
+        task_text = read_text(restart_from_task)
+        save_text("01_inputs/tasks/current_task.md", task_text)
+        return extract_markdown_field(task_text, "task_id") or restart_from_task
+
+    start_chapter, start_scene = get_start_progress(config)
+    task_id, task_text = build_chapter_opening_task(
+        ROOT,
+        config,
+        chapter_number=start_chapter,
+        scene_number=start_scene,
+        previous_locked_file=latest_locked_file_for_bootstrap(start_chapter),
+    )
+    save_text("01_inputs/tasks/current_task.md", task_text)
+    task_file = f"01_inputs/tasks/generated/{task_id}.md"
+    save_text(task_file, task_text)
+    return task_id
+
+
 def should_continue_after_lock(config: dict, next_scene_task_file: str | None) -> bool:
     if not next_scene_task_file:
         return False
-    target_scene = get_auto_continue_target_scene(config)
-    if target_scene is None:
+    target_chapter = get_runtime_target_chapter(config)
+    target_scene = get_runtime_target_scene(config)
+    if target_chapter is None and target_scene is None:
         return False
     task_text = read_text(next_scene_task_file)
-    output_target = extract_markdown_field(task_text, "output_target") or next_scene_task_file
-    next_scene_number = extract_scene_number(output_target) or extract_scene_number(task_text)
+    next_chapter_number, next_scene_number = extract_task_progress(task_text)
+    if next_scene_number is None and next_chapter_number is None:
+        return False
+    if target_chapter is not None:
+        if next_chapter_number is None:
+            return False
+        if next_chapter_number < target_chapter:
+            return True
+        if next_chapter_number > target_chapter:
+            return False
+        if target_scene is None:
+            return True
+    if target_scene is None:
+        return False
     if next_scene_number is None:
         return False
     return next_scene_number <= target_scene
@@ -1802,17 +2075,145 @@ def dedupe_followup_issue_lines(original_constraints: str, issue_lines: list[str
     return deduped
 
 
+def extract_skill_audit_phase_issues(reviewer_result: dict) -> dict[str, list[str]]:
+    phase_issues: dict[str, list[str]] = {}
+    for issue in list(reviewer_result.get("major_issues", [])) + list(reviewer_result.get("minor_issues", [])):
+        text = str(issue).strip()
+        if not text.startswith("[skill audit]["):
+            continue
+        match = re.match(r"^\[skill audit\]\[([^\]]+)\]\s*(.+)$", text)
+        if not match:
+            continue
+        phase = match.group(1).strip()
+        message = match.group(2).strip()
+        if not phase or not message:
+            continue
+        phase_issues.setdefault(phase, [])
+        if message not in phase_issues[phase]:
+            phase_issues[phase].append(message)
+    return phase_issues
+
+
+def build_skill_audit_repair_hints(reviewer_result: dict) -> list[str]:
+    phase_issues = extract_skill_audit_phase_issues(reviewer_result)
+    hints: list[str] = []
+
+    if "planning_bootstrap" in phase_issues:
+        hints.append(
+            "先核对 `02_working/planning/worldview_patch.md`、`02_working/outlines/chapter_outline` 与 `planning_bootstrap_skill_router.json`，修正 worldbuilding / scene-outline 的选择或产物，再继续改正文。"
+        )
+    if "character_creation" in phase_issues:
+        hints.append(
+            "先核对 `02_working/planning/character_patch.md` 与 `character_creation_skill_router.json`，修正角色功能卡或命名槽位，再继续改正文。"
+        )
+    if "timeline_bootstrap" in phase_issues:
+        hints.append(
+            "先核对 `02_working/planning/timeline_patch.md` 与 `timeline_bootstrap_skill_router.json`，修正章节时间承接和历史锚点，再继续改正文。"
+        )
+    if "scene_writing" in phase_issues:
+        hints.append(
+            "正文修订前先核对 `scene_writing_skill_router.json` 的 selected_skills，确保 `continuity-guard` 等必要 skill 已正确挂载。"
+        )
+
+    return hints
+
+
+def build_planning_repair_targets(reviewer_result: dict) -> list[dict[str, str]]:
+    phase_issues = extract_skill_audit_phase_issues(reviewer_result)
+    targets: list[dict[str, str]] = []
+
+    phase_specs = {
+        "planning_bootstrap": {
+            "label": "planning bootstrap",
+            "artifact": "02_working/planning/worldview_patch.md",
+            "router": "02_working/planning/planning_bootstrap_skill_router.json",
+            "focus": "重建 worldbuilding / scene-outline 的 bootstrap 产物，并同步核对章节 outline。",
+        },
+        "character_creation": {
+            "label": "character creation",
+            "artifact": "02_working/planning/character_patch.md",
+            "router": "02_working/planning/character_creation_skill_router.json",
+            "focus": "重建角色功能卡、命名槽位与角色补全 proposal，再继续正文修订。",
+        },
+        "timeline_bootstrap": {
+            "label": "timeline bootstrap",
+            "artifact": "02_working/planning/timeline_patch.md",
+            "router": "02_working/planning/timeline_bootstrap_skill_router.json",
+            "focus": "重建章节时间承接、历史锚点与 timeline proposal，再继续正文修订。",
+        },
+        "scene_writing": {
+            "label": "scene writing",
+            "artifact": "02_working/planning/scene_writing_skill_router.md",
+            "router": "02_working/planning/scene_writing_skill_router.json",
+            "focus": "先纠正 scene_writing 的 selected_skills，再进行正文修订。",
+        },
+    }
+
+    for phase in ["planning_bootstrap", "character_creation", "timeline_bootstrap", "scene_writing"]:
+        issues = phase_issues.get(phase, [])
+        if not issues:
+            continue
+        spec = phase_specs[phase]
+        targets.append(
+            {
+                "phase": phase,
+                "label": spec["label"],
+                "artifact": spec["artifact"],
+                "router": spec["router"],
+                "focus": spec["focus"],
+                "issues": "；".join(issues[:3]),
+            }
+        )
+
+    return targets
+
+
+def save_planning_repair_brief(task_id: str, reviewer_result: dict) -> str | None:
+    targets = build_planning_repair_targets(reviewer_result)
+    if not targets:
+        return None
+
+    rel_path = f"02_working/planning/{task_id}_planning_repair.md"
+    lines = [
+        "# planning repair brief",
+        "",
+        f"- task_id：{task_id}",
+        "- 说明：本文件由 skill audit 自动生成，用于指导修订前先重建 planning working 资产。",
+        "",
+        "## repair order",
+        "1. 先修复下列 planning / routing 资产。",
+        "2. 确认 skill router 与 working proposal 已一致。",
+        "3. 再根据修复后的 planning 资产继续正文修订。",
+        "",
+        "## repair targets",
+    ]
+
+    for item in targets:
+        lines.extend(
+            [
+                f"### {item['phase']}",
+                f"- focus：{item['focus']}",
+                f"- artifact：{item['artifact']}",
+                f"- router：{item['router']}",
+                f"- source_issue：{item['issues']}",
+                "",
+            ]
+        )
+
+    save_text(rel_path, "\n".join(lines).strip() + "\n")
+    return rel_path
+
+
 def build_followup_task_id(task_id: str, mode: str) -> str:
-    base = re.sub(r"-R\d+$", "", task_id)
-    match = re.search(r"-R(\d+)$", task_id)
+    base = re.sub(r"-(?:R\d+|RW\d+)+$", "", task_id)
+    revise_match = re.search(r"-R(\d+)$", task_id)
+    rewrite_match = re.search(r"-RW(\d+)$", task_id)
     if mode == "revise":
-        if match:
-            next_number = int(match.group(1)) + 1
-        else:
-            next_number = 1
+        next_number = int(revise_match.group(1)) + 1 if revise_match else 1
         return f"{base}-R{next_number}"
     if mode == "rewrite":
-        return f"{base}-RW1"
+        next_number = int(rewrite_match.group(1)) + 1 if rewrite_match else 1
+        return f"{base}-RW{next_number}"
     return f"{base}-R1"
 
 
@@ -1887,6 +2288,13 @@ def build_followup_goal(original_goal: str, reviewer_result: dict, mode: str, ta
         issue_text = "；".join(repair_instructions[:3])
     else:
         issue_text = "；".join(deduped_issues) if deduped_issues else summary
+    skill_hints = build_skill_audit_repair_hints(reviewer_result)
+    if skill_hints:
+        hint_prefix = "；".join(skill_hints[:2])
+        if issue_text:
+            issue_text = f"{hint_prefix}；{issue_text}"
+        else:
+            issue_text = hint_prefix
     if issue_text:
         return f"{prefix}：{base_goal}。本次重点解决：{issue_text}"
     return f"{prefix}：{base_goal}。"
@@ -1919,6 +2327,11 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
                 blocks.extend([f"- {item}" for item in repair_focus_reasons[:4]])
         elif repair_focus == PROSE_REPAIR:
             blocks.append("- prose_repair 约束：优先修衔接、语言密度、节奏与表达稳定性，尽量不改大结构。")
+
+    skill_hints = build_skill_audit_repair_hints(reviewer_result)
+    if skill_hints:
+        blocks.append("- skill audit 纠偏优先级：")
+        blocks.extend([f"- {item}" for item in skill_hints[:4]])
 
     if repair_instructions:
         blocks.append("- repair_plan 执行动作：")
@@ -1958,6 +2371,7 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     repair_focus, repair_focus_reasons = choose_repair_focus(task_text, reviewer_result)
 
     new_task_id = build_followup_task_id(task_id, mode)
+    planning_repair_brief_path = save_planning_repair_brief(new_task_id, reviewer_result)
     new_goal = build_followup_goal(
         original_goal,
         reviewer_result,
@@ -2006,6 +2420,9 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     if repair_plan_path:
         sections.append(f"# repair_plan\n{repair_plan_path}")
 
+    if planning_repair_brief_path:
+        sections.append(f"# planning_repair_brief\n{planning_repair_brief_path}")
+
     sections.append(f"# constraints\n{new_constraints}")
 
     if preferred_length:
@@ -2051,7 +2468,7 @@ def build_locked_chapter_file(task_text: str, draft_file: str, locked_dir: str) 
 
 
 def extract_revision_count(task_id: str) -> int:
-    match = re.search(r"-R(\d+)$", task_id)
+    match = re.search(r"-(?:R|RW)(\d+)$", task_id)
     if not match:
         return 0
     return int(match.group(1))
@@ -2092,6 +2509,42 @@ def has_supervisor_rescue_record(task_id: str) -> bool:
     return (ROOT / build_supervisor_rescue_record_path(normalized)).exists()
 
 
+def is_safe_auto_lock_reason(reason: str, reviewer_result: dict) -> bool:
+    normalized_reason = str(reason or "").strip()
+    if not normalized_reason:
+        return False
+
+    allowed_markers = [
+        "未继续给出可执行修订任务",
+        "无可执行修订任务",
+        "无法提出可执行",
+        "没有可执行修订任务",
+        "无需继续修订",
+        "修订阈值",
+        "建议人工介入",
+    ]
+    if not any(marker in normalized_reason for marker in allowed_markers):
+        return False
+
+    major_issues = [str(item).strip() for item in reviewer_result.get("major_issues", []) if str(item).strip()]
+    disallowed_major = [
+        item
+        for item in major_issues
+        if all(
+            marker not in item
+            for marker in [
+                "人工介入",
+                "修订阈值",
+                "无可执行修订任务",
+                "未继续给出可执行修订任务",
+                "无法提出可执行",
+                "无需继续修订",
+            ]
+        )
+    ]
+    return not disallowed_major
+
+
 def should_auto_lock_after_supervisor_rescue(config: dict, task_text: str, reviewer_result: dict) -> bool:
     if not is_supervisor_enabled(config):
         return False
@@ -2106,7 +2559,11 @@ def should_auto_lock_after_supervisor_rescue(config: dict, task_text: str, revie
     if str(reviewer_result.get("verdict") or "").strip() == "lock":
         return False
 
-    return bool(str(reviewer_result.get("force_manual_intervention_reason") or "").strip())
+    reason = str(reviewer_result.get("force_manual_intervention_reason") or "").strip()
+    if not is_safe_auto_lock_reason(reason, reviewer_result):
+        return False
+
+    return True
 
 
 def build_supervisor_auto_lock_result(reviewer_result: dict, trigger_reason: str) -> dict:
@@ -2404,6 +2861,22 @@ def maybe_generate_next_scene_task_draft(
     locked_file: str,
     reviewer_result: dict,
 ) -> tuple[str | None, str | None]:
+    if should_rollover_after_lock(config, locked_file):
+        current_chapter = extract_chapter_number(locked_file)
+        if current_chapter is None:
+            return None, None
+        next_chapter = current_chapter + 1
+        next_task_id, task_content = build_chapter_opening_task(
+            ROOT,
+            config,
+            chapter_number=next_chapter,
+            scene_number=1,
+            previous_locked_file=locked_file,
+        )
+        task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+        save_text(task_file, task_content)
+        return task_file, None
+
     if not is_supervisor_enabled(config):
         return None, None
 
@@ -2479,12 +2952,18 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     created: dict[str, str] = {}
 
     if should_auto_lock_after_supervisor_rescue(config, task_text, reviewer_result):
-        reviewer_result = build_supervisor_auto_lock_result(
+        auto_lock_result = build_supervisor_auto_lock_result(
             reviewer_result,
             str(reviewer_result.get("force_manual_intervention_reason") or "").strip(),
         )
-        reviewer_result, lock_gate_report = apply_lock_gate(task_text, reviewer_result, max_revisions)
+        reviewer_result, lock_gate_report = apply_lock_gate(task_text, auto_lock_result, max_revisions)
         created["lock_gate_report_file"] = save_lock_gate_report(ROOT, lock_gate_report)
+        if str(reviewer_result.get("verdict") or "").strip() != "lock":
+            reviewer_result = dict(auto_lock_result)
+            reviewer_result["summary"] = (
+                f"{auto_lock_result.get('summary', '')} "
+                "lock gate 已记录当前报告，但本轮按 supervisor-rescue 自动接管策略继续锁定。"
+            ).strip()
         save_structured_review_result(ROOT, reviewer_result)
         save_repair_plan(ROOT, build_structured_review_result(reviewer_result))
         verdict = reviewer_result.get("verdict")
@@ -2599,7 +3078,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
         created["manual_intervention_file"] = manual_intervention_file
         return created
 
-    if mode == "revise" and extract_revision_count(task_id) >= max_revisions:
+    if mode in {"revise", "rewrite"} and extract_revision_count(task_id) >= max_revisions:
         max_revision_reason = f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。"
         supervised_result = None
         supervisor_decision_path = None
@@ -2665,16 +3144,22 @@ def set_current_task_from_file(task_file: str) -> str:
 
 def main() -> None:
     try:
-        config = load_yaml("app/config.yaml")
+        config = load_runtime_config(ROOT)
+        validate_local_model_endpoints(config)
         max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
         loop_round = 1
+        restarted_task_id = prepare_runtime_start(config)
+        if restarted_task_id:
+            print(f"运行模式：restart，已重置当前任务到 {restarted_task_id}")
+        else:
+            print(f"运行模式：{get_run_mode(config)}")
 
         while True:
             current_task_text = read_text("01_inputs/tasks/current_task.md")
             current_task_id = extract_markdown_field(current_task_text, "task_id") or "unknown-task"
             print(f"自动流程第 {loop_round} 轮：当前任务 {current_task_id}")
 
-            draft_result = build_existing_draft_result(current_task_text)
+            draft_result = None if should_skip_existing_draft_reuse(config, loop_round) else build_existing_draft_result(current_task_text)
             if draft_result:
                 print(f"检测到已有草稿待审，直接复用: {draft_result['draft_file']}")
             else:
@@ -2814,10 +3299,21 @@ def main() -> None:
                 if "next_scene_plan_file" in created:
                     print(f"已生成下一 scene 规划: {created['next_scene_plan_file']}")
                 if "next_scene_task_file" in created:
-                    print(f"已生成下一 scene 任务草案: {created['next_scene_task_file']}")
+                    next_task_text = read_text(created["next_scene_task_file"])
+                    next_chapter_number, next_scene_number = extract_task_progress(next_task_text)
+                    current_chapter_number = extract_chapter_number(created["locked_file"])
+                    if (
+                        current_chapter_number is not None
+                        and next_chapter_number is not None
+                        and next_chapter_number > current_chapter_number
+                        and next_scene_number == 1
+                    ):
+                        print(f"已生成下一章启动任务: {created['next_scene_task_file']}")
+                    else:
+                        print(f"已生成下一 scene 任务草案: {created['next_scene_task_file']}")
                     if should_continue_after_lock(config, created["next_scene_task_file"]):
                         next_task_id = set_current_task_from_file(created["next_scene_task_file"])
-                        print(f"检测到 lock 后续任务，已自动切换到下一 scene: {next_task_id}")
+                        print(f"检测到 lock 后续任务，已自动切换到下一任务: {next_task_id}")
                         loop_round += 1
                         continue
                 print("本次自动闭环完成。")

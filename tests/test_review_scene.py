@@ -1,5 +1,6 @@
-import unittest
 import tempfile
+import json
+import unittest
 from pathlib import Path
 
 import sys
@@ -264,6 +265,46 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
         self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
 
+    def test_normalize_review_result_replaces_english_structural_fields_with_local_chinese(self) -> None:
+        result = {
+            "task_id": "scene_107b",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["推进不足。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "需要修订。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["Found a hidden receipt."]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "The plot moves forward."},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "He decides to hide it first."},
+            "motif_redundancy": {
+                "repeated_motifs": ["rope tail"],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "The repeated motif has a new function.",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": ["No canon issue detected."]},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            raw_review_text="Need revision.",
+            task_text="# constraints\n- 保持单视角\n",
+            low_confidence=False,
+            draft_text="孟浮灯把旧票塞进袖里，没有立刻上交，转身先回屋把门闩上。",
+            based_on_text="孟浮灯刚收工回屋。",
+            chapter_state="当前仍处于低烈度观察推进阶段。",
+        )
+
+        self.assertFalse(any("Found a hidden receipt" in item for item in normalized["information_gain"]["new_information_items"]))
+        self.assertFalse(any("rope tail" in item for item in normalized["motif_redundancy"]["repeated_motifs"]))
+        self.assertFalse("The plot moves forward." == normalized["plot_progress"]["progress_reason"])
+        self.assertFalse("He decides to hide it first." == normalized["character_decision"]["decision_detail"])
+
     def test_normalize_review_result_drops_unexpected_fields(self) -> None:
         result = {
             "task_id": "scene_102",
@@ -438,6 +479,69 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
 
         self.assertNotEqual(normalized["verdict"], "lock")
         self.assertTrue(any("canon" in item or "chapter_state" in item for item in normalized["major_issues"]))
+
+    def test_normalize_review_result_merges_multi_phase_skill_audit_into_issues(self) -> None:
+        result = {
+            "task_id": "scene_108",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["已有结构问题。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "需要修订。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认袖里多了一张旧票。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "主角改变了交差顺序。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他决定先藏票再回屋。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无明显复读。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                planning_dir = root / "02_working/planning"
+                planning_dir.mkdir(parents=True, exist_ok=True)
+                (planning_dir / "skill_audit.json").write_text(
+                    json.dumps(
+                        {
+                            "audits": [
+                                {
+                                    "phase": "planning_bootstrap",
+                                    "selected_skills": ["worldbuilding", "scene-outline"],
+                                    "major_issues": [],
+                                    "minor_issues": ["planning_bootstrap router 当前启用：worldbuilding、scene-outline。"],
+                                    "is_ok": True,
+                                },
+                                {
+                                    "phase": "scene_writing",
+                                    "selected_skills": ["character-design"],
+                                    "major_issues": ["scene_writing router 漏选 `continuity-guard`，会带来明显连续性风险。"],
+                                    "minor_issues": [],
+                                    "is_ok": False,
+                                },
+                            ]
+                        },
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
+
+                normalized = review_scene_module.normalize_review_result(
+                    result,
+                    raw_review_text="需要继续修订。",
+                    task_text="# task_id\nscene_108\n\n# chapter_state\n03_locked/canon/ch01_state.md\n\n# output_target\n02_working/drafts/ch01_scene08.md\n",
+                    low_confidence=False,
+                    draft_text="孟浮灯把旧票塞进袖里，先改了回屋的步子。",
+                    based_on_text="孟浮灯刚收工回屋。",
+                    chapter_state="当前仍处于求活观察阶段。",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertTrue(any("[skill audit][planning_bootstrap]" in item for item in normalized["minor_issues"]))
+        self.assertTrue(any("[skill audit][scene_writing]" in item for item in normalized["major_issues"]))
 
     def test_build_structural_review_signals_marks_new_function_reuse_as_allowed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -66,6 +66,10 @@
 ### 入口与编排
 - `app/main.py`：主流程编排入口，负责写作、审稿、修订分支、锁定、状态落盘、下场任务生成
 - `app/config.yaml`：模型、目录、超时、自动修订轮数等配置
+  - `writer.compact_prompt`：给本地/小模型启用更短、更硬的 writer user prompt，减少跑偏与格式污染
+  - `agent.validate_local_models_on_start`：启动时先检查本地 Ollama 服务和模型 tag，避免因服务未起或模型名写错而空跑
+- `01_inputs/human_input.yaml`：集中放“需要人工明确填写”的小说输入，例如题材、主角、故事梗概、禁区、必须出现项
+- `01_inputs/run_config.yaml`：项目运行配置，控制 `restart / continue` 以及自动推进到哪一章/哪一场
 
 ### 审稿与修订控制
 - `app/review_scene.py`：reviewer 接入、本地结构检查、guardrail 兜底、结果归一化
@@ -149,7 +153,14 @@
 	 - macOS / Linux：`source app/.venv/bin/activate`
 	 - Windows PowerShell：`./app/.venv/Scripts/Activate.ps1`
 3. 安装依赖：`pip install -r app/requirements.txt`
-4. 运行主程序：`python app/main.py`
+4. 按需填写 `01_inputs/human_input.yaml` 与 `01_inputs/run_config.yaml`
+5. 运行主程序：`python app/main.py`
+
+### 运行模式
+- `continue`：延续当前 `01_inputs/tasks/current_task.md`，如果已有未审草稿，会优先复用
+- `restart`：优先把 `run.restart_from_task` 指向的任务覆盖到 `current_task.md`；如果没填，就按 `start_chapter + start_scene` 自动生成一个起始任务，并在首轮强制重新写稿
+- `run.target_chapter`：自动闭环推进到指定章节前停止；如果同时给出 `run.target_scene`，则在目标章节内进一步按场次截停
+- `run.max_scenes_per_chapter`：达到这个场次数后，自动切到下一章的 `scene01` 启动任务
 
 ### 当前项目环境提示
 如果你在当前仓库里继续开发，现有工作环境实际已经使用仓库外层虚拟环境，例如：`/Users/guan/git/.venv/bin/python`。

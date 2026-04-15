@@ -110,6 +110,56 @@ def call_ollama(
     raise last_error
 
 
+def should_validate_local_models(config: dict | None = None) -> bool:
+    if not config:
+        return True
+    value = config.get("agent", {}).get("validate_local_models_on_start", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
+
+
+def fetch_ollama_model_names(base_url: str, timeout: int = 8) -> list[str]:
+    url = f"{str(base_url).rstrip('/')}/api/tags"
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    data = response.json()
+    models = data.get("models", []) if isinstance(data, dict) else []
+    names: list[str] = []
+    for item in models:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def validate_local_reviewer_endpoint(config: dict) -> None:
+    if not should_validate_local_models(config):
+        return
+
+    reviewer = config.get("reviewer", {})
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    base_url = str(reviewer.get("base_url", "")).strip()
+    model = str(reviewer.get("model", "")).strip()
+    if provider == "deepseek" or not base_url or not model:
+        return
+
+    try:
+        available = fetch_ollama_model_names(base_url)
+    except requests.exceptions.RequestException as error:
+        raise ValueError(f"reviewer 本地模型服务不可达：{base_url}；请先确认 Ollama 服务已启动。原始错误：{error}") from error
+
+    if model not in available:
+        preview = "、".join(available[:12]) if available else "无"
+        raise ValueError(
+            f"reviewer 配置的模型 `{model}` 不在 {base_url} 的已加载列表中。当前可见模型：{preview}"
+        )
+
+    print(f"本地模型预检通过：reviewer -> {model} @ {base_url}")
+
+
 def summarize_response_for_debug(response_data: dict) -> str:
     message = response_data.get("message", {})
     summary = {
@@ -243,6 +293,17 @@ def sanitize_issue_text(text: str) -> str:
     if repeated_count > 0 and cleaned:
         cleaned = f"{cleaned}（重复内容已压缩）"
     return cleaned[:180].strip()
+
+
+def is_usable_structural_text(text: str) -> bool:
+    cleaned = sanitize_issue_text(text)
+    if not cleaned:
+        return False
+    if is_mostly_english(cleaned):
+        return False
+    if re.search(r"[A-Za-z]{3,}", cleaned):
+        return False
+    return True
 
 
 def strip_scene_heading(text: str) -> str:
@@ -1017,6 +1078,28 @@ def normalize_review_result(
 
         return cleaned
 
+    def prefer_chinese_text(candidate_text: Any, fallback_text: str) -> str:
+        candidate = sanitize_issue_text(candidate_text or "")
+        if not is_usable_structural_text(candidate):
+            return fallback_text
+        return candidate
+
+    def prefer_chinese_list(candidate_items: Any, fallback_items: list[str], limit: int) -> list[str]:
+        cleaned: list[str] = []
+        seen: set[str] = set()
+
+        for item in candidate_items or []:
+            text = sanitize_issue_text(item)
+            if not is_usable_structural_text(text):
+                continue
+            key = normalize_text_key(text)
+            if key in seen:
+                continue
+            seen.add(key)
+            cleaned.append(text)
+
+        return (cleaned or fallback_items)[:limit]
+
     verdict = result.get("verdict", "revise")
     cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
     cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
@@ -1036,29 +1119,63 @@ def normalize_review_result(
             candidate = result.get(field) if isinstance(result.get(field), dict) else {}
             merged[field] = dict(local_value)
             if field == "information_gain":
-                reviewer_items = [sanitize_issue_text(item) for item in candidate.get("new_information_items", []) if str(item).strip()]
                 merged[field]["has_new_information"] = bool(candidate.get("has_new_information", local_value["has_new_information"])) and bool(local_value["has_new_information"])
-                merged[field]["new_information_items"] = (reviewer_items or local_value["new_information_items"])[:3]
+                merged[field]["new_information_items"] = prefer_chinese_list(
+                    candidate.get("new_information_items", []),
+                    local_value["new_information_items"],
+                    3,
+                )
             elif field == "plot_progress":
                 merged[field]["has_plot_progress"] = bool(candidate.get("has_plot_progress", local_value["has_plot_progress"])) and bool(local_value["has_plot_progress"])
-                merged[field]["progress_reason"] = sanitize_issue_text(candidate.get("progress_reason") or local_value["progress_reason"]) or local_value["progress_reason"]
+                merged[field]["progress_reason"] = prefer_chinese_text(
+                    candidate.get("progress_reason"),
+                    local_value["progress_reason"],
+                )
             elif field == "character_decision":
                 merged[field]["has_decision_or_behavior_shift"] = bool(candidate.get("has_decision_or_behavior_shift", local_value["has_decision_or_behavior_shift"])) and bool(local_value["has_decision_or_behavior_shift"])
-                merged[field]["decision_detail"] = sanitize_issue_text(candidate.get("decision_detail") or local_value["decision_detail"]) or local_value["decision_detail"]
+                merged[field]["decision_detail"] = prefer_chinese_text(
+                    candidate.get("decision_detail"),
+                    local_value["decision_detail"],
+                )
             elif field == "motif_redundancy":
-                reviewer_motifs = [sanitize_issue_text(item) for item in candidate.get("repeated_motifs", []) if str(item).strip()]
-                merged[field]["repeated_motifs"] = (reviewer_motifs or local_value["repeated_motifs"])[:5]
-                merged[field]["new_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("new_function_motifs", local_value["new_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["stale_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("stale_function_motifs", local_value["stale_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["repeated_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("repeated_same_function_motifs", local_value["repeated_same_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["consecutive_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]) if str(item).strip()][:5]
+                merged[field]["repeated_motifs"] = prefer_chinese_list(
+                    candidate.get("repeated_motifs", []),
+                    local_value["repeated_motifs"],
+                    5,
+                )
+                merged[field]["new_function_motifs"] = prefer_chinese_list(
+                    candidate.get("new_function_motifs", local_value["new_function_motifs"]),
+                    local_value["new_function_motifs"],
+                    5,
+                )
+                merged[field]["stale_function_motifs"] = prefer_chinese_list(
+                    candidate.get("stale_function_motifs", local_value["stale_function_motifs"]),
+                    local_value["stale_function_motifs"],
+                    5,
+                )
+                merged[field]["repeated_same_function_motifs"] = prefer_chinese_list(
+                    candidate.get("repeated_same_function_motifs", local_value["repeated_same_function_motifs"]),
+                    local_value["repeated_same_function_motifs"],
+                    5,
+                )
+                merged[field]["consecutive_same_function_motifs"] = prefer_chinese_list(
+                    candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]),
+                    local_value["consecutive_same_function_motifs"],
+                    5,
+                )
                 merged[field]["repetition_has_new_function"] = bool(candidate.get("repetition_has_new_function", local_value["repetition_has_new_function"])) and bool(local_value["repetition_has_new_function"])
                 merged[field]["same_function_reuse_allowed"] = bool(candidate.get("same_function_reuse_allowed", local_value["same_function_reuse_allowed"])) and bool(local_value["same_function_reuse_allowed"])
-                merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"]) or local_value["redundancy_reason"]
+                merged[field]["redundancy_reason"] = prefer_chinese_text(
+                    candidate.get("redundancy_reason"),
+                    local_value["redundancy_reason"],
+                )
             elif field == "canon_consistency":
-                reviewer_issues = [sanitize_issue_text(item) for item in candidate.get("consistency_issues", []) if str(item).strip()]
                 merged[field]["is_consistent"] = bool(candidate.get("is_consistent", local_value["is_consistent"])) and bool(local_value["is_consistent"])
-                merged[field]["consistency_issues"] = (reviewer_issues or local_value["consistency_issues"])[:3]
+                merged[field]["consistency_issues"] = prefer_chinese_list(
+                    candidate.get("consistency_issues", []),
+                    local_value["consistency_issues"],
+                    3,
+                )
         return merged
 
     structural_payload = merge_structural_payload()
@@ -1116,7 +1233,7 @@ def normalize_review_result(
         if item not in cleaned_major:
             cleaned_major.insert(0, item)
 
-    skill_major, skill_minor = audit_scene_writing_skill_router(ROOT, task_text)
+    skill_major, skill_minor = audit_all_skill_router_phases(ROOT, task_text)
     for item in reversed(skill_minor):
         if item not in cleaned_minor:
             cleaned_minor.insert(0, item)
@@ -1343,12 +1460,40 @@ def build_local_review_fallback(
     }
 
 
-def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[str], list[str]]:
+def load_skill_audit_entries(root: Path) -> list[dict[str, Any]]:
+    audit_path = root / "02_working/planning/skill_audit.json"
+    if not audit_path.exists():
+        return []
+    try:
+        audit_payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    audits = audit_payload.get("audits", []) if isinstance(audit_payload, dict) else []
+    return [item for item in audits if isinstance(item, dict)]
+
+
+def audit_all_skill_router_phases(root: Path, task_text: str) -> tuple[list[str], list[str]]:
     output_target = extract_markdown_field(task_text, "output_target") or ""
     if output_target and not output_target.startswith("02_working/drafts/"):
         return [], []
 
+    major_issues: list[str] = []
+    minor_issues: list[str] = []
     router_path = root / "02_working/planning/scene_writing_skill_router.json"
+    audits = load_skill_audit_entries(root)
+    if audits:
+        for item in audits:
+            phase = str(item.get("phase") or "").strip() or "unknown"
+            for issue in item.get("major_issues", []) or []:
+                text = str(issue).strip()
+                if text:
+                    major_issues.append(f"[skill audit][{phase}] {text}")
+            for issue in item.get("minor_issues", []) or []:
+                text = str(issue).strip()
+                if text:
+                    minor_issues.append(f"[skill audit][{phase}] {text}")
+        return major_issues, minor_issues
+
     if not router_path.exists():
         return [], []
 
@@ -1367,9 +1512,6 @@ def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[s
         if isinstance(item, dict) and str(item.get("skill") or "").strip()
     ]
 
-    major_issues: list[str] = []
-    minor_issues: list[str] = []
-
     chapter_state_path = extract_markdown_field(task_text, "chapter_state") or ""
     if chapter_state_path and "continuity-guard" not in selected_names:
         major_issues.append("scene writing skill router 漏选 `continuity-guard`，但当前任务依赖 chapter_state 承接，存在明显连续性风险。")
@@ -1381,6 +1523,18 @@ def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[s
         minor_issues.append(f"本轮 scene writing skill router 已启用：{'、'.join(selected_names)}。")
 
     return major_issues, minor_issues
+
+
+def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[str], list[str]]:
+    major, minor = audit_all_skill_router_phases(root, task_text)
+    scene_major = [item for item in major if "[skill audit][scene_writing]" in item]
+    scene_minor = [item for item in minor if "[skill audit][scene_writing]" in item]
+    if scene_major or scene_minor:
+        return scene_major, scene_minor
+
+    stripped_major = [item for item in major if "[skill audit][" not in item]
+    stripped_minor = [item for item in minor if "[skill audit][" not in item]
+    return stripped_major, stripped_minor
 
 
 def extract_markdown_field(task_text: str, field_name: str) -> str | None:
@@ -1443,6 +1597,7 @@ def build_review_prompt(
 - motif_redundancy：本场复读了哪些母题；若复读，本次是否承担了新功能、是否仍在复用同一功能、这种同功能复用是否仍被允许；`redundancy_reason` 必须明确。
 - canon_consistency：是否与 `chapter_state` / 前文 / locked notes 冲突；若冲突，列出 `consistency_issues`。
 如果以下任一项不满足，默认不能 lock：没有新信息、没有情节推进、没有决策变化、母题复读且无新功能、存在 canon 冲突。
+除 `task_id / verdict / recommended_next_step` 这些枚举字段外，其余字符串字段与问题条目必须使用中文，不要混入英文分析句。
 
 你输出的 JSON 必须包含这些字段：
 - `task_id`
@@ -1668,6 +1823,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
 def main() -> None:
     try:
         config = load_yaml("app/config.yaml")
+        validate_local_reviewer_endpoint(config)
 
         if len(sys.argv) < 2:
             print("用法: python3 app/review_scene.py <scene_draft_path>")

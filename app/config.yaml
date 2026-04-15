@@ -12,27 +12,28 @@ paths:
 agent:
   name: single-agent
   mode: prototype
+  validate_local_models_on_start: true
 
 writer:
-  provider: deepseek
-  model: deepseek-chat
-  base_url: https://api.deepseek.com
-  api_key_env: My_DEEPSEEK_API_KEY
+  provider: ollama
+  model: qwen2.5:14b-instruct
+  base_url: http://192.168.1.11:11434
+  # 本地 writer 默认走更短更硬的 prompt，降低小模型跑偏概率
+  compact_prompt: auto
 
 reviewer:
-  provider: deepseek
-  model: deepseek-chat
-  base_url: https://api.deepseek.com
-  api_key_env: My_DEEPSEEK_API_KEY
-  num_ctx: 4096
+  provider: ollama
+  model: gpt-oss:20b
+  base_url: http://192.168.1.11:11434
+  num_ctx: 6144
   temperature: 0.0
   request_timeout: 1200
   num_predict: 700
   refine_num_predict: 500
-  task_max_chars: 1800
-  chapter_state_max_chars: 1800
-  based_on_max_chars: 1800
-  draft_max_chars: 2200
+  task_max_chars: 1600
+  chapter_state_max_chars: 1600
+  based_on_max_chars: 1400
+  draft_max_chars: 2000
 
 supervisor:
   enabled: true
@@ -62,13 +63,22 @@ supervisor:
 generation:
   compile_num_ctx: 2048
   write_num_ctx: 2048
-  temperature: 0.4
-  request_timeout: 600
+  temperature: 0.25
+  request_timeout: 900
   preferred_length_override: 2000-3600字
   max_auto_revisions: 5
   auto_continue_until_scene: 15
   max_supervisor_rounds: 8
   supervisor_rescue_draft_enabled: true
+
+run:
+  mode: continue
+  start_chapter: 1
+  start_scene: 1
+  target_chapter:
+  target_scene:
+  max_scenes_per_chapter:
+  restart_from_task: ""
 
 output:
   working_dir: 02_working

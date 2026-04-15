@@ -179,6 +179,7 @@ scene_053-R3
     def test_normalize_base_task_id(self) -> None:
         self.assertEqual(normalize_base_task_id("scene_012-R3"), "scene_012")
         self.assertEqual(normalize_base_task_id("scene_012-RW1"), "scene_012")
+        self.assertEqual(normalize_base_task_id("scene_012-RW1-RW2"), "scene_012")
 
 
 if __name__ == "__main__":

@@ -48,7 +48,12 @@ class RevisionLineage(BaseModel):
 
 
 def normalize_base_task_id(task_id: str) -> str:
-    return re.sub(r"-(?:R\d+|RW\d+)$", "", task_id.strip())
+    normalized = task_id.strip()
+    while True:
+        updated = re.sub(r"-(?:R\d+|RW\d+)$", "", normalized)
+        if updated == normalized:
+            return normalized
+        normalized = updated
 
 
 def build_revision_lineage_path(task_id: str) -> str:

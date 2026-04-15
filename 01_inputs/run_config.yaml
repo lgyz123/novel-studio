@@ -1,0 +1,8 @@
+run:
+  mode: continue
+  start_chapter: 1
+  start_scene: 1
+  target_chapter:
+  target_scene:
+  max_scenes_per_chapter:
+  restart_from_task: ""

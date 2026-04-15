@@ -1,0 +1,27 @@
+basic:
+  novel_title: ""
+  genre: ""
+  audience: ""
+  style: ""
+  hook: ""
+  premise: ""
+
+protagonist:
+  name: ""
+  role: ""
+  description: ""
+  goal: ""
+
+supporting_roles: []
+
+world:
+  era: ""
+  setting: ""
+  power_system: ""
+  taboos: ""
+
+must_have: []
+must_avoid: []
+open_questions: []
+manual_reference_files: []
+
