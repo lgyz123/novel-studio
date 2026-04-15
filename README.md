@@ -68,7 +68,7 @@
 - `app/config.yaml`：模型、目录、超时、自动修订轮数等配置
   - `writer.compact_prompt`：给本地/小模型启用更短、更硬的 writer user prompt，减少跑偏与格式污染
   - `agent.validate_local_models_on_start`：启动时先检查本地 Ollama 服务和模型 tag，避免因服务未起或模型名写错而空跑
-- `01_inputs/human_input.yaml`：集中放“需要人工明确填写”的小说输入，例如题材、主角、故事梗概、禁区、必须出现项
+- `01_inputs/human_input.yaml`：集中放“需要人工明确填写”的小说输入，按 `project / cast / story_blueprint / world / manual_required` 分层整理
 - `01_inputs/run_config.yaml`：项目运行配置，控制 `restart / continue` 以及自动推进到哪一章/哪一场
 
 ### 审稿与修订控制
@@ -155,6 +155,12 @@
 3. 安装依赖：`pip install -r app/requirements.txt`
 4. 按需填写 `01_inputs/human_input.yaml` 与 `01_inputs/run_config.yaml`
 5. 运行主程序：`python app/main.py`
+
+### `human_input` 建议填写顺序
+- `project`：小说名、类型、梗概、风格、主题
+- `cast.protagonist`：主角姓名、定位、背景、当前目标
+- `story_blueprint`：开场局面、核心冲突、当前章节目标、必须打到的拍点
+- `manual_required`：必须出现、必须避免、当前待定、人工验收清单
 
 ### 运行模式
 - `continue`：延续当前 `01_inputs/tasks/current_task.md`，如果已有未审草稿，会优先复用

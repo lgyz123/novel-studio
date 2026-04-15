@@ -6,7 +6,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from project_inputs import load_human_input
+from project_inputs import get_list, get_section, load_human_input
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -137,14 +137,17 @@ def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: 
     human_input = load_human_input(root)
     story_state = load_story_state(root)
     volume = resolve_volume_context(root, chapter_number)
-    protagonist = human_input.get("protagonist", {}) if isinstance(human_input.get("protagonist"), dict) else {}
+    cast = get_section(human_input, "cast")
+    protagonist = cast.get("protagonist", {}) if isinstance(cast.get("protagonist"), dict) else get_section(human_input, "protagonist")
     protagonist_name = str(
         protagonist.get("name")
         or (((story_state.get("characters") or {}).get("protagonist") or {}).get("name") or "主角")
     ).strip() or "主角"
     known_facts = (((story_state.get("characters") or {}).get("protagonist") or {}).get("known_facts") or [])[:4]
-    open_questions = (human_input.get("open_questions") or [])[:4]
-    must_avoid = (human_input.get("must_avoid") or [])[:4]
+    manual_required = get_section(human_input, "manual_required")
+    story_blueprint = get_section(human_input, "story_blueprint")
+    open_questions = (manual_required.get("open_questions") or human_input.get("open_questions") or [])[:4]
+    must_avoid = (manual_required.get("must_avoid") or human_input.get("must_avoid") or [])[:4]
     previous_hint = previous_locked_file or latest_locked_scene(root, chapter_number=chapter_number - 1) or "00_manifest/novel_manifest.md"
     lines = [
         f"# {chapter_label(chapter_number)} 当前状态",
@@ -159,7 +162,7 @@ def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: 
         "",
         "## 当前主角状态",
         f"- 主角：{protagonist_name}",
-        f"- 当前默认目标：{str(protagonist.get('goal') or '先求活，再被卷入更大的局面。').strip()}",
+        f"- 当前默认目标：{str(protagonist.get('goal') or story_blueprint.get('chapter_goal') or '先求活，再被卷入更大的局面。').strip()}",
     ]
     if known_facts:
         lines.extend(["", "## 已锁定线索"])
@@ -202,11 +205,14 @@ def build_chapter_opening_task(
     state_path = ensure_chapter_state(root, chapter_number, previous_locked_file=previous_locked_file)
     task_id = build_generated_task_id(root, chapter_number, scene_number)
     human_input = load_human_input(root)
-    basic = human_input.get("basic", {}) if isinstance(human_input.get("basic"), dict) else {}
-    protagonist = human_input.get("protagonist", {}) if isinstance(human_input.get("protagonist"), dict) else {}
+    project = get_section(human_input, "project", legacy="basic")
+    cast = get_section(human_input, "cast")
+    protagonist = cast.get("protagonist", {}) if isinstance(cast.get("protagonist"), dict) else get_section(human_input, "protagonist")
+    blueprint = get_section(human_input, "story_blueprint")
+    manual_required = get_section(human_input, "manual_required")
     protagonist_name = str(protagonist.get("name") or "主角").strip() or "主角"
-    premise = str(basic.get("premise") or "").strip()
-    genre = str(basic.get("genre") or "").strip()
+    premise = str(project.get("premise") or "").strip()
+    genre = str(project.get("genre") or "").strip()
     volume = resolve_volume_context(root, chapter_number)
     based_on = previous_locked_file or latest_locked_scene(root, chapter_number=chapter_number - 1) or "00_manifest/novel_manifest.md"
     goal = (
@@ -214,8 +220,11 @@ def build_chapter_opening_task(
         if scene_number == 1
         else f"继续推进第 {chapter_number} 章，写出 scene{scene_number:02d}。"
     )
+    chapter_goal = str(blueprint.get("chapter_goal") or blueprint.get("first_chapter_goal") or "").strip()
     if volume.get("function"):
         goal = f"{goal} 本章重点：{volume['function']}"
+    if chapter_goal:
+        goal = f"{goal} 当前章节目标：{chapter_goal}"
     info_gain = [
         "补入至少一个只属于本章的新事实、新限制或新压力来源。",
         "让主角对当前局面产生新的理解、误判或行动边界。",
@@ -229,10 +238,12 @@ def build_chapter_opening_task(
     ]
     if genre:
         constraints.append(f"类型基调保持为：{genre}")
-    for item in human_input.get("must_avoid") or []:
+    for item in get_list(manual_required, "must_avoid", legacy=None) or get_list(human_input, "must_avoid", legacy=None):
         text = str(item).strip()
         if text:
             constraints.append(text)
+    for item in get_list(blueprint, "taboo_beats"):
+        constraints.append(f"避免拍点：{item}")
     preferred_length = str(((config.get("generation") or {}).get("preferred_length_override")) or "").strip()
     sections = [
         f"# task_id\n{task_id}",
@@ -246,8 +257,14 @@ def build_chapter_opening_task(
         "# required_state_change\n- 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。",
         "# constraints\n" + "\n".join(f"- {item}" for item in constraints),
     ]
+    required_beats = get_list(blueprint, "required_beats")
+    if required_beats:
+        sections.insert(
+            -1,
+            "# required_information_gain\n" + "\n".join(f"- {item}" for item in (info_gain + required_beats)),
+        )
+        sections.pop(5)
     if preferred_length:
         sections.append(f"# preferred_length\n{preferred_length}")
     sections.append(f"# output_target\n{draft_output_path(chapter_number, scene_number)}")
     return task_id, "\n\n".join(sections) + "\n"
-

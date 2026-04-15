@@ -287,6 +287,59 @@ def sanitize_reviewer_raw_output(raw_text: str, max_chars: int = 2200) -> tuple[
     }
 
 
+def should_skip_json_refinement_for_local_reviewer(
+    config: dict,
+    raw_review_text: str,
+    raw_output_meta: dict[str, Any] | None = None,
+) -> bool:
+    if should_use_deepseek(config):
+        return False
+
+    text = str(raw_review_text or "").strip()
+    if not text:
+        return True
+
+    meta = raw_output_meta or {}
+    if bool(meta.get("low_value_english")):
+        return True
+    if int(meta.get("repeated_fragments", 0) or 0) >= 2:
+        return True
+
+    lower_text = text.lower()
+    obvious_meta_markers = [
+        "we need to produce a json object",
+        "single json object",
+        "the output must be a json object",
+        "must output a single json object",
+        "we need to review",
+        "we need to evaluate",
+        "the assistant must output",
+    ]
+    if any(marker in lower_text for marker in obvious_meta_markers):
+        return True
+
+    return False
+
+
+def build_reviewer_trace(
+    *,
+    provider: str,
+    mode: str,
+    json_refinement_attempted: bool,
+    deterministic_fallback_used: bool,
+    low_confidence: bool,
+    repeated_fragments: int,
+) -> dict[str, Any]:
+    return {
+        "provider": str(provider or "").strip() or "unknown",
+        "mode": mode,
+        "json_refinement_attempted": bool(json_refinement_attempted),
+        "deterministic_fallback_used": bool(deterministic_fallback_used),
+        "low_confidence": bool(low_confidence),
+        "repeated_fragments": max(int(repeated_fragments or 0), 0),
+    }
+
+
 def sanitize_issue_text(text: str) -> str:
     compacted, repeated_count = dedupe_repeated_fragments(str(text).strip(), max_unique_fragments=4)
     cleaned = compacted.strip()
@@ -1201,8 +1254,8 @@ def normalize_review_result(
 
     if low_confidence:
         low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理。"
-        if low_confidence_note not in cleaned_minor:
-            cleaned_minor = [low_confidence_note] + cleaned_minor
+        cleaned_minor = [item for item in cleaned_minor if item != low_confidence_note]
+        cleaned_minor = [low_confidence_note] + cleaned_minor
 
     if is_mostly_english(summary) or not summary:
         _, _, fallback_summary, _ = build_chinese_issue_fallback(
@@ -1296,6 +1349,10 @@ def normalize_review_result(
         result["task_goal_fulfilled"] = True
 
     result["major_issues"] = cleaned_major
+    if low_confidence:
+        low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理。"
+        cleaned_minor = [item for item in cleaned_minor if item != low_confidence_note]
+        cleaned_minor = [low_confidence_note] + cleaned_minor
     result["minor_issues"] = cleaned_minor
     result["summary"] = summary
     result["verdict"] = verdict
@@ -1708,6 +1765,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         based_on_text = "[未提供 based_on]"
 
     tracker_bundle = load_review_tracker_bundle(task_text, chapter_state=chapter_state)
+    reviewer_provider = str(config.get("reviewer", {}).get("provider", "")).strip().lower() or "unknown"
 
     if should_use_deepseek(config):
         structured_result = review_scene_with_deepseek(
@@ -1740,6 +1798,14 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         )
         result["task_id"] = task_id
         result = ensure_non_empty_structural_fields(result)
+        result["review_trace"] = build_reviewer_trace(
+            provider=reviewer_provider,
+            mode="deepseek_structured",
+            json_refinement_attempted=False,
+            deterministic_fallback_used=False,
+            low_confidence=False,
+            repeated_fragments=0,
+        )
         out_path = f"02_working/reviews/{task_id}_reviewer.json"
         save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
         result["review_result_path"] = save_structured_deepseek_review(ROOT, structured_result)
@@ -1770,6 +1836,9 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
     raw_output = extract_message_text(raw_response)
     raw_output_for_retry = raw_output
     raw_output_meta = {"low_value_english": False, "repeated_fragments": 0, "truncated": False}
+    review_mode = "direct_json"
+    json_refinement_attempted = False
+    deterministic_fallback_used = False
 
     try:
         result = extract_json_object(raw_output)
@@ -1785,11 +1854,10 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
             raise ValueError(
                 "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
             )
-        print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
-        try:
-            result = extract_reviewer_json(config, task_id, raw_output_for_retry)
-        except Exception:
-            print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+        if should_skip_json_refinement_for_local_reviewer(config, raw_output_for_retry, raw_output_meta):
+            print("检测到本地 reviewer 输出为低价值分析或元话语，直接切换到 deterministic reviewer 兜底。")
+            review_mode = "deterministic_fallback"
+            deterministic_fallback_used = True
             result = build_local_review_fallback(
                 task_id,
                 raw_output_for_retry,
@@ -1797,8 +1865,27 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
                 draft_text=draft_text,
                 based_on_text=based_on_text,
                 chapter_state=chapter_state,
-                low_confidence=raw_output_meta["low_value_english"],
+                low_confidence=True,
             )
+        else:
+            print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
+            json_refinement_attempted = True
+            try:
+                result = extract_reviewer_json(config, task_id, raw_output_for_retry)
+                review_mode = "json_refined"
+            except Exception:
+                print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+                review_mode = "deterministic_fallback"
+                deterministic_fallback_used = True
+                result = build_local_review_fallback(
+                    task_id,
+                    raw_output_for_retry,
+                    task_text=task_text,
+                    draft_text=draft_text,
+                    based_on_text=based_on_text,
+                    chapter_state=chapter_state,
+                    low_confidence=raw_output_meta["low_value_english"],
+                )
 
     result = normalize_review_result(
         result,
@@ -1813,6 +1900,14 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
     result = ensure_non_empty_structural_fields(result)
     validate(instance=result, schema=schema)
     validate_review_content(result)
+    result["review_trace"] = build_reviewer_trace(
+        provider=reviewer_provider,
+        mode=review_mode,
+        json_refinement_attempted=json_refinement_attempted,
+        deterministic_fallback_used=deterministic_fallback_used,
+        low_confidence=bool(raw_output_meta.get("low_value_english")),
+        repeated_fragments=int(raw_output_meta.get("repeated_fragments", 0) or 0),
+    )
 
     out_path = f"02_working/reviews/{task_id}_reviewer.json"
     save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))

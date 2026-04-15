@@ -1,27 +1,61 @@
-basic:
-  novel_title: ""
-  genre: ""
-  audience: ""
-  style: ""
-  hook: ""
-  premise: ""
+project:
+  novel_title: "无住人间"
+  genre: "底层现实主义修仙"
+  audience: "喜欢长篇中文网文、群像、现实主义修仙的读者"
+  style: "克制、冷静、以细节和动作落地"
+  tone: "人间苦烈，但保留照亮彼此的余温"
+  hook: "从运河捞尸少年写起，沿着众生命运一路拆到天梯尽头"
+  premise: "孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。"
+  themes: "反内卷、写众生、见虚妄而不冷漠"
 
-protagonist:
-  name: ""
-  role: ""
-  description: ""
-  goal: ""
+cast:
+  protagonist:
+    name: "孟浮灯"
+    role: "底层捞尸少年"
+    background: "长期在运河、码头和乱葬岗一线做脏活，熟悉底层求活规矩。"
+    description: "警惕、耐压、克制，不轻易把疑问外露。"
+    goal: "先在不暴露自己的前提下活下去，再判断是否要追索异常线索。"
+    desire: "想保住自己和身边少数还能互相照应的人。"
+    fear: "被更高层秩序盯上，连求活余地都被夺走。"
+  supporting_roles:
+    - name: "老张头"
+      role: "同行老人"
+      relationship: "底层行当里的前辈"
+      description: "能提供现实阻力、行业经验和微弱的人情承接。"
 
-supporting_roles: []
+story_blueprint:
+  opening_status: "第一章已完成从运河捞尸切入、线索初现与风险抬头；第二章需要把局面从单场异动推成更稳定的章内压力。"
+  core_conflict: "底层求活逻辑与上层秩序黑幕逐步碰撞，主角每多知道一点，就更容易失去退路。"
+  chapter_goal: "第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
+  first_chapter_goal: "从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。"
+  required_beats:
+    - "新章开场必须出现新的现实问题，不只是延续上一章余波。"
+    - "主角要做出一次带后果的微决策。"
+  taboo_beats:
+    - "不要一上来就把更高层真相全部掀开。"
+    - "不要跳成大场面冲突或爽文式反击。"
 
 world:
-  era: ""
-  setting: ""
-  power_system: ""
-  taboos: ""
+  era: "古代中国风异世"
+  setting: "运河、码头、乱葬岗、窝棚、货栈、寺观与下层城市边缘"
+  power_system: "围绕命、愿、债运转的修行与登记体系"
+  social_order: "王朝、宗门、司命机构、地方豪强、寺观共同维持吃人的秩序"
+  taboos: "不要把修行写回单纯吸灵气升级；不要把天道写成简单善恶裁判。"
 
-must_have: []
-must_avoid: []
-open_questions: []
-manual_reference_files: []
+manual_required:
+  must_have:
+    - "每场都要有可验证的新信息、新动作或现实后果中的至少两项。"
+    - "底层日常必须是剧情推进载体，不只是背景板。"
+  must_avoid:
+    - "不要现代词汇、现代设施、现代口语。"
+    - "不要后宫、脸谱反派、流水线升级。"
+  open_questions:
+    - "第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？"
+  review_checklist:
+    - "结尾是否真的改变了下一场的处理方式？"
+    - "是否把世界设定落在了物件、动作和风险上，而不是解释段上？"
 
+manual_reference_files:
+  - "00_manifest/novel_manifest.md"
+  - "00_manifest/world_bible.md"
+  - "00_manifest/character_bible.md"

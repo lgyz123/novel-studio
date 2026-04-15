@@ -17,23 +17,31 @@ class ProjectRuntimeTest(unittest.TestCase):
     def test_render_human_input_markdown_groups_manual_fields(self) -> None:
         markdown = render_human_input_markdown(
             {
-                "basic": {
+                "project": {
                     "novel_title": "九州仙途",
                     "genre": "修仙",
                     "premise": "采药少年误入仙途。",
                 },
-                "protagonist": {
-                    "name": "楚天阳",
-                    "description": "出身低微的采药少年。",
+                "cast": {
+                    "protagonist": {
+                        "name": "楚天阳",
+                        "description": "出身低微的采药少年。",
+                    }
                 },
-                "must_have": ["开篇即给出核心奇遇"],
-                "must_avoid": ["不要现代口语"],
+                "story_blueprint": {
+                    "chapter_goal": "先立主角求活处境，再给出异变入口。",
+                },
+                "manual_required": {
+                    "must_have": ["开篇即给出核心奇遇"],
+                    "must_avoid": ["不要现代口语"],
+                },
             }
         )
 
         self.assertIn("# Human Input", markdown)
         self.assertIn("小说名：九州仙途", markdown)
         self.assertIn("姓名：楚天阳", markdown)
+        self.assertIn("## 故事蓝图", markdown)
         self.assertIn("## 必须出现", markdown)
         self.assertIn("## 必须避免", markdown)
 
@@ -56,6 +64,85 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertEqual(config["run"]["mode"], "restart")
         self.assertEqual(config["run"]["target_chapter"], 3)
         self.assertEqual(config["generation"]["max_auto_revisions"], 5)
+
+    def test_save_latest_run_summary_includes_trace_and_created_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                rel_path = main_module.save_latest_run_summary(
+                    task_id="scene_summary",
+                    draft_file="02_working/drafts/scene_summary.md",
+                    writer_trace={
+                        "provider": "ollama",
+                        "mode": "draft_generated",
+                        "fallbacks_used": ["rewrite_script_to_prose"],
+                        "initial_validation_errors": ["文本呈现提纲/列表式格式，不符合小说正文要求"],
+                        "final_validation_errors": [],
+                    },
+                    reviewer_result={
+                        "verdict": "revise",
+                        "summary": "需要小修。",
+                        "major_issues": ["动作推进不足。"],
+                        "minor_issues": ["结尾收束偏弱。"],
+                        "review_trace": {
+                            "provider": "ollama",
+                            "mode": "deterministic_fallback",
+                            "json_refinement_attempted": False,
+                            "deterministic_fallback_used": True,
+                            "low_confidence": True,
+                            "repeated_fragments": 4,
+                        },
+                    },
+                    created={
+                        "task_file": "01_inputs/tasks/generated/scene_summary_revision_auto.md",
+                        "supervisor_decision_file": "02_working/reviews/scene_summary_supervisor_decision.json",
+                    },
+                    loop_round=2,
+                    review_status="revise",
+                )
+                content = (root / rel_path).read_text(encoding="utf-8")
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertEqual(rel_path, "02_working/reviews/latest_run_summary.md")
+        self.assertIn("task_id: scene_summary", content)
+        self.assertIn("## Writer Trace", content)
+        self.assertIn("rewrite_script_to_prose", content)
+        self.assertIn("mode: deterministic_fallback", content)
+        self.assertIn("task_file: 01_inputs/tasks/generated/scene_summary_revision_auto.md", content)
+        self.assertIn("supervisor_decision_file", content)
+
+    def test_summary_helper_tolerates_supervisor_decision_without_rescue_record(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                rel_path = main_module.save_latest_run_summary(
+                    task_id="scene_supervisor_only",
+                    draft_file="02_working/drafts/scene_supervisor_only.md",
+                    writer_trace={},
+                    reviewer_result={
+                        "verdict": "revise",
+                        "summary": "supervisor 已接管。",
+                        "major_issues": ["需要继续修订。"],
+                        "minor_issues": [],
+                    },
+                    created={
+                        "supervisor_decision_file": "02_working/reviews/scene_supervisor_only_supervisor_decision.json",
+                        "task_file": "01_inputs/tasks/generated/scene_supervisor_only_revision_auto.md",
+                    },
+                    loop_round=1,
+                    review_status="revise",
+                )
+                content = (root / rel_path).read_text(encoding="utf-8")
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIn("scene_supervisor_only_supervisor_decision.json", content)
+        self.assertNotIn("supervisor_rescue_record_file", content)
 
     def test_should_continue_after_lock_respects_target_chapter_and_scene(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -155,7 +242,7 @@ class ProjectRuntimeTest(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "01_inputs/human_input.yaml").write_text(
-                "basic:\n  premise: 采药少年误入仙途。\n  genre: 修仙\nprotagonist:\n  name: 楚天阳\n",
+                "project:\n  premise: 采药少年误入仙途。\n  genre: 修仙\ncast:\n  protagonist:\n    name: 楚天阳\nstory_blueprint:\n  chapter_goal: 先立足，再触发异变。\n",
                 encoding="utf-8",
             )
             (root / "03_locked/chapters/ch01_scene12.md").write_text("上一章结尾", encoding="utf-8")
@@ -172,6 +259,7 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("03_locked/chapters/ch01_scene12.md", task_text)
         self.assertIn("# chapter_state\n03_locked/canon/ch02_state.md", task_text)
         self.assertIn("# output_target\n02_working/drafts/ch02_scene01.md", task_text)
+        self.assertIn("当前章节目标", task_text)
 
     def test_should_rollover_after_lock_uses_run_scene_limit(self) -> None:
         self.assertTrue(should_rollover_after_lock({"run": {"max_scenes_per_chapter": 12}}, "03_locked/chapters/ch01_scene12.md"))

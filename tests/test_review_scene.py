@@ -140,6 +140,41 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertFalse(result["plot_progress"]["has_plot_progress"])
         self.assertFalse(result["character_decision"]["has_decision_or_behavior_shift"])
 
+    def test_local_reviewer_skips_json_refinement_for_meta_english(self) -> None:
+        sanitized, meta = review_scene_module.sanitize_reviewer_raw_output(
+            "We need to produce a JSON object. The assistant must output a single JSON object."
+        )
+
+        self.assertTrue(
+            review_scene_module.should_skip_json_refinement_for_local_reviewer(
+                {
+                    "reviewer": {
+                        "provider": "ollama",
+                        "model": "gpt-oss:20b",
+                        "base_url": "http://example.com",
+                    }
+                },
+                sanitized,
+                meta,
+            )
+        )
+
+    def test_build_reviewer_trace_marks_deterministic_fallback(self) -> None:
+        trace = review_scene_module.build_reviewer_trace(
+            provider="ollama",
+            mode="deterministic_fallback",
+            json_refinement_attempted=False,
+            deterministic_fallback_used=True,
+            low_confidence=True,
+            repeated_fragments=3,
+        )
+
+        self.assertEqual(trace["provider"], "ollama")
+        self.assertEqual(trace["mode"], "deterministic_fallback")
+        self.assertTrue(trace["deterministic_fallback_used"])
+        self.assertTrue(trace["low_confidence"])
+        self.assertEqual(trace["repeated_fragments"], 3)
+
     def test_normalize_review_result_dedupes_repeated_issue_text(self) -> None:
         result = {
             "task_id": "scene_101",

@@ -25,10 +25,13 @@ from app.main import (
     detect_scene10_old_pattern_reuse,
     build_writer_user_prompt,
     extract_revision_count,
+    get_effective_manual_intervention_threshold,
     extract_supervisor_round,
     has_supervisor_retry_budget,
     is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
+    should_auto_lock_after_supervisor_rescue,
+    should_force_supervisor_takeover,
     should_use_deepseek_writer,
     should_continue_after_lock,
     write_draft,
@@ -480,6 +483,53 @@ scene_043
             self.assertIn("# repair_plan", content)
             self.assertIn("scene_043_repair_plan.json", content)
 
+    def test_generated_task_content_includes_review_trace_summary(self) -> None:
+        task_text = """# task_id
+scene_043-R1
+
+# goal
+继续修订当前 scene
+
+# output_target
+02_working/drafts/scene_043_v2.md
+"""
+        reviewer_result = {
+            "task_id": "scene_043-R1",
+            "verdict": "revise",
+            "summary": "需要继续修订。",
+            "major_issues": ["动作推进不足。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "task_goal_fulfilled": False,
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": "局面没有变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": "主角没有形成明确动作偏移。"},
+            "motif_redundancy": {
+                "repeated_motifs": [],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "未识别到明显复读。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+            "review_trace": {
+                "provider": "ollama",
+                "mode": "deterministic_fallback",
+                "json_refinement_attempted": False,
+                "deterministic_fallback_used": True,
+                "low_confidence": True,
+                "repeated_fragments": 5,
+            },
+        }
+
+        content = build_generated_task_content(task_text, reviewer_result, "02_working/drafts/scene_043_v2.md", "revise")
+        self.assertIn("# review_trace", content)
+        self.assertIn("mode: deterministic_fallback", content)
+        self.assertIn("deterministic_fallback: yes", content)
+
     def test_writer_prompt_includes_repair_plan_guidance(self) -> None:
         legacy_result = {
             "task_id": "scene_044",
@@ -874,7 +924,7 @@ scene_405-R1
             (root / "03_locked/canon/ch01_state.md").write_text("当前章节状态", encoding="utf-8")
             (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
             (root / "02_working/planning/scene_405-R1_planning_repair.md").write_text(
-                "# planning repair brief\n\n## repair targets\n\n### timeline_bootstrap\n- artifact：02_working/planning/timeline_patch.md\n",
+                "# planning repair brief\n\n## repair targets\n\n### timeline_bootstrap\n- artifact：02_working/planning/timeline_patch.md\n\n### scene_writing\n- artifact：02_working/planning/scene_writing_skill_router.md\n",
                 encoding="utf-8",
             )
 
@@ -890,6 +940,11 @@ scene_405-R1
             self.assertIn("# planning repair brief", context)
             self.assertIn("scene_405-R1_planning_repair.md", context)
             self.assertIn("### timeline_bootstrap", context)
+            self.assertIn("# planning repair status", context)
+            self.assertIn("scene_405-R1_planning_repair_status.md", context)
+            self.assertIn("refreshed_artifact：02_working/planning/timeline_patch.md", context)
+            self.assertIn("refreshed_artifact：02_working/planning/scene_writing_skill_router.md", context)
+            self.assertTrue((root / "02_working/planning/scene_405-R1_planning_repair_status.md").exists())
 
     def test_generated_task_content_carries_structural_fields(self) -> None:
         task_text = """# task_id
@@ -1235,6 +1290,73 @@ scene_truncated
             self.assertTrue(saved_draft.endswith("把眼前的活计重新看清。"))
             self.assertTrue((root / "02_working/logs/scene_truncated_continued_attempt.md").exists())
 
+    def test_write_draft_recovers_outline_output_via_prose_rewrite(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_outline
+
+# goal
+写一个短场景。
+
+# output_target
+02_working/drafts/scene_outline.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_call_ollama = main_module.call_ollama
+            original_rewrite = main_module.rewrite_script_to_prose
+            main_module.ROOT = root
+            try:
+                main_module.call_ollama = lambda **kwargs: "1. 孟浮灯回屋\n2. 他摸到袖里的硬物\n3. 他决定先藏起来"
+                main_module.rewrite_script_to_prose = lambda config, current_context, bad_draft: "孟浮灯回屋后先摸到袖里的硬物，指尖顿了一下，终究没有声张，只把那东西往袖底更深处压了压。"
+
+                result = write_draft(
+                    {
+                        "writer": {"model": "fake", "base_url": "http://example.com", "provider": "ollama"},
+                        "generation": {"write_num_ctx": 2048, "temperature": 0.4, "request_timeout": 10},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.call_ollama = original_call_ollama
+                main_module.rewrite_script_to_prose = original_rewrite
+                main_module.ROOT = previous_root
+
+            saved_draft = (root / "02_working/drafts/scene_outline.md").read_text(encoding="utf-8")
+            self.assertEqual(result["draft_file"], "02_working/drafts/scene_outline.md")
+            self.assertIn("终究没有声张", saved_draft)
+            self.assertTrue((root / "02_working/logs/scene_outline_rewritten_attempt.md").exists())
+            self.assertIn("rewrite_script_to_prose", result["writer_trace"]["fallbacks_used"])
+            self.assertTrue(any("提纲/列表式" in item for item in result["writer_trace"]["initial_validation_errors"]))
+
     def test_write_draft_repairs_validation_errors_before_failing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -1407,6 +1529,120 @@ scene_090-R5
         self.assertEqual(extract_supervisor_round(task_text), 2)
         self.assertTrue(has_supervisor_retry_budget({"generation": {"max_supervisor_rounds": 3}}, task_text))
         self.assertFalse(has_supervisor_retry_budget({"generation": {"max_supervisor_rounds": 2}}, task_text))
+
+    def test_local_mode_uses_lower_manual_intervention_threshold(self) -> None:
+        self.assertEqual(
+            get_effective_manual_intervention_threshold(
+                {
+                    "writer": {"provider": "ollama"},
+                    "reviewer": {"provider": "ollama"},
+                    "generation": {"max_auto_revisions": 5},
+                },
+                5,
+            ),
+            3,
+        )
+
+    def test_local_loop_can_trigger_supervisor_earlier(self) -> None:
+        task_text = """# task_id
+scene_099-R2
+
+# supervisor_round
+0
+"""
+        self.assertTrue(
+            should_force_supervisor_takeover(
+                {
+                    "supervisor": {"enabled": True},
+                    "writer": {"provider": "ollama"},
+                    "reviewer": {"provider": "ollama"},
+                    "generation": {"max_supervisor_rounds": 3},
+                },
+                task_text,
+                {
+                    "task_id": "scene_099-R2",
+                    "verdict": "revise",
+                    "major_issues": ["scene purpose 仍不够明确。"],
+                    "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
+                },
+            )
+        )
+
+    def test_local_supervisor_rescue_can_auto_lock_after_multiple_revisions(self) -> None:
+        import app.main as main_module
+
+        task_text = """# task_id
+scene_101-R2
+
+# supervisor_round
+1
+"""
+        reviewer_result = {
+            "task_id": "scene_101-R2",
+            "verdict": "revise",
+            "major_issues": ["重复问题未收敛：scene_purpose"],
+            "minor_issues": [],
+            "force_manual_intervention_reason": "重复问题未收敛：scene_purpose",
+        }
+
+        previous_root = main_module.ROOT
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            main_module.ROOT = root
+            try:
+                path = root / "02_working/reviews/scene_101-R2_supervisor_rescue.json"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('{"task_id": "scene_101-R2"}', encoding="utf-8")
+
+                self.assertTrue(
+                    should_auto_lock_after_supervisor_rescue(
+                        {
+                            "supervisor": {"enabled": True},
+                            "writer": {"provider": "ollama"},
+                            "reviewer": {"provider": "ollama"},
+                        },
+                        task_text,
+                        reviewer_result,
+                    )
+                )
+            finally:
+                main_module.ROOT = previous_root
+
+    def test_main_reads_reviewer_trace_field_from_json(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_trace",
+            "verdict": "revise",
+            "summary": "需要小修。",
+            "major_issues": ["动作推进偏弱。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "task_goal_fulfilled": False,
+            "information_gain": {"has_new_information": False, "new_information_items": []},
+            "plot_progress": {"has_plot_progress": False, "progress_reason": "局面没有发生明确变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": False, "decision_detail": "主角没有形成可追踪的动作偏移。"},
+            "motif_redundancy": {
+                "repeated_motifs": [],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "未识别到明显复读。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+            "review_trace": {
+                "provider": "ollama",
+                "mode": "deterministic_fallback",
+                "json_refinement_attempted": False,
+                "deterministic_fallback_used": True,
+                "low_confidence": True,
+                "repeated_fragments": 4,
+            },
+        }
+
+        self.assertEqual(reviewer_result["review_trace"]["mode"], "deterministic_fallback")
+        self.assertTrue(reviewer_result["review_trace"]["deterministic_fallback_used"])
 
     def test_prepare_supervisor_rescue_draft_saves_validated_draft(self) -> None:
         task_text = """# task_id

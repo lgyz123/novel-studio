@@ -135,6 +135,14 @@ scene_053-R3
             "major_issues": ["文体略显松散，关键段落缺少压缩。"],
             "minor_issues": ["第2段解释偏多。"],
             "force_manual_intervention_reason": "重复问题未收敛：style",
+            "review_trace": {
+                "provider": "ollama",
+                "mode": "deterministic_fallback",
+                "json_refinement_attempted": False,
+                "deterministic_fallback_used": True,
+                "low_confidence": True,
+                "repeated_fragments": 4,
+            },
         }
         config = {"paths": {"working_dir": "02_working", "inputs_dir": "01_inputs"}, "generation": {"max_auto_revisions": 5}}
 
@@ -171,6 +179,8 @@ scene_053-R3
                 self.assertIn("scene_053-R3_repair_plan.json", content)
                 self.assertIn("scene_053_revision_lineage.json", content)
                 self.assertIn("重复问题类型：style", content)
+                self.assertIn("## 本轮 reviewer trace", content)
+                self.assertIn("mode: deterministic_fallback", content)
                 self.assertIn("## 下一次重试可直接使用的提示词", content)
                 self.assertIn("修订模式：`partial_redraft`", content)
             finally:

@@ -169,6 +169,22 @@ def should_use_compact_writer_prompt(config: dict | None = None) -> bool:
     return not should_use_deepseek_writer(config)
 
 
+def is_local_writer_mode(config: dict | None = None) -> bool:
+    if not config:
+        return False
+    writer = config.get("writer", {})
+    provider = str(writer.get("provider", "")).strip().lower()
+    return provider not in {"", "deepseek"}
+
+
+def is_local_reviewer_mode(config: dict | None = None) -> bool:
+    if not config:
+        return False
+    reviewer = config.get("reviewer", {})
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    return provider not in {"", "deepseek"}
+
+
 def extract_openai_message_content(response: Any) -> str:
     choices = getattr(response, "choices", None) or []
     if not choices:
@@ -652,15 +668,19 @@ def get_scene_writing_skill_router_result(task_text: str) -> dict[str, Any]:
     if (ROOT / "03_locked/state/trackers").exists():
         state_signals["has_trackers"] = True
 
+    manifest_parts: list[str] = []
+    for rel_path in ["00_manifest/novel_manifest.md", "00_manifest/world_bible.md"]:
+        try:
+            content = read_text(rel_path)
+        except FileNotFoundError:
+            content = ""
+        if content.strip():
+            manifest_parts.append(content)
+
     return route_writer_skills(
         phase="scene_writing",
         task_text=task_text,
-        project_manifest_text="\n".join(
-            [
-                read_text("00_manifest/novel_manifest.md"),
-                read_text("00_manifest/world_bible.md"),
-            ]
-        ),
+        project_manifest_text="\n".join(manifest_parts),
         state_signals=state_signals,
     )
 
@@ -740,15 +760,19 @@ def compile_context(config: dict) -> str:
     human_input_section = render_human_input_markdown(load_human_input(ROOT))
     planning_repair_brief_path = (extract_markdown_field(task_text_full, "planning_repair_brief") or "").strip()
     planning_repair_brief_section = ""
+    planning_repair_brief_text = ""
+    planning_repair_status_path = ""
+    planning_repair_status_section = ""
     if planning_repair_brief_path:
         try:
-            planning_repair_brief_text = clip_text(read_text(planning_repair_brief_path), 1000)
+            planning_repair_brief_text = read_text(planning_repair_brief_path)
+            clipped_planning_repair_brief_text = clip_text(planning_repair_brief_text, 1000)
             planning_repair_brief_section = f"""
 
 # planning repair brief
 来源文件：{planning_repair_brief_path}
 
-{planning_repair_brief_text}
+{clipped_planning_repair_brief_text}
 """
         except FileNotFoundError:
             planning_repair_brief_section = f"""
@@ -766,6 +790,23 @@ def compile_context(config: dict) -> str:
         heading="# scene writing skill router",
     )
     scene_writing_skill_router_section = f"# scene writing skill router\n来源文件：{scene_writing_router_saved['md_file']}\n\n" + read_text(scene_writing_router_saved["md_file"]).split("\n", 1)[1]
+    if planning_repair_brief_path and planning_repair_brief_text:
+        planning_repair_status_path = save_planning_repair_status(
+            extract_markdown_field(task_text_full, "task_id") or "generated-task",
+            planning_repair_brief_path,
+            planning_repair_brief_text,
+            planning_outputs,
+            scene_writing_router_saved["md_file"],
+        ) or ""
+        if planning_repair_status_path:
+            planning_repair_status_text = clip_text(read_text(planning_repair_status_path), 900)
+            planning_repair_status_section = f"""
+
+# planning repair status
+来源文件：{planning_repair_status_path}
+
+{planning_repair_status_text}
+"""
     selected_writer_skill_sections = build_selected_writer_skill_sections(task_text_full)
     skill_audits = [
         audit_skill_router_result("planning_bootstrap", planning_outputs.get("planning_skill_router", {})),
@@ -807,6 +848,8 @@ def compile_context(config: dict) -> str:
 {outline_text}
 
 {planning_repair_brief_section}
+
+{planning_repair_status_section}
 
 {scene_contract_section}
 
@@ -1315,7 +1358,9 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 def generate_markdown_draft(config: dict, current_context: str, decision: dict) -> str:
     system_prompt = read_text("prompts/writer_system.md")
     task_text = read_text("01_inputs/tasks/current_task.md")
-    user_prompt = build_writer_user_prompt(task_text, current_context, decision, config=config)
+    writer_context_max_chars = int(config.get("generation", {}).get("writer_context_max_chars", 8000))
+    writer_context = clip_text(current_context, writer_context_max_chars)
+    user_prompt = build_writer_user_prompt(task_text, writer_context, decision, config=config)
 
     print("正在请求模型生成草稿，请稍候...")
     markdown_text = call_writer_model(
@@ -1330,7 +1375,7 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
 
 def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) -> str:
     system_prompt = """你是小说改写助手。
-你的任务是把一段剧本体、分镜体或舞台说明式文字，改写为连续的小说正文 prose。
+你的任务是把一段剧本体、分镜体、提纲体、列表式草稿或舞台说明式文字，改写为连续的小说正文 prose。
 不要新增设定，不要新增角色，不要改变原场景的基本事件顺序。
 只输出改写后的小说正文，不要解释。"""
 
@@ -1359,7 +1404,7 @@ def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) 
 {bad_draft}
 """
 
-    print("检测到剧本体，正在尝试自动改写为小说正文...")
+    print("检测到非 prose 草稿，正在尝试强制改写为小说正文...")
     rewritten = call_writer_model(
         config,
         system_prompt,
@@ -1500,6 +1545,40 @@ def repair_invalid_draft(config: dict, current_context: str, bad_draft: str, err
 
     return clean_model_output(repaired)
 
+
+def should_force_prose_rewrite(errors: list[str]) -> bool:
+    text = " ".join(str(item) for item in errors)
+    markers = [
+        "剧本体",
+        "分镜体",
+        "提纲/列表式",
+        "说明性附加文本",
+    ]
+    return any(marker in text for marker in markers)
+
+
+def build_writer_trace(
+    *,
+    provider: str,
+    mode: str,
+    fallbacks_used: list[str],
+    initial_validation_errors: list[str],
+    final_validation_errors: list[str],
+) -> dict[str, Any]:
+    deduped_fallbacks: list[str] = []
+    for item in fallbacks_used:
+        value = str(item).strip()
+        if value and value not in deduped_fallbacks:
+            deduped_fallbacks.append(value)
+
+    return {
+        "provider": str(provider or "").strip() or "unknown",
+        "mode": str(mode or "draft").strip() or "draft",
+        "fallbacks_used": deduped_fallbacks,
+        "initial_validation_errors": [str(item).strip() for item in initial_validation_errors if str(item).strip()][:6],
+        "final_validation_errors": [str(item).strip() for item in final_validation_errors if str(item).strip()][:6],
+    }
+
 def save_failed_draft(task_id: str, content: str, suffix: str = "failed") -> None:
     path = f"02_working/logs/{task_id}_{suffix}.md"
     save_text(path, content)
@@ -1531,13 +1610,18 @@ def write_draft(config: dict, current_context: str) -> dict:
     task_text = read_text("01_inputs/tasks/current_task.md")
     decision = generate_decision_json(config, current_context)
     task_id = decision["task_id"]
+    writer_provider = str(config.get("writer", {}).get("provider", "")).strip().lower() or "unknown"
+    fallbacks_used: list[str] = []
+    initial_validation_errors: list[str] = []
 
     raw_markdown_text = generate_markdown_draft(config, current_context, decision)
     markdown_text = clean_model_output(raw_markdown_text)
 
     if not markdown_text and raw_markdown_text.strip():
+        fallbacks_used.append("clean_output_empty")
         save_failed_draft(task_id, raw_markdown_text, "first_failed_raw")
         rewritten = rewrite_script_to_prose(config, current_context, raw_markdown_text)
+        fallbacks_used.append("rewrite_script_to_prose")
         save_failed_draft(task_id, rewritten, "rewritten_attempt")
 
         rewritten_errors = build_validation_errors(task_text, rewritten)
@@ -1546,6 +1630,7 @@ def write_draft(config: dict, current_context: str) -> dict:
         else:
             save_failure_reason(task_id, "；".join(rewritten_errors), "rewritten_failed_reason")
             refined = extract_plain_prose(config, current_context, rewritten)
+            fallbacks_used.append("extract_plain_prose")
             save_failed_draft(task_id, refined, "refined_attempt")
 
             refined_errors = build_validation_errors(task_text, refined)
@@ -1558,11 +1643,13 @@ def write_draft(config: dict, current_context: str) -> dict:
     errors = build_validation_errors(task_text, markdown_text)
     errors = build_validation_errors(task_text, markdown_text)
     if errors:
+        initial_validation_errors = list(errors)
         save_failed_draft(task_id, markdown_text, "first_failed")
         save_failure_reason(task_id, "；".join(errors), "first_failed_reason")
 
         if any("草稿疑似被截断" in e for e in errors):
             continued = continue_truncated_draft(config, current_context, raw_markdown_text)
+            fallbacks_used.append("continue_truncated_draft")
             save_failed_draft(task_id, continued, "continued_attempt")
             continued_errors = build_validation_errors(task_text, continued)
             if not continued_errors:
@@ -1577,9 +1664,10 @@ def write_draft(config: dict, current_context: str) -> dict:
             markdown_text = clean_model_output(markdown_text)
             errors = build_validation_errors(task_text, markdown_text)
 
-        # 第一层 fallback：剧本体 -> prose 改写
-        if errors and any("剧本体" in e or "分镜体" in e for e in errors):
+        # 第一层 fallback：所有明显非 prose 的输出，优先强制改写为正文
+        if errors and should_force_prose_rewrite(errors):
             rewritten = rewrite_script_to_prose(config, current_context, markdown_text)
+            fallbacks_used.append("rewrite_script_to_prose")
             save_failed_draft(task_id, rewritten, "rewritten_attempt")
 
             rewritten_errors = build_validation_errors(task_text, rewritten)
@@ -1590,6 +1678,7 @@ def write_draft(config: dict, current_context: str) -> dict:
 
                 # 第二层 fallback：提纯正文
                 refined = extract_plain_prose(config, current_context, rewritten)
+                fallbacks_used.append("extract_plain_prose")
                 save_failed_draft(task_id, refined, "refined_attempt")
 
                 refined_errors = build_validation_errors(task_text, refined)
@@ -1604,12 +1693,15 @@ def write_draft(config: dict, current_context: str) -> dict:
 
         elif errors:
             repaired = repair_invalid_draft(config, current_context, raw_markdown_text, errors)
+            fallbacks_used.append("repair_invalid_draft")
             save_failed_draft(task_id, repaired, "repaired_attempt")
             repaired_errors = build_validation_errors(task_text, repaired)
             if repaired_errors:
                 save_failure_reason(task_id, "；".join(repaired_errors), "repaired_failed_reason")
                 raise ValueError(f"草稿验收失败: {'；'.join(repaired_errors)}")
             markdown_text = repaired
+
+    final_validation_errors = build_validation_errors(task_text, markdown_text)
 
     decision_file = f"02_working/reviews/{decision['task_id']}.json"
     draft_file = decision["draft_file"]
@@ -1624,6 +1716,13 @@ def write_draft(config: dict, current_context: str) -> dict:
         "decision": decision,
         "decision_file": decision_file,
         "draft_file": draft_file,
+        "writer_trace": build_writer_trace(
+            provider=writer_provider,
+            mode="draft_generated",
+            fallbacks_used=fallbacks_used,
+            initial_validation_errors=initial_validation_errors,
+            final_validation_errors=final_validation_errors,
+        ),
     }
 
 
@@ -2204,6 +2303,73 @@ def save_planning_repair_brief(task_id: str, reviewer_result: dict) -> str | Non
     return rel_path
 
 
+def parse_planning_repair_brief_phases(brief_text: str) -> list[str]:
+    phases: list[str] = []
+    for line in str(brief_text or "").splitlines():
+        match = re.match(r"^\s*###\s+([A-Za-z0-9_\-]+)\s*$", line.strip())
+        if not match:
+            continue
+        phase = match.group(1).strip()
+        if phase and phase not in phases:
+            phases.append(phase)
+    return phases
+
+
+def save_planning_repair_status(
+    task_id: str,
+    planning_repair_brief_path: str,
+    planning_repair_brief_text: str,
+    planning_outputs: dict[str, Any],
+    scene_writing_router_md_file: str,
+) -> str | None:
+    phases = parse_planning_repair_brief_phases(planning_repair_brief_text)
+    if not phases:
+        return None
+
+    phase_artifacts: dict[str, list[str]] = {
+        "planning_bootstrap": [
+            planning_outputs["worldview_patch_file"],
+            planning_outputs["outline_file"],
+            planning_outputs["planning_skill_router_md_file"],
+        ],
+        "character_creation": [
+            planning_outputs["character_patch_file"],
+            planning_outputs["character_creation_skill_router_md_file"],
+        ],
+        "timeline_bootstrap": [
+            planning_outputs["timeline_patch_file"],
+            planning_outputs["timeline_bootstrap_skill_router_md_file"],
+        ],
+        "scene_writing": [
+            scene_writing_router_md_file,
+            "02_working/planning/scene_writing_skill_router.json",
+        ],
+    }
+
+    rel_path = f"02_working/planning/{task_id}_planning_repair_status.md"
+    lines = [
+        "# planning repair status",
+        "",
+        f"- task_id：{task_id}",
+        f"- source_brief：{planning_repair_brief_path}",
+        "- 说明：检测到 planning_repair_brief 后，系统已自动重建相关 working 资产并在此登记。",
+        "",
+        "## rebuilt phases",
+    ]
+
+    for phase in phases:
+        artifacts = phase_artifacts.get(phase, [])
+        lines.append(f"### {phase}")
+        if artifacts:
+            lines.extend([f"- refreshed_artifact：{artifact}" for artifact in artifacts])
+        else:
+            lines.append("- refreshed_artifact：当前 phase 没有可登记的 working 资产。")
+        lines.append("")
+
+    save_text(rel_path, "\n".join(lines).strip() + "\n")
+    return rel_path
+
+
 def build_followup_task_id(task_id: str, mode: str) -> str:
     base = re.sub(r"-(?:R\d+|RW\d+)+$", "", task_id)
     revise_match = re.search(r"-R(\d+)$", task_id)
@@ -2423,6 +2589,10 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
     if planning_repair_brief_path:
         sections.append(f"# planning_repair_brief\n{planning_repair_brief_path}")
 
+    review_trace_summary = format_review_trace_summary(reviewer_result)
+    if review_trace_summary:
+        sections.append(f"# review_trace\n{review_trace_summary}")
+
     sections.append(f"# constraints\n{new_constraints}")
 
     if preferred_length:
@@ -2430,6 +2600,168 @@ def build_generated_task_content(task_text: str, reviewer_result: dict, draft_fi
 
     sections.append(f"# output_target\n{new_output_target}")
     return "\n\n".join(sections) + "\n"
+
+
+def format_review_trace_summary(reviewer_result: dict) -> str:
+    trace = reviewer_result.get("review_trace", {}) if isinstance(reviewer_result, dict) else {}
+    if not isinstance(trace, dict) or not trace:
+        return ""
+
+    provider = str(trace.get("provider") or "unknown").strip()
+    mode = str(trace.get("mode") or "unknown").strip()
+    low_confidence = "yes" if bool(trace.get("low_confidence")) else "no"
+    deterministic_fallback = "yes" if bool(trace.get("deterministic_fallback_used")) else "no"
+    json_refinement = "yes" if bool(trace.get("json_refinement_attempted")) else "no"
+    repeated_fragments = int(trace.get("repeated_fragments", 0) or 0)
+
+    lines = [
+        f"- provider: {provider}",
+        f"- mode: {mode}",
+        f"- low_confidence: {low_confidence}",
+        f"- deterministic_fallback: {deterministic_fallback}",
+        f"- json_refinement_attempted: {json_refinement}",
+        f"- repeated_fragments: {repeated_fragments}",
+    ]
+    return "\n".join(lines)
+
+
+def build_latest_run_summary(
+    *,
+    task_id: str,
+    draft_file: str | None,
+    writer_trace: dict | None,
+    reviewer_result: dict | None,
+    created: dict[str, str] | None,
+    loop_round: int,
+    review_status: str,
+) -> str:
+    created = created or {}
+    reviewer_result = reviewer_result or {}
+    writer_trace = writer_trace or {}
+    summary = str(reviewer_result.get("summary") or "").strip() or "无"
+    verdict = str(reviewer_result.get("verdict") or review_status or "unknown").strip() or "unknown"
+    review_trace_summary = format_review_trace_summary(reviewer_result)
+
+    lines = [
+        "# Latest Run Summary",
+        "",
+        "## 本轮概况",
+        f"- loop_round: {loop_round}",
+        f"- task_id: {task_id}",
+        f"- review_status: {review_status}",
+        f"- reviewer_verdict: {verdict}",
+        f"- draft_file: {draft_file or '[无]'}",
+        f"- reviewer_summary: {summary}",
+        "",
+    ]
+
+    if review_trace_summary:
+        lines.extend([
+            "## Reviewer Trace",
+            *review_trace_summary.splitlines(),
+            "",
+        ])
+
+    if isinstance(writer_trace, dict) and writer_trace:
+        fallback_lines = [f"- {item}" for item in writer_trace.get("fallbacks_used", []) if str(item).strip()]
+        initial_error_lines = [f"- {item}" for item in writer_trace.get("initial_validation_errors", []) if str(item).strip()]
+        final_error_lines = [f"- {item}" for item in writer_trace.get("final_validation_errors", []) if str(item).strip()]
+        lines.extend([
+            "## Writer Trace",
+            f"- provider: {str(writer_trace.get('provider') or 'unknown').strip() or 'unknown'}",
+            f"- mode: {str(writer_trace.get('mode') or 'unknown').strip() or 'unknown'}",
+        ])
+        if fallback_lines:
+            lines.extend(["- fallbacks_used:"] + fallback_lines)
+        else:
+            lines.append("- fallbacks_used: none")
+        if initial_error_lines:
+            lines.extend(["- initial_validation_errors:"] + initial_error_lines)
+        else:
+            lines.append("- initial_validation_errors: none")
+        if final_error_lines:
+            lines.extend(["- final_validation_errors:"] + final_error_lines)
+        else:
+            lines.append("- final_validation_errors: none")
+        lines.append("")
+
+    artifact_lines: list[str] = []
+    for key in [
+        "task_file",
+        "locked_file",
+        "next_scene_task_file",
+        "next_scene_plan_file",
+        "manual_intervention_file",
+        "supervisor_decision_file",
+        "supervisor_rescue_draft_file",
+        "supervisor_rescue_record_file",
+        "lock_gate_report_file",
+    ]:
+        value = str(created.get(key) or "").strip()
+        if value:
+            artifact_lines.append(f"- {key}: {value}")
+
+    if artifact_lines:
+        lines.extend([
+            "## 输出产物",
+            *artifact_lines,
+            "",
+        ])
+
+    major_issues = [str(item).strip() for item in reviewer_result.get("major_issues", []) if str(item).strip()]
+    minor_issues = [str(item).strip() for item in reviewer_result.get("minor_issues", []) if str(item).strip()]
+    if major_issues:
+        lines.extend([
+            "## 主要问题",
+            *[f"- {item}" for item in major_issues[:5]],
+            "",
+        ])
+    if minor_issues:
+        lines.extend([
+            "## 次要问题",
+            *[f"- {item}" for item in minor_issues[:5]],
+            "",
+        ])
+
+    next_step = "查看 reviewer 结果并决定下一步。"
+    if "locked_file" in created:
+        next_step = "本轮已锁定，可直接查看 locked 正文或继续下一 scene。"
+    elif "manual_intervention_file" in created:
+        next_step = "本轮已转人工介入，请优先查看 manual_intervention 文件。"
+    elif "task_file" in created:
+        next_step = "本轮已生成新的 revise/rewrite 任务，可继续自动跑下一轮。"
+    lines.extend([
+        "## 建议下一步",
+        f"- {next_step}",
+    ])
+
+    return "\n".join(lines).strip() + "\n"
+
+
+def save_latest_run_summary(
+    *,
+    task_id: str,
+    draft_file: str | None,
+    writer_trace: dict | None,
+    reviewer_result: dict | None,
+    created: dict[str, str] | None,
+    loop_round: int,
+    review_status: str,
+) -> str:
+    rel_path = "02_working/reviews/latest_run_summary.md"
+    save_text(
+        rel_path,
+        build_latest_run_summary(
+            task_id=task_id,
+            draft_file=draft_file,
+            writer_trace=writer_trace,
+            reviewer_result=reviewer_result,
+            created=created,
+            loop_round=loop_round,
+            review_status=review_status,
+        ),
+    )
+    return rel_path
 
 
 def extract_scene_stem(text: str | None) -> str | None:
@@ -2498,6 +2830,43 @@ def has_supervisor_retry_budget(config: dict, task_text: str) -> bool:
     return extract_supervisor_round(task_text) < get_max_supervisor_rounds(config)
 
 
+def get_effective_manual_intervention_threshold(config: dict, max_revisions: int) -> int:
+    generation = config.get("generation", {})
+    explicit = generation.get("local_manual_intervention_after")
+    if explicit is not None:
+        try:
+            return max(1, int(explicit))
+        except (TypeError, ValueError):
+            pass
+
+    if is_local_reviewer_mode(config) or is_local_writer_mode(config):
+        return max(1, min(max_revisions, 3))
+    return max(1, max_revisions)
+
+
+def should_force_supervisor_takeover(config: dict, task_text: str, reviewer_result: dict) -> bool:
+    if not is_supervisor_enabled(config):
+        return False
+    if not has_supervisor_retry_budget(config, task_text):
+        return False
+    if not (is_local_reviewer_mode(config) or is_local_writer_mode(config)):
+        return False
+    if str(reviewer_result.get("verdict") or "").strip() == "lock":
+        return False
+
+    task_id = extract_markdown_field(task_text, "task_id") or str(reviewer_result.get("task_id") or "").strip()
+    revision_count = extract_revision_count(task_id)
+    major_issues = [str(item).strip() for item in reviewer_result.get("major_issues", []) if str(item).strip()]
+    local_reviewer_noise = any("无效英文分析" in item for item in reviewer_result.get("minor_issues", []))
+    repetitive_loop = revision_count >= 2
+
+    if local_reviewer_noise:
+        return True
+    if repetitive_loop and major_issues:
+        return True
+    return False
+
+
 def build_supervisor_rescue_record_path(task_id: str) -> str:
     return f"02_working/reviews/{task_id}_supervisor_rescue.json"
 
@@ -2522,6 +2891,9 @@ def is_safe_auto_lock_reason(reason: str, reviewer_result: dict) -> bool:
         "无需继续修订",
         "修订阈值",
         "建议人工介入",
+        "重复问题未收敛",
+        "本地 reviewer",
+        "低置信度",
     ]
     if not any(marker in normalized_reason for marker in allowed_markers):
         return False
@@ -2561,7 +2933,11 @@ def should_auto_lock_after_supervisor_rescue(config: dict, task_text: str, revie
 
     reason = str(reviewer_result.get("force_manual_intervention_reason") or "").strip()
     if not is_safe_auto_lock_reason(reason, reviewer_result):
-        return False
+        if not (
+            (is_local_reviewer_mode(config) or is_local_writer_mode(config))
+            and extract_revision_count(task_id) >= 2
+        ):
+            return False
 
     return True
 
@@ -2726,6 +3102,7 @@ def build_manual_intervention_content(task_text: str, reviewer_result: dict, dra
     ]
     based_on_path = extract_markdown_field(task_text, "based_on")
     chapter_state_path = extract_markdown_field(task_text, "chapter_state")
+    review_trace_summary = format_review_trace_summary(reviewer_result)
     if based_on_path:
         inspect_files.append(f"- 前文基准：`{based_on_path}`")
     if chapter_state_path:
@@ -2755,6 +3132,9 @@ def build_manual_intervention_content(task_text: str, reviewer_result: dict, dra
         current_status_lines.append(f"- 已记录修订轮次：{len(lineage.revisions)}")
         if lineage.recurring_issue_types:
             current_status_lines.append(f"- 重复问题类型：{', '.join(lineage.recurring_issue_types)}")
+    if review_trace_summary:
+        current_status_lines.append("- review trace：")
+        current_status_lines.extend(review_trace_summary.splitlines())
 
     stop_reason_lines = [
         f"- {trigger_reason}" if trigger_reason else f"- 已达到最大自动修订次数：{max_revisions}",
@@ -2783,9 +3163,19 @@ def build_manual_intervention_content(task_text: str, reviewer_result: dict, dra
         "## 建议优先查看的文件",
         *inspect_files,
         "",
+    ]
+
+    if review_trace_summary:
+        lines.extend([
+            "## 本轮 reviewer trace",
+            *review_trace_summary.splitlines(),
+            "",
+        ])
+
+    lines.extend([
         "## 下一次重试可直接使用的提示词",
         *[f"- {item}" for item in retry_prompt_lines],
-    ]
+    ])
 
     if minor_issues:
         lines.extend(["", "## 次要问题"])
@@ -3028,6 +3418,16 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
     forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
 
+    if not forced_manual_reason and should_force_supervisor_takeover(config, task_text, reviewer_result):
+        forced_manual_reason = "本地 reviewer / writer 连续多轮未稳定收敛，提前交由 supervisor 接管。"
+        reviewer_result["force_manual_intervention_reason"] = forced_manual_reason
+        summary = str(reviewer_result.get("summary") or "").strip()
+        if forced_manual_reason not in summary:
+            reviewer_result["summary"] = f"{forced_manual_reason} {summary}".strip()
+        major_issues = [str(item).strip() for item in reviewer_result.get("major_issues", []) if str(item).strip()]
+        if forced_manual_reason not in major_issues:
+            reviewer_result["major_issues"] = [forced_manual_reason] + major_issues
+
     if forced_manual_reason:
         supervised_result = None
         supervisor_decision_path = None
@@ -3147,6 +3547,7 @@ def main() -> None:
         config = load_runtime_config(ROOT)
         validate_local_model_endpoints(config)
         max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
+        manual_intervention_after = get_effective_manual_intervention_threshold(config, max_revisions)
         loop_round = 1
         restarted_task_id = prepare_runtime_start(config)
         if restarted_task_id:
@@ -3207,6 +3608,18 @@ def main() -> None:
                 raise
 
             reviewer_result = json.loads(read_text(reviewer_json_path))
+            review_trace = reviewer_result.get("review_trace", {}) if isinstance(reviewer_result, dict) else {}
+            if isinstance(review_trace, dict) and review_trace:
+                trace_mode = str(review_trace.get("mode") or "").strip() or "unknown"
+                trace_provider = str(review_trace.get("provider") or "").strip() or "unknown"
+                trace_low_confidence = bool(review_trace.get("low_confidence"))
+                trace_fallback = bool(review_trace.get("deterministic_fallback_used"))
+                print(
+                    "review trace："
+                    f"provider={trace_provider} mode={trace_mode} "
+                    f"low_confidence={'yes' if trace_low_confidence else 'no'} "
+                    f"deterministic_fallback={'yes' if trace_fallback else 'no'}"
+                )
             structured_review = None
             try:
                 structured_review = load_structured_review_result(ROOT, reviewer_result.get("task_id", current_task_id))
@@ -3231,7 +3644,7 @@ def main() -> None:
                     ROOT,
                     structured_review,
                     draft_result["draft_file"],
-                    max_revisions,
+                    manual_intervention_after,
                 )
                 print(build_revision_lineage_summary(lineage))
                 if should_trigger_manual_intervention(lineage) and reviewer_result.get("verdict") != "lock":
@@ -3264,10 +3677,11 @@ def main() -> None:
                 print(f"已保存 revision lineage: {lineage_path}")
             if "supervisor_decision_file" in created:
                 print(f"已保存 supervisor 决策: {created['supervisor_decision_file']}")
-                if "supervisor_rescue_draft_file" in created:
-                    print(f"已保存 supervisor 救场记录: {created['supervisor_rescue_record_file']}")
-                else:
-                    print(f"已保存 supervisor 救场记录（草稿未采用）: {created['supervisor_rescue_record_file']}")
+                if "supervisor_rescue_record_file" in created:
+                    if "supervisor_rescue_draft_file" in created:
+                        print(f"已保存 supervisor 救场记录: {created['supervisor_rescue_record_file']}")
+                    else:
+                        print(f"已保存 supervisor 救场记录（草稿未采用）: {created['supervisor_rescue_record_file']}")
             if "supervisor_rescue_draft_file" in created:
                 print(f"已生成 supervisor 救场稿: {created['supervisor_rescue_draft_file']}")
             if lock_gate_report_path is not None:
@@ -3286,6 +3700,17 @@ def main() -> None:
                 review_status = "manual_intervention"
             elif not review_status and structured_review is not None:
                 review_status = structured_review.status.value
+
+            latest_run_summary_file = save_latest_run_summary(
+                task_id=current_task_id,
+                draft_file=draft_result.get("draft_file") if isinstance(draft_result, dict) else None,
+                writer_trace=draft_result.get("writer_trace") if isinstance(draft_result, dict) else None,
+                reviewer_result=reviewer_result,
+                created=created,
+                loop_round=loop_round,
+                review_status=review_status,
+            )
+            print(f"已更新运行总览: {latest_run_summary_file}")
             if review_status == "lock":
                 print(f"已自动锁定到 {created['locked_file']}")
                 print("如需人工修订，请直接编辑 locked 文件")

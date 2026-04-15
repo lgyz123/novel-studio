@@ -1,11 +1,285 @@
+# 写前诊断
+来源文件：02_working/context/prewrite_review.md
+
+第一步：铺陈世界观
+
+【世界观构建】 已启动
+确立核心法则…
+
+- 我正在审视现有 manifest，确认力量体系、社会规则和天道逻辑是否已经闭环。
+- 核心法则已有锚点：修行逻辑, 命、愿、债, 天道
+- 生态位与社会应对已有锚点：王朝, 宗门, 司命机构
+- 时空舞台已有锚点：运河, 城市, 山门
+- 历史与变迁已有锚点：革命, 飞升
+
+推演内在逻辑…
+
+- 写作前需要先确认异常事物的生态位、制度反应和普通人的生存代价，否则场景容易只剩气氛没有后果。
+
+勾勒时空轮廓…
+
+- 我会优先检查主要舞台、历史变迁和当前剧情时点能否支持这一场 scene 的承接。
+
+植入核心矛盾…
+
+- 世界设定不仅要说明有什么，更要说明谁会因此受益、谁会因此受损、冲突如何落到人身上。
+
+第二步：校准时间线
+
+【时间线校验】 已启动
+梳理长线骨架…
+
+- 当前 book time：白天
+- 近期事件：EVENT-001
+- 近期事件：EVENT-002
+- 近期事件：EVENT-003
+- 近期事件：EVENT-004
+- 近期事件：EVENT-005
+
+# planner/bootstrap agent
+来源文件：02_working/planning/bootstrap_state_machine.md
+
+# 前置状态机
+
+- planner/bootstrap agent：deterministic prewrite bootstrap
+- task_id：2026-04-15-007_ch02_scene01_auto
+- chapter_id：ch02
+- next_stage：第一章撰写
+
+## 阶段推进
+1. 世界观补全
+状态：complete
+产物：02_working/planning/worldview_patch.md
+说明：已根据 prewrite review 生成 proposal。
+2. 时间线补全
+状态：complete
+产物：02_working/planning/timeline_patch.md
+说明：已根据 chapter_state 与 story_state 生成 proposal。
+3. 角色创建
+状态：complete
+产物：02_working/planning/character_patch.md
+说明：已有角色设定基础，可继续补功能卡。
+4. 大纲定制
+状态：complete
+产物：02_working/outlines/ch02_outline.md
+说明：章节 working outline 已生成。
+5. 第一章撰写
+状态：pending
+产物：02_working/drafts/ch02_scene01.md
+说明：等待前置阶段确认后进入正文写作。
+
+## 当前缺口提醒
+- 世界观缺口：当前无显著缺口
+- 时间线缺口：当前无显著缺口
+- 这一状态机只推进 working proposal，不直接改写 locked canon。
+
+## planning skill router
+
+- phase：planning_bootstrap
+- genre_tags：xianxia
+- trope_tags：system
+- demand_tags：planning、worldbuilding、outline-driven
+
+## selected_skills
+- worldbuilding｜mode=instituti
+
+[已截断]
+
+# 世界观补全 proposal
+来源文件：02_working/planning/worldview_patch.md
+
+# 世界观补全 proposal
+
+- planner/bootstrap agent：deterministic prewrite bootstrap
+- task_id：2026-04-15-007_ch02_scene01_auto
+- chapter_id：ch02
+- 写入位置：02_working/planning/worldview_patch.md
+- 说明：以下内容是写前补全候选，不直接进入 canon。
+
+## 当前锚点
+- 核心法则已有锚点：修行逻辑, 命、愿、债, 天道
+- 生态位与社会应对已有锚点：王朝, 宗门, 司命机构
+- 时空舞台已有锚点：运河, 城市, 山门
+- 历史与变迁已有锚点：革命, 飞升
+
+## 待补维度
+- 当前没有显著缺口，可直接沿现有世界观写作。
+
+## 建议补丁
+- 本轮无需新增世界观补丁，建议保持 manifest 稳定。
+
+## 与现有设定的衔接原则
+- 新补丁必须回扣 `命、愿、债` 这类现有锚点，不要另起一套力量体系。
+- 新补丁优先服务于场景可写性：能带来职业差异、风险后果、行动限制，而不是只增加名词。
+- 在未人工确认前，这些内容只作为 02_working proposal 进入 writer context。
+
+## 使用中的 skill：worldbuilding
+来源文件：skills/worldbuilding/SKILL.md
+
+# Worldbuilding
+
+Use this skill to patch setting gaps in a way that directly improves scene writing.
+
+## Use when
+
+- The project needs worldbuilding completion proposals.
+- Manifest materials are thematic but not yet operational.
+- The task needs institutional response, spatial hierarchy, power-system limits, or region-specific survival logic.
+- The user wants setting that affects behav
+
+[已截断]
+
+# 时间线补全 proposal
+来源文件：02_working/planning/timeline_patch.md
+
+# 时间线补全 proposal
+
+- planner/bootstrap agent：deterministic prewrite bootstrap
+- task_id：2026-04-15-007_ch02_scene01_auto
+- chapter_id：ch02
+- 写入位置：02_working/planning/timeline_patch.md
+- 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
+
+## 当前时间锚点
+- current_book_time：白天
+- recent_event：EVENT-001
+- recent_event：EVENT-002
+- recent_event：EVENT-003
+- recent_event：EVENT-004
+- recent_event：EVENT-005
+
+## 章节承接锚点
+- 直接前文：03_locked/chapters/ch01_scene11.md
+
+## 待补维度
+- 当前时间线骨架可用。
+
+## 建议时间线补丁
+
+### 世界历史锚点
+- 旧制成形：确立今天仍在运作的税役、差序和风险转嫁办法。
+- 大灾或大战：解释为什么底层岗位被迫吸纳更多危险工作。
+- 体制加码：说明当前制度为何更重登记、搜检、盘剥或隐性抽税。
+
+### 本卷承接锚点
+- 明确第一卷的起点时段、前三个关键局面变化、以及每次变化与上一场之间隔了多久。
+- 如果 chapter_state 只写“夜里 / 次日 / 白天”，建议补一行相对顺序说明，避免 scene 承接漂移。
+
+### 本章承接规则
+- 每一场至少显式标明一个时间信号：夜里、次日清早、午后、傍晚、隔日等。
+- 每次风险升级都要同步写明它发生在什么时段、和上一场相隔多久、为什么来得及或来不及处理。
+
+## timeline skill router
+
+- phase：timeline_bootstrap
+- genre_tags：xianxia
+- trope_tags：system
+- demand_tags：planning、timeline、history
+
+## selected_skills
+- timeline-history｜mode=chapter-sequence｜score=0.93｜timeline_bo
+
+[已截断]
+
+# 角色补全 proposal
+来源文件：02_working/planning/character_patch.md
+
+# 角色补全 proposal
+
+- planner/bootstrap agent：deterministic prewrite bootstrap
+- task_id：2026-04-15-007_ch02_scene01_auto
+- chapter_id：ch02
+- 写入位置：02_working/planning/character_patch.md
+- 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
+
+## 当前核心角色槽位
+- 主视角角色：孟浮灯
+- 支撑角色：承接日常劳动、交易、邻里或组织压力的低烈度人物。
+- 压力源角色：不必立刻正面出场，但需要在制度、传闻、搜检或监视中留下痕迹。
+
+## 建议补全内容
+- 为 孟浮灯 补三类可直接写进 scene 的信息：求活动作、避险习惯、被触发时的默认选择。
+- 为章内高频配角补“功能卡”而非长传记：他们提供什么阻力、信息或情绪偏移。
+- 如果暂不引入关键对手本人，也要先定义其外部投影：谁替他行事、留下什么后果、如何改变空间气氛。
+
+## 使用原则
+- 角色补全要优先服务于动作选择，不要先堆身世。
+- 一切角色卡都应能回答：他/她在这一章里怎样改变主角的求活方式。
+
+## character_creation skill router
+
+- phase：character_creation
+- genre_tags：xianxia、romance
+- trope_tags：system
+- demand_tags：planning、character、naming
+
+## selected_skills
+- character-design｜mode=protagonist-card｜score=0.91｜character_creation 阶段需要先明确角色功能卡、行为锚点和关系张力。
+- naming｜mode=person｜score=0.86｜character_creation 阶段需要把角色槽位转成可用名字候选与命名风格约束。
+
+## rejected_candidates
+- c
+
+[已截断]
+
+# 章节工作大纲
+来源文件：02_working/outlines/ch02_outline.md
+
+# ch02_outline 工作稿
+
+- planner/bootstrap agent：deterministic prewrite bootstrap
+- task_id：2026-04-15-007_ch02_scene01_auto
+- chapter_id：ch02
+- 写入位置：02_working/outlines/ch02_outline.md
+- 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
+
+## 本章当前目标
+- 写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+
+## 已有章节锚点
+- 直接前文：03_locked/chapters/ch01_scene11.md
+
+## 建议章节骨架
+- 开场：先稳住主角当前求活状态与所处空间压力。
+- 扰动：让一个低烈度异常或旧线索重新压到日常动作上。
+- 试探：把线索从内部记挂推进到外部轻试探，但不要一次性升级成公开调查。
+- 后果：让试探带来可验证的新阻力、风险、信息或关系变化。
+- 章末偏移：主角形成新的处理方式，为下一章或下一场提供更明确的行为倾向。
+
+## 近期正典事件提醒
+- EVENT-001
+- EVENT-002
+- EVENT-003
+
+## 与前置状态机的连接
+- 角色创建阶段：把主视角、支撑角色、压力源角色的功能卡补齐。
+- 大纲定制阶段：把上面的章节骨架改成当前项目真实的章内锚点与顺序。
+- 第一章撰写阶段：基于本 outline 和 scene contract 继续落到具体 scene 任务。
+
+## 使用中的 skill：scene-outline
+来源文件：skills/scene-outline/SKILL.md
+
+# Scene Outline
+
+Use this skill to turn vague scene intent into a compact structural contract the writer can actually satisfy.
+
+## Use when
+
+- The task is for chapter outline, s
+
+[已截断]
+
+
+
+
+
 # 当前 scene contract
-- 核心目标：基于上一版草稿进行结构重写：写出《无住人间》第一章第十一个短场景：孟浮灯在运河边收尸后，回到住处，发现藏匿平安符的扁木盒被轻微挪动，确认有人趁他外出时搜查过他的物品，从而引发一次微小的后果（如确认风险升级、线索进一步中断），并扩展世界信息。本场重点：引发后果、提高风险、扩展世界信息。本次重点解决：锁定闸门未通过：required_information_gain: missing: 他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…；decision_requirement: 风险升级了。以前只是被当作底层捞尸的，偶尔被盘剥，但没人真把他当回事。现在不同。有人开始注意他，…
-- 场景功能：继续围绕“写出《无住人间》第一章第十一个短场景：孟浮灯在运河边收尸后，回到住处，发现藏匿平安符的扁木盒被轻微挪动，确认有人趁他外出时搜查过他的物品，从而引发一次微小的后果（如确认风险升级、线索进一步中断），并扩展世界信息。本场重点：引发后果、提高风险、扩展世界信息”推进，并在场景结束时形成新的可验证变化。
-- 新信息要求：他关上门，没插门闩。屋里东西不多，一眼就能看全。门边靠墙堆着几捆备用的粗…；这不是普通的查看底细。以前那些搜查，翻的是衣物、炕洞、墙角，找的是赃物、…；他站起身，走到门后。门后挂着一件旧蓑衣，蓑衣下摆的棕毛已经秃了大半，露出…
-- 局面推进要求：搜查的人翻得很细。从墙角杂物堆开始，到矮柜，到炕席，再到墙洞。翻动的顺序有条理，像是知道这种屋子…
-- 决策偏移要求：柜子有两个抽屉。上面那个没锁，里面放着几件换洗衣物，叠得不算整齐，但也没乱。他拉开抽屉，手指在衣…
-- 状态变化要求：至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。
-- 避免复用：那截红绳；麻绳；红绳；和平安符
+- 核心目标：写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 场景功能：本场结束时必须形成新的章内起点，不能只是重复上章余波。
+- 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
+- 局面推进要求：本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。
+- 决策偏移要求：主角必须做出一个会影响本章后续处理方式的新动作或新决定。
+- 状态变化要求：至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。
 
 # 本次必须遵守的项目总纲
 # 《无住人间》小说总纲
@@ -139,6 +413,74 @@
 - 人物方向：从捞尸少年走向拆天梯之人
 - 写法要求：不能写成天降主角光环，要从经验与选择中长出来
 
+# 人工输入总表
+# Human Input
+- 说明：以下内容属于人工明确指定的项目输入，自动流程默认优先服从这一层。
+
+## 项目信息
+- 小说名：无住人间
+- 类型：底层现实主义修仙
+- 受众：喜欢长篇中文网文、群像、现实主义修仙的读者
+- 风格：克制、冷静、以细节和动作落地
+- 语气：人间苦烈，但保留照亮彼此的余温
+- 一句话卖点：从运河捞尸少年写起，沿着众生命运一路拆到天梯尽头
+- 故事梗概：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。
+- 主题：反内卷、写众生、见虚妄而不冷漠
+
+## 主角
+- 姓名：孟浮灯
+- 定位：底层捞尸少年
+- 背景：长期在运河、码头和乱葬岗一线做脏活，熟悉底层求活规矩。
+- 描述：警惕、耐压、克制，不轻易把疑问外露。
+- 当前目标：先在不暴露自己的前提下活下去，再判断是否要追索异常线索。
+- 核心欲望：想保住自己和身边少数还能互相照应的人。
+- 核心恐惧：被更高层秩序盯上，连求活余地都被夺走。
+
+## 次要角色
+- 老张头｜同行老人｜底层行当里的前辈｜能提供现实阻力、行业经验和微弱的人情承接。
+
+## 世界与约束
+- 时代：古代中国风异世
+- 主要舞台：运河、码头、乱葬岗、窝棚、货栈、寺观与下层城市边缘
+- 力量体系：围绕命、愿、债运转的修行与登记体系
+- 社会秩序：王朝、宗门、司命机构、地方豪强、寺观共同维持吃人的秩序
+- 禁区：不要把修行写回单纯吸灵气升级；不要把天道写成简单善恶裁判。
+
+## 故事蓝图
+- 开场局面：第一章已完成从运河捞尸切入、线索初现与风险抬头；第二章需要把局面从单场异动推成更稳定的章内压力。
+- 核心冲突：底层求活逻辑与上层秩序黑幕逐步碰撞，主角每多知道一点，就更容易失去退路。
+- 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 首章目标：从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。
+
+## 必须打到的拍点
+- 新章开场必须出现新的现实问题，不只是延续上一章余波。
+- 主角要做出一次带后果的微决策。
+
+## 当前避免的拍点
+- 不要一上来就把更高层真相全部掀开。
+- 不要跳成大场面冲突或爽文式反击。
+
+## 必须出现
+- 每场都要有可验证的新信息、新动作或现实后果中的至少两项。
+- 底层日常必须是剧情推进载体，不只是背景板。
+
+## 必须避免
+- 不要现代词汇、现代设施、现代口语。
+- 不要后宫、脸谱反派、流水线升级。
+
+## 当前待定
+- 第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？
+
+## 人工验收清单
+- 结尾是否真的改变了下一场的处理方式？
+- 是否把世界设定落在了物件、动作和风险上，而不是解释段上？
+
+## 人工指定参考文件
+- 00_manifest/novel_manifest.md
+- 00_manifest/world_bible.md
+- 00_manifest/character_bible.md
+
+
 # 本次生活素材使用规则
 - 生活素材只能提取气氛、感官、情绪、节奏、意象
 - 禁止直接搬运现代现实世界的具体物件或设施进入小说场景
@@ -148,80 +490,248 @@
 今天下班的时候，天已经黑了。便利店门口有人蹲着抽烟，风很冷，路边停着几辆沾了灰的车。我突然觉得城市并不是不说话，它只是一直在低声重复同一种疲惫。
 
 # 当前章节状态
-来源文件：03_locked/canon/ch01_state.md
+来源文件：03_locked/canon/ch02_state.md
 
-# ch01 当前状态
+# ch02 当前状态
+
+## 本章定位
+- 所属卷：山门卷
+- 本章功能：进入体制内部，看见精致化压榨与晋升神话
+- 直接前文：03_locked/chapters/ch01_scene11.md
 
 ## 已锁定场景
-- scene01：运河收尸开场，立住孟浮灯与底层劳动现场
+- [待生成本章锁定场景]
 
 ## 当前主角状态
-- 孟浮灯仍处于底层求活状态
-- 他对收尸这门活计已不陌生，但离“麻木”还很远
-- “名字是最后的体面”仍是他处理无名尸时最硬的一道内在准则
-- “阿绣”目前只是从平安符背面露出的一个名字，刚刚被他记住，还没有发展成明确调查念头
+- 主角：孟浮灯
+- 当前默认目标：先在不暴露自己的前提下活下去，再判断是否要追索异常线索。
 
 ## 已锁定线索
-- 浮尸旁带出的半截红绳
-- 泡烂平安符背面的“阿绣”二字
-- 孟浮灯对无名尸与名字之间关系的敏感
-
-## scene02 允许推进方向
-- 承接 scene01，把尸体运去乱葬岗或处理地点，完成这一夜的后续劳动流程
-- 让孟浮灯在劳动过程中对“阿绣”产生更具体一点的记挂，但只停留在记住、压住、不声张的层面
-- 可以形成一个很小但现实的决定，例如先把相关物件藏好、暂不告诉老张头、暂缓处理某个细节
+- 红绳
+- 平安符背面的“阿绣”
+- 乱葬岗处理尸体后的余波
+- 孟浮灯对名字与无名尸之间关系的敏感
 
 ## 暂不展开的内容
-- 不揭示阿绣身份
-- 不展开司命体系
-- 不引入谢观鱼、裴照骨、净苦和尚
-- 不扩大为大规模怪异事件
-- 不让孟浮灯立刻主动打听、查问或追索
+- 第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？
+- 不要现代词汇、现代设施、现代口语。
+- 不要后宫、脸谱反派、流水线升级。
 
-## 第一章节奏规则
-- 每个 scene 只承担一个主要推进任务
-- 不允许一场同时推进人物、制度、主线异常、旧回忆四条线
-- 线索推进应以“轻推”为主，避免连续加码
-- 优先保证劳动现场感、身体感、迟滞感，而不是连续制造钩子
-
-## 当前文风要求
-- 画面先于说明
-- 情绪克制
-- 不写剧本体
-- 不附加说明文字
-- 少用过于刻意的漂亮句子
-- 优先写动作、触感、寒冷、疲惫、气味、工具、尸体处理细节
+## scene01 建议目标
+- 写出 ch02 的开场承接，让局面在上一章基础上出现新的可验证变化。
+- 第一场既要重新落地人物生存处境，也要给出本章独有的新压力、新线索或新后果。
 
 
-# 最近结构化场景摘要
-- ch01_scene08｜触发调查
-  - 新信息：“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。”…；一个人影在巷口晃了一下，缩了回去。动作很快，但孟浮灯看清了那人的身形——…
-  - 新动作/决策：“收尸的，”管事叫住他，脸上没什么表情，“最近水边不太平，夜里少来。” 孟浮灯停下脚步。“白天呢…
-  - 状态变化：protagonist_mode: 行动推进 -> 调查/试探
-  - 物件变化：孟浮灯把绳；扛着一袋
-- ch01_scene09｜触发调查
-  - 新信息：乱葬岗的土是湿的，一踩一个坑。孟浮灯把板车停在坡下，解开麻绳，把尸体拖下…；坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的…
-  - 新动作/决策：坡上是一片乱坟，坟头大多没有碑，只有几块歪斜的木板，上面用炭灰写着模糊的字。有些字已经洇开了，像…
-  - 物件变化：解开麻绳；是刀
-- ch01_scene10｜发现线索
-  - 新信息：尸体动了动，淤泥发出咕嘟一声闷响，松开了。他继续拉，尸体一点点离开浅滩，…；打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，…
-  - 新动作/决策：打捞点就在这段浅滩，离石砌的码头有百来步远。这一带水缓，岸边芦苇长得密，尸体容易搁浅。平时发现浮…
-  - 状态变化：protagonist_mode: 调查/试探 -> 观察/求活；risk_level: high -> low
-  - 物件变化：上取下麻绳；和一根带钩
+
 
 # 相关 tracker 摘要
 - 章节目标：以 scene function、信息增量、决策变化、状态转移推进本章。
-- 主角当前目标：红绳；平安符背面的“阿绣”
-- 当前模式 / 调查阶段 / 风险：观察/求活 / 主动调查 / low
-- 当前未解问题：他尚未形成调查念头，也不该主动追问这条线索；不揭示阿绣身份；不展开司命体系
+- 主角当前目标：推动当前章内未解决问题。
+- 当前模式 / 调查阶段 / 风险：隐匿/压制 / 主动调查 / high
+- 当前未解问题：他尚未形成调查念头，也不该主动追问这条线索；第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？；不要现代词汇、现代设施、现代口语
 - 已确认事实：红绳；平安符背面的“阿绣”；乱葬岗处理尸体后的余波
-- 待验证事实：他尚未形成调查念头，也不该主动追问这条线索；木轮压过冻泥，吱呀一声长，一声短，像是老旧门板在夜里自己开合；孟浮灯肩膀抵着车辕，掌心麻绳早被水泡得发硬，勒进肉里，疼倒像是能让人清醒些
-- 暂未揭开的关系：不揭示阿绣身份
-- 关键物件切片：浮灯俯身捞起那截绳（持有者：孟浮灯；位置：状态待确认；可见性：unknown）；但符（持有者：孟浮灯；位置：状态待确认；可见性：unknown）；孟浮灯把那截红绳（持有者：孟浮灯；位置：状态待确认；可见性：unknown）
-- 章节结构锚点：首个线索场=ch01_scene02；首个旧识暗示场=ch01_scene03；首个调查触发场=ch01_scene05
+- 待验证事实：他尚未形成调查念头，也不该主动追问这条线索
+- 关键物件切片：红绳（持有者：待确认；位置：状态待确认；可见性：unknown）；平安符（持有者：待确认；位置：状态待确认；可见性：unknown）；麻绳（持有者：孟浮灯；位置：状态待确认；可见性：unknown）
+
+# scene writing skill router
+来源文件：02_working/planning/scene_writing_skill_router.md
+
+
+- phase：scene_writing
+- genre_tags：xianxia
+- trope_tags：system
+- demand_tags：continuity、scene-writing、naming
+
+## selected_skills
+- continuity-guard｜mode=scene-canon｜score=0.95｜scene 写作依赖 chapter_state、story_state 或 tracker 承接，默认必须启用 continuity-guard。
+- naming｜mode=person｜score=0.64｜当前任务包含明确命名需求，应补充 naming 候选与风格约束。
+
+## rejected_candidates
+- scene-outline｜mode=scene-contract｜score=0.42｜当前由 task contract 直接约束场景，暂不重复加载 scene-outline。
+- worldbuilding｜mode=institutional｜score=0.2｜当前是正文落稿阶段，世界观补丁已应在 planning 阶段提前生成。
+
+## risk_flags
+- 无
+
+
+# writer skill：continuity-guard
+来源文件：skills/continuity-guard/SKILL.md
+
+# Continuity Guard
+
+Use this skill to keep a scene inside the project's established state instead of letting prose drift override canon.
+
+## Use when
+
+- The task depends on `chapter_state`, `story_state`, or tracker slices.
+- The scene is a continuation, `revise`, or `rewrite` task.
+- The draft must preserve artifact locations, risk levels, relationship status, or investigation stage.
+- The user asks for stronger continuity or canon consistency.
+
+## Do not use when
+
+- The task is pure brainstorming with no canon constraints.
+- The task is only naming or only worldbuilding.
+
+## Required inputs
+
+Read only the files you need:
+
+- `01_inputs/tasks/current_task.md`
+- `03_locked/canon/chXX_state.md` when present in the task
+- `03_locked/state/story_state.json`
+- relevant tracker files under `03_l
+
+[已截断]
+
+参考：skills/continuity-guard/references/checklist.md
+
+# Continuity Checklist
+
+Use this checklist to derive the smallest possible set of writer guardrails.
+
+## State
+
+- Current book time
+- Relative order vs previous scene
+- Protagonist mode
+- Investigation stage
+- Risk level
+
+## Artifacts
+
+- Holder
+- Location
+- Visibility
+- Whether the item changed in recent scenes
+
+## Rel
+
+[已截断]
+
+参考：skills/continuity-guard/references/conflicts.md
+
+# Common Continuity Conflicts
+
+## Artifact reset
+
+Pattern:
+
+- tracker says an item is carried on body
+- draft writes it as hidden in a box, shelf, or room again
+
+Response:
+
+- preserve tracker state
+- rewrite the scene action around the current artifact position
+
+## Time blur
+
+Pattern:
+
+- chapter state says `次日` or `白天`
+
+[已截断]
+
+# writer skill：naming
+来源文件：skills/naming/SKILL.md
+
+# Naming
+
+Use this skill to generate names that fit the project's genre, social layer, tone, and existing canon.
+
+## Use when
+
+- The task explicitly asks for naming, titles, labels, or candidate lists.
+- Character creation needs a person name.
+- Worldbuilding needs place names, sect names, artifact names, or technique names.
+- Outline work needs placeholder names upgraded into usable canon candidates.
+
+## Do not use when
+
+- The task already has fixed canon names.
+- The task is about prose refinement with no naming need.
+
+## Required inputs
+
+Read only what you need:
+
+- `01_inputs/tasks/current_task.md`
+- relevant character or world manifest excerpts
+- existing canon names when collision risk matters
+
+## Workflow
+
+[已截断]
+
+参考：skills/naming/references/person.md
+
+# Person Naming
+
+## Inputs that matter
+
+- gender or presentation
+- social class
+- regional flavor
+- era feel
+- role weight: protagonist / supporting / one-scene role
+
+## Good candidate properties
+
+- readable
+- fits the genre
+- memorable without being noisy
+- g
+
+[已截断]
+
+参考：skills/naming/references/world.md
+
+# World Naming
+
+Use these questions:
+
+- Is this name for a place, organization, artifact, or technique?
+- Should it sound official, vernacular, sacred, feared, or commercial?
+- Does it come from local speech, institutional naming, or inherited older language?
+
+[已截断]
+
+# skill audit
+来源文件：02_working/planning/skill_audit.md
+
+# skill audit
+
+## planning_bootstrap
+- selected_skills：worldbuilding、scene-outline
+- major_issues：无
+- minor_issues：
+  - planning_bootstrap router 当前启用：worldbuilding、scene-outline。
+- is_ok：True
+
+## character_creation
+- selected_skills：character-design、naming
+- major_issues：无
+- minor_issues：
+  - character_creation router 当前启用：character-design、naming。
+- is_ok：True
+
+## timeline_bootstrap
+- selected_skills：timeline-history
+- major_issues：无
+- minor_issues：
+  - timeline_bootstrap router 当前启用：timeline-history。
+- is_ok：True
+
+## scene_writing
+- selected_skills：continuity-guard、naming
+- major_issues：无
+- minor_issues：
+  - scene_writing router 当前启用：continuity-guard、naming。
+- is_ok：True
 
 # 少量必要 prose 参考
-来源文件：02_working/drafts/ch01_scene11_rewrite_v6_rewrite2_v10.md
+来源文件：03_locked/chapters/ch01_scene11.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-孟浮灯在
+然后他收回手，蜷起身子，闭上了眼睛。
