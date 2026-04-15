@@ -16,7 +16,7 @@ agent:
 
 writer:
   provider: ollama
-  model: gpt-oss:20b
+  model: qwen3:14b
   base_url: http://192.168.1.11:11434
   # 本地 writer 默认走更短更硬的 prompt，降低小模型跑偏概率
   compact_prompt: auto

@@ -461,6 +461,12 @@ DECISION_OR_SHIFT_MARKERS = [
     "推迟",
     "扣住",
     "挪开",
+    "扔",
+    "抛",
+    "丢进",
+    "塞给",
+    "转身",
+    "假装",
 ]
 
 PLOT_PROGRESS_MARKERS = [
@@ -478,6 +484,10 @@ PLOT_PROGRESS_MARKERS = [
     "让他",
     "没能",
     "只好",
+    "突然将",
+    "突然把",
+    "转身要",
+    "后退时",
 ]
 
 WRONG_PROTAGONIST_NAMES = ["孟繁灯", "孟繁星", "孟浮星"]
@@ -620,7 +630,7 @@ def sentence_has_plot_progress(sentence: str) -> bool:
         return False
     if any(marker in text for marker in PLOT_PROGRESS_MARKERS):
         return True
-    return bool(re.search(r"(差点|结果|于是|随后|接着).*(翻倒|暴露|滑出|漏出|停下|改变|延后)", text))
+    return bool(re.search(r"(差点|结果|于是|随后|接着|突然|后退时).*(翻倒|暴露|滑出|漏出|停下|改变|延后|扔|抛|现身|逼近|喝止)", text))
 
 
 def summarize_sentence(sentence: str, max_chars: int = 36) -> str:

@@ -42,7 +42,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-021_ch02_scene01_auto
+- task_id：2026-04-15-023_ch02_scene01_auto-R3
 - chapter_id：ch02
 - next_stage：第一章撰写
 
@@ -65,7 +65,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：pending
-产物：02_working/drafts/ch02_scene01.md
+产物：02_working/drafts/ch02_scene01_v4.md
 说明：等待前置阶段确认后进入正文写作。
 
 ## 当前缺口提醒
@@ -81,7 +81,7 @@
 - demand_tags：planning、worldbuilding、outline-driven
 
 ## selected_skills
-- worldbuilding｜mode=instituti
+- worldbuilding｜mode=ins
 
 [已截断]
 
@@ -91,7 +91,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-021_ch02_scene01_auto
+- task_id：2026-04-15-023_ch02_scene01_auto-R3
 - chapter_id：ch02
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -125,7 +125,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - The project needs worldbuilding completion proposals.
 - Manifest materials are thematic but not yet operational.
 - The task needs institutional response, spatial hierarchy, power-system limits, or region-specific survival logic.
-- The user wants setting that affects behav
+- The user wants setting that affects be
 
 [已截断]
 
@@ -135,7 +135,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-021_ch02_scene01_auto
+- task_id：2026-04-15-023_ch02_scene01_auto-R3
 - chapter_id：ch02
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
@@ -177,7 +177,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - demand_tags：planning、timeline、history
 
 ## selected_skills
-- timeline-history｜mode=chapter-sequence｜score=0.93｜timeline_bo
+- timeline-history｜mode=chapter-sequence｜score=0.93｜timeline
 
 [已截断]
 
@@ -187,7 +187,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-021_ch02_scene01_auto
+- task_id：2026-04-15-023_ch02_scene01_auto-R3
 - chapter_id：ch02
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -218,7 +218,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - naming｜mode=person｜score=0.86｜character_creation 阶段需要把角色槽位转成可用名字候选与命名风格约束。
 
 ## rejected_candidates
-- c
+
 
 [已截断]
 
@@ -228,13 +228,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch02_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-021_ch02_scene01_auto
+- task_id：2026-04-15-023_ch02_scene01_auto-R3
 - chapter_id：ch02
 - 写入位置：02_working/outlines/ch02_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
 
 ## 本章当前目标
-- 写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。
 
 ## 已有章节锚点
 - 直接前文：03_locked/chapters/ch01_scene11.md
@@ -244,28 +244,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - 扰动：让一个低烈度异常或旧线索重新压到日常动作上。
 - 试探：把线索从内部记挂推进到外部轻试探，但不要一次性升级成公开调查。
 - 后果：让试探带来可验证的新阻力、风险、信息或关系变化。
-- 章末偏移：主角形成新的处理方式，为下一章或下一场提供更明确的行为倾向。
-
-## 近期正典事件提醒
-- EVENT-001
-- EVENT-002
-- EVENT-003
-
-## 与前置状态机的连接
-- 角色创建阶段：把主视角、支撑角色、压力源角色的功能卡补齐。
-- 大纲定制阶段：把上面的章节骨架改成当前项目真实的章内锚点与顺序。
-- 第一章撰写阶段：基于本 outline 和 scene contract 继续落到具体 scene 任务。
-
-## 使用中的 skill：scene-outline
-来源文件：skills/scene-outline/SKILL.md
-
-# Scene Outline
-
-Use this skill to turn vague scene intent into a compact structural contract the writer can actually satisfy.
-
-## Use when
-
-- The task is for chapter outline, s
+- 章末
 
 [已截断]
 
@@ -274,7 +253,7 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 当前 scene contract
-- 核心目标：写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 核心目标：写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。。
 - 场景功能：本场结束时必须形成新的章内起点，不能只是重复上章余波。
 - 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
 - 局面推进要求：本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。
@@ -731,7 +710,7 @@ Use these questions:
 - is_ok：True
 
 # 少量必要 prose 参考
-来源文件：03_locked/chapters/ch01_scene11.md
+来源文件：02_working/drafts/ch02_scene01_v3.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-然后他收回手，蜷起身子，闭上了眼睛。
+孟浮灯攥紧竹篙的手指发白。他想起昨夜在码头仓库看到的告示——"凡登记在册者，每月可领灵米三升"。此刻他突然明白为何老周会穿着那件短打：那不是工服，是"司命署

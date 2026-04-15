@@ -694,6 +694,73 @@ def build_writer_tracker_slices_section(task_text: str) -> str:
     return "\n".join(lines)
 
 
+def build_local_writer_priority_card(task_text: str) -> str:
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle.get("chapter_progress"), dict) else {}
+    artifact_state = tracker_bundle.get("artifact_state", {}) if isinstance(tracker_bundle.get("artifact_state"), dict) else {}
+    chapter_state_path = (extract_markdown_field(task_text, "chapter_state") or "").strip()
+    chapter_state_lines: list[str] = []
+    if chapter_state_path:
+        try:
+            chapter_state_text = read_text(chapter_state_path)
+            for raw_line in chapter_state_text.splitlines():
+                stripped = raw_line.strip()
+                if stripped.startswith("- "):
+                    chapter_state_lines.append(stripped[2:].strip())
+        except FileNotFoundError:
+            chapter_state_lines = []
+
+    scene_purpose = (extract_markdown_field(task_text, "scene_purpose") or "").strip()
+    decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    information_gain = extract_markdown_list_field(task_text, "required_information_gain")
+    required_state_change = extract_markdown_list_field(task_text, "required_state_change")
+
+    lines = ["【本轮优先卡片】"]
+    protagonist = str(chapter_progress.get("protagonist_name") or "孟浮灯").strip() or "孟浮灯"
+    lines.append(f"- 主角：{protagonist}")
+    if chapter_progress:
+        lines.append(
+            f"- 当前模式 / 调查阶段 / 风险：{str(chapter_progress.get('protagonist_mode') or '未记录')} / {str(chapter_progress.get('investigation_stage') or '未记录')} / {str(chapter_progress.get('risk_level') or '未记录')}"
+        )
+        goal = str(chapter_progress.get("protagonist_goal") or "").strip()
+        if goal:
+            lines.append(f"- 主角当前目标：{goal}")
+
+    if scene_purpose:
+        lines.append(f"- 本场唯一核心：{scene_purpose}")
+    if information_gain:
+        lines.append(f"- 必须补出的新事实：{information_gain[0]}")
+    if decision_shift:
+        lines.append(f"- 必须落地的新动作/决定：{decision_shift}")
+    if required_state_change:
+        lines.append(f"- 结尾必须变化的状态：{required_state_change[0]}")
+
+    artifact_items = artifact_state.get("items", []) if isinstance(artifact_state, dict) else []
+    artifact_lines: list[str] = []
+    for item in artifact_items[:2]:
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("label") or "").strip()
+        if not label:
+            continue
+        holder = str(item.get("holder") or "待确认").strip() or "待确认"
+        location = str(item.get("location") or "待确认").strip() or "待确认"
+        artifact_lines.append(f"{label}={holder}/{location}")
+    if artifact_lines:
+        lines.append(f"- 关键物件当前状态：{'；'.join(artifact_lines)}")
+
+    chapter_guardrails = [
+        item for item in chapter_state_lines
+        if any(marker in item for marker in ["不要", "不该", "尚未", "未形成", "暂不", "不先", "不提前"])
+    ]
+    if chapter_guardrails:
+        lines.append(f"- 禁止漂移：{'；'.join(chapter_guardrails[:3])}")
+
+    lines.append("- 只写一个新事实、一个新动作、一个直接后果；不要发明新机构、新设定、新人物。")
+    lines.append("- 优先卡片没点名允许的关键物件，不要擅自让它突然出现、转移或发光。")
+    return "\n".join(lines)
+
+
 def build_prose_reference_section(task_text: str) -> str:
     based_on_path = (extract_markdown_field(task_text, "based_on") or "").strip()
     if not based_on_path:
@@ -1321,6 +1388,7 @@ def detect_scene10_old_pattern_reuse(draft_text: str) -> list[str]:
 def build_writer_user_prompt(task_text: str, current_context: str, decision: dict, config: dict | None = None) -> str:
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
+    priority_card = build_local_writer_priority_card(task_text) if is_local_writer_mode(config) else ""
     scene10_guardrails = build_scene10_prompt_guardrails(task_text)
     scene_writing_skill_router_section = build_scene_writing_skill_router_section(task_text)
     selected_writer_skill_sections = build_selected_writer_skill_sections(task_text)
@@ -1344,9 +1412,12 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 6. 不要只写气氛、回想、疲惫、 lingering 疑问。
 7. 如果原稿方向不够，就直接重写成更清楚的 scene，不要保留提纲腔。
 8. 全文只输出正文，一写完就停止。
+9. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
 
 【任务单】
 {task_text}
+
+{priority_card}
 
 【当前上下文】
 {current_context}
@@ -1375,10 +1446,13 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 7. 优先使用 current scene contract、chapter_state、scene summaries、tracker 切片，不要顺着旧文风空转。
 8. 本轮启用的 writer skills：{selected_skill_summary}
 9. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移。
+10. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
 {repair_rule_lines}
 
 【任务单】
 {task_text}
+
+{priority_card}
 
 【当前上下文】
 {current_context}
@@ -1423,9 +1497,12 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 21. 优先使用 current scene contract、latest chapter_state、recent structured scene summaries、revelation/artifact/chapter_progress 切片来完成任务；不要顺着旧 scene 正文的文风滑行
 22. 本轮启用的 writer skills：{selected_skill_summary}
 23. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
+24. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态
 {repair_rule_lines}
 【任务单】
 {task_text}
+
+{priority_card}
 
 【当前上下文】
 {current_context}
@@ -1454,12 +1531,18 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
     user_prompt = build_writer_user_prompt(task_text, writer_context, decision, config=config)
 
     print("正在请求模型生成草稿，请稍候...")
+    num_predict = 1000
+    task_id = str(decision.get("task_id") or "").strip()
+    if is_local_writer_mode(config):
+        num_predict = 900
+        if extract_revision_count(task_id) == 0:
+            num_predict = 800
     markdown_text = call_writer_model(
         config,
         system_prompt,
         user_prompt,
         temperature=config["generation"]["temperature"],
-        num_predict=1000,
+        num_predict=num_predict,
     )
 
     return markdown_text.strip()
@@ -2609,6 +2692,7 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
 
 def build_minimal_local_revision_goal(original_goal: str, structural_fields: dict[str, Any]) -> str:
     base_goal = strip_revision_prefix(original_goal)
+    base_goal = re.sub(r"(?:本次只解决一个核心目标：.+?。)+", "", base_goal).strip("。 ")
     scene_purpose = str(structural_fields.get("scene_purpose") or "").strip()
     info_items = [str(item).strip() for item in structural_fields.get("required_information_gain", []) if str(item).strip()]
     plot_progress = str(structural_fields.get("required_plot_progress") or "").strip()
@@ -2623,7 +2707,12 @@ def build_minimal_local_revision_goal(original_goal: str, structural_fields: dic
         fragments.append(f"必须补出一个带后果的新动作/新决定：{decision_shift}")
     elif plot_progress:
         fragments.append(f"必须让局面前进一步：{plot_progress}")
-    return "。".join([item for item in fragments if item]) + "。"
+    deduped: list[str] = []
+    for item in fragments:
+        cleaned = str(item).strip("。 ")
+        if cleaned and cleaned not in deduped:
+            deduped.append(cleaned)
+    return "。".join(deduped) + "。"
 
 
 def build_minimal_local_revision_constraints(task_text: str, structural_fields: dict[str, Any]) -> str:
@@ -2647,6 +2736,7 @@ def build_minimal_local_revision_constraints(task_text: str, structural_fields: 
             "- 只允许补一个新事实、一个新动作/新决定、一个直接后果或结尾状态变化。",
             "- 不要再写成大场面、不要跳成新设定展示、不要引入新的组织或职位称呼。",
             "- 结尾必须留下一个明确状态变化，不能只停在气氛、回想或疑问。",
+            "- 最后一句必须写成一个已经发生的动作结果或状态结果，不能写成悬问、感叹或纯领悟。",
         ]
     )
 

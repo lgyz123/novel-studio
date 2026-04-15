@@ -142,6 +142,17 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertFalse(result["plot_progress"]["has_plot_progress"])
         self.assertFalse(result["character_decision"]["has_decision_or_behavior_shift"])
 
+    def test_structural_signals_recognize_throwing_object_as_decision_and_progress(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_throw\n",
+            draft_text="孟浮灯听见官船逼近，突然将铜铃往水里一扔，转身贴着芦苇根后退半步。",
+            based_on_text="孟浮灯原本蹲在岸边。",
+            chapter_state="当前仍处于求活观察阶段。",
+        )
+
+        self.assertTrue(signals["character_decision"]["has_decision_or_behavior_shift"])
+        self.assertTrue(signals["plot_progress"]["has_plot_progress"])
+
     def test_local_reviewer_skips_json_refinement_for_meta_english(self) -> None:
         sanitized, meta = review_scene_module.sanitize_reviewer_raw_output(
             "We need to produce a JSON object. The assistant must output a single JSON object."

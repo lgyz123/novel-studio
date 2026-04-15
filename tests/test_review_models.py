@@ -198,6 +198,8 @@ scene_099-R2
 
         self.assertIn("请根据以下输入直接写出可保存的小说正文。", prompt)
         self.assertIn("硬规则：", prompt)
+        self.assertIn("【本轮优先卡片】", prompt)
+        self.assertIn("优先卡片没出现的关键物件", prompt)
         self.assertNotIn("不要输出 [JSON]", prompt)
 
     def test_build_followup_task_id_increments_rewrite_rounds(self) -> None:
