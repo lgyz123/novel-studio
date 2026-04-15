@@ -23,6 +23,11 @@ SKILL_REFERENCE_CONFIG: dict[str, dict[str, object]] = {
         "body_max_chars": 750,
         "reference_max_chars": 320,
     },
+    "timeline-history": {
+        "references": ["anchors.md", "drift.md"],
+        "body_max_chars": 740,
+        "reference_max_chars": 300,
+    },
     "worldbuilding": {
         "references": ["patch-patterns.md", "writer-hooks.md"],
         "body_max_chars": 750,

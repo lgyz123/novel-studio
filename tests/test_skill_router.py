@@ -48,6 +48,28 @@ class SkillRouterTest(unittest.TestCase):
         selected = [item["skill"] for item in result["selected_skills"]]
         self.assertEqual(selected, ["continuity-guard", "character-design", "naming"])
 
+    def test_character_creation_routes_character_design_and_naming(self) -> None:
+        result = route_writer_skills(
+            phase="character_creation",
+            task_text="# goal\n创建主角与配角角色卡\n",
+            project_manifest_text="玄幻 仙侠",
+            state_signals={},
+        )
+
+        selected = [item["skill"] for item in result["selected_skills"]]
+        self.assertEqual(selected, ["character-design", "naming"])
+
+    def test_timeline_bootstrap_routes_timeline_history(self) -> None:
+        result = route_writer_skills(
+            phase="timeline_bootstrap",
+            task_text="# goal\n补全本章时间线与历史锚点\n",
+            project_manifest_text="玄幻 仙侠",
+            state_signals={},
+        )
+
+        selected = [item["skill"] for item in result["selected_skills"]]
+        self.assertEqual(selected, ["timeline-history"])
+
 
 if __name__ == "__main__":
     unittest.main()

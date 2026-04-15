@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from prewrite_checks import build_prewrite_review
-from skill_router import render_skill_router_markdown, route_writer_skills
-from writer_skills import build_skill_section
+from skill_router import render_skill_router_markdown, route_writer_skills, save_skill_router_outputs
+from writer_skills import build_selected_skill_sections, build_skill_section
 
 
 def extract_markdown_field(task_text: str, field_name: str) -> str | None:
@@ -152,11 +152,13 @@ def build_worldview_patch_markdown(
 
 
 def build_timeline_patch_markdown(
+    root: Path,
     task_id: str,
     chapter_id: str,
     timeline_review: dict[str, Any],
     chapter_state_text: str,
     story_state: dict[str, Any],
+    router_result: dict[str, Any],
 ) -> str:
     missing = [str(item).strip() for item in timeline_review.get("missing_dimensions", []) if str(item).strip()]
     recent_events = _recent_events(story_state)
@@ -209,12 +211,16 @@ def build_timeline_patch_markdown(
             "### 本章承接规则",
             "- 每一场至少显式标明一个时间信号：夜里、次日清早、午后、傍晚、隔日等。",
             "- 每次风险升级都要同步写明它发生在什么时段、和上一场相隔多久、为什么来得及或来不及处理。",
+            "",
+            render_skill_router_markdown(router_result, heading="## timeline skill router").strip(),
+            "",
+            build_selected_skill_sections(root, router_result.get("selected_skills", []), heading_prefix="## 使用中的 skill").strip(),
         ]
     )
     return "\n".join(lines).strip() + "\n"
 
 
-def build_character_patch_markdown(task_id: str, chapter_id: str, character_bible_text: str) -> str:
+def build_character_patch_markdown(root: Path, task_id: str, chapter_id: str, character_bible_text: str, router_result: dict[str, Any]) -> str:
     protagonist = "孟浮灯" if "孟浮灯" in character_bible_text else "当前主角"
     lines = [
         "# 角色补全 proposal",
@@ -238,6 +244,10 @@ def build_character_patch_markdown(task_id: str, chapter_id: str, character_bibl
         "## 使用原则",
         "- 角色补全要优先服务于动作选择，不要先堆身世。",
         "- 一切角色卡都应能回答：他/她在这一章里怎样改变主角的求活方式。",
+        "",
+        render_skill_router_markdown(router_result, heading="## character_creation skill router").strip(),
+        "",
+        build_selected_skill_sections(root, router_result.get("selected_skills", []), heading_prefix="## 使用中的 skill").strip(),
     ]
     return "\n".join(lines).strip() + "\n"
 
@@ -405,8 +415,20 @@ def run_planning_bootstrap(root: Path, task_text: str, chapter_state_text: str =
     prewrite_review = build_prewrite_review(root, task_text, chapter_state_text=chapter_state_text)
     world_review = prewrite_review.get("world_review", {})
     timeline_review = prewrite_review.get("timeline_review", {})
-    router_result = route_writer_skills(
+    planning_router_result = route_writer_skills(
         phase="planning_bootstrap",
+        task_text=task_text,
+        project_manifest_text="\n".join([novel_manifest_text, world_bible_text]),
+        state_signals=story_state,
+    )
+    character_router_result = route_writer_skills(
+        phase="character_creation",
+        task_text=task_text,
+        project_manifest_text="\n".join([novel_manifest_text, world_bible_text, character_bible_text]),
+        state_signals=story_state,
+    )
+    timeline_router_result = route_writer_skills(
+        phase="timeline_bootstrap",
         task_text=task_text,
         project_manifest_text="\n".join([novel_manifest_text, world_bible_text]),
         state_signals=story_state,
@@ -417,6 +439,24 @@ def run_planning_bootstrap(root: Path, task_text: str, chapter_state_text: str =
     character_patch_path = "02_working/planning/character_patch.md"
     outline_path = f"02_working/outlines/{chapter_id}_outline.md"
     state_machine_path = "02_working/planning/bootstrap_state_machine.md"
+    planning_router_files = save_skill_router_outputs(
+        root,
+        "02_working/planning/planning_bootstrap_skill_router",
+        planning_router_result,
+        heading="# planning skill router",
+    )
+    character_router_files = save_skill_router_outputs(
+        root,
+        "02_working/planning/character_creation_skill_router",
+        character_router_result,
+        heading="# character_creation skill router",
+    )
+    timeline_router_files = save_skill_router_outputs(
+        root,
+        "02_working/planning/timeline_bootstrap_skill_router",
+        timeline_router_result,
+        heading="# timeline skill router",
+    )
 
     save_text(
         root,
@@ -426,12 +466,12 @@ def run_planning_bootstrap(root: Path, task_text: str, chapter_state_text: str =
     save_text(
         root,
         timeline_patch_path,
-        build_timeline_patch_markdown(task_id, chapter_id, timeline_review, chapter_state_text, story_state),
+        build_timeline_patch_markdown(root, task_id, chapter_id, timeline_review, chapter_state_text, story_state, timeline_router_result),
     )
     save_text(
         root,
         character_patch_path,
-        build_character_patch_markdown(task_id, chapter_id, character_bible_text),
+        build_character_patch_markdown(root, task_id, chapter_id, character_bible_text, character_router_result),
     )
     save_text(
         root,
@@ -448,7 +488,7 @@ def run_planning_bootstrap(root: Path, task_text: str, chapter_state_text: str =
             world_review,
             timeline_review,
             character_bible_text,
-            router_result,
+            planning_router_result,
         ),
     )
 
@@ -458,5 +498,13 @@ def run_planning_bootstrap(root: Path, task_text: str, chapter_state_text: str =
         "character_patch_file": character_patch_path,
         "outline_file": outline_path,
         "state_machine_file": state_machine_path,
-        "planning_skill_router": router_result,
+        "planning_skill_router": planning_router_result,
+        "character_creation_skill_router": character_router_result,
+        "timeline_bootstrap_skill_router": timeline_router_result,
+        "planning_skill_router_json_file": planning_router_files["json_file"],
+        "planning_skill_router_md_file": planning_router_files["md_file"],
+        "character_creation_skill_router_json_file": character_router_files["json_file"],
+        "character_creation_skill_router_md_file": character_router_files["md_file"],
+        "timeline_bootstrap_skill_router_json_file": timeline_router_files["json_file"],
+        "timeline_bootstrap_skill_router_md_file": timeline_router_files["md_file"],
     }

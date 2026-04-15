@@ -17,7 +17,7 @@ from prewrite_checks import build_prewrite_review, save_prewrite_review
 from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
 from review_scene import review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
-from skill_router import render_skill_router_markdown, route_writer_skills
+from skill_router import render_skill_router_markdown, route_writer_skills, save_skill_router_outputs
 from story_state import update_story_state_on_lock
 from writer_skills import build_selected_skill_sections
 
@@ -576,7 +576,13 @@ def get_scene_writing_skill_router_result(task_text: str) -> dict[str, Any]:
 
 def build_scene_writing_skill_router_section(task_text: str) -> str:
     result = get_scene_writing_skill_router_result(task_text)
-    return render_skill_router_markdown(result, heading="# scene writing skill router")
+    saved = save_skill_router_outputs(
+        ROOT,
+        "02_working/planning/scene_writing_skill_router",
+        result,
+        heading="# scene writing skill router",
+    )
+    return f"# scene writing skill router\n来源文件：{saved['md_file']}\n\n" + read_text(saved["md_file"]).split("\n", 1)[1]
 
 
 def build_selected_writer_skill_sections(task_text: str) -> str:

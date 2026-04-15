@@ -1116,6 +1116,14 @@ def normalize_review_result(
         if item not in cleaned_major:
             cleaned_major.insert(0, item)
 
+    skill_major, skill_minor = audit_scene_writing_skill_router(ROOT, task_text)
+    for item in reversed(skill_minor):
+        if item not in cleaned_minor:
+            cleaned_minor.insert(0, item)
+    for item in reversed(skill_major):
+        if item not in cleaned_major:
+            cleaned_major.insert(0, item)
+
     if not cleaned_major and verdict in {"revise", "rewrite"}:
         cleaned_major = ["当前草稿未充分完成 task 的核心推进目标。"]
 
@@ -1333,6 +1341,46 @@ def build_local_review_fallback(
         "motif_redundancy": structural_signals["motif_redundancy"],
         "canon_consistency": structural_signals["canon_consistency"],
     }
+
+
+def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[str], list[str]]:
+    output_target = extract_markdown_field(task_text, "output_target") or ""
+    if output_target and not output_target.startswith("02_working/drafts/"):
+        return [], []
+
+    router_path = root / "02_working/planning/scene_writing_skill_router.json"
+    if not router_path.exists():
+        return [], []
+
+    try:
+        data = json.loads(router_path.read_text(encoding="utf-8"))
+    except Exception:
+        return ["scene writing skill router 结果文件损坏或不可解析，当前 skill 选择不可回放。"], []
+
+    selected = data.get("selected_skills", []) if isinstance(data, dict) else []
+    if not isinstance(selected, list):
+        selected = []
+
+    selected_names = [
+        str(item.get("skill") or "").strip()
+        for item in selected
+        if isinstance(item, dict) and str(item.get("skill") or "").strip()
+    ]
+
+    major_issues: list[str] = []
+    minor_issues: list[str] = []
+
+    chapter_state_path = extract_markdown_field(task_text, "chapter_state") or ""
+    if chapter_state_path and "continuity-guard" not in selected_names:
+        major_issues.append("scene writing skill router 漏选 `continuity-guard`，但当前任务依赖 chapter_state 承接，存在明显连续性风险。")
+
+    if len(selected_names) > 3:
+        major_issues.append(f"scene writing skill router 选择了 {len(selected_names)} 个 skill，已超过当前约定上限 3 个，存在上下文过载风险。")
+
+    if not major_issues and selected_names:
+        minor_issues.append(f"本轮 scene writing skill router 已启用：{'、'.join(selected_names)}。")
+
+    return major_issues, minor_issues
 
 
 def extract_markdown_field(task_text: str, field_name: str) -> str | None:

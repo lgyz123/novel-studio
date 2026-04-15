@@ -773,6 +773,10 @@ prose_repair
             self.assertTrue((root / "02_working/planning/timeline_patch.md").exists())
             self.assertTrue((root / "02_working/planning/character_patch.md").exists())
             self.assertTrue((root / "02_working/planning/bootstrap_state_machine.md").exists())
+            self.assertTrue((root / "02_working/planning/planning_bootstrap_skill_router.json").exists())
+            self.assertTrue((root / "02_working/planning/character_creation_skill_router.json").exists())
+            self.assertTrue((root / "02_working/planning/scene_writing_skill_router.json").exists())
+            self.assertTrue((root / "02_working/planning/scene_writing_skill_router.md").exists())
             self.assertTrue((root / "02_working/outlines/ch01_outline.md").exists())
 
     def test_generated_task_content_carries_structural_fields(self) -> None:
