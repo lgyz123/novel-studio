@@ -22,79 +22,9 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-003",
-      "label": "麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-004",
-      "label": "浮灯俯身捞起那截绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-005",
-      "label": "但符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-006",
-      "label": "孟浮灯把那截红绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-007",
       "label": "半截红绳",
       "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-008",
-      "label": "泡烂平安符",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-009",
-      "label": "目前只是从平安符",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-010",
-      "label": "掌心麻绳",
-      "holder": "孟浮灯",
       "location": "状态待确认",
       "visibility": "unknown",
       "significance_level": "medium",
@@ -112,48 +42,8 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-012",
-      "label": "绳",
-      "holder": "旧坑边沿",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-013",
       "label": "那截红绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-014",
-      "label": "连着平安符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-015",
-      "label": "指腹抹去符",
-      "holder": "符纸比",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-016",
-      "label": "个字端端正正写在符",
       "holder": "孟浮灯",
       "location": "状态待确认",
       "visibility": "unknown",
@@ -182,56 +72,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-019",
-      "label": "没有再把符",
-      "holder": "孟浮灯",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-020",
-      "label": "红绳和平安符",
-      "holder": "孟浮灯",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-021",
-      "label": "掌心被麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-022",
-      "label": "仍能摸见里头符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-023",
-      "label": "从里头摸出个扁木盒",
-      "holder": "从里头",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-024",
       "label": "刻刀",
       "holder": "从里头",
@@ -242,78 +82,8 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-025",
-      "label": "手指触到盒",
-      "holder": "从里头",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-026",
-      "label": "里头是那枚平安符",
-      "holder": "两个字还",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-027",
-      "label": "正面那些符",
-      "holder": "两个字还",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-028",
-      "label": "几乎要嵌进绳",
-      "holder": "子的颜色",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-029",
-      "label": "他捏着绳",
-      "holder": "子的颜色",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-030",
-      "label": "又去看绳",
-      "holder": "那两个字",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-031",
       "label": "那段麻绳",
-      "holder": "那两个字",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-032",
-      "label": "又拿起平安符",
       "holder": "那两个字",
       "location": "状态待确认",
       "visibility": "unknown",
@@ -332,119 +102,9 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-034",
-      "label": "他手指在麻绳",
-      "holder": "他手指",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-035",
-      "label": "符",
-      "holder": "这手法也",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-036",
-      "label": "火光照在绳",
-      "holder": "这手法也",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-037",
-      "label": "孟浮灯把平安符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-038",
-      "label": "和那段麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-039",
-      "label": "很快把绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-040",
-      "label": "才把平安符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-041",
-      "label": "底下压着几本旧账册",
-      "holder": "子里东西",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-042",
-      "label": "取下那根湿麻绳",
-      "holder": "看着火苗",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-043",
       "label": "整根绳",
       "holder": "看着火苗",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-044",
-      "label": "孟浮灯把麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-045",
-      "label": "指腹能感觉到绳",
-      "holder": "孟浮灯",
       "location": "状态待确认",
       "visibility": "unknown",
       "significance_level": "medium",
@@ -462,66 +122,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-047",
-      "label": "他提起绳",
-      "holder": "然后",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-048",
-      "label": "颜色比那根粗绳",
-      "holder": "灶火已经",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-049",
-      "label": "他会不自觉检查绳",
-      "holder": "他会",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-050",
-      "label": "他看见绳",
-      "holder": "他会",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-051",
-      "label": "而是把平安符",
-      "holder": "他没再",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-052",
-      "label": "似乎还残留着平安符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-053",
       "label": "就像绳",
       "holder": "那感觉就",
@@ -532,19 +132,9 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-054",
-      "label": "得再买根新麻绳",
-      "holder": "他最后",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene03",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-055",
       "label": "但绳",
-      "holder": "他最后",
+      "holder": "待确认",
       "location": "状态待确认",
       "visibility": "unknown",
       "significance_level": "medium",
@@ -554,46 +144,6 @@
     {
       "item_id": "ITEM-056",
       "label": "麻袋",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-057",
-      "label": "散落着些草屑和麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-058",
-      "label": "手里拿着一把短刀",
-      "holder": "一个伙计",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-059",
-      "label": "买绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-060",
-      "label": "桶里插着几卷绳",
       "holder": "孟浮灯",
       "location": "状态待确认",
       "visibility": "unknown",
@@ -612,70 +162,10 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-062",
-      "label": "无意识地捻着那段绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-063",
-      "label": "伙计终于放下刀",
-      "holder": "孟浮灯",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-064",
-      "label": "腰间抽出一把旧剪刀",
-      "holder": "作熟练地",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-065",
       "label": "在绳",
       "holder": "作熟练地",
       "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-066",
-      "label": "孟浮灯接过绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-067",
-      "label": "是也有人来买这种绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-068",
-      "label": "孟浮灯捏着绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
       "visibility": "unknown",
       "significance_level": "medium",
       "last_changed_scene": "ch01_scene04",
@@ -689,36 +179,6 @@
       "visibility": "unknown",
       "significance_level": "medium",
       "last_changed_scene": "ch01_scene04",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-070",
-      "label": "勉强能看清绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-071",
-      "label": "手指触到绳",
-      "holder": "觉到几处",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-072",
-      "label": "不是绳",
-      "holder": "觉到几处",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
       "linked_facts": []
     },
     {
@@ -742,36 +202,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-075",
-      "label": "从墙角拿起那截旧绳",
-      "holder": "里站了一",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-076",
-      "label": "袋子用粗麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-077",
-      "label": "从怀里掏出那截旧绳",
-      "holder": "孟浮灯",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-078",
       "label": "纤绳",
       "holder": "孟浮灯",
@@ -782,68 +212,8 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-079",
-      "label": "再次拿起那截旧绳",
-      "holder": "后站了一",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-080",
-      "label": "也不是纤绳",
-      "holder": "此刻",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-081",
-      "label": "脚夫也用绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-082",
-      "label": "会让绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-083",
       "label": "那半截红绳",
-      "holder": "腰间似乎",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-084",
-      "label": "是系着平安符",
-      "holder": "腰间似乎",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-085",
-      "label": "可这截旧麻绳",
       "holder": "腰间似乎",
       "location": "贴身保留",
       "visibility": "unknown",
@@ -862,46 +232,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-087",
-      "label": "也许这绳",
-      "holder": "他可能",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-088",
-      "label": "些声音和手里那截绳",
-      "holder": "把旧绳放",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-089",
-      "label": "知道了脚夫怎么用绳",
-      "holder": "里还有船",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-090",
-      "label": "知道了旧绳",
-      "holder": "里还有船",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-091",
       "label": "那截旧绳",
       "holder": "睡意迟迟",
@@ -912,98 +242,8 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-092",
-      "label": "你要找绳",
-      "holder": "长的妇人",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-093",
-      "label": "船家系了缆绳",
-      "holder": "日头",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-094",
-      "label": "弯腰去解缆绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-095",
-      "label": "见下游漂过去一截绳",
-      "holder": "孟浮灯",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-096",
-      "label": "这河里常漂那种绳",
-      "holder": "孟浮灯",
-      "location": "暂时持有",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-097",
-      "label": "船家解缆绳",
-      "holder": "他没",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-098",
       "label": "那种绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-099",
-      "label": "重新弯下腰去解缆绳",
-      "holder": "少打",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-100",
-      "label": "他多问了那句关于绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-101",
-      "label": "物底下摸出个扁木盒",
       "holder": "孟浮灯",
       "location": "状态待确认",
       "visibility": "unknown",
@@ -1022,16 +262,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-103",
-      "label": "孟浮灯把绳子和符",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-104",
       "label": "放回木盒",
       "holder": "孟浮灯",
@@ -1039,96 +269,6 @@
       "visibility": "unknown",
       "significance_level": "medium",
       "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-105",
-      "label": "摸到那个扁木盒",
-      "holder": "里站了一",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene06",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-106",
-      "label": "没有绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene07",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-107",
-      "label": "不是刀",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene07",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-108",
-      "label": "倒像是用铁钩",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene07",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-109",
-      "label": "那里别着一把短刀",
-      "holder": "孟浮灯",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene07",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-110",
-      "label": "从怀里摸出那截红绳",
-      "holder": "把板车停",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene08",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-111",
-      "label": "他看着绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene08",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-112",
-      "label": "孟浮灯把绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene08",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-113",
-      "label": "解开麻绳",
-      "holder": "孟浮灯",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene09",
       "linked_facts": []
     },
     {
@@ -1142,70 +282,10 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-115",
-      "label": "从板车上取下麻绳",
-      "holder": "或者像现",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-116",
-      "label": "和一根带钩",
-      "holder": "或者像现",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-117",
-      "label": "另一头绑着铁钩",
-      "holder": "或者像现",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-118",
       "label": "铁钩",
       "holder": "或者像现",
       "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-119",
-      "label": "换麻绳",
-      "holder": "候尸体也",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-120",
-      "label": "松开麻绳",
-      "holder": "他蹲",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene10",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-121",
-      "label": "线头",
-      "holder": "料的手感",
-      "location": "袖口暂留",
       "visibility": "unknown",
       "significance_level": "medium",
       "last_changed_scene": "ch01_scene10",
@@ -1222,16 +302,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-123",
-      "label": "他拿起盒",
-      "holder": "盒子表面",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-124",
       "label": "指尖在盒",
       "holder": "盒子表面",
@@ -1239,136 +309,6 @@
       "visibility": "unknown",
       "significance_level": "medium",
       "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-125",
-      "label": "他打开盒",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-126",
-      "label": "还有缠着符",
-      "holder": "原本该",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-127",
-      "label": "他合上盒",
-      "holder": "把砖块推",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-128",
-      "label": "人没有把绳",
-      "holder": "形成一个",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-129",
-      "label": "他们挪动麻绳",
-      "holder": "对方像是",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-130",
-      "label": "平安符和红绳",
-      "holder": "符和红绳",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-131",
-      "label": "比如把盒",
-      "holder": "大可以一",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-132",
-      "label": "或者用刀",
-      "holder": "大可以一",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-133",
-      "label": "和墙角那堆麻绳",
-      "holder": "但没人真",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-134",
-      "label": "信",
-      "holder": "连着",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-135",
-      "label": "想起平安符",
-      "holder": "名字还",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-136",
-      "label": "对方拿走了符和绳",
-      "holder": "但名字现",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene11",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-137",
-      "label": "像是被某种绳",
-      "holder": "又是个",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch02_scene01",
       "linked_facts": []
     },
     {
@@ -1392,61 +332,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "artifact_是被某种绳",
-      "label": "是被某种绳",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": [
-        "\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过"
-      ]
-    },
-    {
-      "item_id": "artifact_着的半截符",
-      "label": "着的半截符",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_用的禁录符",
-      "label": "用的禁录符",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_他攥紧符",
-      "label": "他攥紧符",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_他用麻绳",
-      "label": "他用麻绳",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": [
-        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
-        "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
-      ]
-    },
-    {
       "item_id": "artifact_青玉符",
       "label": "青玉符",
       "holder": "主角",
@@ -1460,8 +345,8 @@
       ]
     },
     {
-      "item_id": "artifact_的那枚残符",
-      "label": "的那枚残符",
+      "item_id": "artifact_破的平安符",
+      "label": "破的平安符",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
@@ -1470,8 +355,8 @@
       "linked_facts": []
     },
     {
-      "item_id": "artifact_他攥紧麻绳",
-      "label": "他攥紧麻绳",
+      "item_id": "artifact_那道被麻绳",
+      "label": "那道被麻绳",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
@@ -1480,13 +365,36 @@
       "linked_facts": []
     },
     {
-      "item_id": "artifact_睛与他在符",
-      "label": "睛与他在符",
+      "item_id": "artifact_麻绳",
+      "label": "麻绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene01",
+      "linked_facts": [
+        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
+        "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
+      ]
+    },
+    {
+      "item_id": "artifact_但符",
+      "label": "但符",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "medium",
-      "last_changed_scene": "ch02_scene01",
+      "last_changed_scene": "ch02_scene02",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_发现刀",
+      "label": "发现刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene02",
       "linked_facts": []
     }
   ]

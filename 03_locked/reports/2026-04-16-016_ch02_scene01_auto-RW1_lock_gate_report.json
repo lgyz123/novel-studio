@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-16-016_ch02_scene01_auto-RW1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次只解决一个核心目标：本场结束时必须形成新的章内起点，不能只是重复上章余波。必须补出一个新事实：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。必须补出一个带后果的新动作/新决定：主角必须做出一个会影响本章后续处理方式的新动作或新决定。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，孟浮灯若…；孟浮灯没有再等，他当场改了手上的做法：主角必须做出一个会影响本章后续处理…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "于是本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，孟浮灯若…；孟浮灯没有再等，他当场改了手上的做法：主角必须做出一个会影响本章后续处理…；于是本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=引发后果"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "未识别到明显的高频母题复读。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=consequence, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

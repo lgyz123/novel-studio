@@ -17,7 +17,7 @@ from planning_bootstrap import run_planning_bootstrap
 from prewrite_checks import build_prewrite_review, save_prewrite_review
 from project_inputs import load_human_input, render_human_input_markdown
 from review_models import RepairMode, ReviewStatus, build_repair_plan_path, build_review_result_path, build_structured_review_result, load_repair_plan, load_structured_review_result, save_repair_plan, save_structured_review_result, update_structured_review_status
-from review_scene import review_scene_file
+from review_scene import evaluate_scene_gate, review_scene_file
 from revision_lineage import append_revision_lineage, build_revision_lineage_path, build_revision_lineage_summary, load_revision_lineage, should_trigger_manual_intervention
 from runtime_config import load_runtime_config
 from skill_audit import audit_skill_router_result, save_skill_audit_outputs
@@ -47,6 +47,13 @@ def clip_text(text: str, max_chars: int) -> str:
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + "\n\n[已截断]"
+
+
+def clip_inline_text(text: str, max_chars: int) -> str:
+    text = text.strip()
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rstrip()
 
 
 def clip_tail_text(text: str, max_chars: int) -> str:
@@ -217,6 +224,61 @@ def is_supervisor_runtime_available(config: dict | None = None) -> bool:
         return bool(resolve_api_key(api_key, api_key_env))
     except Exception:
         return False
+
+
+def is_deepseek_takeover_enabled(config: dict | None = None) -> bool:
+    if not config or not is_local_writer_mode(config):
+        return False
+    generation = config.get("generation", {})
+    value = generation.get("deepseek_takeover_enabled", True)
+    if isinstance(value, str):
+        enabled = value.strip().lower() not in {"false", "0", "no", "off"}
+    else:
+        enabled = bool(value)
+    return enabled and is_supervisor_runtime_available(config)
+
+
+def build_deepseek_takeover_config(config: dict) -> dict | None:
+    if not is_deepseek_takeover_enabled(config):
+        return None
+    supervisor = config.get("supervisor", {})
+    generation = dict(config.get("generation", {}))
+    takeover_timeout = generation.get("deepseek_takeover_request_timeout") or supervisor.get("request_timeout") or generation.get("request_timeout")
+    if takeover_timeout:
+        generation["request_timeout"] = int(takeover_timeout)
+    return {
+        "writer": {
+            "provider": "deepseek",
+            "model": str(supervisor.get("model") or "deepseek-chat").strip() or "deepseek-chat",
+            "base_url": str(supervisor.get("base_url") or "https://api.deepseek.com").strip() or "https://api.deepseek.com",
+            "api_key": str(supervisor.get("api_key") or "").strip() or None,
+            "api_key_env": str(supervisor.get("api_key_env") or "").strip() or None,
+        },
+        "generation": generation,
+    }
+
+
+def should_trigger_deepseek_takeover(config: dict, errors: list[str], fallbacks_used: list[str]) -> bool:
+    if not is_deepseek_takeover_enabled(config):
+        return False
+    if not errors:
+        return False
+    joined = " ".join(str(item).strip() for item in errors if str(item).strip())
+    hard_markers = [
+        "提纲/列表式",
+        "剧本体",
+        "分镜体",
+        "说明性附加文本",
+        "草稿疑似被截断",
+        "基调漂移",
+        "现代词汇",
+        "正文要求",
+    ]
+    if any(marker in joined for marker in hard_markers):
+        return True
+    threshold = int(config.get("generation", {}).get("deepseek_takeover_after_local_fallbacks", 2) or 2)
+    deduped_fallbacks = {str(item).strip() for item in fallbacks_used if str(item).strip()}
+    return len(deduped_fallbacks) >= threshold
 
 
 def should_use_minimal_local_revision_task(config: dict | None, task_text: str, mode: str) -> bool:
@@ -481,10 +543,38 @@ EDITORIAL_HEADING_PATTERNS = [
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:修订说明|修改说明|说明|执行说明|推进说明|写作说明|改写说明|补充说明|内容说明|思路说明|本次说明)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:场景正文|正文)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:场景标题|标题)[】\]]?(?:\*\*)?\s*[:：]?.*$",
+    r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:补全文本|续写文本|改写文本)[】\]]?(?:\*\*)?\s*[:：]?.*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:以下为正文|以下正文|正文如下|以下是正文|以下是修改说明|以下是修订说明)(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:注|备注|附注)(?:\*\*)?\s*[:：].*$",
     r"^\s*(?:\*\*)?《[^》]{2,}》.*(?:\*\*)?\s*$",
     r"^\s*(?:\*\*)?第[一二三四五六七八九十百零0-9]+[章节卷部][^*]{0,24}(?:\*\*)?\s*$",
+]
+
+REALISM_TONE_MARKERS = [
+    "底层现实主义修仙",
+    "底层求活",
+    "不要跳成大场面",
+    "不要引入新的组织或职位称呼",
+    "不要一上来就把更高层真相全部掀开",
+]
+
+REALISM_SPECTACLE_MARKERS = [
+    "青烟",
+    "幽光",
+    "血珠",
+    "人面",
+    "渗血",
+    "发光",
+    "冷光",
+    "发烫",
+    "契约",
+    "苏醒",
+    "司命府",
+    "活物在吮吸",
+    "往骨头里钻",
+    "锁链作响",
+    "异象",
+    "浮起半张人面",
 ]
 
 
@@ -496,6 +586,7 @@ def contains_editorial_explanation(text: str) -> list[str]:
         "【执行说明】",
         "【推进说明】",
         "【场景标题】",
+        "【补全文本】",
         "以下为",
         "以下正文",
         "正文如下",
@@ -512,6 +603,7 @@ def contains_editorial_explanation(text: str) -> list[str]:
         "（新事实：",
         "（新后果：",
         "（状态变化：",
+        "[已截断]",
     ]
     found = [m for m in markers if m in text]
     for line in text.splitlines():
@@ -526,6 +618,21 @@ def contains_editorial_explanation(text: str) -> list[str]:
         if item not in deduped:
             deduped.append(item)
     return deduped
+
+
+def task_prefers_realist_tone(task_text: str) -> bool:
+    combined = f"{str(task_text or '')}\n{render_human_input_markdown(load_human_input(ROOT))}"
+    return any(marker in combined for marker in REALISM_TONE_MARKERS)
+
+
+def detect_realism_tone_drift(task_text: str, draft_text: str) -> list[str]:
+    if not task_prefers_realist_tone(task_text):
+        return []
+    text = str(draft_text or "")
+    hits = [marker for marker in REALISM_SPECTACLE_MARKERS if marker in text]
+    if len(hits) < 3 and not (len(hits) >= 2 and any(marker in hits for marker in ["司命府", "契约", "苏醒"])):
+        return []
+    return [f"基调漂移：当前任务偏底层现实承接，但正文异象词过重（{'、'.join(hits[:4])}）"]
 
 
 def build_validation_errors(task_text: str, draft_text: str) -> list[str]:
@@ -552,6 +659,10 @@ def build_validation_errors(task_text: str, draft_text: str) -> list[str]:
     forbidden_characters = detect_forbidden_characters(task_text, draft_text)
     if forbidden_characters:
         errors.append(f"违反角色边界限制，出现了不应出场人物: {forbidden_characters}")
+
+    realism_drift = detect_realism_tone_drift(task_text, draft_text)
+    if realism_drift:
+        errors.extend(realism_drift)
 
     if is_likely_truncated(draft_text):
         errors.append("草稿疑似被截断或结尾不完整")
@@ -814,6 +925,7 @@ def build_local_writer_context(task_text: str) -> str:
 def build_micro_contract_prompt(task_text: str, current_context: str, decision: dict) -> str:
     priority_card = build_local_writer_priority_card(task_text)
     tracker_slices = build_writer_tracker_slices_section(task_text)
+    realist_fact_candidates = build_realist_fact_candidates(task_text)
     chapter_state_path = (extract_markdown_field(task_text, "chapter_state") or "").strip()
     chapter_state_excerpt = ""
     if chapter_state_path:
@@ -838,6 +950,7 @@ def build_micro_contract_prompt(task_text: str, current_context: str, decision: 
 6. 不要写现代词。
 7. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
 8. 只允许写当前任务单明确需要的那个“新事实”，不要把线索一下子升级成大场面、异象或新身份揭晓。
+9. “新事实”优先从这些现实模板里选一种来落地，不要改写成青烟、幽光、渗血、人面或锁链异响之类异象：{'; '.join(realist_fact_candidates[:3])}
 
 【任务单】
 {task_text}
@@ -905,6 +1018,10 @@ def validate_micro_contract(task_text: str, contract: dict[str, str]) -> list[st
     if any(marker in joined for marker in generic_bad_markers):
         errors.append("micro contract 过于空泛")
 
+    spectacle_markers = ["幽光", "青烟", "血珠", "发光", "震颤", "异象", "忽明忽暗", "爬上", "锁链作响"]
+    if any(marker in str(contract.get("新事实") or "") for marker in spectacle_markers):
+        errors.append("新事实 过于依赖异象或气氛")
+
     required_info = extract_markdown_list_field(task_text, "required_information_gain")
     if required_info and contract.get("新事实"):
         if not requirement_matches_hint(required_info[0], contract.get("新事实", "")):
@@ -924,6 +1041,8 @@ def requirement_matches_hint(requirement: str, evidence: str) -> bool:
         ("名字", ["名字", "名", "刻名", "留名"]),
         ("黑幕", ["黑幕", "幕后", "阴谋", "局中", "来历异常"]),
         ("线索", ["线索", "痕迹", "记号", "木牌", "符", "红绳"]),
+        ("压力", ["压力", "阻力", "眼线", "盯人", "催债", "现实麻烦"]),
+        ("限制", ["限制", "规矩", "约束", "拦住", "不能再"]),
         ("底层", ["底层", "寒门", "穷苦", "卑微"]),
         ("求活", ["求活", "活路", "保命", "脱身"]),
     ]
@@ -936,6 +1055,137 @@ def requirement_matches_hint(requirement: str, evidence: str) -> bool:
     if any(marker in requirement_text for marker in ["必须", "至少", "新", "线索", "尸体", "名字", "黑幕", "底层", "求活"]):
         return bool(overlap)
     return len(overlap) >= min(2, len(requirement_tokens)) if requirement_tokens else bool(evidence_text.strip())
+
+
+def build_realist_fact_candidates(task_text: str) -> list[str]:
+    protagonist = "孟浮灯"
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle.get("chapter_progress"), dict) else {}
+    protagonist = str(chapter_progress.get("protagonist_name") or protagonist).strip() or protagonist
+    return [
+        f"码头西头今天多了一层盯人的现实压力，这具尸身牵出的名字线索不能再按旧法收尾，{protagonist}若照旧处置尸身，很快就会被催债的或盯梢的人撞见。",
+        f"昨天乱葬岗那具尸身牵出的后果已经落到码头活计上，那条名字线索不再只是心里记号，{protagonist}不能再按上一章的收尾办法慢慢拖过去。",
+        f"眼前这具尸身身上多出一条可核验的处理记号或身份痕迹，逼得{protagonist}必须换一种更隐蔽的处理顺序，也让那条名字线索第一次落成现实麻烦。",
+        f"行当里的旧规矩在这一场突然变成现实阻力，{protagonist}若不先避开眼线或改道，就会失去当天的求活余地。",
+    ]
+
+
+def normalize_requirement_into_prose(text: str, fallback: str = "") -> str:
+    normalized = str(text or "").strip()
+    if not normalized:
+        return fallback
+    if "[已截断]" in normalized:
+        return fallback
+    normalized = re.sub(r"^(?:保持与项目故事梗概一致[:：]?|本场必须|主角必须|至少一个状态变量改变[:：]?|必须补出一个带后果的新动作/新决定[:：]?|必须补出一个新事实[:：]?)", "", normalized).strip()
+    normalized = re.sub(r"[“”\"`]", "", normalized)
+    normalized = re.sub(r"\s+", "", normalized)
+    normalized = normalized.strip("：:；;，,。 ")
+    if not normalized or any(marker in normalized for marker in [
+        "项目故事梗概",
+        "本场",
+        "主角必须",
+        "状态变量",
+        "已知信息/风险等级/行动计划/关系态势/物件位置",
+        "后续处理方式",
+        "真正往前推一步",
+        "现实问题",
+        "新事实",
+        "新限制",
+        "压力来源",
+        "行动边界",
+        "微决策",
+        "运河与码头底层求活",
+    ]):
+        return fallback
+    if len(normalized) >= 28 and all(marker in normalized for marker in ["运河", "码头", "尸体"]):
+        return fallback
+    if "会影响本章后续处理方式" in normalized:
+        return fallback
+    return clip_inline_text(normalized, 60)
+
+
+def pick_first_usable_requirement(items: list[str], fallback: str = "") -> str:
+    for item in items:
+        normalized = normalize_requirement_into_prose(item, "")
+        if normalized:
+            return normalized
+    return fallback
+
+
+def strip_leading_protagonist_phrase(text: str, protagonist: str) -> str:
+    normalized = str(text or "").strip()
+    if not normalized:
+        return normalized
+    patterns = [
+        rf"^{re.escape(protagonist)}决定",
+        rf"^{re.escape(protagonist)}没有再等，?",
+        rf"^{re.escape(protagonist)}当场",
+        rf"^{re.escape(protagonist)}",
+    ]
+    for pattern in patterns:
+        normalized = re.sub(pattern, "", normalized).strip(" ，,。")
+    return normalized
+
+
+def ensure_sentence_ending(text: str) -> str:
+    normalized = str(text or "").strip()
+    if not normalized:
+        return normalized
+    if normalized[-1] in "。！？!?":
+        return normalized
+    return f"{normalized}。"
+
+
+def strip_sentence_ending(text: str) -> str:
+    return str(text or "").strip().rstrip("。！？!?")
+
+
+def build_fallback_micro_contract(task_text: str) -> dict[str, str]:
+    protagonist = "孟浮灯"
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle.get("chapter_progress"), dict) else {}
+    protagonist = str(chapter_progress.get("protagonist_name") or protagonist).strip() or protagonist
+
+    info_items = extract_markdown_list_field(task_text, "required_information_gain")
+    plot_progress = (extract_markdown_field(task_text, "required_plot_progress") or "").strip()
+    decision_shift = (extract_markdown_field(task_text, "required_decision_shift") or "").strip()
+    state_items = extract_markdown_list_field(task_text, "required_state_change")
+    scene_purpose = (extract_markdown_field(task_text, "scene_purpose") or "").strip()
+
+    realist_fact_candidates = build_realist_fact_candidates(task_text)
+    new_fact = realist_fact_candidates[0]
+    if info_items:
+        prose_hint = pick_first_usable_requirement(info_items, "这件事第一次落成可验证的现实问题")
+        new_fact = f"{realist_fact_candidates[0]} {prose_hint}。"
+    new_action = normalize_requirement_into_prose(
+        decision_shift,
+        f"{protagonist}决定先把尸身拖去背阴处，再绕开西头的眼线收尾",
+    )
+    direct_consequence = normalize_requirement_into_prose(
+        plot_progress,
+        f"{protagonist}眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位置",
+    )
+    state_change = normalize_requirement_into_prose(
+        pick_first_usable_requirement(state_items, ""),
+        "行动计划改成先避开眼线，再找能脱手的水口处理尸身",
+    )
+
+    if "状态" not in state_change and "变" not in state_change and "改" not in state_change:
+        state_change = f"行动计划改成{state_change}"
+    if "于是" not in direct_consequence and "结果" not in direct_consequence and "随后" not in direct_consequence:
+        direct_consequence = f"于是{direct_consequence}"
+    if not any(marker in new_action for marker in ["决定", "先", "去", "拿", "藏", "塞", "转", "避", "跟", "交", "压", "收"]):
+        new_action = f"{protagonist}决定先按新的方式处理眼前局面。"
+    prose_scene_purpose = normalize_requirement_into_prose(scene_purpose, "")
+    if prose_scene_purpose and prose_scene_purpose not in direct_consequence:
+        direct_consequence = f"{direct_consequence} 这一步让局面真正开始往前走。"
+
+    return {
+        "新事实": clip_inline_text(new_fact, 80),
+        "新动作": clip_inline_text(new_action, 80),
+        "新后果": clip_inline_text(direct_consequence, 100),
+        "新状态变化": clip_inline_text(state_change, 90),
+    }
 
 
 def generate_micro_contract(config: dict, current_context: str, decision: dict) -> dict[str, str]:
@@ -957,7 +1207,12 @@ def generate_micro_contract(config: dict, current_context: str, decision: dict) 
         if not errors:
             return contract
         print(f"micro contract 校验失败（第 {attempt}/{attempts} 次）：{'；'.join(errors)}")
-    return last_contract
+    fallback_contract = build_fallback_micro_contract(task_text)
+    fallback_errors = validate_micro_contract(task_text, fallback_contract)
+    if not fallback_errors:
+        print("micro contract 自动生成失败，已切换到 deterministic fallback contract。")
+        return fallback_contract
+    return last_contract or fallback_contract
 
 
 def format_micro_contract_section(contract: dict[str, str]) -> str:
@@ -969,6 +1224,37 @@ def format_micro_contract_section(contract: dict[str, str]) -> str:
         if value:
             lines.append(f"- {key}：{value}")
     return "\n".join(lines)
+
+
+def build_deterministic_minimal_scene(task_text: str, contract: dict[str, str]) -> str:
+    tracker_bundle = load_writer_tracker_bundle(task_text)
+    chapter_progress = tracker_bundle.get("chapter_progress", {}) if isinstance(tracker_bundle.get("chapter_progress"), dict) else {}
+    protagonist = str(chapter_progress.get("protagonist_name") or "孟浮灯").strip() or "孟浮灯"
+    helper = "老张头" if "老张头" in render_human_input_markdown(load_human_input(ROOT)) else "同行老人"
+    fact = str(contract.get("新事实") or "").strip()
+    action = str(contract.get("新动作") or "").strip()
+    consequence = str(contract.get("新后果") or "").strip()
+    state_change = str(contract.get("新状态变化") or "").strip()
+    fact = normalize_requirement_into_prose(fact, fact)
+    action = normalize_requirement_into_prose(action, action)
+    consequence = normalize_requirement_into_prose(consequence, consequence)
+    state_change = normalize_requirement_into_prose(state_change, state_change)
+    fact = ensure_sentence_ending(strip_leading_protagonist_phrase(fact, protagonist))
+    action = ensure_sentence_ending(strip_leading_protagonist_phrase(action, protagonist))
+    consequence = ensure_sentence_ending(strip_leading_protagonist_phrase(consequence, protagonist))
+    state_change = ensure_sentence_ending(strip_leading_protagonist_phrase(state_change, protagonist))
+    fact_clause = strip_sentence_ending(fact)
+    action_clause = strip_sentence_ending(action)
+    consequence_sentence = ensure_sentence_ending(consequence)
+    state_change_clause = strip_sentence_ending(state_change)
+
+    paragraphs = [
+        f"暮色压到码头西头时，{protagonist}先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上动静，一边压住手里的麻绳，知道今晚得先避开明面上的眼线。",
+        f"{helper}隔着风声提醒了他一句：{fact_clause}。这话不像怪事，倒像一根立刻会落到饭碗上的硬刺，让{protagonist}明白眼前这具尸身已经牵出了新的麻烦。",
+        f"{protagonist}没有再等，他当场改了手上的做法：{action_clause}。这不是多余的小心，而是他为了保住眼下活路，第一次把处理顺序往另一边拧过去。",
+        f"{consequence_sentence}等脚步声逼近岸边时，{protagonist}已经把自己的打算改明白了：{state_change_clause}，不再照旧把这件事拖回原来的收尾路数。",
+    ]
+    return "\n\n".join(paragraphs)
 
 
 def build_prose_reference_section(task_text: str) -> str:
@@ -1624,6 +1910,9 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 8. 全文只输出正文，一写完就停止。
 9. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
 10. 若提供了 Micro Contract，正文只能展开它，不得额外发明新的尸体身份、机构职位、超自然异象或关键物件变动。
+11. 开头两三句内必须先落地“新动作/决定”，不要先写气氛或异象。
+12. 中段再揭示“新事实”，而且必须是现实层面的线索、限制、身份痕迹或物件状态，不要升级成玄异展示。
+13. 倒数两句内必须写出这个动作带来的直接后果；最后一句必须明确写成已经发生的状态变化。
 
 【任务单】
 {task_text}
@@ -1661,6 +1950,9 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 9. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移。
 10. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
 11. 若提供了 Micro Contract，正文必须逐项兑现它：一个新事实、一个新动作/决定、一个直接后果、一个状态变化；不要额外发明更大的设定。
+12. 开头两三句内必须先落地主角已经做出的动作或明确决定，不要先写一整段气氛、疲惫或异样感。
+13. 中段再揭示唯一的新事实，而且这个新事实必须可核验，优先落在现实限制、身份痕迹、物件状态、关系边界，不要写成异象升级。
+14. 倒数两句内必须出现由该动作带来的直接后果；最后一句必须明确写出状态变化，不能只停在悬问、感叹或领悟。
 {repair_rule_lines}
 
 【任务单】
@@ -1715,6 +2007,9 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 23. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
 24. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态
 25. 若提供了 Micro Contract，正文必须逐项兑现它；未写进 contract 的新机构、新身份、新尸体信息、新异象不要擅自添加
+26. 开头两三句内必须先落地主角已经做出的动作或明确决定，不要先写整段氛围、疲惫、回想或异样感
+27. 中段再揭示唯一的新事实，而且这个新事实必须可核验，优先落在现实限制、身份痕迹、物件状态、关系边界，不要写成异象升级
+28. 倒数两句内必须出现该动作带来的直接后果；最后一句必须明确写成已经发生的状态变化，不能停在悬问、感叹、领悟或纯意象
 {repair_rule_lines}
 【任务单】
 {task_text}
@@ -1772,6 +2067,72 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
     )
 
     return markdown_text.strip()
+
+
+def build_deepseek_takeover_prompt(
+    task_text: str,
+    current_context: str,
+    decision: dict,
+    bad_draft: str,
+    errors: list[str],
+) -> str:
+    joined_errors = "\n".join(f"- {str(item).strip()}" for item in errors if str(item).strip())
+    clipped_context = clip_text(current_context, 9000)
+    clipped_bad_draft = clip_text(bad_draft, 2200)
+    return f"""你现在是本轮最终接管 writer。
+前面的本地模型已经失败。你的目标不是发散创作，而是在不新增越界设定的前提下，一次性写出可通过审稿的小说正文。
+
+硬规则：
+1. 只输出连续小说 prose，不要标题、列表、JSON、解释、修订说明。
+2. 必须同时落地四件事：一个新事实、一个新动作/决定、一个直接后果、一个状态变化。
+3. 禁止新增机构、职位、超自然展示、身份真相、额外尸体线索，除非任务单明确允许。
+4. 开头两三句先写主角已做出的动作或明确决定，不要先写气氛或异象。
+5. 中段再揭示唯一的新事实，而且必须是可核验的现实限制、身份痕迹、物件状态或关系边界。
+6. 倒数两句内必须交代直接后果；最后一句必须明确写成已经发生的状态变化。
+7. 本地失败稿只可当反例，不能顺着它的提纲腔、异象化、解释腔继续写。
+8. 若任务是“底层现实主义修仙”，严禁写出青烟、发烫、契约、苏醒、发光、锁链异响一类玄异展示作为推进核心。
+
+【本地失败原因】
+{joined_errors or "- 本地 writer 多次失败，需由你直接接管成稿。"}
+
+【任务单】
+{task_text}
+
+【当前上下文】
+{clipped_context}
+
+【本地失败稿（仅作反例，不可顺着其坏味道继续写）】
+{clipped_bad_draft}
+
+【决策信息】
+{json.dumps(decision, ensure_ascii=False, indent=2)}
+"""
+
+
+def run_deepseek_takeover_draft(
+    config: dict,
+    task_text: str,
+    current_context: str,
+    decision: dict,
+    bad_draft: str,
+    errors: list[str],
+) -> str:
+    takeover_config = build_deepseek_takeover_config(config)
+    if not takeover_config:
+        raise ValueError("DeepSeek takeover 未启用或缺少可用配置")
+    system_prompt = """你是小说终局接管 writer。
+你负责在失败链路后直接接手，并输出一版可直接保存、可送审的小说正文。
+你必须遵守任务单与当前章承接，不要写任何元话语。"""
+    user_prompt = build_deepseek_takeover_prompt(task_text, current_context, decision, bad_draft, errors)
+    print("本地 writer 多次失败，正在切换到 DeepSeek 接管成稿...")
+    takeover_text = call_writer_model(
+        takeover_config,
+        system_prompt,
+        user_prompt,
+        temperature=0.2,
+        num_predict=int(config.get("generation", {}).get("deepseek_takeover_num_predict", 1800) or 1800),
+    )
+    return clean_model_output(takeover_text)
 
 def rewrite_script_to_prose(config: dict, current_context: str, bad_draft: str) -> str:
     system_prompt = """你是小说改写助手。
@@ -1904,6 +2265,118 @@ def continue_truncated_draft(config: dict, current_context: str, bad_draft: str)
     return clean_model_output(continued)
 
 
+def rewrite_structurally_weak_local_draft(config: dict, current_context: str, bad_draft: str, structural_issues: list[str]) -> str:
+    system_prompt = """你是小说场景结构修复助手。
+你的任务是把一段方向勉强可用、但结构空转的草稿，改写成“最小可过审稿”。
+要求：
+1. 只输出连续小说正文，不要标题、列表、说明、注释。
+2. 必须落地四件事：一个新事实、一个主角动作/决定、一个直接后果、一个结尾状态变化。
+3. 不要新增机构、职位、身份真相、超自然异象，不要把场面放大。
+4. 不要把正文写成纯气氛、纯感受、纯联想。
+5. 保持任务约束，不扩主线，不换视角。
+6. 开头两三句先写主角动作；中段再揭示新事实；最后一句必须是已经发生的状态变化。"""
+
+    task_text = read_text("01_inputs/tasks/current_task.md")
+    issue_block = "\n".join(f"- {item}" for item in structural_issues if str(item).strip())
+    priority_card = build_local_writer_priority_card(task_text)
+    structure_section = build_writer_structure_section(task_text)
+    realist_fact_candidates = build_realist_fact_candidates(task_text)
+
+    user_prompt = f"""请把下面这段草稿改写成“最小可过审稿”。
+
+必须做到：
+1. 交出一个可验证的新事实
+2. 交出一个主角已经做出的动作或明确决定
+3. 交出一个由该动作带来的直接后果
+4. 结尾交出一个已经发生的状态变化
+5. 不要新增任务单未允许的新机构、新职位、新物件状态漂移、新异象
+6. 只输出正文
+7. 第一段前两三句就要让主角开始做动作，不要先渲染气氛
+8. 中段的新事实必须是现实线索或限制，不要写成尸体发光、锁链异响、血珠爬行这类异象
+9. 倒数第二句写直接后果，最后一句写状态变化
+10. 下面这段旧稿只能当反例和材料库使用，不要照抄其中的异象、重复句式或大场面味道
+11. 新事实优先从这些现实模板里落地一种：{'; '.join(realist_fact_candidates[:3])}
+
+【当前结构问题】
+{issue_block}
+
+【任务单】
+{task_text}
+
+{priority_card}
+
+{structure_section}
+
+【当前上下文】
+{current_context}
+
+【待重写草稿（只可抽取必要动作线，不可顺着坏味道继续写）】
+{clip_text(bad_draft, 1800)}
+"""
+
+    print("检测到草稿结构空转，正在尝试最小可过审重写...")
+    rewritten = call_writer_model(
+        config,
+        system_prompt,
+        user_prompt,
+        temperature=0.15,
+        num_predict=1000,
+    )
+    return clean_model_output(rewritten)
+
+
+def read_optional_task_path(task_text: str, field_name: str) -> str:
+    rel_path = (extract_markdown_field(task_text, field_name) or "").strip()
+    if not rel_path:
+        return ""
+    path = ROOT / rel_path
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+def should_force_local_structural_rewrite(config: dict, gate_report: dict[str, Any] | None) -> bool:
+    if not is_local_writer_mode(config):
+        return False
+    if not isinstance(gate_report, dict):
+        return False
+    failures = {str(item).strip() for item in gate_report.get("failures", []) if str(item).strip()}
+    return bool({"missing_information_gain", "missing_plot_progress", "missing_character_decision"} & failures)
+
+
+def should_prefer_deterministic_minimal_scene(
+    config: dict,
+    task_text: str,
+    validation_errors: list[str],
+    gate_report: dict[str, Any] | None,
+) -> bool:
+    if not is_local_writer_mode(config):
+        return False
+    task_id = extract_markdown_field(task_text, "task_id") or ""
+    revision_count = extract_revision_count(task_id)
+    repair_focus = str(extract_markdown_field(task_text, "repair_focus") or "").strip()
+    repair_mode = str(extract_markdown_field(task_text, "repair_mode") or "").strip()
+
+    joined_errors = " ".join(str(item) for item in validation_errors)
+    if task_prefers_realist_tone(task_text) and any(marker in joined_errors for marker in ["基调漂移", "草稿疑似被截断", "[已截断]"]):
+        return True
+
+    if revision_count <= 0 and repair_focus not in {PROSE_REPAIR, STRUCTURAL_REPAIR} and repair_mode != RepairMode.full_redraft.value:
+        return False
+
+    if any(marker in joined_errors for marker in ["基调漂移", "草稿疑似被截断", "[已截断]"]):
+        return True
+
+    if isinstance(gate_report, dict):
+        failures = {str(item).strip() for item in gate_report.get("failures", []) if str(item).strip()}
+        if {"missing_information_gain", "missing_plot_progress", "missing_character_decision"} & failures:
+            return True
+    return False
+
+
 def repair_invalid_draft(config: dict, current_context: str, bad_draft: str, errors: list[str]) -> str:
     system_prompt = """你是小说草稿修复助手。
 你的任务不是重写方向，而是在尽量保留现有内容与场景骨架的前提下，修掉明确的验收违规项。
@@ -2013,8 +2486,31 @@ def write_draft(config: dict, current_context: str) -> dict:
     decision = generate_decision_json(config, current_context)
     task_id = decision["task_id"]
     writer_provider = str(config.get("writer", {}).get("provider", "")).strip().lower() or "unknown"
+    writer_mode = "draft_generated"
     fallbacks_used: list[str] = []
     initial_validation_errors: list[str] = []
+
+    def try_deepseek_takeover(bad_draft: str, current_errors: list[str], suffix: str) -> tuple[str | None, list[str]]:
+        nonlocal writer_provider, writer_mode
+        if not should_trigger_deepseek_takeover(config, current_errors, fallbacks_used):
+            return None, current_errors
+        takeover_text = run_deepseek_takeover_draft(
+            config,
+            task_text,
+            current_context,
+            decision,
+            bad_draft,
+            current_errors,
+        )
+        fallbacks_used.append("deepseek_writer_takeover")
+        save_failed_draft(task_id, takeover_text, f"{suffix}_deepseek_takeover_attempt")
+        takeover_errors = build_validation_errors(task_text, takeover_text)
+        if takeover_errors:
+            save_failure_reason(task_id, "；".join(takeover_errors), f"{suffix}_deepseek_takeover_failed_reason")
+            return None, takeover_errors
+        writer_provider = "deepseek"
+        writer_mode = "deepseek_takeover"
+        return takeover_text, []
 
     raw_markdown_text = generate_markdown_draft(config, current_context, decision)
     markdown_text = clean_model_output(raw_markdown_text)
@@ -2038,9 +2534,12 @@ def write_draft(config: dict, current_context: str) -> dict:
             refined_errors = build_validation_errors(task_text, refined)
             if refined_errors:
                 save_failure_reason(task_id, "；".join(refined_errors), "refined_failed_reason")
-                raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(refined_errors)}")
-
-            markdown_text = refined
+                takeover_text, takeover_errors = try_deepseek_takeover(refined, refined_errors, "refined")
+                if takeover_text is None:
+                    raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(takeover_errors)}")
+                markdown_text = takeover_text
+            else:
+                markdown_text = refined
 
     errors = build_validation_errors(task_text, markdown_text)
     errors = build_validation_errors(task_text, markdown_text)
@@ -2087,12 +2586,16 @@ def write_draft(config: dict, current_context: str) -> dict:
                 refined_errors = build_validation_errors(task_text, refined)
                 if refined_errors:
                     save_failure_reason(task_id, "；".join(refined_errors), "refined_failed_reason")
-                    print("提纯后验收失败，具体原因如下：")
-                    for err in refined_errors:
-                        print(f"- {err}")
-                    raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(refined_errors)}")
-
-                markdown_text = refined
+                    takeover_text, takeover_errors = try_deepseek_takeover(refined, refined_errors, "refined")
+                    if takeover_text is None:
+                        print("提纯后验收失败，具体原因如下：")
+                        for err in takeover_errors:
+                            print(f"- {err}")
+                        raise ValueError(f"草稿验收失败（提纯后仍不通过）: {'；'.join(takeover_errors)}")
+                    markdown_text = takeover_text
+                    errors = []
+                else:
+                    markdown_text = refined
 
         elif errors:
             repaired = repair_invalid_draft(config, current_context, markdown_text, errors)
@@ -2101,10 +2604,79 @@ def write_draft(config: dict, current_context: str) -> dict:
             repaired_errors = build_validation_errors(task_text, repaired)
             if repaired_errors:
                 save_failure_reason(task_id, "；".join(repaired_errors), "repaired_failed_reason")
-                raise ValueError(f"草稿验收失败: {'；'.join(repaired_errors)}")
-            markdown_text = repaired
+                takeover_text, takeover_errors = try_deepseek_takeover(repaired, repaired_errors, "repaired")
+                if takeover_text is None:
+                    raise ValueError(f"草稿验收失败: {'；'.join(takeover_errors)}")
+                markdown_text = takeover_text
+                errors = []
+            else:
+                markdown_text = repaired
 
     final_validation_errors = build_validation_errors(task_text, markdown_text)
+    gate_report: dict[str, Any] | None = None
+    if not final_validation_errors and is_local_writer_mode(config):
+        gate_report = evaluate_scene_gate(
+            task_text,
+            markdown_text,
+            based_on_text=read_optional_task_path(task_text, "based_on"),
+            chapter_state=read_optional_task_path(task_text, "chapter_state"),
+        )
+        if should_force_local_structural_rewrite(config, gate_report):
+            structural_issues = [str(item).strip() for item in gate_report.get("major_issues", []) if str(item).strip()]
+            if structural_issues:
+                save_failed_draft(task_id, markdown_text, "structural_precheck_failed")
+                save_failure_reason(task_id, "；".join(structural_issues[:4]), "structural_precheck_failed_reason")
+                rewritten = rewrite_structurally_weak_local_draft(config, current_context, markdown_text, structural_issues[:4])
+                fallbacks_used.append("rewrite_structurally_weak_local_draft")
+                save_failed_draft(task_id, rewritten, "structural_rewritten_attempt")
+                rewritten_errors = build_validation_errors(task_text, rewritten)
+                if rewritten_errors:
+                    save_failure_reason(task_id, "；".join(rewritten_errors), "structural_rewritten_failed_reason")
+                else:
+                    markdown_text = rewritten
+                    final_validation_errors = build_validation_errors(task_text, markdown_text)
+                if task_prefers_realist_tone(task_text) and (
+                    rewritten_errors
+                    or should_force_local_structural_rewrite(
+                        config,
+                        evaluate_scene_gate(
+                            task_text,
+                            markdown_text,
+                            based_on_text=read_optional_task_path(task_text, "based_on"),
+                            chapter_state=read_optional_task_path(task_text, "chapter_state"),
+                        ),
+                    )
+                ):
+                    fallback_contract = build_fallback_micro_contract(task_text)
+                    deterministic_scene = build_deterministic_minimal_scene(task_text, fallback_contract)
+                    deterministic_errors = build_validation_errors(task_text, deterministic_scene)
+                    if not deterministic_errors:
+                        markdown_text = deterministic_scene
+                        final_validation_errors = []
+                        fallbacks_used.append("deterministic_minimal_scene")
+                        save_failed_draft(task_id, deterministic_scene, "deterministic_minimal_scene")
+                    else:
+                        save_failure_reason(task_id, "；".join(deterministic_errors), "deterministic_minimal_scene_failed_reason")
+
+    if should_prefer_deterministic_minimal_scene(config, task_text, final_validation_errors, gate_report):
+        fallback_contract = build_fallback_micro_contract(task_text)
+        deterministic_scene = build_deterministic_minimal_scene(task_text, fallback_contract)
+        deterministic_errors = build_validation_errors(task_text, deterministic_scene)
+        if not deterministic_errors:
+            markdown_text = deterministic_scene
+            final_validation_errors = []
+            fallbacks_used.append("deterministic_minimal_scene")
+            save_failed_draft(task_id, deterministic_scene, "deterministic_minimal_scene")
+        else:
+            save_failure_reason(task_id, "；".join(deterministic_errors), "deterministic_minimal_scene_failed_reason")
+
+    final_validation_errors = build_validation_errors(task_text, markdown_text)
+    if final_validation_errors:
+        takeover_text, takeover_errors = try_deepseek_takeover(markdown_text, final_validation_errors, "final")
+        if takeover_text is None:
+            raise ValueError(f"草稿验收失败: {'；'.join(takeover_errors)}")
+        markdown_text = takeover_text
+        final_validation_errors = []
 
     decision_file = f"02_working/reviews/{decision['task_id']}.json"
     draft_file = decision["draft_file"]
@@ -2121,7 +2693,7 @@ def write_draft(config: dict, current_context: str) -> dict:
         "draft_file": draft_file,
         "writer_trace": build_writer_trace(
             provider=writer_provider,
-            mode="draft_generated",
+            mode=writer_mode,
             fallbacks_used=fallbacks_used,
             initial_validation_errors=initial_validation_errors,
             final_validation_errors=final_validation_errors,
@@ -2403,7 +2975,43 @@ def latest_locked_file_for_bootstrap(start_chapter: int) -> str | None:
 
 
 def prepare_runtime_start(config: dict) -> str | None:
-    if get_run_mode(config) != "restart":
+    run_mode = get_run_mode(config)
+    if run_mode == "continue":
+        current_task_path = ROOT / "01_inputs/tasks/current_task.md"
+        if not current_task_path.exists():
+            return None
+        task_text = current_task_path.read_text(encoding="utf-8")
+        output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
+        current_chapter, current_scene = extract_task_progress(task_text)
+        if not output_target or current_chapter is None or current_scene is None:
+            return None
+        locked_dir = config.get("paths", {}).get("locked_dir", "03_locked")
+        locked_file = f"{locked_dir}/chapters/{Path(output_target).name}"
+        if not (ROOT / locked_file).exists():
+            return None
+
+        if should_rollover_after_lock(config, locked_file):
+            next_chapter = current_chapter + 1
+            next_scene = 1
+        else:
+            next_chapter = current_chapter
+            next_scene = current_scene + 1
+
+        next_task_id, next_task_text = build_chapter_opening_task(
+            ROOT,
+            config,
+            chapter_number=next_chapter,
+            scene_number=next_scene,
+            previous_locked_file=locked_file,
+        )
+        next_task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+        save_text(next_task_file, next_task_text)
+        if should_continue_after_lock(config, next_task_file):
+            save_text("01_inputs/tasks/current_task.md", next_task_text)
+            return next_task_id
+        return None
+
+    if run_mode != "restart":
         return None
 
     run = config.get("run", {})
@@ -2919,6 +3527,9 @@ def build_followup_constraints(task_text: str, reviewer_result: dict, repair_mod
 def build_minimal_local_revision_goal(original_goal: str, structural_fields: dict[str, Any]) -> str:
     base_goal = strip_revision_prefix(original_goal)
     base_goal = re.sub(r"(?:本次只解决一个核心目标：.+?。)+", "", base_goal).strip("。 ")
+    base_goal = re.sub(r"(?:必须补出一个新事实：.+?。)+", "", base_goal).strip("。 ")
+    base_goal = re.sub(r"(?:必须补出一个带后果的新动作/新决定：.+?。)+", "", base_goal).strip("。 ")
+    base_goal = re.sub(r"(?:必须让局面前进一步：.+?。)+", "", base_goal).strip("。 ")
     scene_purpose = str(structural_fields.get("scene_purpose") or "").strip()
     info_items = [str(item).strip() for item in structural_fields.get("required_information_gain", []) if str(item).strip()]
     plot_progress = str(structural_fields.get("required_plot_progress") or "").strip()
@@ -3743,6 +4354,36 @@ def maybe_generate_next_scene_task_draft(
         save_text(task_file, task_content)
         return task_file, None
 
+    current_chapter = extract_chapter_number(locked_file)
+    current_scene = extract_scene_number(locked_file)
+    target_chapter = get_runtime_target_chapter(config)
+    target_scene = get_runtime_target_scene(config)
+    should_generate_local_next_scene = (
+        current_chapter is not None
+        and current_scene is not None
+        and (
+            (target_chapter is not None and current_chapter < target_chapter)
+            or (
+                target_chapter is not None
+                and target_scene is not None
+                and current_chapter == target_chapter
+                and current_scene < target_scene
+            )
+            or (target_chapter is None and target_scene is not None and current_scene < target_scene)
+        )
+    )
+    if should_generate_local_next_scene:
+        next_task_id, task_content = build_chapter_opening_task(
+            ROOT,
+            config,
+            chapter_number=int(current_chapter),
+            scene_number=int(current_scene) + 1,
+            previous_locked_file=locked_file,
+        )
+        task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+        save_text(task_file, task_content)
+        return task_file, None
+
     if not is_supervisor_enabled(config):
         return None, None
 
@@ -4038,11 +4679,15 @@ def main() -> None:
         max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
         manual_intervention_after = get_effective_manual_intervention_threshold(config, max_revisions)
         loop_round = 1
+        run_mode = get_run_mode(config)
         restarted_task_id = prepare_runtime_start(config)
         if restarted_task_id:
-            print(f"运行模式：restart，已重置当前任务到 {restarted_task_id}")
+            if run_mode == "restart":
+                print(f"运行模式：restart，已重置当前任务到 {restarted_task_id}")
+            else:
+                print(f"运行模式：{run_mode}，已恢复/切换当前任务到 {restarted_task_id}")
         else:
-            print(f"运行模式：{get_run_mode(config)}")
+            print(f"运行模式：{run_mode}")
 
         while True:
             current_task_text = read_text("01_inputs/tasks/current_task.md")
@@ -4085,6 +4730,8 @@ def main() -> None:
                     raise
 
             print("步骤 3/3：正在执行审稿与后续分流...")
+            if isinstance(draft_result, dict) and str(draft_result.get("task_text") or "").strip():
+                save_text("01_inputs/tasks/current_task.md", draft_result["task_text"])
             try:
                 _, reviewer_json_path = review_scene_file(config, draft_result["draft_file"])
             except Exception as error:
@@ -4097,6 +4744,16 @@ def main() -> None:
                 raise
 
             reviewer_result = json.loads(read_text(reviewer_json_path))
+            effective_task_id = (
+                extract_markdown_field(str(draft_result.get("task_text") or ""), "task_id")
+                or str(reviewer_result.get("task_id") or "").strip()
+                or current_task_id
+            )
+            if str(reviewer_result.get("task_id") or "").strip() and str(reviewer_result.get("task_id")).strip() != effective_task_id:
+                print(
+                    f"警告：reviewer task_id 与本轮写稿任务不一致，"
+                    f"已优先按本轮任务 {effective_task_id} 继续。"
+                )
             review_trace = reviewer_result.get("review_trace", {}) if isinstance(reviewer_result, dict) else {}
             if isinstance(review_trace, dict) and review_trace:
                 trace_mode = str(review_trace.get("mode") or "").strip() or "unknown"
@@ -4191,7 +4848,7 @@ def main() -> None:
                 review_status = structured_review.status.value
 
             latest_run_summary_file = save_latest_run_summary(
-                task_id=current_task_id,
+                task_id=effective_task_id,
                 draft_file=draft_result.get("draft_file") if isinstance(draft_result, dict) else None,
                 writer_trace=draft_result.get("writer_trace") if isinstance(draft_result, dict) else None,
                 reviewer_result=reviewer_result,

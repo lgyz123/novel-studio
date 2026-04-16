@@ -1,0 +1,105 @@
+{
+  "task_id": "2026-04-16-016_ch02_scene01_auto",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=0, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "写出第 2 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "\"小孟？\"货船甲板上传来沙哑的呼唤。他抬头看见老张头的烟斗在暮色里明灭，…；孟浮灯的瞳孔骤然收缩。他摸到腰间短刀的刀柄，刀鞘里藏着的半截青铜锁链突然…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "孟浮灯的麻绳在淤泥里搅出第三道血痕时，货船的阴影正从上游压过来。他松开攥着尸首的手指，看着那具浮…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "\"小孟？\"货船甲板上传来沙哑的呼唤。他抬头看见老张头的烟斗在暮色里明灭，…；孟浮灯的瞳孔骤然收缩。他摸到腰间短刀的刀柄，刀鞘里藏着的半截青铜锁链突然…；场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "孟浮灯的麻绳在淤泥里搅出第三道血痕时，货船的阴影正从上游压过来。他松开攥着尸首的手指，看着那具浮…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": false,
+      "details": "missing required state change evidence"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "未识别到明显的高频母题复读。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

@@ -40,6 +40,7 @@ BODY_CARRY_LOCATION_MARKERS = ["贴着胸口", "胸前", "里襟", "最内侧", 
 ARTIFACT_PATTERNS = [
     re.compile(r"([\u4e00-\u9fff]{1,4}(?:绳|符|钱|铃|牌|佩|匣|盒|袋|册|刀|钩|线头|木牌|纸条))"),
 ]
+VALID_ARTIFACT_LABEL_RE = re.compile(r"^(?:那|这|半截|一截|那截|这截|旧|粗|细|青|红|黑|残|破|湿|烂|半枚|一枚|半块|一块|那半截)?[\u4e00-\u9fff]{0,3}(?:绳|符|钱|铃|牌|佩|匣|盒|袋|册|刀|钩|木牌|纸条)$")
 SMELL_PATTERNS = [
     re.compile(r"([\u4e00-\u9fff]{1,4}(?:气味|味|臭|腥气|潮气|霉气))"),
 ]
@@ -54,6 +55,14 @@ IDENTITY_PATTERNS = [
 ]
 MEMORY_TRIGGER_PATTERNS = [
     re.compile(r"((?:想起|记起|梦见|闻见|看见)[\u4e00-\u9fff]{1,6})"),
+]
+
+INVALID_ARTIFACT_LABEL_PREFIXES = ("不是", "觉到", "感觉", "几处", "某种", "分明", "突然", "正在", "像被", "像是", "是被", "倒像", "不是绳", "想起", "连着", "目前", "他们", "你要", "没有", "也许", "会让", "知道了", "买", "换", "解开", "松开", "攥紧")
+INVALID_ARTIFACT_LABEL_PARTS = ("形状", "活物", "觉到", "几处", "分明", "倒像", "不是绳", "不是符", "不是牌", "触到", "看清", "拿起", "松开", "攥紧", "绑住", "勒出")
+INVALID_HOLDER_PARTS = ("觉到", "几处", "分明", "倒像", "某种", "活物", "他", "她", "它")
+INVALID_ARTIFACT_LABEL_PATTERNS = [
+    re.compile(r"^(?:孟浮灯|他|她|他们|对方|目前|比如|或者|掌心|手指|勉强|从墙角|泡烂|想起|连着)"),
+    re.compile(r"^[\u4e00-\u9fff]{0,4}(?:把|将|挪|摸|拿|想|看|攥|连|用|松开|绑住|拖着)"),
 ]
 
 
@@ -156,9 +165,22 @@ class ArtifactState(BaseModel):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ArtifactState":
+        raw_items = data.get("items", []) if isinstance(data, dict) else []
+        sanitized_items: list[dict[str, Any]] = []
+        for item in raw_items if isinstance(raw_items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            label = str(item.get("label") or "").strip()
+            if not is_valid_artifact_label(label):
+                continue
+            sanitized = dict(item)
+            sanitized["holder"] = sanitize_artifact_holder(str(item.get("holder") or "待确认"))
+            sanitized_items.append(sanitized)
+        sanitized_data = dict(data or {})
+        sanitized_data["items"] = sanitized_items
         if hasattr(cls, "model_validate"):
-            return cls.model_validate(data)
-        return cls.parse_obj(data)
+            return cls.model_validate(sanitized_data)
+        return cls.parse_obj(sanitized_data)
 
 
 class ChapterProgress(BaseModel):
@@ -362,7 +384,7 @@ def infer_artifact_holder(text: str) -> str:
         return "主角"
     match = re.search(r"([\u4e00-\u9fff]{2,4}).{0,4}(?:拿着|握着|带着|揣着|捏着)", text)
     if match:
-        return match.group(1)
+        return sanitize_artifact_holder(match.group(1))
     return "待确认"
 
 
@@ -579,9 +601,41 @@ def classify_motif_category(label: str) -> str:
 
 def clean_extracted_label(label: str) -> str:
     text = str(label or "").strip("“”‘’\"' ，。；：:、")
-    text = re.sub(r"^(?:看见|看到|摸到|捡到|拾到|认出|确认|写着|露出|原来|竟是|把|将|那块|这块|那枚|这枚|一枚|一截|半截|那截|这截|是把|像是|仍把)", "", text)
+    text = re.sub(r"^(?:看见|看到|摸到|捡到|拾到|认出|确认|写着|露出|原来|竟是|把|将|那块|这块|那枚|这枚|一枚|一截|半截|那截|这截|是把|像是|仍把|松开|攥紧|摸出|看清|从墙角拿起|手指触到|勉强能看清|起那截)", "", text)
     text = re.sub(r"^(?:他的|她的|那条|这条|那只|这只)", "", text)
     return text.strip()
+
+
+def is_valid_artifact_label(label: str) -> bool:
+    text = str(label or "").strip()
+    if len(text) < 2 or len(text) > 6:
+        return False
+    if "和" in text:
+        return False
+    if any(text.startswith(prefix) for prefix in INVALID_ARTIFACT_LABEL_PREFIXES):
+        return False
+    if any(part in text for part in INVALID_ARTIFACT_LABEL_PARTS):
+        return False
+    if any(pattern.search(text) for pattern in INVALID_ARTIFACT_LABEL_PATTERNS):
+        return False
+    return bool(VALID_ARTIFACT_LABEL_RE.fullmatch(text))
+
+
+def sanitize_artifact_holder(holder: str) -> str:
+    text = str(holder or "").strip()
+    if not text:
+        return "待确认"
+    if text in {"主角", "孟浮灯", "待确认"}:
+        return text
+    if any(part in text for part in INVALID_HOLDER_PARTS):
+        return "待确认"
+    if "和" in text:
+        return "待确认"
+    if re.search(r"(绳|符|牌|钱|铃|佩|匣|盒|袋|册|刀|钩)$", text):
+        return "待确认"
+    if not re.fullmatch(r"[\u4e00-\u9fff]{2,4}", text):
+        return "待确认"
+    return text
 
 
 def extract_candidate_motifs_from_text(text: str) -> list[tuple[str, str]]:
@@ -600,6 +654,8 @@ def extract_candidate_motifs_from_text(text: str) -> list[tuple[str, str]]:
                 label = match if isinstance(match, str) else match[0]
                 label = clean_extracted_label(label)
                 if len(label) < 2:
+                    continue
+                if category == "artifact_motif" and not is_valid_artifact_label(label):
                     continue
                 item = (category, label)
                 if item not in candidates:
@@ -934,9 +990,11 @@ def detect_artifact_state_conflicts(draft_text: str, artifact_state: dict[str, A
         holder = str(item.get("holder") or "").strip()
         location = str(item.get("location") or "").strip()
         visibility = str(item.get("visibility") or "").strip()
+        if not is_valid_artifact_label(label):
+            continue
         if not label_present(label):
             continue
-        if holder and not is_unresolved(holder) and not holder_matches(holder) and any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS):
+        if holder and holder in PROTAGONIST_HOLDER_ALIASES and not holder_matches(holder) and any(marker in draft_text for marker in CARRIED_ARTIFACT_MARKERS):
             conflicts.append(f"物件“{label}”当前持有者应为“{holder}”，但正文写法与现有 artifact_state 不一致。")
         if location and not is_unresolved(location) and not location_matches(location) and any(marker in draft_text for marker in LOCATION_CHANGE_MARKERS + CARRIED_ARTIFACT_MARKERS + BODY_CARRY_LOCATION_MARKERS):
             conflicts.append(f"物件“{label}”当前所在位置应为“{location}”，但正文写法与现有 artifact_state 不一致。")

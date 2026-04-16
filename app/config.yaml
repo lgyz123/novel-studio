@@ -71,6 +71,10 @@ generation:
   temperature: 0.25
   request_timeout: 900
   preferred_length_override: 1500-2600字
+  deepseek_takeover_enabled: true
+  deepseek_takeover_after_local_fallbacks: 2
+  deepseek_takeover_request_timeout: 180
+  deepseek_takeover_num_predict: 1800
   max_auto_revisions: 5
   # 本地 reviewer / writer 默认更早交给 supervisor，避免在低质量 revise loop 里空转太久
   local_manual_intervention_after: 3

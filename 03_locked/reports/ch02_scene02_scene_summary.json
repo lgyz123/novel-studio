@@ -1,0 +1,94 @@
+{
+  "chapter_id": "ch02",
+  "scene_id": "ch02_scene02",
+  "locked_file": "03_locked/chapters/ch02_scene02.md",
+  "scene_summary": {
+    "scene_id": "ch02_scene02",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "孟浮灯的指尖在青铜锁链上摩挲，暗红渗液顺着指缝滴落，在青石板上蚀出细小的…",
+      "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然…"
+    ],
+    "protagonist_decision": "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然腾起青烟，三具浮尸在烟雾…",
+    "state_changes": [
+      "risk_level: medium -> low"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "但符",
+      "发现刀",
+      "腐臭",
+      "那时岸边",
+      "转身朝窝棚",
+      "对方腕间戴着"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "过渡/氛围"
+      ],
+      "但符": [
+        "发现线索"
+      ],
+      "发现刀": [
+        "发现线索"
+      ],
+      "腐臭": [
+        "发现线索"
+      ],
+      "那时岸边": [
+        "发现线索"
+      ],
+      "转身朝窝棚": [
+        "发现线索"
+      ],
+      "对方腕间戴着": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "但符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility"
+        ]
+      },
+      {
+        "label": "发现刀",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch02_scene01",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene02",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch02_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch02_scene02",
+    "consecutive_transition_runs": []
+  }
+}

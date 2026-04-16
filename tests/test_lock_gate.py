@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 import app.lock_gate as lock_gate_module
-from app.lock_gate import apply_lock_gate, build_lock_gate_report, save_lock_gate_report
+from app.lock_gate import apply_lock_gate, build_lock_gate_report, build_state_change_evidence, save_lock_gate_report
 from app.review_models import build_structured_review_result
 
 
@@ -31,6 +31,20 @@ scene_012_draft_05
 
 
 class LockGateTest(unittest.TestCase):
+    def test_build_state_change_evidence_recognizes_plan_shift_phrasing(self) -> None:
+        evidence = build_state_change_evidence(
+            "他已经把自己的打算改明白了：先避开眼线，再处理尸身，不再照旧把这件事拖回原来的收尾路数。",
+            {},
+        )
+        self.assertTrue(evidence["行动计划变化"])
+
+    def test_build_state_change_evidence_recognizes_direction_shift_phrasing(self) -> None:
+        evidence = build_state_change_evidence(
+            "他第一次把处理顺序往另一边拧过去，眼前的局面也被迫换了方向。",
+            {},
+        )
+        self.assertTrue(evidence["行动计划变化"])
+
     def test_lock_gate_matches_semantic_required_information_and_state_change(self) -> None:
         task_text = BASE_TASK + """
 # required_information_gain
@@ -72,6 +86,45 @@ class LockGateTest(unittest.TestCase):
                 lock_gate_module.ROOT = previous_root
 
         self.assertTrue(next(check for check in report.checks if check.name == "required_information_gain").passed)
+        self.assertTrue(next(check for check in report.checks if check.name == "required_state_change").passed)
+
+    def test_lock_gate_treats_generic_state_requirement_as_satisfied_by_information_or_plan_shift(self) -> None:
+        task_text = BASE_TASK + """
+# required_state_change
+- 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。
+"""
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "当前 scene 满足锁定条件。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["他知道码头西头已经多了一层盯人的现实压力。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面被迫换了方向。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他第一次把处理顺序往另一边拧过去，先避开眼线再收尾。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters/ch01_scene11.md").write_text("前文。", encoding="utf-8")
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态。", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+                (root / "02_working/drafts/ch01_scene12.md").write_text("他知道码头西头已经多了一层盯人的现实压力，于是把处理顺序往另一边拧过去，先避开眼线再收尾。", encoding="utf-8")
+
+                structured = build_structured_review_result(reviewer_result)
+                report = build_lock_gate_report(task_text, structured, max_revisions=5, legacy_result=reviewer_result)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
         self.assertTrue(next(check for check in report.checks if check.name == "required_state_change").passed)
 
     def test_lock_gate_treats_story_blurb_requirement_as_generic_when_evidence_overlaps(self) -> None:
@@ -363,6 +416,55 @@ class LockGateTest(unittest.TestCase):
                 (root / "02_working/drafts/ch01_scene12.md").write_text("他把平安符从怀里摸出来，立刻追问旁人这个名字的来处。", encoding="utf-8")
                 (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
                 (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": [{"item_id": "artifact_001", "label": "平安符", "holder": "待确认", "location": "窝棚木板下", "visibility": "hidden", "significance_level": "medium", "last_changed_scene": "ch01_scene11", "linked_facts": []}]}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "scene_summaries": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text('{"chapter_id": "ch01", "active_motifs": []}', encoding="utf-8")
+
+                updated, report = apply_lock_gate(task_text, reviewer_result, max_revisions=5)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertTrue(any(check.name == "chapter_state_alignment" and not check.passed for check in report.checks))
+
+    def test_lock_gate_blocks_lock_when_tone_drift_breaks_low_realism_contract(self) -> None:
+        task_text = BASE_TASK + """
+# constraints
+- 类型基调保持为：底层现实主义修仙
+- 不要跳成大场面、不要引入新的组织或职位称呼。
+"""
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "表面可锁。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["他看清尸体多了一道新痕。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他决定先把尸体拖到浅滩。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他决定先把尸体拖到浅滩。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters/ch01_scene11.md").write_text("孟浮灯把尸体拖到浅滩边。", encoding="utf-8")
+                (root / "03_locked/canon/ch01_state.md").write_text("- 当前只需落地新的现实压力\n", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+                (root / "02_working/drafts/ch01_scene12.md").write_text(
+                    "尸身突然抽搐着扭向他，黑血在水面铺开蛛网状纹路。淤泥中浮出半张人脸，眼尾的泪痣正在渗出暗红。",
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
                 (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "scene_summaries": []}', encoding="utf-8")
                 (tracker_dir / "ch01_chapter_motif_tracker.json").write_text('{"chapter_id": "ch01", "active_motifs": []}', encoding="utf-8")
 

@@ -6,6 +6,12 @@
   "investigation_stage": "主动调查",
   "risk_level": "low",
   "current_relationships": [
+    "老张头的：疑似旧识",
+    "烟斗在暮：疑似旧识",
+    "色里忽明：疑似旧识",
+    "忽暗：疑似旧识",
+    "这锁链你：疑似旧识",
+    "可认得：疑似旧识",
     "“阿绣”这个名字已经留在他心里，但目前仍只是被记住、被反复想起，还没有转成明确行动",
     "“阿绣”目前只是从平安符背面露出的一个名字，刚刚被他记住，还没有发展成明确调查念头"
   ],
@@ -22,14 +28,13 @@
     "孟浮灯低头看去，淤泥中隐约露出半截青铜锁链，链节上刻着的\"偿\"字正在渗血"
   ],
   "completed_scene_functions": [
-    "ch02_scene01: 发现线索"
+    "ch02_scene01: 发现线索",
+    "ch02_scene02: 发现线索"
   ],
   "remaining_scene_functions": [
-    "引入阻力",
     "触发调查",
     "揭示关系",
     "制造错误判断",
-    "引发后果",
     "提高风险",
     "扩展世界信息"
   ],
@@ -39,73 +44,105 @@
       "scene_id": "ch02_scene01",
       "scene_function": "发现线索",
       "new_information_items": [
-        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…"
+        "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…",
+        "孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…",
+        "于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
       ],
-      "protagonist_decision": "货船汽笛声撕开暮色，他攥紧麻绳的手背青筋暴起。若将这具尸体上报，必然要面对司命使新设的\"失踪人口…",
+      "protagonist_decision": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…",
       "state_changes": [
-        "protagonist_mode: 隐匿/压制 -> 观察/求活"
+        "risk_level: low -> medium"
       ],
       "motifs_used": [
-        "他用麻绳",
-        "青玉符",
-        "的那枚残符",
-        "他攥紧麻绳",
-        "睛与他在符",
-        "指节触到脖"
+        "暮色压到码头",
+        "步声逼近岸边",
+        "麻绳",
+        "尸身原先停放",
+        "线索不能"
       ],
       "motif_functions": {
-        "他用麻绳": [
+        "暮色压到码头": [
+          "引发后果",
+          "过渡/氛围",
           "发现线索"
         ],
-        "青玉符": [
+        "步声逼近岸边": [
+          "引发后果",
           "发现线索"
         ],
-        "的那枚残符": [
+        "麻绳": [
+          "过渡/氛围"
+        ],
+        "尸身原先停放": [
           "发现线索"
         ],
-        "他攥紧麻绳": [
+        "线索不能": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene02",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "孟浮灯的指尖在青铜锁链上摩挲，暗红渗液顺着指缝滴落，在青石板上蚀出细小的…",
+        "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然…"
+      ],
+      "protagonist_decision": "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然腾起青烟，三具浮尸在烟雾…",
+      "state_changes": [
+        "risk_level: medium -> low"
+      ],
+      "motifs_used": [
+        "麻绳",
+        "但符",
+        "发现刀",
+        "腐臭",
+        "那时岸边",
+        "转身朝窝棚",
+        "对方腕间戴着"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "过渡/氛围"
+        ],
+        "但符": [
           "发现线索"
         ],
-        "睛与他在符": [
+        "发现刀": [
           "发现线索"
         ],
-        "指节触到脖": [
+        "腐臭": [
+          "发现线索"
+        ],
+        "那时岸边": [
+          "发现线索"
+        ],
+        "转身朝窝棚": [
+          "发现线索"
+        ],
+        "对方腕间戴着": [
           "发现线索"
         ]
       },
       "artifacts_changed": [
         {
-          "label": "他用麻绳",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "high",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "青玉符",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "high",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "的那枚残符",
+          "label": "但符",
           "holder": "主角",
           "location": "随身携带",
           "visibility": "hidden",
           "significance_level": "medium",
           "change_types": [
-            "introduced"
+            "holder",
+            "location",
+            "visibility"
           ]
         },
         {
-          "label": "他攥紧麻绳",
+          "label": "发现刀",
           "holder": "主角",
           "location": "随身携带",
           "visibility": "hidden",
@@ -113,39 +150,11 @@
           "change_types": [
             "introduced"
           ]
-        },
-        {
-          "label": "睛与他在符",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "medium",
-          "change_types": [
-            "introduced"
-          ]
         }
       ],
       "open_questions_created": [],
       "open_questions_resolved": [],
-      "reveal_changes": {
-        "confirmed_added": [
-          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
-          "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
-        ],
-        "suspected_added": [
-          "他捞起那具浮尸时，指节触到脖颈处新鲜的淤痕——像是被某种硬物勒过，淤青边缘还沾着半截青铜锁链，链节上刻着的\"偿\"字正在渗血",
-          "竹篙突然被水底的枯枝缠住，他低头看去，淤泥中隐约浮出半张人脸"
-        ],
-        "protagonist_known_added": [
-          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…"
-        ],
-        "reader_known_added": [
-          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
-          "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签",
-          "他捞起那具浮尸时，指节触到脖颈处新鲜的淤痕——像是被某种硬物勒过，淤青边缘还沾着半截青铜锁链，链节上刻着的\"偿\"字正在渗血",
-          "竹篙突然被水底的枯枝缠住，他低头看去，淤泥中隐约浮出半张人脸"
-        ]
-      },
+      "reveal_changes": {},
       "canon_risk_flags": []
     }
   ],
@@ -154,12 +163,16 @@
       {
         "scene_id": "ch02_scene01",
         "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene02",
+        "scene_function": "发现线索"
       }
     ],
     "first_clue_scene_id": "ch02_scene01",
     "first_old_acquaintance_hint_scene_id": "",
     "first_investigation_trigger_scene_id": "",
-    "first_artifact_change_scene_id": "ch02_scene01",
+    "first_artifact_change_scene_id": "ch02_scene02",
     "consecutive_transition_runs": []
   }
 }

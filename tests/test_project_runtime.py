@@ -236,6 +236,45 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("_ch02_scene01_auto", task_id or "")
         self.assertIn("# chapter_state\n03_locked/canon/ch02_state.md", current_task)
 
+    def test_prepare_runtime_start_in_continue_mode_advances_from_already_locked_scene(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs/tasks/generated").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+                (root / "00_manifest/novel_manifest.md").write_text(
+                    "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                    encoding="utf-8",
+                )
+                (root / "01_inputs/human_input.yaml").write_text(
+                    "project:\n  premise: 采药少年误入仙途。\n  genre: 修仙\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                    encoding="utf-8",
+                )
+                (root / "03_locked/chapters/ch02_scene02.md").write_text("已锁正文", encoding="utf-8")
+                (root / "01_inputs/tasks/current_task.md").write_text(
+                    "# task_id\n2026-04-16-028_ch02_scene02_auto\n\n# output_target\n02_working/drafts/ch02_scene02.md\n",
+                    encoding="utf-8",
+                )
+
+                task_id = main_module.prepare_runtime_start(
+                    {
+                        "run": {"mode": "continue", "target_chapter": 2, "target_scene": 3},
+                        "generation": {},
+                        "paths": {"locked_dir": "03_locked"},
+                    }
+                )
+
+                current_task = (root / "01_inputs/tasks/current_task.md").read_text(encoding="utf-8")
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIn("_ch02_scene03_auto", task_id or "")
+        self.assertIn("# output_target\n02_working/drafts/ch02_scene03.md", current_task)
+
     def test_build_chapter_opening_task_uses_human_input_and_previous_locked_scene(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

@@ -11,6 +11,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from app.main import (
+    build_fallback_micro_contract,
+    build_deterministic_minimal_scene,
     build_existing_draft_result,
     build_followup_task_id,
     choose_repair_focus,
@@ -18,7 +20,10 @@ from app.main import (
     build_generated_task_content,
     build_locked_chapter_file,
     build_micro_contract_prompt,
+    build_realist_fact_candidates,
     build_validation_errors,
+    normalize_requirement_into_prose,
+    pick_first_usable_requirement,
     call_writer_model,
     clean_model_output,
     contains_outline_style,
@@ -29,15 +34,19 @@ from app.main import (
     get_effective_manual_intervention_threshold,
     extract_supervisor_round,
     has_supervisor_retry_budget,
+    is_deepseek_takeover_enabled,
     is_large_local_writer_model,
     is_likely_truncated,
     parse_micro_contract,
     route_review_result,
+    should_trigger_deepseek_takeover,
     is_supervisor_runtime_available,
     is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
     should_auto_lock_after_supervisor_rescue,
     should_force_supervisor_takeover,
+    should_force_local_structural_rewrite,
+    should_prefer_deterministic_minimal_scene,
     should_use_hard_prose_revision_prompt,
     should_use_deepseek_writer,
     should_continue_after_lock,
@@ -148,6 +157,60 @@ structural_repair
         self.assertTrue(is_large_local_writer_model({"writer": {"provider": "ollama", "model": "qwen3:30b"}}))
         self.assertFalse(is_large_local_writer_model({"writer": {"provider": "ollama", "model": "qwen3:14b"}}))
 
+    def test_should_force_local_structural_rewrite_when_core_scene_contract_missing(self) -> None:
+        gate_report = {
+            "failures": ["missing_information_gain", "missing_character_decision"],
+            "major_issues": ["缺少新信息", "缺少动作"],
+        }
+        self.assertTrue(
+            should_force_local_structural_rewrite(
+                {"writer": {"provider": "ollama", "model": "qwen3:14b"}},
+                gate_report,
+            )
+        )
+        self.assertFalse(
+            should_force_local_structural_rewrite(
+                {"writer": {"provider": "deepseek", "model": "deepseek-chat"}},
+                gate_report,
+            )
+        )
+
+    def test_should_prefer_deterministic_minimal_scene_for_rewrite_with_truncation(self) -> None:
+        task_text = """# task_id
+scene_001-RW1
+
+# repair_focus
+prose_repair
+"""
+        self.assertTrue(
+            should_prefer_deterministic_minimal_scene(
+                {"writer": {"provider": "ollama", "model": "qwen3:14b"}},
+                task_text,
+                ["草稿疑似被截断或结尾不完整"],
+                None,
+            )
+        )
+
+    def test_should_prefer_deterministic_minimal_scene_false_for_fresh_local_scene(self) -> None:
+        self.assertFalse(
+            should_prefer_deterministic_minimal_scene(
+                {"writer": {"provider": "ollama", "model": "qwen3:14b"}},
+                "# task_id\nscene_001\n",
+                [],
+                None,
+            )
+        )
+
+    def test_should_prefer_deterministic_minimal_scene_for_fresh_realist_scene_with_truncation(self) -> None:
+        self.assertTrue(
+            should_prefer_deterministic_minimal_scene(
+                {"writer": {"provider": "ollama", "model": "qwen3:14b"}},
+                "# task_id\nscene_001\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n",
+                ["草稿疑似被截断或结尾不完整"],
+                None,
+            )
+        )
+
     def test_call_writer_model_retries_empty_local_writer_output(self) -> None:
         import app.main as main_module
 
@@ -196,6 +259,30 @@ structural_repair
                         "api_key_env": "MISSING_ENV",
                     }
                 }
+            )
+        )
+
+    def test_deepseek_takeover_enabled_for_local_writer_with_supervisor_runtime(self) -> None:
+        self.assertTrue(
+            is_deepseek_takeover_enabled(
+                {
+                    "writer": {"provider": "ollama", "model": "qwen3:14b"},
+                    "generation": {"deepseek_takeover_enabled": True},
+                    "supervisor": {"enabled": True, "api_key": "sk-test-key"},
+                }
+            )
+        )
+
+    def test_should_trigger_deepseek_takeover_on_hard_local_failures(self) -> None:
+        self.assertTrue(
+            should_trigger_deepseek_takeover(
+                {
+                    "writer": {"provider": "ollama", "model": "qwen3:14b"},
+                    "generation": {"deepseek_takeover_enabled": True},
+                    "supervisor": {"enabled": True, "api_key": "sk-test-key"},
+                },
+                ["文本呈现提纲/列表式格式，不符合小说正文要求", "基调漂移：当前任务偏底层现实承接，但正文异象词过重"],
+                ["continue_truncated_draft", "repair_invalid_draft"],
             )
         )
 
@@ -250,6 +337,8 @@ scene_099-R2
         self.assertIn("【本轮优先卡片】", prompt)
         self.assertIn("【Micro Contract】", prompt)
         self.assertIn("优先卡片没出现的关键物件", prompt)
+        self.assertIn("开头两三句内必须先落地主角已经做出的动作或明确决定", prompt)
+        self.assertIn("倒数两句内必须出现由该动作带来的直接后果", prompt)
         self.assertNotIn("不要输出 [JSON]", prompt)
 
     def test_parse_and_validate_micro_contract(self) -> None:
@@ -262,6 +351,130 @@ scene_099-R2
         )
         self.assertEqual(contract["新事实"], "尸体腰间多了一块刻名木牌")
         self.assertEqual(errors, [])
+
+    def test_validate_micro_contract_rejects_spectacle_fact(self) -> None:
+        contract = parse_micro_contract(
+            "新事实：尸体腰间的锁链忽然泛起幽光\n新动作：孟浮灯决定先把木牌塞进袖口\n新后果：于是巡河卒一时没看见那块木牌\n新状态变化：行动计划变为先藏牌再去找老船工"
+        )
+        errors = validate_micro_contract(
+            "# required_information_gain\n- 补入至少一个只属于本章的新事实、新限制或新压力来源。\n",
+            contract,
+        )
+        self.assertIn("新事实 过于依赖异象或气氛", errors)
+
+    def test_build_fallback_micro_contract_produces_usable_structure(self) -> None:
+        task_text = """# task_id
+scene_001
+
+# scene_purpose
+让本场真正落到新的现实压力上。
+
+# required_information_gain
+- 补入至少一个只属于本章的新事实、新限制或新压力来源。
+
+# required_plot_progress
+场景结尾前必须形成新的现实阻碍。
+
+# required_decision_shift
+孟浮灯必须决定先绕去码头西头避开眼线。
+
+# required_state_change
+- 行动计划改成先避开眼线，再处理尸身。
+"""
+        contract = build_fallback_micro_contract(task_text)
+        errors = validate_micro_contract(task_text, contract)
+
+        self.assertFalse(errors)
+        self.assertIn("孟浮灯", contract["新动作"])
+        self.assertIn("于是", contract["新后果"])
+
+    def test_build_realist_fact_candidates_prefers_pressure_templates(self) -> None:
+        task_text = "# task_id\nscene_001\n"
+        candidates = build_realist_fact_candidates(task_text)
+
+        self.assertTrue(candidates)
+        self.assertIn("现实压力", candidates[0])
+        self.assertIn("孟浮灯", candidates[0])
+
+    def test_build_deterministic_minimal_scene_stays_prose_and_realist(self) -> None:
+        task_text = """# task_id
+scene_001
+
+# constraints
+- 类型基调保持为：底层现实主义修仙
+"""
+        contract = {
+            "新事实": "码头西头今天多了一层盯人的现实压力，孟浮灯若照旧处置尸身，很快就会被催债的撞见。",
+            "新动作": "孟浮灯决定先把尸身拖去背阴处，再绕开西头的眼线。",
+            "新后果": "于是岸上的人暂时没看见尸身原先停放的位置，他也失去了按旧办法直接收尾的余地。",
+            "新状态变化": "行动计划改成先避开眼线，再找能脱手的水口处理尸身。",
+        }
+        draft = build_deterministic_minimal_scene(task_text, contract)
+        errors = build_validation_errors(task_text, draft)
+
+        self.assertFalse(errors)
+        self.assertIn("孟浮灯", draft)
+        self.assertIn("行动计划", draft)
+        self.assertNotIn("主角必须", draft)
+        self.assertNotIn("项目故事梗概", draft)
+        self.assertIn("不再照旧", draft)
+        self.assertNotIn("孟浮灯决定先把尸身拖去背阴处", draft)
+        self.assertNotIn("位置 等脚步声", draft)
+        self.assertNotIn("。 等脚步声", draft)
+        self.assertNotIn("独有的现实压力", draft)
+
+    def test_build_fallback_micro_contract_never_uses_truncation_marker(self) -> None:
+        task_text = """# task_id
+scene_realism
+
+# scene_purpose
+本场结束时必须形成新的章内起点，不能只是重复上章余波。
+
+# required_information_gain
+- 保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。[已截断]
+- 补入至少一个只属于本章的新事实、新限制或新压力来源。
+
+# required_plot_progress
+本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。[已截断]
+
+# required_decision_shift
+主角必须做出一个会影响本章后续处理方式的新动作或新决定。[已截断]
+
+# required_state_change
+- 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。[已截断]
+
+# constraints
+- 类型基调保持为：底层现实主义修仙
+"""
+        contract = build_fallback_micro_contract(task_text)
+
+        for value in contract.values():
+            self.assertNotIn("[已截断]", value)
+
+    def test_normalize_requirement_into_prose_strips_task_phrasing(self) -> None:
+        normalized = normalize_requirement_into_prose(
+            "主角必须做出一个会影响本章后续处理方式的新动作或新决定。",
+            "孟浮灯决定先改道。",
+        )
+        self.assertNotIn("主角必须", normalized)
+        self.assertEqual(normalized, "孟浮灯决定先改道。")
+
+    def test_normalize_requirement_into_prose_never_appends_truncation_marker(self) -> None:
+        normalized = normalize_requirement_into_prose(
+            "眼前这具尸身身上多出一条可核验的处理记号或身份痕迹，逼得孟浮灯必须换一种更隐蔽的处理顺序，也让那条名字线索第一次落成现实麻烦。",
+            "",
+        )
+        self.assertNotIn("[已截断]", normalized)
+
+    def test_pick_first_usable_requirement_skips_generic_story_blurb(self) -> None:
+        picked = pick_first_usable_requirement(
+            [
+                "保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。",
+                "补入至少一个只属于本章的新事实、新限制或新压力来源。",
+            ],
+            "默认句子",
+        )
+        self.assertEqual(picked, "默认句子")
 
     def test_build_micro_contract_prompt_requests_four_lines_only(self) -> None:
         prompt = build_micro_contract_prompt("# task_id\nscene_001\n", "上下文", {"task_id": "scene_001"})
@@ -1429,6 +1642,32 @@ scene_parenthetical
 
         self.assertTrue(any("说明性附加文本" in item for item in errors))
 
+    def test_validation_rejects_continue_heading(self) -> None:
+        draft = "【补全文本】\n孟浮灯把竹篙按进水里。"
+        errors = build_validation_errors("# task_id\nscene_continue_title\n", draft)
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_validation_rejects_truncation_marker(self) -> None:
+        draft = "孟浮灯把尸身拖去背阴处。\n\n[已截断]"
+        errors = build_validation_errors("# task_id\nscene_truncated_marker\n", draft)
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_validation_rejects_realism_tone_drift(self) -> None:
+        task_text = "# task_id\nscene_realism\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n"
+        draft = "青烟从尸首喉间冒出来，锁链渗血，半张人面浮在水里，幽光顺着符面乱爬。"
+        errors = build_validation_errors(task_text, draft)
+
+        self.assertTrue(any("基调漂移" in item for item in errors))
+
+    def test_validation_rejects_hidden_setting_bloat_for_realist_task(self) -> None:
+        task_text = "# task_id\nscene_realism\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n"
+        draft = "他看见锁链尽头泛着冷光，心里忽然掠过司命府的旧名，那像某种契约正在淤泥深处苏醒。"
+        errors = build_validation_errors(task_text, draft)
+
+        self.assertTrue(any("基调漂移" in item for item in errors))
+
     def test_route_review_result_does_not_lock_invalid_draft(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -1769,6 +2008,106 @@ scene_modern
             self.assertEqual(result["draft_file"], "02_working/drafts/scene_modern.md")
             self.assertEqual(saved_draft, "远处传来板车碾过石板的闷响。")
             self.assertTrue((root / "02_working/logs/scene_modern_rewritten_attempt.md").exists())
+
+    def test_write_draft_uses_deepseek_takeover_after_local_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "prompts").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/context").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+
+            (root / "prompts/writer_system.md").write_text("writer system", encoding="utf-8")
+            (root / "prompts/output_schema.json").write_text(
+                '{"type":"object","required":["task_id","goal","used_sources","risks","next_action","draft_file"],"properties":{"task_id":{"type":"string"},"goal":{"type":"string"},"used_sources":{"type":"array"},"risks":{"type":"array"},"next_action":{"type":"string"},"draft_file":{"type":"string"}}}',
+                encoding="utf-8",
+            )
+            (root / "01_inputs/tasks/current_task.md").write_text(
+                """# task_id
+scene_takeover
+
+# goal
+写一个短场景。
+
+# constraints
+- 类型基调保持为：底层现实主义修仙
+
+# output_target
+02_working/drafts/scene_takeover.md
+""",
+                encoding="utf-8",
+            )
+            for rel_path in [
+                "00_manifest/novel_manifest.md",
+                "00_manifest/world_bible.md",
+                "00_manifest/character_bible.md",
+                "01_inputs/life_notes/latest.md",
+            ]:
+                path = root / rel_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("", encoding="utf-8")
+
+            import app.main as main_module
+
+            previous_root = main_module.ROOT
+            original_generate_decision_json = main_module.generate_decision_json
+            original_generate_markdown_draft = main_module.generate_markdown_draft
+            original_continue = main_module.continue_truncated_draft
+            original_repair = main_module.repair_invalid_draft
+            original_rewrite = main_module.rewrite_script_to_prose
+            original_extract = main_module.extract_plain_prose
+            original_gate = main_module.evaluate_scene_gate
+            original_takeover = main_module.run_deepseek_takeover_draft
+            main_module.ROOT = root
+            try:
+                main_module.generate_decision_json = lambda config, current_context: {
+                    "task_id": "scene_takeover",
+                    "goal": "写一个短场景。",
+                    "used_sources": [],
+                    "risks": [],
+                    "next_action": "draft",
+                    "draft_file": "02_working/drafts/scene_takeover.md",
+                }
+                main_module.generate_markdown_draft = lambda config, current_context, decision: "1. 孟浮灯回屋\n2. 青烟从尸首喉间冒出来"
+                main_module.continue_truncated_draft = lambda config, current_context, bad_draft: bad_draft
+                main_module.rewrite_script_to_prose = lambda config, current_context, bad_draft: bad_draft
+                main_module.extract_plain_prose = lambda config, current_context, bad_draft: bad_draft
+                main_module.evaluate_scene_gate = lambda *args, **kwargs: {"failures": [], "major_issues": []}
+                main_module.repair_invalid_draft = lambda config, current_context, bad_draft, errors: bad_draft
+                main_module.run_deepseek_takeover_draft = lambda config, task_text, current_context, decision, bad_draft, errors: "孟浮灯把门闩压下，先把那截冷铁塞进灶口灰里，才抬头去听院外的脚步。那声响比昨夜更近，逼得他知道这件事不能再照旧拖着。于是他改了主意，决定天亮前先换掉藏物的地方。"
+
+                result = write_draft(
+                    {
+                        "writer": {"provider": "ollama", "model": "qwen3:14b", "base_url": "http://example.com"},
+                        "generation": {
+                            "write_num_ctx": 2048,
+                            "temperature": 0.4,
+                            "request_timeout": 10,
+                            "deepseek_takeover_enabled": True,
+                        },
+                        "supervisor": {"enabled": True, "api_key": "sk-test-key"},
+                        "output": {"draft_dir": "02_working/drafts", "context_file": "02_working/context/current_context.md"},
+                    },
+                    "上下文",
+                )
+            finally:
+                main_module.generate_decision_json = original_generate_decision_json
+                main_module.generate_markdown_draft = original_generate_markdown_draft
+                main_module.continue_truncated_draft = original_continue
+                main_module.repair_invalid_draft = original_repair
+                main_module.rewrite_script_to_prose = original_rewrite
+                main_module.extract_plain_prose = original_extract
+                main_module.evaluate_scene_gate = original_gate
+                main_module.run_deepseek_takeover_draft = original_takeover
+                main_module.ROOT = previous_root
+
+            saved_draft = (root / "02_working/drafts/scene_takeover.md").read_text(encoding="utf-8")
+            self.assertEqual(result["writer_trace"]["provider"], "deepseek")
+            self.assertEqual(result["writer_trace"]["mode"], "deepseek_takeover")
+            self.assertIn("deepseek_writer_takeover", result["writer_trace"]["fallbacks_used"])
+            self.assertEqual(saved_draft, "孟浮灯把门闩压下，先把那截冷铁塞进灶口灰里，才抬头去听院外的脚步。那声响比昨夜更近，逼得他知道这件事不能再照旧拖着。于是他改了主意，决定天亮前先换掉藏物的地方。")
 
     def test_generated_followup_task_strips_accumulated_revision_pollution(self) -> None:
         task_text = """# task_id

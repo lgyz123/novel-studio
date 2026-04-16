@@ -518,6 +518,28 @@ INVESTIGATION_MARKERS = [
     "探查",
 ]
 
+REALISM_TONE_MARKERS = ["底层现实主义修仙", "底层求活", "不要跳成大场面", "不要引入新的组织或职位称呼", "不要一上来就把更高层真相全部掀开"]
+SPECTACLE_DRIFT_MARKERS = [
+    "渗血",
+    "青烟",
+    "黑血",
+    "冷光",
+    "发烫",
+    "忽明忽暗",
+    "蛛网状纹路",
+    "浮出半张人脸",
+    "烙进",
+    "抽搐着扭向",
+    "泪痣正在渗出暗红",
+    "化作一缕青烟",
+    "突然变得滚烫",
+    "活物",
+    "司命府",
+    "契约",
+    "苏醒",
+]
+INSTITUTION_DRIFT_MARKERS = ["司命使", "清道坊", "失踪人口核查", "禁录符", "漕运三十六行"]
+
 def load_review_tracker_bundle(task_text: str | None, chapter_state: str = "") -> dict[str, Any]:
     if not str(task_text or "").strip():
         return {}
@@ -638,6 +660,26 @@ def summarize_sentence(sentence: str, max_chars: int = 36) -> str:
     if len(compact) <= max_chars:
         return compact
     return compact[:max_chars].rstrip() + "…"
+
+
+def detect_local_tone_drift(task_text: str | None, draft_text: str, chapter_state: str = "", tracker_bundle: dict[str, Any] | None = None) -> list[str]:
+    config_text = "\n".join([str(task_text or ""), str(chapter_state or "")])
+    if not any(marker in config_text for marker in REALISM_TONE_MARKERS):
+        return []
+
+    tracker_text = json.dumps(tracker_bundle or {}, ensure_ascii=False) if isinstance(tracker_bundle, dict) else ""
+    allowed_text = "\n".join([config_text, tracker_text])
+    new_institutions = [marker for marker in INSTITUTION_DRIFT_MARKERS if marker in draft_text and marker not in allowed_text]
+    new_spectacles = [marker for marker in SPECTACLE_DRIFT_MARKERS if marker in draft_text and marker not in allowed_text]
+
+    if len(new_spectacles) >= 3 or (new_institutions and len(new_spectacles) >= 2):
+        details: list[str] = []
+        if new_institutions:
+            details.append(f"新增机构/职位：{'、'.join(new_institutions[:3])}")
+        if new_spectacles:
+            details.append(f"异象词过重：{'、'.join(new_spectacles[:4])}")
+        return [f"基调漂移：当前任务要求偏底层现实承接，但正文出现了过重的异象/设定放大（{'；'.join(details)}）。"]
+    return []
 
 
 def count_term_occurrences(text: str, term: str) -> int:
@@ -816,6 +858,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 consistency_issues.append(f"chapter_state 明确禁止主动调查，但正文出现了“{marker}”式调查推进。")
                 break
     consistency_issues.extend(detect_tracker_artifact_state_conflicts(draft_text, artifact_state))
+    consistency_issues.extend(detect_local_tone_drift(task_text, draft_text, chapter_state=chapter_state, tracker_bundle=tracker_bundle))
     signals["canon_consistency"] = {
         "is_consistent": not consistency_issues,
         "consistency_issues": consistency_issues[:3],

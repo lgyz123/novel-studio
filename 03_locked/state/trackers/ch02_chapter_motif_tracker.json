@@ -241,16 +241,17 @@
       "recent_scene_ids": [
         "ch02_scene01"
       ],
-      "recent_usage_count": 1,
+      "recent_usage_count": 2,
       "recent_functions": [
+        "发现线索",
         "发现线索"
       ],
       "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
     },
     {
       "motif_id": "artifact_motif_的那枚残符",
@@ -328,6 +329,636 @@
       "status": "active",
       "recent_scene_ids": [
         "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_破的平安符",
+      "category": "artifact_motif",
+      "label": "破的平安符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_那道被麻绳",
+      "category": "artifact_motif",
+      "label": "那道被麻绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_舌尖用血腥气",
+      "category": "smell_motif",
+      "label": "舌尖用血腥气",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_喉头的颤栗",
+      "category": "body_sensation_motif",
+      "label": "喉头的颤栗",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_喉结滚动两",
+      "category": "body_sensation_motif",
+      "label": "喉结滚动两",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_起昨夜在窝棚",
+      "category": "environment_motif",
+      "label": "起昨夜在窝棚",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起昨夜在窝棚看",
+      "category": "memory_trigger_motif",
+      "label": "想起昨夜在窝棚看",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_暮色压到码头",
+      "category": "environment_motif",
+      "label": "暮色压到码头",
+      "narrative_functions": [
+        "引发后果",
+        "过渡/氛围",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 8,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "environment_motif_在运河与码头",
+      "category": "environment_motif",
+      "label": "在运河与码头",
+      "narrative_functions": [
+        "引发后果",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "引发后果",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_步声逼近岸边",
+      "category": "environment_motif",
+      "label": "步声逼近岸边",
+      "narrative_functions": [
+        "引发后果",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 7,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "artifact_motif_麻绳",
+      "category": "artifact_motif",
+      "label": "麻绳",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_着运河的腥气",
+      "category": "smell_motif",
+      "label": "着运河的腥气",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_喉结动了动",
+      "category": "body_sensation_motif",
+      "label": "喉结动了动",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_指节发白",
+      "category": "body_sensation_motif",
+      "label": "指节发白",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_喉头滚出半",
+      "category": "body_sensation_motif",
+      "label": "喉头滚出半",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起乱葬岗深处那",
+      "category": "memory_trigger_motif",
+      "label": "想起乱葬岗深处那",
+      "narrative_functions": [
+        "过渡/氛围"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "过渡/氛围"
+      ],
+      "last_function": "过渡/氛围",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_尸身原先停放",
+      "category": "memory_trigger_motif",
+      "label": "尸身原先停放",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 5,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "smell_motif_了命债的腥气",
+      "category": "smell_motif",
+      "label": "了命债的腥气",
+      "narrative_functions": [
+        "引入阻力"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "引入阻力"
+      ],
+      "last_function": "引入阻力",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_指节掐进麻",
+      "category": "body_sensation_motif",
+      "label": "指节掐进麻",
+      "narrative_functions": [
+        "引入阻力"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "引入阻力"
+      ],
+      "last_function": "引入阻力",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_暮色浸透码头",
+      "category": "environment_motif",
+      "label": "暮色浸透码头",
+      "narrative_functions": [
+        "引入阻力"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "引入阻力"
+      ],
+      "last_function": "引入阻力",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "identity_motif_线索不能",
+      "category": "identity_motif",
+      "label": "线索不能",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 4,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "memory_trigger_motif_对方袖中露出",
+      "category": "memory_trigger_motif",
+      "label": "对方袖中露出",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "artifact_motif_但符",
+      "category": "artifact_motif",
+      "label": "但符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_发现刀",
+      "category": "artifact_motif",
+      "label": "发现刀",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_腐臭",
+      "category": "smell_motif",
+      "label": "腐臭",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_那时岸边",
+      "category": "environment_motif",
+      "label": "那时岸边",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_转身朝窝棚",
+      "category": "environment_motif",
+      "label": "转身朝窝棚",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_对方腕间戴着",
+      "category": "memory_trigger_motif",
+      "label": "对方腕间戴着",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene02"
       ],
       "recent_usage_count": 1,
       "recent_functions": [

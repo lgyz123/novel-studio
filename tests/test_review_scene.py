@@ -107,6 +107,28 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertFalse(signals["canon_consistency"]["is_consistent"])
         self.assertTrue(any("artifact_state" in item or "物件“平安符”" in item for item in signals["canon_consistency"]["consistency_issues"]))
 
+    def test_build_structural_review_signals_flags_tone_drift_for_low_realism_task(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_tone\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n- 不要跳成大场面、不要引入新的组织或职位称呼。\n",
+            draft_text="尸身突然抽搐着扭向他，黑血在水面铺开蛛网状纹路。淤泥中浮出半张人脸，眼尾的泪痣正在渗出暗红。",
+            based_on_text="孟浮灯在河边收工。",
+            chapter_state="当前只需落地新的现实压力。",
+        )
+
+        self.assertFalse(signals["canon_consistency"]["is_consistent"])
+        self.assertTrue(any("基调漂移" in item for item in signals["canon_consistency"]["consistency_issues"]))
+
+    def test_build_structural_review_signals_flags_lower_threshold_tone_drift(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_tone\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n",
+            draft_text="锁链正在渗血，老人烟斗忽明忽暗，泥里像有活物在慢慢游走。",
+            based_on_text="孟浮灯在河边收工。",
+            chapter_state="当前只需落地新的现实压力。",
+        )
+
+        self.assertFalse(signals["canon_consistency"]["is_consistent"])
+        self.assertTrue(any("基调漂移" in item for item in signals["canon_consistency"]["consistency_issues"]))
+
     def test_sanitize_reviewer_raw_output_compresses_repeated_english_analysis(self) -> None:
         raw_text = " ".join(
             [
