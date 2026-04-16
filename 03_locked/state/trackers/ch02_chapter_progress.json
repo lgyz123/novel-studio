@@ -1,0 +1,165 @@
+{
+  "chapter_id": "ch02",
+  "chapter_goal": "维持日常求活与孟浮灯在运河做活",
+  "protagonist_goal": "红绳；平安符背面的“阿绣”",
+  "protagonist_mode": "观察/求活",
+  "investigation_stage": "主动调查",
+  "risk_level": "low",
+  "current_relationships": [
+    "“阿绣”这个名字已经留在他心里，但目前仍只是被记住、被反复想起，还没有转成明确行动",
+    "“阿绣”目前只是从平安符背面露出的一个名字，刚刚被他记住，还没有发展成明确调查念头"
+  ],
+  "unresolved_questions": [
+    "他尚未形成调查念头，也不该主动追问这条线索",
+    "第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？",
+    "不要现代词汇、现代设施、现代口语",
+    "不要后宫、脸谱反派、流水线升级",
+    "红绳",
+    "平安符背面的“阿绣”",
+    "乱葬岗处理尸体后的余波",
+    "孟浮灯对名字与无名尸之间关系的敏感",
+    "\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过",
+    "孟浮灯低头看去，淤泥中隐约露出半截青铜锁链，链节上刻着的\"偿\"字正在渗血"
+  ],
+  "completed_scene_functions": [
+    "ch02_scene01: 发现线索"
+  ],
+  "remaining_scene_functions": [
+    "引入阻力",
+    "触发调查",
+    "揭示关系",
+    "制造错误判断",
+    "引发后果",
+    "提高风险",
+    "扩展世界信息"
+  ],
+  "consecutive_transition_scene_count": 0,
+  "scene_summaries": [
+    {
+      "scene_id": "ch02_scene01",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…"
+      ],
+      "protagonist_decision": "货船汽笛声撕开暮色，他攥紧麻绳的手背青筋暴起。若将这具尸体上报，必然要面对司命使新设的\"失踪人口…",
+      "state_changes": [
+        "protagonist_mode: 隐匿/压制 -> 观察/求活"
+      ],
+      "motifs_used": [
+        "他用麻绳",
+        "青玉符",
+        "的那枚残符",
+        "他攥紧麻绳",
+        "睛与他在符",
+        "指节触到脖"
+      ],
+      "motif_functions": {
+        "他用麻绳": [
+          "发现线索"
+        ],
+        "青玉符": [
+          "发现线索"
+        ],
+        "的那枚残符": [
+          "发现线索"
+        ],
+        "他攥紧麻绳": [
+          "发现线索"
+        ],
+        "睛与他在符": [
+          "发现线索"
+        ],
+        "指节触到脖": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "他用麻绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "青玉符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "的那枚残符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "他攥紧麻绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "睛与他在符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "confirmed_added": [
+          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
+          "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
+        ],
+        "suspected_added": [
+          "他捞起那具浮尸时，指节触到脖颈处新鲜的淤痕——像是被某种硬物勒过，淤青边缘还沾着半截青铜锁链，链节上刻着的\"偿\"字正在渗血",
+          "竹篙突然被水底的枯枝缠住，他低头看去，淤泥中隐约浮出半张人脸"
+        ],
+        "protagonist_known_added": [
+          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…"
+        ],
+        "reader_known_added": [
+          "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
+          "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签",
+          "他捞起那具浮尸时，指节触到脖颈处新鲜的淤痕——像是被某种硬物勒过，淤青边缘还沾着半截青铜锁链，链节上刻着的\"偿\"字正在渗血",
+          "竹篙突然被水底的枯枝缠住，他低头看去，淤泥中隐约浮出半张人脸"
+        ]
+      },
+      "canon_risk_flags": []
+    }
+  ],
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch02_scene01",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch02_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch02_scene01",
+    "consecutive_transition_runs": []
+  }
+}

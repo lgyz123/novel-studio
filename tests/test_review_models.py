@@ -17,6 +17,7 @@ from app.main import (
     compile_context,
     build_generated_task_content,
     build_locked_chapter_file,
+    build_micro_contract_prompt,
     build_validation_errors,
     call_writer_model,
     clean_model_output,
@@ -28,7 +29,10 @@ from app.main import (
     get_effective_manual_intervention_threshold,
     extract_supervisor_round,
     has_supervisor_retry_budget,
+    is_large_local_writer_model,
     is_likely_truncated,
+    parse_micro_contract,
+    route_review_result,
     is_supervisor_runtime_available,
     is_safe_auto_lock_reason,
     maybe_prepare_supervisor_rescue_draft,
@@ -37,6 +41,7 @@ from app.main import (
     should_use_hard_prose_revision_prompt,
     should_use_deepseek_writer,
     should_continue_after_lock,
+    validate_micro_contract,
     write_draft,
 )
 from app.review_models import (
@@ -139,6 +144,49 @@ structural_repair
             )
         )
 
+    def test_large_local_writer_model_detects_30b(self) -> None:
+        self.assertTrue(is_large_local_writer_model({"writer": {"provider": "ollama", "model": "qwen3:30b"}}))
+        self.assertFalse(is_large_local_writer_model({"writer": {"provider": "ollama", "model": "qwen3:14b"}}))
+
+    def test_call_writer_model_retries_empty_local_writer_output(self) -> None:
+        import app.main as main_module
+
+        calls: list[int] = []
+        sleeps: list[int] = []
+        original_call_ollama = main_module.call_ollama
+        original_sleep = main_module.time.sleep
+        try:
+            def fake_call_ollama(**kwargs: object) -> str:
+                calls.append(1)
+                return "" if len(calls) == 1 else "补回来的正文"
+
+            main_module.call_ollama = fake_call_ollama
+            main_module.time.sleep = lambda seconds: sleeps.append(int(seconds))
+            content = call_writer_model(
+                {
+                    "writer": {
+                        "provider": "ollama",
+                        "model": "qwen3:30b",
+                        "base_url": "http://example.com",
+                    },
+                    "generation": {
+                        "request_timeout": 30,
+                        "write_num_ctx": 2048,
+                    },
+                },
+                "system prompt",
+                "user prompt",
+                temperature=0.2,
+                num_predict=800,
+            )
+        finally:
+            main_module.call_ollama = original_call_ollama
+            main_module.time.sleep = original_sleep
+
+        self.assertEqual(content, "补回来的正文")
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(sleeps)
+
     def test_supervisor_runtime_unavailable_without_api_key(self) -> None:
         self.assertFalse(
             is_supervisor_runtime_available(
@@ -194,13 +242,33 @@ scene_099-R2
             "上下文",
             {"task_id": "scene_001", "draft_file": "02_working/drafts/scene_001.md"},
             config={"writer": {"provider": "ollama", "compact_prompt": "auto"}},
+            micro_contract_section="【Micro Contract】\n- 新事实：尸体腰间多了一块冷牌",
         )
 
         self.assertIn("请根据以下输入直接写出可保存的小说正文。", prompt)
         self.assertIn("硬规则：", prompt)
         self.assertIn("【本轮优先卡片】", prompt)
+        self.assertIn("【Micro Contract】", prompt)
         self.assertIn("优先卡片没出现的关键物件", prompt)
         self.assertNotIn("不要输出 [JSON]", prompt)
+
+    def test_parse_and_validate_micro_contract(self) -> None:
+        contract = parse_micro_contract(
+            "新事实：尸体腰间多了一块刻名木牌\n新动作：孟浮灯决定先把木牌塞进袖口\n新后果：于是巡河卒一时没看见那块木牌\n新状态变化：行动计划变为先藏牌再去找老船工"
+        )
+        errors = validate_micro_contract(
+            "# required_information_gain\n- 被一具来历异常的尸体和它牵出的名字卷入黑幕。\n",
+            contract,
+        )
+        self.assertEqual(contract["新事实"], "尸体腰间多了一块刻名木牌")
+        self.assertEqual(errors, [])
+
+    def test_build_micro_contract_prompt_requests_four_lines_only(self) -> None:
+        prompt = build_micro_contract_prompt("# task_id\nscene_001\n", "上下文", {"task_id": "scene_001"})
+        self.assertIn("新事实：...", prompt)
+        self.assertIn("新动作：...", prompt)
+        self.assertIn("新后果：...", prompt)
+        self.assertIn("新状态变化：...", prompt)
 
     def test_build_followup_task_id_increments_rewrite_rounds(self) -> None:
         self.assertEqual(build_followup_task_id("scene_080-RW1", "rewrite"), "scene_080-RW2")
@@ -1354,6 +1422,64 @@ scene_parenthetical
         errors = build_validation_errors("# task_id\nscene_title\n", "**《无住人间》第二卷·山门卷**")
 
         self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_validation_rejects_scene_title_heading(self) -> None:
+        draft = "【场景标题】禁录之尸\n\n孟浮灯把竹篙按进水里。"
+        errors = build_validation_errors("# task_id\nscene_title\n", draft)
+
+        self.assertTrue(any("说明性附加文本" in item for item in errors))
+
+    def test_route_review_result_does_not_lock_invalid_draft(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "01_inputs/tasks").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/candidates").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/canon_updates").mkdir(parents=True, exist_ok=True)
+
+            task_text = """# task_id
+scene_lock_guard
+
+# output_target
+02_working/drafts/scene_lock_guard.md
+"""
+            draft_path = root / "02_working/drafts/scene_lock_guard.md"
+            draft_path.write_text("【场景标题】禁录之尸\n\n他抬头望向漕运", encoding="utf-8")
+
+            config = {
+                "paths": {
+                    "locked_dir": "03_locked",
+                    "working_dir": "02_working",
+                    "inputs_dir": "01_inputs",
+                },
+                "generation": {
+                    "max_auto_revisions": 5,
+                    "max_supervisor_rounds": 0,
+                },
+                "supervisor": {
+                    "enabled": False,
+                },
+            }
+            reviewer_result = {
+                "task_id": "scene_lock_guard",
+                "verdict": "lock",
+                "summary": "reviewer says lock",
+            }
+
+            import app.main as main_module
+
+            original_root = main_module.ROOT
+            try:
+                main_module.ROOT = root
+                created = route_review_result(config, task_text, "02_working/drafts/scene_lock_guard.md", reviewer_result)
+            finally:
+                main_module.ROOT = original_root
+
+        self.assertNotIn("locked_file", created)
+        self.assertIn("task_file", created)
 
     def test_repair_invalid_draft_uses_continued_attempt_after_truncation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

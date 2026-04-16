@@ -1,6 +1,6 @@
 {
   "timeline": {
-    "current_book_time": "白天",
+    "current_book_time": "夜间",
     "recent_events": [
       "EVENT-001",
       "EVENT-002",
@@ -17,9 +17,9 @@
   },
   "characters": {
     "protagonist": {
-      "location": "孟浮灯在运河边",
+      "location": "孟浮灯在运河",
       "physical_state": "疲惫、持续劳作",
-      "mental_state": "克制、被未解线索持续牵动",
+      "mental_state": "被未解线索持续牵动",
       "known_facts": [
         "红绳",
         "平安符背面的“阿绣”",
@@ -29,7 +29,9 @@
         "泡烂平安符背面的“阿绣”二字",
         "孟浮灯对无名尸与名字之间关系的敏感"
       ],
-      "active_goals": [],
+      "active_goals": [
+        "维持日常求活与孟浮灯在运河做活"
+      ],
       "open_tensions": [
         "他尚未形成调查念头，也不该主动追问这条线索"
       ]
@@ -71,6 +73,24 @@
       "description": "不让孟浮灯立刻主动打听、查问或追索",
       "introduced_in": "ch01_scene02",
       "expected_payoff_window": "chapter_01_scene_03_onward"
+    },
+    {
+      "id": "PROMISE-007",
+      "description": "第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？",
+      "introduced_in": "ch02_scene01",
+      "expected_payoff_window": "chapter_02_scene_02_onward"
+    },
+    {
+      "id": "PROMISE-008",
+      "description": "不要现代词汇、现代设施、现代口语。",
+      "introduced_in": "ch02_scene01",
+      "expected_payoff_window": "chapter_02_scene_02_onward"
+    },
+    {
+      "id": "PROMISE-009",
+      "description": "不要后宫、脸谱反派、流水线升级。",
+      "introduced_in": "ch02_scene01",
+      "expected_payoff_window": "chapter_02_scene_02_onward"
     }
   ],
   "revealed_secrets": [],
@@ -1162,6 +1182,78 @@
       "status": "状态待确认",
       "last_seen_in": "ch01_scene11",
       "notes": "但名字现在成了更危险的东西。因为它不再只是一个需要被记住的符号，它成了一条被盯上的线头。对方拿走了符和绳，也许就是为了掐断这条线，或者，是为了确认这条线是否真的连着什么。"
+    },
+    {
+      "id": "ITEM-137",
+      "name": "像是被某种绳",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过。更诡异的是，尸体右手攥着的半截符签，墨迹在水中晕染成\"无名\"二字——这是司命机构处理\"失踪人口\"时才会使用的禁录符。"
+    },
+    {
+      "id": "ITEM-138",
+      "name": "半截符",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过。更诡异的是，尸体右手攥着的半截符签，墨迹在水中晕染成\"无名\"二字——这是司命机构处理\"失踪人口\"时才会使用的禁录符。"
+    },
+    {
+      "id": "ITEM-139",
+      "name": "禁录符",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过。更诡异的是，尸体右手攥着的半截符签，墨迹在水中晕染成\"无名\"二字——这是司命机构处理\"失踪人口\"时才会使用的禁录符。"
+    },
+    {
+      "id": "ITEM-140",
+      "name": "他攥紧符",
+      "owner": "昨夜",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "他攥紧符签的手指关节发白。若将这具尸体上报，必然要面对司命使新设的\"失踪人口核查\"；若隐瞒，昨夜在码头看到的那些被烙上\"偿\"字的工人们，此刻正在漕运"
+    },
+    {
+      "id": "ITEM-141",
+      "name": "他用麻绳",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。符面裂痕间浮出\"阿绣\"二字，与昨夜在乱葬岗见过的那枚残符纹路竟完全吻合。"
+    },
+    {
+      "id": "ITEM-142",
+      "name": "突然露出半截青玉符",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。符面裂痕间浮出\"阿绣\"二字，与昨夜在乱葬岗见过的那枚残符纹路竟完全吻合。"
+    },
+    {
+      "id": "ITEM-143",
+      "name": "那枚残符",
+      "owner": "又是个",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。符面裂痕间浮出\"阿绣\"二字，与昨夜在乱葬岗见过的那枚残符纹路竟完全吻合。"
+    },
+    {
+      "id": "ITEM-144",
+      "name": "他攥紧麻绳",
+      "owner": "昨夜",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "货船汽笛声撕开暮色，他攥紧麻绳的手背青筋暴起。若将这具尸体上报，必然要面对司命使新设的\"失踪人口核查\"——昨夜在乱葬岗，他亲眼见着老张头把三具无名尸塞进焚化炉时，炉口飘出的灰烬里混着半截同样的青铜锁链。"
+    },
+    {
+      "id": "ITEM-145",
+      "name": "那双眼睛与他在符",
+      "owner": "他低头",
+      "status": "状态待确认",
+      "last_seen_in": "ch02_scene01",
+      "notes": "竹篙突然被水底的枯枝缠住，他低头看去，淤泥中隐约浮出半张人脸。那双眼睛与他在符签背面见过的画像完全重合，眼尾的泪痣正在渗出暗红。"
     }
   ],
   "relationship_deltas": [
@@ -1182,5 +1274,5 @@
       "status": "active"
     }
   ],
-  "last_locked_scene": "ch01_scene11"
+  "last_locked_scene": "ch02_scene01"
 }

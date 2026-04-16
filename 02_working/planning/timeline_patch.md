@@ -1,13 +1,13 @@
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-15-023_ch02_scene01_auto-R3
+- task_id：2026-04-16-003_ch02_scene01_auto-R2
 - chapter_id：ch02
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
 
 ## 当前时间锚点
-- current_book_time：白天
+- current_book_time：夜间
 - recent_event：EVENT-001
 - recent_event：EVENT-002
 - recent_event：EVENT-003

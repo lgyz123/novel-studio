@@ -1,5 +1,6 @@
 import json
 import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -177,6 +178,13 @@ def is_local_writer_mode(config: dict | None = None) -> bool:
     return provider not in {"", "deepseek"}
 
 
+def is_large_local_writer_model(config: dict | None = None) -> bool:
+    if not is_local_writer_mode(config):
+        return False
+    model = str((config or {}).get("writer", {}).get("model", "")).strip().lower()
+    return any(marker in model for marker in [":30b", ":32b", ":34b", ":70b", ":72b"])
+
+
 def is_local_reviewer_mode(config: dict | None = None) -> bool:
     if not config:
         return False
@@ -274,16 +282,34 @@ def call_writer_model(
         )
         return extract_openai_message_content(response)
 
-    return call_ollama(
-        model=writer["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=writer["base_url"],
-        num_ctx=config["generation"]["write_num_ctx"],
-        temperature=temperature,
-        timeout=config["generation"]["request_timeout"],
-        num_predict=num_predict,
-    )
+    empty_retry_attempts = int(writer.get("empty_retry_attempts", 0) or 0)
+    empty_retry_sleep = int(writer.get("empty_retry_sleep_seconds", 0) or 0)
+    if empty_retry_attempts <= 0:
+        empty_retry_attempts = 2 if is_large_local_writer_model(config) else 1
+    if empty_retry_sleep <= 0:
+        empty_retry_sleep = 20 if is_large_local_writer_model(config) else 8
+
+    last_content = ""
+    total_attempts = max(empty_retry_attempts + 1, 1)
+    for attempt in range(1, total_attempts + 1):
+        content = call_ollama(
+            model=writer["model"],
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            base_url=writer["base_url"],
+            num_ctx=config["generation"]["write_num_ctx"],
+            temperature=temperature,
+            timeout=config["generation"]["request_timeout"],
+            num_predict=num_predict,
+        )
+        if str(content or "").strip():
+            return content
+        last_content = str(content or "")
+        if attempt < total_attempts:
+            print(f"Writer 返回空内容，等待 {empty_retry_sleep} 秒后重试 {attempt}/{total_attempts - 1}...")
+            time.sleep(empty_retry_sleep)
+
+    return last_content
 
 
 def preferred_length_override(config: dict) -> str | None:
@@ -410,6 +436,8 @@ def is_likely_truncated(text: str) -> bool:
         tail_fragment = sentence_parts[-1].strip() if sentence_parts else core
         if len(core) >= 120 and len(tail_fragment) <= 28:
             return True
+        if len(core) >= 80:
+            return True
 
     # 末尾如果明显像半截句，也算可疑
     if len(stripped) >= 1 and stripped[-1].isalnum():
@@ -452,6 +480,7 @@ def detect_forbidden_characters(task_text: str, draft_text: str) -> list[str]:
 EDITORIAL_HEADING_PATTERNS = [
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:修订说明|修改说明|说明|执行说明|推进说明|写作说明|改写说明|补充说明|内容说明|思路说明|本次说明)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:场景正文|正文)[】\]]?(?:\*\*)?\s*[:：]?\s*$",
+    r"^[\t >#\-*]*(?:\*\*)?[【\[]?(?:场景标题|标题)[】\]]?(?:\*\*)?\s*[:：]?.*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:以下为正文|以下正文|正文如下|以下是正文|以下是修改说明|以下是修订说明)(?:\*\*)?\s*[:：]?\s*$",
     r"^[\t >#\-*]*(?:\*\*)?(?:注|备注|附注)(?:\*\*)?\s*[:：].*$",
     r"^\s*(?:\*\*)?《[^》]{2,}》.*(?:\*\*)?\s*$",
@@ -466,6 +495,7 @@ def contains_editorial_explanation(text: str) -> list[str]:
         "【说明】",
         "【执行说明】",
         "【推进说明】",
+        "【场景标题】",
         "以下为",
         "以下正文",
         "正文如下",
@@ -758,6 +788,186 @@ def build_local_writer_priority_card(task_text: str) -> str:
 
     lines.append("- 只写一个新事实、一个新动作、一个直接后果；不要发明新机构、新设定、新人物。")
     lines.append("- 优先卡片没点名允许的关键物件，不要擅自让它突然出现、转移或发光。")
+    return "\n".join(lines)
+
+
+def build_local_writer_context(task_text: str) -> str:
+    chapter_state_path = (extract_markdown_field(task_text, "chapter_state") or "").strip()
+    chapter_state_section = ""
+    if chapter_state_path:
+        try:
+            chapter_state_text = clip_text(read_text(chapter_state_path), 1200)
+            chapter_state_section = f"# 当前章节状态\n来源文件：{chapter_state_path}\n\n{chapter_state_text}"
+        except FileNotFoundError:
+            chapter_state_section = f"# 当前章节状态\n来源文件：{chapter_state_path}\n\n[警告：未找到该文件]"
+
+    sections = [
+        build_scene_contract_summary(task_text),
+        chapter_state_section,
+        build_recent_scene_summaries_section(task_text),
+        build_writer_tracker_slices_section(task_text),
+        clip_text(render_human_input_markdown(load_human_input(ROOT)), 900),
+    ]
+    return "\n\n".join(section for section in sections if str(section or "").strip())
+
+
+def build_micro_contract_prompt(task_text: str, current_context: str, decision: dict) -> str:
+    priority_card = build_local_writer_priority_card(task_text)
+    tracker_slices = build_writer_tracker_slices_section(task_text)
+    chapter_state_path = (extract_markdown_field(task_text, "chapter_state") or "").strip()
+    chapter_state_excerpt = ""
+    if chapter_state_path:
+        try:
+            chapter_state_excerpt = clip_text(read_text(chapter_state_path), 700)
+        except FileNotFoundError:
+            chapter_state_excerpt = "[未找到章节状态]"
+    return f"""请先为这一场生成一个极短的写作骨架，再写正文。
+
+只输出下面四行，不能多写任何解释、标题、列表或正文：
+新事实：...
+新动作：...
+新后果：...
+新状态变化：...
+
+要求：
+1. 每一行都必须具体，不能写“继续推进”“出现变化”这种空话。
+2. 新动作必须是主角已经做出的现实动作或明确决定。
+3. 新后果必须是该动作直接带来的结果。
+4. 新状态变化必须落在：已知信息 / 风险 / 行动计划 / 关系 / 物件位置 之一。
+5. 不要新增人物、机构、制度、主线钩子。
+6. 不要写现代词。
+7. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
+8. 只允许写当前任务单明确需要的那个“新事实”，不要把线索一下子升级成大场面、异象或新身份揭晓。
+
+【任务单】
+{task_text}
+
+{priority_card}
+
+【章节状态摘录】
+{chapter_state_excerpt}
+
+【tracker 切片】
+{tracker_slices}
+
+【极短上下文】
+{clip_text(current_context, 1200)}
+
+【决策信息】
+{json.dumps(decision, ensure_ascii=False, indent=2)}
+"""
+
+
+def parse_micro_contract(text: str) -> dict[str, str]:
+    fields = {
+        "新事实": "",
+        "新动作": "",
+        "新后果": "",
+        "新状态变化": "",
+    }
+    for raw_line in str(text or "").splitlines():
+        line = raw_line.strip().lstrip("-* ").strip()
+        if not line:
+            continue
+        for key in list(fields.keys()):
+            if line.startswith(f"{key}：") or line.startswith(f"{key}:"):
+                fields[key] = line.split("：", 1)[1].strip() if "：" in line else line.split(":", 1)[1].strip()
+    return fields
+
+
+def validate_micro_contract(task_text: str, contract: dict[str, str]) -> list[str]:
+    errors: list[str] = []
+    for key, value in contract.items():
+        if not str(value or "").strip():
+            errors.append(f"{key} 为空")
+
+    action_text = str(contract.get("新动作") or "")
+    consequence_text = str(contract.get("新后果") or "")
+    state_text = str(contract.get("新状态变化") or "")
+    joined = "\n".join(str(value or "") for value in contract.values())
+
+    if contains_forbidden_modern_terms(joined):
+        errors.append("micro contract 含现代词")
+
+    action_markers = ["决定", "藏", "塞", "扔", "抛", "拿", "交", "退", "转身", "绕开", "跟上", "避开", "压下", "收起", "去找", "不交", "先把"]
+    if action_text and not any(marker in action_text for marker in action_markers):
+        errors.append("新动作 不够具体")
+
+    consequence_markers = ["因此", "于是", "结果", "随后", "当场", "立刻", "逼得", "引来", "暴露", "惹来", "只好", "被迫"]
+    if consequence_text and not any(marker in consequence_text for marker in consequence_markers):
+        errors.append("新后果 不够具体")
+
+    state_markers = ["信息", "知道", "怀疑", "风险", "计划", "关系", "位置", "可见", "改成", "变为", "不再", "转为"]
+    if state_text and not any(marker in state_text for marker in state_markers):
+        errors.append("新状态变化 不够具体")
+
+    generic_bad_markers = ["继续推进", "出现变化", "有所变化", "更加复杂", "进一步发展", "埋下伏笔", "保持 tension"]
+    if any(marker in joined for marker in generic_bad_markers):
+        errors.append("micro contract 过于空泛")
+
+    required_info = extract_markdown_list_field(task_text, "required_information_gain")
+    if required_info and contract.get("新事实"):
+        if not requirement_matches_hint(required_info[0], contract.get("新事实", "")):
+            errors.append("新事实 与 required_information_gain 贴合度不足")
+
+    return errors
+
+
+def requirement_matches_hint(requirement: str, evidence: str) -> bool:
+    requirement_text = str(requirement or "")
+    evidence_text = str(evidence or "")
+    requirement_tokens = [token for token in re.findall(r"[\u4e00-\u9fff]{1,6}|[A-Za-z0-9_]+", requirement_text) if len(token) >= 2]
+    evidence_tokens = set(re.findall(r"[\u4e00-\u9fff]{1,6}|[A-Za-z0-9_]+", evidence_text))
+    overlap = [token for token in requirement_tokens if token in evidence_tokens]
+    semantic_groups = [
+        ("尸体", ["尸体", "死尸", "尸首"]),
+        ("名字", ["名字", "名", "刻名", "留名"]),
+        ("黑幕", ["黑幕", "幕后", "阴谋", "局中", "来历异常"]),
+        ("线索", ["线索", "痕迹", "记号", "木牌", "符", "红绳"]),
+        ("底层", ["底层", "寒门", "穷苦", "卑微"]),
+        ("求活", ["求活", "活路", "保命", "脱身"]),
+    ]
+    semantic_overlap = any(
+        anchor in requirement_text and any(alias in evidence_text for alias in aliases)
+        for anchor, aliases in semantic_groups
+    )
+    if semantic_overlap:
+        return True
+    if any(marker in requirement_text for marker in ["必须", "至少", "新", "线索", "尸体", "名字", "黑幕", "底层", "求活"]):
+        return bool(overlap)
+    return len(overlap) >= min(2, len(requirement_tokens)) if requirement_tokens else bool(evidence_text.strip())
+
+
+def generate_micro_contract(config: dict, current_context: str, decision: dict) -> dict[str, str]:
+    task_text = read_text("01_inputs/tasks/current_task.md")
+    prompt = build_micro_contract_prompt(task_text, current_context, decision)
+    attempts = 2
+    last_contract: dict[str, str] = {}
+    for attempt in range(1, attempts + 1):
+        raw = call_writer_model(
+            config,
+            "你是小说写作前置规划助手，只负责生成四行 micro contract。",
+            prompt,
+            temperature=0.1,
+            num_predict=220,
+        )
+        contract = parse_micro_contract(raw)
+        last_contract = contract
+        errors = validate_micro_contract(task_text, contract)
+        if not errors:
+            return contract
+        print(f"micro contract 校验失败（第 {attempt}/{attempts} 次）：{'；'.join(errors)}")
+    return last_contract
+
+
+def format_micro_contract_section(contract: dict[str, str]) -> str:
+    if not isinstance(contract, dict) or not any(str(value or "").strip() for value in contract.values()):
+        return ""
+    lines = ["【Micro Contract】"]
+    for key in ["新事实", "新动作", "新后果", "新状态变化"]:
+        value = str(contract.get(key) or "").strip()
+        if value:
+            lines.append(f"- {key}：{value}")
     return "\n".join(lines)
 
 
@@ -1385,7 +1595,7 @@ def detect_scene10_old_pattern_reuse(draft_text: str) -> list[str]:
     return deduped
 
 
-def build_writer_user_prompt(task_text: str, current_context: str, decision: dict, config: dict | None = None) -> str:
+def build_writer_user_prompt(task_text: str, current_context: str, decision: dict, config: dict | None = None, micro_contract_section: str = "") -> str:
     repair_section = build_writer_repair_section(task_text)
     structure_section = build_writer_structure_section(task_text)
     priority_card = build_local_writer_priority_card(task_text) if is_local_writer_mode(config) else ""
@@ -1413,11 +1623,14 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 7. 如果原稿方向不够，就直接重写成更清楚的 scene，不要保留提纲腔。
 8. 全文只输出正文，一写完就停止。
 9. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
+10. 若提供了 Micro Contract，正文只能展开它，不得额外发明新的尸体身份、机构职位、超自然异象或关键物件变动。
 
 【任务单】
 {task_text}
 
 {priority_card}
+
+{micro_contract_section}
 
 【当前上下文】
 {current_context}
@@ -1447,12 +1660,15 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 8. 本轮启用的 writer skills：{selected_skill_summary}
 9. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移。
 10. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态。
+11. 若提供了 Micro Contract，正文必须逐项兑现它：一个新事实、一个新动作/决定、一个直接后果、一个状态变化；不要额外发明更大的设定。
 {repair_rule_lines}
 
 【任务单】
 {task_text}
 
 {priority_card}
+
+{micro_contract_section}
 
 【当前上下文】
 {current_context}
@@ -1498,11 +1714,14 @@ def build_writer_user_prompt(task_text: str, current_context: str, decision: dic
 22. 本轮启用的 writer skills：{selected_skill_summary}
 23. 若启用了 `continuity-guard`，不要让物件位置、风险等级、调查阶段、关系态势或时间承接静默漂移
 24. 优先卡片没出现的关键物件，不要擅自写它出场、转移位置或改变状态
+25. 若提供了 Micro Contract，正文必须逐项兑现它；未写进 contract 的新机构、新身份、新尸体信息、新异象不要擅自添加
 {repair_rule_lines}
 【任务单】
 {task_text}
 
 {priority_card}
+
+{micro_contract_section}
 
 【当前上下文】
 {current_context}
@@ -1527,8 +1746,15 @@ def generate_markdown_draft(config: dict, current_context: str, decision: dict) 
     system_prompt = read_text("prompts/writer_system.md")
     task_text = read_text("01_inputs/tasks/current_task.md")
     writer_context_max_chars = int(config.get("generation", {}).get("writer_context_max_chars", 8000))
-    writer_context = clip_text(current_context, writer_context_max_chars)
-    user_prompt = build_writer_user_prompt(task_text, writer_context, decision, config=config)
+    if is_local_writer_mode(config):
+        writer_context = clip_text(build_local_writer_context(task_text), min(writer_context_max_chars, 5000))
+    else:
+        writer_context = clip_text(current_context, writer_context_max_chars)
+    micro_contract_section = ""
+    if is_local_writer_mode(config):
+        contract = generate_micro_contract(config, writer_context, decision)
+        micro_contract_section = format_micro_contract_section(contract)
+    user_prompt = build_writer_user_prompt(task_text, writer_context, decision, config=config, micro_contract_section=micro_contract_section)
 
     print("正在请求模型生成草稿，请稍候...")
     num_predict = 1000
@@ -3607,6 +3833,19 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
         save_structured_review_result(ROOT, reviewer_result)
         save_repair_plan(ROOT, build_structured_review_result(reviewer_result))
         verdict = reviewer_result.get("verdict")
+
+    if verdict == "lock":
+        draft_content = read_text(draft_file)
+        lock_validation_errors = build_validation_errors(task_text, draft_content)
+        if lock_validation_errors:
+            reviewer_result = dict(reviewer_result)
+            reviewer_result["verdict"] = "revise"
+            lock_failure_summary = f"锁定前正文校验未通过：{'；'.join(lock_validation_errors[:3])}"
+            reviewer_result["summary"] = lock_failure_summary
+            major_issues = [str(item).strip() for item in reviewer_result.get("major_issues", []) if str(item).strip()]
+            if lock_failure_summary not in major_issues:
+                reviewer_result["major_issues"] = [lock_failure_summary] + major_issues
+            verdict = "revise"
 
     if verdict == "lock":
         draft_content = read_text(draft_file)

@@ -1,0 +1,344 @@
+{
+  "chapter_id": "ch02",
+  "active_motifs": [
+    {
+      "motif_id": "artifact_motif_是被某种绳",
+      "category": "artifact_motif",
+      "label": "是被某种绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "artifact_motif_着的半截符",
+      "category": "artifact_motif",
+      "label": "着的半截符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "artifact_motif_用的禁录符",
+      "category": "artifact_motif",
+      "label": "用的禁录符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "artifact_motif_他攥紧符",
+      "category": "artifact_motif",
+      "label": "他攥紧符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "body_sensation_motif_胸口的刺青",
+      "category": "body_sensation_motif",
+      "label": "胸口的刺青",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "environment_motif_起昨日在码头",
+      "category": "environment_motif",
+      "label": "起昨日在码头",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "environment_motif_的码头",
+      "category": "environment_motif",
+      "label": "的码头",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "environment_motif_昨夜在码头",
+      "category": "environment_motif",
+      "label": "昨夜在码头",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起昨日在码头听",
+      "category": "memory_trigger_motif",
+      "label": "想起昨日在码头听",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "artifact_motif_他用麻绳",
+      "category": "artifact_motif",
+      "label": "他用麻绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_青玉符",
+      "category": "artifact_motif",
+      "label": "青玉符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_的那枚残符",
+      "category": "artifact_motif",
+      "label": "的那枚残符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_他攥紧麻绳",
+      "category": "artifact_motif",
+      "label": "他攥紧麻绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_睛与他在符",
+      "category": "artifact_motif",
+      "label": "睛与他在符",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_指节触到脖",
+      "category": "body_sensation_motif",
+      "label": "指节触到脖",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch02_scene01"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    }
+  ]
+}
