@@ -533,6 +533,73 @@ class LockGateTest(unittest.TestCase):
         self.assertNotEqual(updated["verdict"], "lock")
         self.assertTrue(any(check.name == "weak_scene_quota" and not check.passed for check in report.checks))
 
+    def test_lock_gate_blocks_too_short_locked_draft(self) -> None:
+        task_text = BASE_TASK + """
+# preferred_length
+1500-2600字
+"""
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "当前 scene 满足锁定条件。",
+            "major_issues": [],
+            "minor_issues": [],
+            "draft_file": "02_working/drafts/ch01_scene12.md",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他确认袖中那枚铜钱不是寻常通宝。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他决定把铜钱先藏进砖缝里。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他改了今晚的收尾顺序。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts/ch01_scene12.md").write_text("孟浮灯把铜钱塞进砖缝里，转身就走。", encoding="utf-8")
+                updated, report = apply_lock_gate(task_text, reviewer_result, max_revisions=5)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertFalse(report.passed)
+        self.assertTrue(any(check.name == "draft_min_length" and not check.passed for check in report.checks))
+
+    def test_lock_gate_blocks_repeated_sentences_in_locked_draft(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "当前 scene 满足锁定条件。",
+            "major_issues": [],
+            "minor_issues": [],
+            "draft_file": "02_working/drafts/ch01_scene12.md",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他确认了竹牌背后的旧记号。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他决定先去货栈后门试探。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他改成先看人再问话。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无重复。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        repeated_sentence = "孟浮灯把竹牌塞回袖里，贴着墙根慢慢往后门摸过去。"
+        draft_text = "他先听了一耳朵风向。" + repeated_sentence + "他停下脚步，又看了一眼后门。" + repeated_sentence
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = lock_gate_module.ROOT
+            lock_gate_module.ROOT = root
+            try:
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts/ch01_scene12.md").write_text(draft_text, encoding="utf-8")
+                updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
+            finally:
+                lock_gate_module.ROOT = previous_root
+
+        self.assertNotEqual(updated["verdict"], "lock")
+        self.assertFalse(report.passed)
+        self.assertTrue(any(check.name == "draft_repetition" and not check.passed for check in report.checks))
+
 
 if __name__ == "__main__":
     unittest.main()

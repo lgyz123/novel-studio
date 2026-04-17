@@ -1,7 +1,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。

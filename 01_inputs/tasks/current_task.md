@@ -1,11 +1,11 @@
 # task_id
-2026-04-16-029_ch02_scene03_auto
+2026-04-17-015_ch02_scene10_auto
 
 # goal
-继续推进第 2 章，写出 scene03。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+继续推进第 2 章，写出 scene10。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 
 # based_on
-03_locked/chapters/ch02_scene02.md
+03_locked/chapters/ch02_scene09.md
 
 # chapter_state
 03_locked/canon/ch02_state.md
@@ -43,4 +43,4 @@
 1500-2600字
 
 # output_target
-02_working/drafts/ch02_scene03.md
+02_working/drafts/ch02_scene10.md

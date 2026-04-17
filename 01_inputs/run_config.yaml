@@ -1,5 +1,5 @@
 run:
-  mode: continue
+  mode: restart
   start_chapter: 2
   start_scene: 1
   target_chapter: 2

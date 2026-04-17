@@ -26,12 +26,14 @@ from app.main import (
     pick_first_usable_requirement,
     call_writer_model,
     clean_model_output,
+    sanitize_task_phrase_list,
     contains_outline_style,
     contains_script_style,
     detect_scene10_old_pattern_reuse,
     build_writer_user_prompt,
     extract_revision_count,
     get_effective_manual_intervention_threshold,
+    get_deepseek_takeover_startup_message,
     extract_supervisor_round,
     has_supervisor_retry_budget,
     is_deepseek_takeover_enabled,
@@ -134,6 +136,60 @@ class ReviewModelsTest(unittest.TestCase):
             main_module.OpenAI = previous_openai
 
         self.assertEqual(content, "生成的正文")
+        self.assertEqual(captured["api_key"], "sk-test-key")
+
+    def test_call_writer_model_ignores_none_string_when_resolving_deepseek_key(self) -> None:
+        import app.main as main_module
+
+        captured: dict[str, object] = {}
+
+        class FakeCompletions:
+            def create(self, **kwargs: object):
+                captured.update(kwargs)
+
+                class FakeMessage:
+                    content = "接管正文"
+
+                class FakeChoice:
+                    message = FakeMessage()
+
+                class FakeResponse:
+                    choices = [FakeChoice()]
+
+                return FakeResponse()
+
+        class FakeOpenAI:
+            def __init__(self, api_key: str, base_url: str) -> None:
+                captured["api_key"] = api_key
+                captured["base_url"] = base_url
+                self.chat = type("Chat", (), {"completions": FakeCompletions()})()
+
+        previous_openai = main_module.OpenAI
+        try:
+            main_module.OpenAI = FakeOpenAI
+            content = call_writer_model(
+                {
+                    "writer": {
+                        "provider": "deepseek",
+                        "model": "deepseek-chat",
+                        "base_url": "https://api.deepseek.com",
+                        "api_key": None,
+                        "api_key_env": "sk-test-key",
+                    },
+                    "generation": {
+                        "request_timeout": 30,
+                        "write_num_ctx": 2048,
+                    },
+                },
+                "system prompt",
+                "user prompt",
+                temperature=0.3,
+                num_predict=1200,
+            )
+        finally:
+            main_module.OpenAI = previous_openai
+
+        self.assertEqual(content, "接管正文")
         self.assertEqual(captured["api_key"], "sk-test-key")
 
     def test_hard_prose_revision_prompt_triggers_after_r2_for_local_writer(self) -> None:
@@ -271,6 +327,30 @@ prose_repair
                     "supervisor": {"enabled": True, "api_key": "sk-test-key"},
                 }
             )
+        )
+
+    def test_deepseek_takeover_startup_message_warns_when_api_key_missing(self) -> None:
+        self.assertEqual(
+            get_deepseek_takeover_startup_message(
+                {
+                    "writer": {"provider": "ollama", "model": "qwen3:14b"},
+                    "generation": {"deepseek_takeover_enabled": True},
+                    "supervisor": {"enabled": True, "api_key_env": "My_DEEPSEEK_API_KEY"},
+                }
+            ),
+            "警告：已配置 DeepSeek takeover，但当前未检测到可用的 API key；本轮不会触发接管。请先设置环境变量 `My_DEEPSEEK_API_KEY`。",
+        )
+
+    def test_deepseek_takeover_startup_message_confirms_when_available(self) -> None:
+        self.assertEqual(
+            get_deepseek_takeover_startup_message(
+                {
+                    "writer": {"provider": "ollama", "model": "qwen3:14b"},
+                    "generation": {"deepseek_takeover_enabled": True},
+                    "supervisor": {"enabled": True, "api_key": "sk-test"},
+                }
+            ),
+            "DeepSeek takeover 已启用：本地 writer 连续失败时会自动切换到 DeepSeek 接管。",
         )
 
     def test_should_trigger_deepseek_takeover_on_hard_local_failures(self) -> None:
@@ -539,6 +619,26 @@ scene_realism
         cleaned = clean_model_output(raw)
 
         self.assertEqual(cleaned, "孟浮灯把门关上，潮气还贴在手背上。")
+
+    def test_clean_model_output_removes_completion_heading(self) -> None:
+        raw = """【补全场景】
+孟浮灯把门闩压住，听见巷口有脚步掠过去。"""
+
+        cleaned = clean_model_output(raw)
+
+        self.assertEqual(cleaned, "孟浮灯把门闩压住，听见巷口有脚步掠过去。")
+
+    def test_sanitize_task_phrase_list_filters_noisy_fragments(self) -> None:
+        cleaned = sanitize_task_phrase_list(
+            [
+                "着腐叶的气味",
+                "他朝码头",
+                "主角意识到主动调查会立即引来监视。",
+                "红绳",
+            ]
+        )
+
+        self.assertEqual(cleaned, ["主角意识到主动调查会立即引来监视。", "红绳"])
 
     def test_build_generated_task_content_prefers_configured_length_override(self) -> None:
         task_text = """# task_id

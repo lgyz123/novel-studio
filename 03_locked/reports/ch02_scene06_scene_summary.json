@@ -1,0 +1,83 @@
+{
+  "chapter_id": "ch02",
+  "scene_id": "ch02_scene06",
+  "locked_file": "03_locked/chapters/ch02_scene06.md",
+  "scene_summary": {
+    "scene_id": "ch02_scene06",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…",
+      "孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…",
+      "于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
+    ],
+    "protagonist_decision": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…",
+    "state_changes": [],
+    "motifs_used": [
+      "麻绳",
+      "暮色压到码头",
+      "步声逼近岸边",
+      "线索不能",
+      "尸身原先停放",
+      "浮灯"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索"
+      ],
+      "暮色压到码头": [
+        "发现线索",
+        "引入阻力"
+      ],
+      "步声逼近岸边": [
+        "发现线索"
+      ],
+      "线索不能": [
+        "发现线索"
+      ],
+      "尸身原先停放": [
+        "发现线索"
+      ],
+      "浮灯": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch02_scene01",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene02",
+        "scene_function": "引入阻力"
+      },
+      {
+        "scene_id": "ch02_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene04",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene06",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch02_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch02_scene01",
+    "consecutive_transition_runs": []
+  }
+}

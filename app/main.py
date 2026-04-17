@@ -281,6 +281,29 @@ def should_trigger_deepseek_takeover(config: dict, errors: list[str], fallbacks_
     return len(deduped_fallbacks) >= threshold
 
 
+def get_deepseek_takeover_startup_message(config: dict | None = None) -> str | None:
+    if not config or not is_local_writer_mode(config):
+        return None
+
+    generation = config.get("generation", {})
+    value = generation.get("deepseek_takeover_enabled", True)
+    if isinstance(value, str):
+        configured = value.strip().lower() not in {"false", "0", "no", "off"}
+    else:
+        configured = bool(value)
+    if not configured:
+        return None
+
+    if is_supervisor_runtime_available(config):
+        return "DeepSeek takeover 已启用：本地 writer 连续失败时会自动切换到 DeepSeek 接管。"
+
+    supervisor = config.get("supervisor", {})
+    api_key_env = str(supervisor.get("api_key_env") or "").strip()
+    if api_key_env:
+        return f"警告：已配置 DeepSeek takeover，但当前未检测到可用的 API key；本轮不会触发接管。请先设置环境变量 `{api_key_env}`。"
+    return "警告：已配置 DeepSeek takeover，但当前未检测到可用的 API key；本轮不会触发接管。"
+
+
 def should_use_minimal_local_revision_task(config: dict | None, task_text: str, mode: str) -> bool:
     if mode not in {"revise", "rewrite"}:
         return False
@@ -311,6 +334,15 @@ def extract_openai_message_content(response: Any) -> str:
     raise ValueError("writer 响应缺少 message.content")
 
 
+def normalize_optional_string(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return None
+    return text
+
+
 def call_writer_model(
     config: dict,
     system_prompt: str,
@@ -323,8 +355,8 @@ def call_writer_model(
     if should_use_deepseek_writer(config):
         base_url = str(writer.get("base_url", "https://api.deepseek.com")).rstrip("/")
         api_key = resolve_api_key(
-            str(writer.get("api_key", "")).strip() or None,
-            str(writer.get("api_key_env", "")).strip() or None,
+            normalize_optional_string(writer.get("api_key")),
+            normalize_optional_string(writer.get("api_key_env")),
         )
         if not api_key:
             raise ValueError("writer 缺少 DeepSeek API key")
@@ -1807,20 +1839,14 @@ def build_structural_task_fields(task_text: str, reviewer_result: dict) -> dict[
     if not required_state_change:
         required_state_change = ["至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"]
 
-    deduped_information_gain: list[str] = []
-    for item in information_gain:
-        if item not in deduped_information_gain:
-            deduped_information_gain.append(item)
+    deduped_information_gain = sanitize_task_phrase_list(information_gain)
+    deduped_avoid_motifs = sanitize_task_phrase_list(avoid_motifs)
+    deduped_required_state_change = sanitize_task_phrase_list(required_state_change)
 
-    deduped_avoid_motifs: list[str] = []
-    for item in avoid_motifs:
-        if item not in deduped_avoid_motifs:
-            deduped_avoid_motifs.append(item)
-
-    deduped_required_state_change: list[str] = []
-    for item in required_state_change:
-        if item not in deduped_required_state_change:
-            deduped_required_state_change.append(item)
+    if not deduped_information_gain:
+        deduped_information_gain = ["补充至少一个新的具体信息，优先落在物件状态、关系变化、风险条件或行动边界上。"]
+    if not deduped_required_state_change:
+        deduped_required_state_change = ["至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"]
 
     return {
         "scene_purpose": scene_purpose,
@@ -2762,6 +2788,8 @@ def clean_model_output(text: str) -> str:
         r"^\*\*.*?修订版.*?\*\*\s*",
         r"^【修订后场景】\s*",
         r"^【场景修订版】\s*",
+        r"^【补全场景】\s*",
+        r"^【续写场景】\s*",
         r"^【正文】\s*",
     ]
 
@@ -2801,6 +2829,43 @@ def clean_model_output(text: str) -> str:
     text = strip_standalone_stage_directions(text)
 
     return text.strip()
+
+
+TASK_FRAGMENT_PREFIXES = (
+    "着腐叶",
+    "着绳头",
+    "他朝码头",
+    "拐进码头",
+    "出现在债",
+    "想起石板上",
+    "想起老张头昨",
+    "货栈后墙根那",
+    "有些绳",
+    "尸身往岸边",
+)
+
+
+def is_noisy_task_fragment(text: str) -> bool:
+    candidate = str(text or "").strip()
+    if not candidate:
+        return True
+    if any(candidate.startswith(prefix) for prefix in TASK_FRAGMENT_PREFIXES):
+        return True
+    if len(candidate) >= 6 and not re.search(r"[。！？?!：:；;，,、“”‘’（）()]", candidate):
+        if candidate.endswith(("那", "这", "昨", "边", "里", "上", "下", "着", "过")):
+            return True
+    return False
+
+
+def sanitize_task_phrase_list(values: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for item in values:
+        text = str(item).strip()
+        if not text or is_noisy_task_fragment(text):
+            continue
+        if text not in cleaned:
+            cleaned.append(text)
+    return cleaned
 
 def save_failure_reason(task_id: str, reason: str, suffix: str = "failure_reason") -> None:
     path = f"02_working/logs/{task_id}_{suffix}.txt"
@@ -4676,6 +4741,9 @@ def main() -> None:
     try:
         config = load_runtime_config(ROOT)
         validate_local_model_endpoints(config)
+        takeover_message = get_deepseek_takeover_startup_message(config)
+        if takeover_message:
+            print(takeover_message)
         max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
         manual_intervention_after = get_effective_manual_intervention_threshold(config, max_revisions)
         loop_round = 1

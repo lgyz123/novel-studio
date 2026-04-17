@@ -2,36 +2,6 @@
   "chapter_id": "ch02",
   "items": [
     {
-      "item_id": "ITEM-001",
-      "label": "红绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-002",
-      "label": "平安符",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-007",
-      "label": "半截红绳",
-      "holder": "待确认",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene02",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-011",
       "label": "木牌",
       "holder": "孟浮灯",
@@ -212,16 +182,6 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-083",
-      "label": "那半截红绳",
-      "holder": "腰间似乎",
-      "location": "贴身保留",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene05",
-      "linked_facts": []
-    },
-    {
       "item_id": "ITEM-086",
       "label": "散绳",
       "holder": "腰间似乎",
@@ -312,69 +272,76 @@
       "linked_facts": []
     },
     {
-      "item_id": "ITEM-138",
-      "label": "半截符",
-      "holder": "又是个",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "ITEM-139",
-      "label": "禁录符",
-      "holder": "又是个",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_青玉符",
-      "label": "青玉符",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": [
-        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
-        "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
-      ]
-    },
-    {
-      "item_id": "artifact_破的平安符",
-      "label": "破的平安符",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "medium",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_那道被麻绳",
-      "label": "那道被麻绳",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "low",
-      "last_changed_scene": "ch02_scene01",
-      "linked_facts": []
-    },
-    {
       "item_id": "artifact_麻绳",
       "label": "麻绳",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "high",
+      "last_changed_scene": "ch02_scene10",
+      "linked_facts": [
+        "【场景生成】 运河边的风裹着腐叶气息，孟浮灯蹲在浮尸旁，麻绳从尸身腋下穿…",
+        "他攥紧麻绳往岸边拖，尸身在泥滩上拖出的痕迹里混着几粒青黑色药渣。这具尸体…"
+      ]
+    },
+    {
+      "item_id": "artifact_那张平安符",
+      "label": "那张平安符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
       "last_changed_scene": "ch02_scene01",
       "linked_facts": [
-        "\"又是个没名没姓的？\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签。…",
-        "\"他用麻绳绑住尸体手腕，淤泥里突然露出半截青玉符签"
+        "孟浮灯的指甲掐进掌心，想起昨夜在乱葬岗见到的那张平安符，背面写着的\"阿绣\"二字此刻在脑中嗡嗡作响"
+      ]
+    },
+    {
+      "item_id": "artifact_腰间佩刀",
+      "label": "腰间佩刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene01",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_平安符",
+      "label": "平安符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene03",
+      "linked_facts": [
+        "平安符背面的“阿绣”",
+        "泡烂平安符背面的“阿绣”二字",
+        "孟浮灯的指甲掐进掌心，想起昨夜在乱葬岗见到的那张平安符，背面写着的\"阿绣\"二字此刻在脑中嗡嗡作响"
+      ]
+    },
+    {
+      "item_id": "artifact_那张符",
+      "label": "那张符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch02_scene03",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那半截红绳",
+      "label": "那半截红绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene09",
+      "linked_facts": [
+        "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹",
+        "那半截红绳从腰带里滑出来，缠着张泛黄的符纸——边角被利器削过，像是有人刻意抹去了半截字迹",
+        "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
       ]
     },
     {
@@ -383,18 +350,153 @@
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
-      "significance_level": "medium",
-      "last_changed_scene": "ch02_scene02",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene05",
+      "linked_facts": [
+        "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹",
+        "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+      ]
+    },
+    {
+      "item_id": "artifact_这符",
+      "label": "这符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene05",
       "linked_facts": []
     },
     {
-      "item_id": "artifact_发现刀",
-      "label": "发现刀",
+      "item_id": "artifact_残存的红绳",
+      "label": "残存的红绳",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "low",
-      "last_changed_scene": "ch02_scene02",
+      "last_changed_scene": "ch02_scene01",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_杖头铜铃",
+      "label": "杖头铜铃",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这样的红绳",
+      "label": "这样的红绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_红绳",
+      "label": "红绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene05",
+      "linked_facts": [
+        "红绳",
+        "浮尸旁带出的半截红绳",
+        "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹",
+        "那半截红绳从腰带里滑出来，缠着张泛黄的符纸——边角被利器削过，像是有人刻意抹去了半截字迹",
+        "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹",
+        "红绳在掌心勒出深痕，仿佛某种无形的绳索正将他与那具无名尸紧紧缠绕"
+      ]
+    },
+    {
+      "item_id": "artifact_铜铃",
+      "label": "铜铃",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那些被红绳",
+      "label": "那些被红绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_被符",
+      "label": "被符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch02_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_的木牌",
+      "label": "的木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch02_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_半截红绳",
+      "label": "半截红绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch02_scene09",
+      "linked_facts": [
+        "浮尸旁带出的半截红绳",
+        "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹",
+        "那半截红绳从腰带里滑出来，缠着张泛黄的符纸——边角被利器削过，像是有人刻意抹去了半截字迹",
+        "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+      ]
+    },
+    {
+      "item_id": "artifact_铜钱",
+      "label": "铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_功德钱",
+      "label": "功德钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_有些绳",
+      "label": "有些绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch02_scene10",
       "linked_facts": []
     }
   ]

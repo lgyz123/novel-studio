@@ -43,7 +43,7 @@ supervisor:
   enabled: true
   model: deepseek-chat
   base_url: https://api.deepseek.com
-  api_key_env: My_DEEPSEEK_API_KEY
+  api_key_env: MY_DEEPSEEK_API_KEY
   request_timeout: 120
   max_retries: 3
   retry_backoff_base: 1.0

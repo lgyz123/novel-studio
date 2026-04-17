@@ -6,14 +6,14 @@
   "investigation_stage": "主动调查",
   "risk_level": "low",
   "current_relationships": [
-    "老张头的：疑似旧识",
-    "烟斗在暮：疑似旧识",
-    "色里忽明：疑似旧识",
-    "忽暗：疑似旧识",
-    "这锁链你：疑似旧识",
-    "可认得：疑似旧识",
-    "“阿绣”这个名字已经留在他心里，但目前仍只是被记住、被反复想起，还没有转成明确行动",
-    "“阿绣”目前只是从平安符背面露出的一个名字，刚刚被他记住，还没有发展成明确调查念头"
+    "等脚步声：已确认关系推进",
+    "逼近岸边：已确认关系推进",
+    "孟浮灯已：已确认关系推进",
+    "经把自己：已确认关系推进",
+    "的打算改：已确认关系推进",
+    "明白了：已确认关系推进",
+    "行动计划：已确认关系推进",
+    "改成先避：已确认关系推进"
   ],
   "unresolved_questions": [
     "他尚未形成调查念头，也不该主动追问这条线索",
@@ -24,17 +24,23 @@
     "平安符背面的“阿绣”",
     "乱葬岗处理尸体后的余波",
     "孟浮灯对名字与无名尸之间关系的敏感",
-    "\"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过",
-    "孟浮灯低头看去，淤泥中隐约露出半截青铜锁链，链节上刻着的\"偿\"字正在渗血"
+    "尸身的脚踝处有道新鲜勒痕，像是被某种绳索捆过",
+    "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
   ],
   "completed_scene_functions": [
-    "ch02_scene01: 发现线索",
-    "ch02_scene02: 发现线索"
+    "ch02_scene03: 发现线索",
+    "ch02_scene04: 发现线索",
+    "ch02_scene05: 发现线索",
+    "ch02_scene06: 发现线索",
+    "ch02_scene07: 过渡/氛围",
+    "ch02_scene08: 发现线索",
+    "ch02_scene09: 制造错误判断",
+    "ch02_scene10: 发现线索"
   ],
   "remaining_scene_functions": [
     "触发调查",
     "揭示关系",
-    "制造错误判断",
+    "引发后果",
     "提高风险",
     "扩展世界信息"
   ],
@@ -44,38 +50,204 @@
       "scene_id": "ch02_scene01",
       "scene_function": "发现线索",
       "new_information_items": [
+        "\"这尸身……\"他抬头望向老张头，喉间泛起铁锈味，\"腰带里还藏着半截红绳。…"
+      ],
+      "protagonist_decision": "【补全场景】 泥水顺着尸身衣摆淌进树根时，对岸靛青短打的人影突然齐刷刷转向这边。孟浮灯喉结滚动两…",
+      "state_changes": [],
+      "motifs_used": [
+        "麻绳",
+        "喉结滚动两",
+        "那半截红绳",
+        "但符",
+        "这符",
+        "残存的红绳",
+        "泛起铁锈味",
+        "影开始往码头",
+        "想起什么"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索"
+        ],
+        "喉结滚动两": [
+          "发现线索"
+        ],
+        "那半截红绳": [
+          "发现线索"
+        ],
+        "但符": [
+          "发现线索"
+        ],
+        "这符": [
+          "发现线索"
+        ],
+        "残存的红绳": [
+          "发现线索"
+        ],
+        "泛起铁锈味": [
+          "发现线索"
+        ],
+        "影开始往码头": [
+          "发现线索"
+        ],
+        "想起什么": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "那半截红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "holder",
+            "location",
+            "visibility",
+            "significance_level"
+          ]
+        },
+        {
+          "label": "但符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "holder",
+            "location",
+            "visibility",
+            "significance_level"
+          ]
+        },
+        {
+          "label": "这符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "残存的红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [
+        "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+      ],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "suspected_added": [
+          "青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+        ],
+        "protagonist_known_added": [
+          "\"这尸身……\"他抬头望向老张头，喉间泛起铁锈味，\"腰带里还藏着半截红绳。…"
+        ]
+      },
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene02",
+      "scene_function": "引入阻力",
+      "new_information_items": [
+        "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处。泥水顺着尸身衣摆淌进树根，…",
+        "“三更天还在这儿磨蹭？”沙哑的嗓音刺破暮色。孟浮灯抬头看见老张头的竹杖尖…"
+      ],
+      "protagonist_decision": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处。泥水顺着尸身衣摆淌进树根，他弯腰时听见老张头隔着风…",
+      "state_changes": [],
+      "motifs_used": [
+        "暮色压到码头",
+        "喉结滚动两",
+        "着竹杖从窝棚",
+        "老张头拄着竹",
+        "那半截红绳",
+        "指节蹭过尸",
+        "老张头的竹杖"
+      ],
+      "motif_functions": {
+        "暮色压到码头": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "喉结滚动两": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "着竹杖从窝棚": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "老张头拄着竹": [
+          "发现线索"
+        ],
+        "那半截红绳": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "指节蹭过尸": [
+          "引入阻力"
+        ],
+        "老张头的竹杖": [
+          "引入阻力"
+        ]
+      },
+      "artifacts_changed": [],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "suspected_added": [
+          "那半截红绳从腰带里滑出来，缠着张泛黄的符纸——边角被利器削过，像是有人刻意抹去了半截字迹",
+          "孟浮灯抬头看见老张头的竹杖尖正对着尸身脚踝处的新鲜勒痕，那道痕迹像是被某种绳索捆过，勒进皮肉里成了暗红的沟壑",
+          "泥浆漫过靴筒时，符纸边缘的残字在暮色里泛起幽光，像是被什么力量从纸面底下拽出来，又迅速湮灭在潮湿的空气里"
+        ]
+      },
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene03",
+      "scene_function": "发现线索",
+      "new_information_items": [
         "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…",
         "孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…",
         "于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
       ],
       "protagonist_decision": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…",
       "state_changes": [
+        "protagonist_mode: 行动推进 -> 观察/求活",
         "risk_level: low -> medium"
       ],
       "motifs_used": [
+        "麻绳",
         "暮色压到码头",
         "步声逼近岸边",
-        "麻绳",
-        "尸身原先停放",
-        "线索不能"
+        "线索不能",
+        "尸身原先停放"
       ],
       "motif_functions": {
-        "暮色压到码头": [
-          "引发后果",
-          "过渡/氛围",
+        "麻绳": [
           "发现线索"
+        ],
+        "暮色压到码头": [
+          "发现线索",
+          "引入阻力"
         ],
         "步声逼近岸边": [
-          "引发后果",
-          "发现线索"
-        ],
-        "麻绳": [
-          "过渡/氛围"
-        ],
-        "尸身原先停放": [
           "发现线索"
         ],
         "线索不能": [
+          "发现线索"
+        ],
+        "尸身原先停放": [
           "发现线索"
         ]
       },
@@ -86,63 +258,607 @@
       "canon_risk_flags": []
     },
     {
-      "scene_id": "ch02_scene02",
+      "scene_id": "ch02_scene04",
       "scene_function": "发现线索",
       "new_information_items": [
-        "孟浮灯的指尖在青铜锁链上摩挲，暗红渗液顺着指缝滴落，在青石板上蚀出细小的…",
-        "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然…"
+        "\"这尸身……\"他抬头望向老张头，喉间泛起铁锈味，\"腰带里还藏着半截红绳。…",
+        "竹竿挑开符纸的瞬间，水面忽然泛起涟漪。孟浮灯瞳孔微缩，指尖触到符纸背面时…",
+        "\"老张头！\"他突然抬头，声音压得极低，\"这符纸背面……有刻痕。\" 老张头…"
       ],
-      "protagonist_decision": "\"老张头说得对。\"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然腾起青烟，三具浮尸在烟雾…",
+      "protagonist_decision": "暮色压到码头西头时，孟浮灯正用竹竿挑开尸身腰带。泥水顺着尸身衣摆淌进树根，他弯腰时听见老张头隔着…",
       "state_changes": [
+        "protagonist_mode: 观察/求活 -> 行动推进",
         "risk_level: medium -> low"
       ],
       "motifs_used": [
-        "麻绳",
+        "暮色压到码头",
+        "平安符",
+        "喉结滚动两",
+        "那半截红绳",
         "但符",
-        "发现刀",
-        "腐臭",
-        "那时岸边",
-        "转身朝窝棚",
-        "对方腕间戴着"
+        "这符",
+        "泛起铁锈味",
+        "想起乱葬岗那夜"
       ],
       "motif_functions": {
-        "麻绳": [
-          "过渡/氛围"
+        "暮色压到码头": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "平安符": [
+          "发现线索"
+        ],
+        "喉结滚动两": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "那半截红绳": [
+          "发现线索",
+          "引入阻力"
         ],
         "但符": [
           "发现线索"
         ],
-        "发现刀": [
+        "这符": [
           "发现线索"
         ],
-        "腐臭": [
+        "泛起铁锈味": [
           "发现线索"
         ],
-        "那时岸边": [
-          "发现线索"
-        ],
-        "转身朝窝棚": [
-          "发现线索"
-        ],
-        "对方腕间戴着": [
+        "想起乱葬岗那夜": [
           "发现线索"
         ]
       },
       "artifacts_changed": [
         {
-          "label": "但符",
+          "label": "这符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "significance_level"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "suspected_added": [
+          "\" 尸身脚踝处的新鲜勒痕在暮色里泛着青白，像是被某种绳索捆过",
+          "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+        ]
+      },
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene05",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "暮色压到码头西头时，孟浮灯正用竹竿挑开尸身腰带。泥水顺着尸身衣摆淌进树根…",
+        "\"三更天还在这儿磨蹭？\"沙哑的嗓音刺破暮色。孟浮灯抬头看见老张头的竹杖尖…",
+        "\"这尸身……\"他抬头望向老张头，喉间泛起铁锈味，\"腰带里还藏着半截红绳。…"
+      ],
+      "protagonist_decision": "暮色渐浓，远处传来更夫的梆子声。老周冷哼一声，竹杖挑起尸身往西头拖去：\"浮灯，你最好记住，这码头…",
+      "state_changes": [
+        "protagonist_mode: 行动推进 -> 观察/求活",
+        "risk_level: low -> medium"
+      ],
+      "motifs_used": [
+        "想起昨夜在乱葬岗",
+        "暮色压到码头",
+        "那半截红绳",
+        "但符",
+        "这符",
+        "泛起铁锈味",
+        "老张头的竹杖",
+        "杖头铜铃",
+        "这样的红绳",
+        "红绳",
+        "个常年在码头",
+        "这码头",
+        "浮灯"
+      ],
+      "motif_functions": {
+        "想起昨夜在乱葬岗": [
+          "发现线索"
+        ],
+        "暮色压到码头": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "那半截红绳": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "但符": [
+          "发现线索"
+        ],
+        "这符": [
+          "发现线索"
+        ],
+        "泛起铁锈味": [
+          "发现线索"
+        ],
+        "老张头的竹杖": [
+          "引入阻力",
+          "发现线索"
+        ],
+        "杖头铜铃": [
+          "发现线索"
+        ],
+        "这样的红绳": [
+          "发现线索"
+        ],
+        "红绳": [
+          "发现线索"
+        ],
+        "个常年在码头": [
+          "发现线索"
+        ],
+        "这码头": [
+          "发现线索"
+        ],
+        "浮灯": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "杖头铜铃",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "这样的红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "holder",
+            "location",
+            "visibility",
+            "significance_level"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "suspected_added": [
+          "孟浮灯抬头看见老张头的竹杖尖正戳着尸身脚踝，那里有道新鲜勒痕，像是被某种绳索捆过",
+          "\"他的影子在暮色中拉得老长，仿佛某种潜伏的怪物",
+          "红绳在掌心勒出深痕，仿佛某种无形的绳索正将他与那具无名尸紧紧缠绕"
+        ]
+      },
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene06",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…",
+        "孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…",
+        "于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
+      ],
+      "protagonist_decision": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…",
+      "state_changes": [],
+      "motifs_used": [
+        "麻绳",
+        "暮色压到码头",
+        "步声逼近岸边",
+        "线索不能",
+        "尸身原先停放",
+        "浮灯"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索"
+        ],
+        "暮色压到码头": [
+          "发现线索",
+          "引入阻力"
+        ],
+        "步声逼近岸边": [
+          "发现线索"
+        ],
+        "线索不能": [
+          "发现线索"
+        ],
+        "尸身原先停放": [
+          "发现线索"
+        ],
+        "浮灯": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene07",
+      "scene_function": "过渡/氛围",
+      "new_information_items": [
+        "\"浮灯，你最好记住，这码头西头的活计不是你能插手的。\"老周竹杖顿地，铜铃…",
+        "他盯着水面泛起的涟漪，指尖无意识摩挲着腰间那截红绳。符纸背面的\"阿绣\"二…"
+      ],
+      "protagonist_decision": "\"浮灯，你最好记住，这码头西头的活计不是你能插手的。\"老周竹杖顿地，铜铃在暮色里发出刺耳的声响。…",
+      "state_changes": [
+        "risk_level: medium -> low"
+      ],
+      "motifs_used": [
+        "喉结滚动两",
+        "那半截红绳",
+        "红绳",
+        "这码头",
+        "浮灯",
+        "铜铃",
+        "那些被红绳",
+        "腐烂的草腥气",
+        "尸身的腥臭",
+        "想起乱葬岗处理尸"
+      ],
+      "motif_functions": {
+        "喉结滚动两": [
+          "发现线索",
+          "引入阻力",
+          "过渡/氛围"
+        ],
+        "那半截红绳": [
+          "发现线索",
+          "引入阻力",
+          "过渡/氛围"
+        ],
+        "红绳": [
+          "发现线索"
+        ],
+        "这码头": [
+          "发现线索",
+          "过渡/氛围"
+        ],
+        "浮灯": [
+          "发现线索"
+        ],
+        "铜铃": [
+          "过渡/氛围"
+        ],
+        "那些被红绳": [
+          "过渡/氛围"
+        ],
+        "腐烂的草腥气": [
+          "过渡/氛围"
+        ],
+        "尸身的腥臭": [
+          "过渡/氛围"
+        ],
+        "想起乱葬岗处理尸": [
+          "过渡/氛围"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "铜铃",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "那些被红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene08",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "\"浮灯！\"老周的竹杖声突然逼近，铜铃在暮色里劈开一道裂口。孟浮灯踉跄后退…",
+        "冰层碎裂声突然密集如鼓点。孟浮灯攥紧红绳的手指关节发白，忽然想起半月前在…"
+      ],
+      "protagonist_decision": "冰层碎裂声突然密集如鼓点。孟浮灯攥紧红绳的手指关节发白，忽然想起半月前在寺观墙角看到的告示——那…",
+      "state_changes": [],
+      "motifs_used": [
+        "司命",
+        "红绳",
+        "浮灯",
+        "铜铃",
+        "被符",
+        "的木牌",
+        "内里朱砂字迹",
+        "想起半月前在寺观"
+      ],
+      "motif_functions": {
+        "司命": [
+          "发现线索"
+        ],
+        "红绳": [
+          "发现线索"
+        ],
+        "浮灯": [
+          "发现线索"
+        ],
+        "铜铃": [
+          "过渡/氛围",
+          "发现线索"
+        ],
+        "被符": [
+          "发现线索"
+        ],
+        "的木牌": [
+          "发现线索"
+        ],
+        "内里朱砂字迹": [
+          "发现线索"
+        ],
+        "想起半月前在寺观": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "铜铃",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "significance_level"
+          ]
+        },
+        {
+          "label": "被符",
           "holder": "主角",
           "location": "随身携带",
           "visibility": "hidden",
           "significance_level": "medium",
           "change_types": [
-            "holder",
-            "location",
-            "visibility"
+            "introduced"
           ]
         },
         {
-          "label": "发现刀",
+          "label": "的木牌",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene09",
+      "scene_function": "制造错误判断",
+      "new_information_items": [
+        "孟浮灯把半截红绳塞进衣襟最里层，用麻绳重新捆紧尸身腰际。他拽着绳头往岸边…",
+        "这不是错觉。孟浮灯在码头干了三年收尸的活，知道一具泡透的尸身该有多重，知…",
+        "孟浮灯的手指停在尸身侧腰。那里有一道浅淡的淤痕，颜色比周围皮肤深些，形状…"
+      ],
+      "protagonist_decision": "孟浮灯把半截红绳塞进衣襟最里层，用麻绳重新捆紧尸身腰际。他拽着绳头往岸边拖，脚下淤泥发出沉闷的吸…",
+      "state_changes": [
+        "protagonist_mode: 观察/求活 -> 隐匿/压制"
+      ],
+      "motifs_used": [
+        "麻绳",
+        "司命",
+        "那半截红绳",
+        "红绳",
+        "浮灯",
+        "铜铃",
+        "半截红绳",
+        "铜钱",
+        "功德钱",
+        "着腐叶的气味",
+        "着绳头往岸边",
+        "孟浮灯在码头",
+        "他听码头",
+        "拐进码头",
+        "他朝码头",
+        "出现在债",
+        "想起石板上的",
+        "想起老张头昨天傍",
+        "货栈后墙根那"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索",
+          "制造错误判断"
+        ],
+        "司命": [
+          "发现线索"
+        ],
+        "那半截红绳": [
+          "发现线索",
+          "引入阻力",
+          "过渡/氛围",
+          "制造错误判断"
+        ],
+        "红绳": [
+          "发现线索"
+        ],
+        "浮灯": [
+          "发现线索"
+        ],
+        "铜铃": [
+          "过渡/氛围",
+          "发现线索"
+        ],
+        "半截红绳": [
+          "制造错误判断"
+        ],
+        "铜钱": [
+          "制造错误判断"
+        ],
+        "功德钱": [
+          "制造错误判断"
+        ],
+        "着腐叶的气味": [
+          "制造错误判断"
+        ],
+        "着绳头往岸边": [
+          "制造错误判断"
+        ],
+        "孟浮灯在码头": [
+          "制造错误判断"
+        ],
+        "他听码头": [
+          "制造错误判断"
+        ],
+        "拐进码头": [
+          "制造错误判断"
+        ],
+        "他朝码头": [
+          "制造错误判断"
+        ],
+        "出现在债": [
+          "制造错误判断"
+        ],
+        "想起石板上的": [
+          "制造错误判断"
+        ],
+        "想起老张头昨天傍": [
+          "制造错误判断"
+        ],
+        "货栈后墙根那": [
+          "制造错误判断"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "半截红绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "holder",
+            "location",
+            "visibility",
+            "significance_level"
+          ]
+        },
+        {
+          "label": "铜钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "功德钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {
+        "suspected_added": [
+          "那里有一道浅淡的淤痕，颜色比周围皮肤深些，形状像是被什么方形物件长久抵压留下的",
+          "字是阴刻的，笔画深而规整，像是用凿子一点点凿出来的",
+          "孟浮灯凑到灶膛余烬边细看，印记像是朵莲花，莲花中央有个小孔",
+          "孟浮灯停下脚步，那少年似乎察觉到有人，直起身回过头来"
+        ]
+      },
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch02_scene10",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "\"浮灯！\"老周的声音裹着暮色劈过来，铜铃在风里晃出一道裂口。孟浮灯攥紧衣…"
+      ],
+      "protagonist_decision": "竹杖声逼近时，尸身脚踝处的新鲜勒痕突然硌得他手腕生疼。孟浮灯猛地将尸身往岸边一拽，麻绳在腰际勒出…",
+      "state_changes": [
+        "protagonist_mode: 隐匿/压制 -> 观察/求活"
+      ],
+      "motifs_used": [
+        "麻绳",
+        "想起老张头说过的",
+        "红绳",
+        "浮灯",
+        "铜铃",
+        "半截红绳",
+        "有些绳",
+        "尸身往岸边"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索",
+          "制造错误判断"
+        ],
+        "想起老张头说过的": [
+          "发现线索"
+        ],
+        "红绳": [
+          "发现线索"
+        ],
+        "浮灯": [
+          "发现线索"
+        ],
+        "铜铃": [
+          "过渡/氛围",
+          "发现线索"
+        ],
+        "半截红绳": [
+          "制造错误判断"
+        ],
+        "有些绳": [
+          "发现线索"
+        ],
+        "尸身往岸边": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "有些绳",
           "holder": "主角",
           "location": "随身携带",
           "visibility": "hidden",
@@ -166,13 +882,45 @@
       },
       {
         "scene_id": "ch02_scene02",
+        "scene_function": "引入阻力"
+      },
+      {
+        "scene_id": "ch02_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene04",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene07",
+        "scene_function": "过渡/氛围"
+      },
+      {
+        "scene_id": "ch02_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene09",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch02_scene10",
         "scene_function": "发现线索"
       }
     ],
     "first_clue_scene_id": "ch02_scene01",
     "first_old_acquaintance_hint_scene_id": "",
     "first_investigation_trigger_scene_id": "",
-    "first_artifact_change_scene_id": "ch02_scene02",
+    "first_artifact_change_scene_id": "ch02_scene01",
     "consecutive_transition_runs": []
   }
 }

@@ -42,7 +42,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - next_stage：第一章撰写
 
@@ -65,7 +65,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：pending
-产物：02_working/drafts/ch02_scene03.md
+产物：02_working/drafts/ch02_scene10.md
 说明：等待前置阶段确认后进入正文写作。
 
 ## 当前缺口提醒
@@ -91,7 +91,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -135,7 +135,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
@@ -187,7 +187,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -228,13 +228,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch02_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-16-029_ch02_scene03_auto
+- task_id：2026-04-17-015_ch02_scene10_auto
 - chapter_id：ch02
 - 写入位置：02_working/outlines/ch02_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
 
 ## 本章当前目标
-- 继续推进第 2 章，写出 scene03。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 继续推进第 2 章，写出 scene10。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 
 ## 已有章节锚点
 - 直接前文：03_locked/chapters/ch01_scene11.md
@@ -274,7 +274,7 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 当前 scene contract
-- 核心目标：继续推进第 2 章，写出 scene03。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 核心目标：继续推进第 2 章，写出 scene10。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 - 场景功能：本场结束时必须形成新的章内起点，不能只是重复上章余波。
 - 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
 - 局面推进要求：本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。
@@ -523,24 +523,29 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 最近结构化场景摘要
-- ch02_scene01｜发现线索
-  - 新信息：老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…；孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…
-  - 新动作/决策：暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…
-  - 状态变化：risk_level: low -> medium
-- ch02_scene02｜发现线索
-  - 新信息：孟浮灯的指尖在青铜锁链上摩挲，暗红渗液顺着指缝滴落，在青石板上蚀出细小的…；"老张头说得对。"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然…
-  - 新动作/决策："老张头说得对。"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然腾起青烟，三具浮尸在烟雾…
+- ch02_scene07｜过渡/氛围
+  - 新信息："浮灯，你最好记住，这码头西头的活计不是你能插手的。"老周竹杖顿地，铜铃…；他盯着水面泛起的涟漪，指尖无意识摩挲着腰间那截红绳。符纸背面的"阿绣"二…
+  - 新动作/决策："浮灯，你最好记住，这码头西头的活计不是你能插手的。"老周竹杖顿地，铜铃在暮色里发出刺耳的声响。…
   - 状态变化：risk_level: medium -> low
-  - 物件变化：但符；发现刀
+  - 物件变化：铜铃；那些被红绳
+- ch02_scene08｜发现线索
+  - 新信息："浮灯！"老周的竹杖声突然逼近，铜铃在暮色里劈开一道裂口。孟浮灯踉跄后退…；冰层碎裂声突然密集如鼓点。孟浮灯攥紧红绳的手指关节发白，忽然想起半月前在…
+  - 新动作/决策：冰层碎裂声突然密集如鼓点。孟浮灯攥紧红绳的手指关节发白，忽然想起半月前在寺观墙角看到的告示——那…
+  - 物件变化：铜铃；被符
+- ch02_scene09｜制造错误判断
+  - 新信息：孟浮灯把半截红绳塞进衣襟最里层，用麻绳重新捆紧尸身腰际。他拽着绳头往岸边…；这不是错觉。孟浮灯在码头干了三年收尸的活，知道一具泡透的尸身该有多重，知…
+  - 新动作/决策：孟浮灯把半截红绳塞进衣襟最里层，用麻绳重新捆紧尸身腰际。他拽着绳头往岸边拖，脚下淤泥发出沉闷的吸…
+  - 状态变化：protagonist_mode: 观察/求活 -> 隐匿/压制
+  - 物件变化：半截红绳；铜钱
 
 # 相关 tracker 摘要
 - 章节目标：维持日常求活与孟浮灯在运河做活
 - 主角当前目标：红绳；平安符背面的“阿绣”
-- 当前模式 / 调查阶段 / 风险：观察/求活 / 主动调查 / low
+- 当前模式 / 调查阶段 / 风险：隐匿/压制 / 主动调查 / low
 - 当前未解问题：他尚未形成调查念头，也不该主动追问这条线索；第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？；不要现代词汇、现代设施、现代口语
 - 已确认事实：红绳；平安符背面的“阿绣”；乱葬岗处理尸体后的余波
-- 待验证事实：他尚未形成调查念头，也不该主动追问这条线索；"他捞起尸体时，发现对方脖颈处有道新鲜的淤痕，像是被某种绳索勒过；孟浮灯低头看去，淤泥中隐约露出半截青铜锁链，链节上刻着的"偿"字正在渗血
-- 关键物件切片：红绳（持有者：待确认；位置：状态待确认；可见性：unknown）；平安符（持有者：待确认；位置：状态待确认；可见性：unknown）；半截红绳（持有者：待确认；位置：状态待确认；可见性：unknown）
+- 待验证事实：他尚未形成调查念头，也不该主动追问这条线索；尸身的脚踝处有道新鲜勒痕，像是被某种绳索捆过；青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹
+- 关键物件切片：木牌（持有者：孟浮灯；位置：状态待确认；可见性：unknown）；那截红绳（持有者：孟浮灯；位置：状态待确认；可见性：unknown）；一截烂绳（持有者：孟浮灯；位置：状态待确认；可见性：unknown）
 - 章节结构锚点：首个线索场=ch02_scene01；首个旧识暗示场=未记录；首个调查触发场=未记录
 
 # scene writing skill router
@@ -741,7 +746,7 @@ Use these questions:
 - is_ok：True
 
 # 少量必要 prose 参考
-来源文件：03_locked/chapters/ch02_scene02.md
+来源文件：03_locked/chapters/ch02_scene09.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-"老张头说得对。"孟浮灯将锁链塞进裤袋，转身朝窝棚方向疾行。背后河面突然腾起青烟，三具浮尸在烟雾中显形，脖颈处的青铜锁链正发出锁链声。他摸到腰间短刀时，发现刀鞘里多出半截褪色的红绳——与尸身脖颈处的淤痕纹路完全吻合。
+走到巷口时，他看见货栈后墙根那堆竹篓旁站着个人。那人背对着他，正弯腰翻捡竹篓里的东西，看身形是个少年，穿着打补丁的短褐。孟浮灯停下脚步，那少年似乎察觉到有人，直起身回过头来。

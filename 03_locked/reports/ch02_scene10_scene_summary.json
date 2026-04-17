@@ -1,0 +1,119 @@
+{
+  "chapter_id": "ch02",
+  "scene_id": "ch02_scene10",
+  "locked_file": "03_locked/chapters/ch02_scene10.md",
+  "scene_summary": {
+    "scene_id": "ch02_scene10",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "\"浮灯！\"老周的声音裹着暮色劈过来，铜铃在风里晃出一道裂口。孟浮灯攥紧衣…"
+    ],
+    "protagonist_decision": "竹杖声逼近时，尸身脚踝处的新鲜勒痕突然硌得他手腕生疼。孟浮灯猛地将尸身往岸边一拽，麻绳在腰际勒出…",
+    "state_changes": [
+      "protagonist_mode: 隐匿/压制 -> 观察/求活"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "想起老张头说过的",
+      "红绳",
+      "浮灯",
+      "铜铃",
+      "半截红绳",
+      "有些绳",
+      "尸身往岸边"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索",
+        "制造错误判断"
+      ],
+      "想起老张头说过的": [
+        "发现线索"
+      ],
+      "红绳": [
+        "发现线索"
+      ],
+      "浮灯": [
+        "发现线索"
+      ],
+      "铜铃": [
+        "过渡/氛围",
+        "发现线索"
+      ],
+      "半截红绳": [
+        "制造错误判断"
+      ],
+      "有些绳": [
+        "发现线索"
+      ],
+      "尸身往岸边": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "有些绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch02_scene01",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene02",
+        "scene_function": "引入阻力"
+      },
+      {
+        "scene_id": "ch02_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene04",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene07",
+        "scene_function": "过渡/氛围"
+      },
+      {
+        "scene_id": "ch02_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene09",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch02_scene10",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch02_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch02_scene01",
+    "consecutive_transition_runs": []
+  }
+}

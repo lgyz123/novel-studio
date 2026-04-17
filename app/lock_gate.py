@@ -136,6 +136,54 @@ def normalize_string_list(values: Any) -> list[str]:
     return normalized
 
 
+def split_sentences_for_quality(text: str) -> list[str]:
+    chunks = re.split(r"[。！？!?]\s*", str(text or ""))
+    return [chunk.strip() for chunk in chunks if chunk.strip()]
+
+
+def normalize_sentence_key(text: str) -> str:
+    return re.sub(r"[\s，,；;：“”‘’\"'（）()\-\—…]", "", str(text or "").strip())
+
+
+def read_draft_text_from_legacy_result(legacy_result: dict[str, Any] | None) -> str:
+    legacy_result = legacy_result or {}
+    rel_path = str(legacy_result.get("draft_file") or "").strip()
+    if not rel_path:
+        return ""
+    path = ROOT / rel_path
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+def infer_min_lock_chars(task_text: str) -> int:
+    preferred_length = extract_markdown_field(task_text, "preferred_length") or ""
+    match = re.search(r"(\d{3,5})\s*[-~—到至]\s*(\d{3,5})", preferred_length)
+    if match:
+        lower_bound = int(match.group(1))
+        return max(850, int(lower_bound * 0.55))
+    return 850
+
+
+def detect_repeated_sentences(draft_text: str) -> list[str]:
+    repeated: list[str] = []
+    seen: set[str] = set()
+    for sentence in split_sentences_for_quality(draft_text):
+        if len(sentence) < 12:
+            continue
+        key = normalize_sentence_key(sentence)
+        if len(key) < 10:
+            continue
+        if key in seen and sentence not in repeated:
+            repeated.append(sentence)
+            continue
+        seen.add(key)
+    return repeated
+
+
 def safe_load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
@@ -588,6 +636,10 @@ def build_lock_gate_report(
     within_policy = revision_count <= max_revisions or override.present
     scene_purpose_ok, scene_purpose_details = is_scene_purpose_defined(task_text)
     metadata_ok, metadata_details = is_chapter_metadata_complete(task_text)
+    draft_text = read_draft_text_from_legacy_result(legacy_result)
+    min_lock_chars = infer_min_lock_chars(task_text)
+    repeated_sentences = detect_repeated_sentences(draft_text)
+    cleaned_draft = re.sub(r"\s+", "", draft_text)
 
     checks = [
         LockGateCheck(name="timeline_blockers", passed=not timeline_issues, details=describe_issues(timeline_issues)),
@@ -604,6 +656,16 @@ def build_lock_gate_report(
         ),
         LockGateCheck(name="scene_purpose_defined", passed=scene_purpose_ok, details=scene_purpose_details),
         LockGateCheck(name="chapter_metadata_complete", passed=metadata_ok, details=metadata_details),
+        LockGateCheck(
+            name="draft_min_length",
+            passed=(not cleaned_draft) or len(cleaned_draft) >= min_lock_chars,
+            details=(f"draft_chars={len(cleaned_draft)}, min_required={min_lock_chars}" if cleaned_draft else "no draft text available"),
+        ),
+        LockGateCheck(
+            name="draft_repetition",
+            passed=(not cleaned_draft) or (not repeated_sentences),
+            details=("；".join(repeated_sentences[:2]) if repeated_sentences else ("no repeated sentences" if cleaned_draft else "no draft text available")),
+        ),
     ]
     checks.extend(build_structural_lock_checks(legacy_result))
     checks.extend(build_requirement_lock_checks(task_text, legacy_result))

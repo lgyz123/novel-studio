@@ -1,0 +1,104 @@
+{
+  "chapter_id": "ch02",
+  "scene_id": "ch02_scene04",
+  "locked_file": "03_locked/chapters/ch02_scene04.md",
+  "scene_summary": {
+    "scene_id": "ch02_scene04",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "\"这尸身……\"他抬头望向老张头，喉间泛起铁锈味，\"腰带里还藏着半截红绳。…",
+      "竹竿挑开符纸的瞬间，水面忽然泛起涟漪。孟浮灯瞳孔微缩，指尖触到符纸背面时…",
+      "\"老张头！\"他突然抬头，声音压得极低，\"这符纸背面……有刻痕。\" 老张头…"
+    ],
+    "protagonist_decision": "暮色压到码头西头时，孟浮灯正用竹竿挑开尸身腰带。泥水顺着尸身衣摆淌进树根，他弯腰时听见老张头隔着…",
+    "state_changes": [
+      "protagonist_mode: 观察/求活 -> 行动推进",
+      "risk_level: medium -> low"
+    ],
+    "motifs_used": [
+      "暮色压到码头",
+      "平安符",
+      "喉结滚动两",
+      "那半截红绳",
+      "但符",
+      "这符",
+      "泛起铁锈味",
+      "想起乱葬岗那夜"
+    ],
+    "motif_functions": {
+      "暮色压到码头": [
+        "发现线索",
+        "引入阻力"
+      ],
+      "平安符": [
+        "发现线索"
+      ],
+      "喉结滚动两": [
+        "发现线索",
+        "引入阻力"
+      ],
+      "那半截红绳": [
+        "发现线索",
+        "引入阻力"
+      ],
+      "但符": [
+        "发现线索"
+      ],
+      "这符": [
+        "发现线索"
+      ],
+      "泛起铁锈味": [
+        "发现线索"
+      ],
+      "想起乱葬岗那夜": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "这符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {
+      "suspected_added": [
+        "\" 尸身脚踝处的新鲜勒痕在暮色里泛着青白，像是被某种绳索捆过",
+        "泥浆漫过脚踝时，他忽然想起乱葬岗那夜——青苔在尸身腰间洇出深色痕迹，那半截红绳从尸身腰带里滑出来，缠着张泛黄的符纸——但符的边角被某种利器削过，像是被人刻意抹去了半截字迹"
+      ]
+    },
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch02_scene01",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene02",
+        "scene_function": "引入阻力"
+      },
+      {
+        "scene_id": "ch02_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch02_scene04",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch02_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch02_scene01",
+    "consecutive_transition_runs": []
+  }
+}
