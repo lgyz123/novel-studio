@@ -1,8 +1,8 @@
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-17-015_ch02_scene10_auto
-- chapter_id：ch02
+- task_id：2026-04-18-005_ch01_scene03_auto-R2
+- chapter_id：ch01
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
 

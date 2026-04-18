@@ -1,5 +1,5 @@
 {
-  "task_id": "2026-04-17-011_ch02_scene06_auto",
+  "task_id": "2026-04-18-003_ch01_scene01_auto",
   "passed": true,
   "checks": [
     {
@@ -25,7 +25,7 @@
     {
       "name": "scene_purpose_defined",
       "passed": true,
-      "details": "继续推进第 2 章，写出 scene06。 本章重点：进入体制内部，看见精致化压榨与晋升神话 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
+      "details": "写出第 1 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
     },
     {
       "name": "chapter_metadata_complete",
@@ -33,24 +33,34 @@
       "details": "complete"
     },
     {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
       "name": "information_gain",
       "passed": true,
-      "details": "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…；孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…；于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
+      "details": "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…；孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…；他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…"
     },
     {
       "name": "plot_progress",
       "passed": true,
-      "details": "于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位置。等脚步声逼近岸边时，…"
+      "details": "他见过一次后果。不是对他，是对河下游另一个收尸的老头。那老头从一具浮尸怀里摸出了一封没泡烂的信，…"
     },
     {
       "name": "character_decision",
       "passed": true,
-      "details": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…"
+      "details": "运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指被冻得发木，几乎握不住结…"
     },
     {
       "name": "motif_redundancy",
       "passed": true,
-      "details": "复现母题 麻绳, 暮色压到码头, 步声逼近岸边, 线索不能，且本场至少为 麻绳, 暮色压到码头, 步声逼近岸边 提供了新的叙事功能。"
+      "details": "no repeated motifs"
     },
     {
       "name": "canon_consistency",
@@ -60,7 +70,7 @@
     {
       "name": "state_transition_evidence",
       "passed": true,
-      "details": "老张头隔着风声提醒了他一句：码头西头今天多了一层盯人的现实压力，这具尸身…；孟浮灯没有再等，他当场改了手上的做法：先把尸身拖去背阴处，再绕开西头的眼…；于是孟浮灯眼前的局面被迫换了方向，岸上的盯梢人一时没看见尸身原先停放的位…"
+      "details": "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…；孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…；他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…"
     },
     {
       "name": "required_information_gain",
@@ -70,7 +80,7 @@
     {
       "name": "decision_requirement",
       "passed": true,
-      "details": "暮色压到码头西头时，孟浮灯先把尸身拖到背阴处，没再照上一章的收尾办法把活计往前推。他一边听着岸上…"
+      "details": "运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指被冻得发木，几乎握不住结…"
     },
     {
       "name": "required_state_change",
@@ -90,7 +100,7 @@
     {
       "name": "motif_high_risk_explained",
       "passed": true,
-      "details": "复现母题 麻绳, 暮色压到码头, 步声逼近岸边, 线索不能，且本场至少为 麻绳, 暮色压到码头, 步声逼近岸边 提供了新的叙事功能。"
+      "details": "未识别到明显的高频母题复读。"
     },
     {
       "name": "weak_scene_quota",

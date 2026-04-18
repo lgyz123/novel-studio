@@ -1,0 +1,200 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene01",
+  "locked_file": "03_locked/chapters/ch01_scene01.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene01",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
+      "孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…",
+      "他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…"
+    ],
+    "protagonist_decision": "运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指被冻得发木，几乎握不住结…",
+    "state_changes": [
+      "risk_level: high -> medium"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "木牌",
+      "盯着木牌",
+      "轻则扣钱",
+      "字牌",
+      "领钱",
+      "可这块牌",
+      "混着水腥气",
+      "的铁锈味",
+      "尸身拖到岸边",
+      "不是码头",
+      "在码头"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索"
+      ],
+      "木牌": [
+        "发现线索"
+      ],
+      "盯着木牌": [
+        "发现线索"
+      ],
+      "轻则扣钱": [
+        "发现线索"
+      ],
+      "字牌": [
+        "发现线索"
+      ],
+      "领钱": [
+        "发现线索"
+      ],
+      "可这块牌": [
+        "发现线索"
+      ],
+      "混着水腥气": [
+        "发现线索"
+      ],
+      "的铁锈味": [
+        "发现线索"
+      ],
+      "尸身拖到岸边": [
+        "发现线索"
+      ],
+      "不是码头": [
+        "发现线索"
+      ],
+      "在码头": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility",
+          "significance_level"
+        ]
+      },
+      {
+        "label": "木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility",
+          "significance_level"
+        ]
+      },
+      {
+        "label": "盯着木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "轻则扣钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "字牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "领钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "可这块牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [
+      "他认得这种牌子",
+      "灰蒙蒙的，像是要下雨，又像是永远这副样子",
+      "巡检司的人来了，若发现少了什么，轻则扣钱，重则吃板子，甚至可能被安上个“窃盗亡人物”的罪名，送去服苦役",
+      "尸体是公家的，是“案”，是“档”，是巡检司老爷们笔下的一行字和可能存在的赏钱或麻烦",
+      "青灰袍子的后襟处，靠近腰的位置，有一片深色的污渍，不是水渍，更像是干涸的血，面积不大，但颜色发黑，在细密的布料上格外扎眼"
+    ],
+    "open_questions_resolved": [],
+    "reveal_changes": {
+      "confirmed_added": [
+        "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
+        "孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…",
+        "他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…",
+        "巡检司的人来了，若发现少了什么，轻则扣钱，重则吃板子，甚至可能被安上个“窃盗亡人物”的罪名，送去服苦役"
+      ],
+      "suspected_added": [
+        "他认得这种牌子",
+        "灰蒙蒙的，像是要下雨，又像是永远这副样子",
+        "巡检司的人来了，若发现少了什么，轻则扣钱，重则吃板子，甚至可能被安上个“窃盗亡人物”的罪名，送去服苦役",
+        "尸体是公家的，是“案”，是“档”，是巡检司老爷们笔下的一行字和可能存在的赏钱或麻烦",
+        "青灰袍子的后襟处，靠近腰的位置，有一片深色的污渍，不是水渍，更像是干涸的血，面积不大，但颜色发黑，在细密的布料上格外扎眼"
+      ],
+      "protagonist_known_added": [
+        "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
+        "孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…",
+        "他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…"
+      ],
+      "reader_known_added": [
+        "尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
+        "孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…",
+        "他抬头看了看天色。灰蒙蒙的，像是要下雨，又像是永远这副样子。运河上货船的…",
+        "巡检司的人来了，若发现少了什么，轻则扣钱，重则吃板子，甚至可能被安上个“窃盗亡人物”的罪名，送去服苦役",
+        "他认得这种牌子",
+        "灰蒙蒙的，像是要下雨，又像是永远这副样子",
+        "尸体是公家的，是“案”，是“档”，是巡检司老爷们笔下的一行字和可能存在的赏钱或麻烦",
+        "青灰袍子的后襟处，靠近腰的位置，有一片深色的污渍，不是水渍，更像是干涸的血，面积不大，但颜色发黑，在细密的布料上格外扎眼"
+      ]
+    },
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene01",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene01",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene01",
+    "first_investigation_trigger_scene_id": "",
+    "first_artifact_change_scene_id": "ch01_scene01",
+    "consecutive_transition_runs": []
+  }
+}

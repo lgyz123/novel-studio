@@ -15,19 +15,16 @@ agent:
   validate_local_models_on_start: true
 
 writer:
-  provider: ollama
-  model: qwen3:14b
-  base_url: http://192.168.1.11:11434
-  # 本地 writer 默认走更短更硬的 prompt，降低小模型跑偏概率
-  compact_prompt: auto
+  provider: deepseek
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+  api_key_env: MY_DEEPSEEK_API_KEY
 
 reviewer:
-  provider: ollama
-  model: gpt-oss:20b
-  base_url: http://192.168.1.11:11434
-  # 本地 reviewer 默认以 deterministic 规则为主，模型只做补充参考，避免被复述提示词带偏
-  local_review_strategy: deterministic_primary
-  use_local_reference: true
+  provider: deepseek
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+  api_key_env: MY_DEEPSEEK_API_KEY
   num_ctx: 6144
   temperature: 0.0
   request_timeout: 1200
@@ -83,11 +80,11 @@ generation:
   supervisor_rescue_draft_enabled: true
 
 run:
-  mode: continue
+  mode: restart
   start_chapter: 1
   start_scene: 1
-  target_chapter:
-  target_scene:
+  target_chapter: 1
+  target_scene: 10
   max_scenes_per_chapter:
   restart_from_task: ""
 

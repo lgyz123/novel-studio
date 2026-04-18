@@ -458,7 +458,7 @@ def contains_script_style(text: str) -> list[str]:
         problems.append("出现“（场景：...）”式舞台说明")
 
     # 2. 明确的人名加冒号台词格式
-    dialogue_lines = re.findall(r"(?m)^\s*[一-龥A-Za-z0-9_]{1,12}[:：]", text)
+    dialogue_lines = re.findall(r"(?m)^\s*[一-龥A-Za-z0-9_]{1,4}\s*[:：]", text)
     if len(dialogue_lines) >= 2:
         problems.append("出现多行“人物名：对白”格式")
 
@@ -2250,24 +2250,25 @@ def extract_plain_prose(config: dict, current_context: str, bad_draft: str) -> s
 
 
 def continue_truncated_draft(config: dict, current_context: str, bad_draft: str) -> str:
-    system_prompt = """你是小说续写修复助手。
-你的任务不是重写整场，而是把一段明显半截、被截断的小说正文补完整。
+    system_prompt = """你是小说结尾补全助手。
+你的任务不是重写整场，而是只补这段正文最后缺失的两到四句。
 要求：
-1. 紧接现有文本继续写，不重复已给出的句子
-2. 保持同一场景、同一视角、同一文风
-3. 优先把当前动作写完整，并自然收束到一个完整结尾
+1. 不要重复原文，不要重写前文，只输出“缺失的尾巴”
+2. 先把当前半截句补完整，再补一到三句自然收束
+3. 保持同一场景、同一视角、同一文风
 4. 不新增设定，不新增角色，不扩展主线
-5. 只输出补全后的完整正文，不要解释"""
+5. 最后一句必须是已经发生的结果或状态变化
+6. 输出长度尽量控制在 80-220 字"""
 
     task_text = read_text("01_inputs/tasks/current_task.md")
 
-    user_prompt = f"""请补全下面这段明显被截断的小说正文，使其成为一段可直接保存的完整草稿。
+    user_prompt = f"""请只补全下面这段明显被截断的小说正文“最后缺失的尾巴”。
 
 要求：
-1. 保留已有内容不变
-2. 从现有最后一句自然续写
-3. 总体仍满足任务要求
-4. 只输出补全后的完整正文
+1. 不要重复原文，不要从头改写
+2. 只从现有最后半句往后续写两到四句
+3. 让结尾自然闭合，并形成一个可见结果
+4. 只输出“新增的补全文字”
 
 【任务单】
 {task_text}
@@ -2275,20 +2276,26 @@ def continue_truncated_draft(config: dict, current_context: str, bad_draft: str)
 【当前上下文】
 {current_context}
 
-【待补全文本】
-{bad_draft}
+【待补全文本（请保留不变，只作为续写前文）】
+{clip_tail_text(bad_draft, 1800)}
 """
 
     print("检测到草稿疑似截断，正在尝试自动续写补全...")
-    continued = call_writer_model(
+    continuation = call_writer_model(
         config,
         system_prompt,
         user_prompt,
         temperature=0.2,
-        num_predict=1200,
+        num_predict=320,
     )
 
-    return clean_model_output(continued)
+    continuation = clean_model_output(continuation).strip()
+    if not continuation:
+        return ""
+    if continuation.startswith(bad_draft.strip()):
+        return clean_model_output(continuation)
+    separator = "" if bad_draft.rstrip().endswith(("“", "\"", "：", ":", "——", "—", "（", "(")) else ""
+    return clean_model_output(bad_draft.rstrip() + separator + continuation)
 
 
 def rewrite_structurally_weak_local_draft(config: dict, current_context: str, bad_draft: str, structural_issues: list[str]) -> str:

@@ -26,6 +26,7 @@ from app.main import (
     pick_first_usable_requirement,
     call_writer_model,
     clean_model_output,
+    continue_truncated_draft,
     sanitize_task_phrase_list,
     contains_outline_style,
     contains_script_style,
@@ -1699,6 +1700,33 @@ scene_parenthetical
         problems = contains_script_style("（他把木箱挪开半寸，风从缝里钻了进来，煤油灯晃了一下。）")
 
         self.assertIn("整段文本为括号包裹的舞台说明", problems)
+
+    def test_contains_script_style_does_not_flag_narrative_dialogue_lines(self) -> None:
+        problems = contains_script_style(
+            "老张头猛地抬头：“你去那儿做什么？”\n老张头愣了一下：“船？运河上哪天没船？”"
+        )
+
+        self.assertEqual(problems, [])
+
+    def test_continue_truncated_draft_appends_tail_instead_of_rewriting_whole_piece(self) -> None:
+        import app.main as main_module
+
+        original_call_writer_model = main_module.call_writer_model
+        original_read_text = main_module.read_text
+        try:
+            main_module.call_writer_model = lambda *args, **kwargs: "这三个字像根刺扎在他心里，让他知道这件事已经不能照旧拖过去。于是他把木牌重新塞回怀里，决定天黑后先去码头西头打听。"
+            main_module.read_text = lambda path: "# task_id\nscene_x\n"
+            completed = continue_truncated_draft(
+                {"writer": {"model": "fake", "base_url": "http://example.com"}, "generation": {"write_num_ctx": 2048, "request_timeout": 10}},
+                "上下文",
+                "孟浮灯低头看着掌心那块木牌，刻着三个字：陈砚书",
+            )
+        finally:
+            main_module.call_writer_model = original_call_writer_model
+            main_module.read_text = original_read_text
+
+        self.assertTrue(completed.startswith("孟浮灯低头看着掌心那块木牌，刻着三个字：陈砚书"))
+        self.assertIn("决定天黑后先去码头西头打听。", completed)
 
     def test_contains_outline_style_flags_list_heavy_output(self) -> None:
         problems = contains_outline_style(
