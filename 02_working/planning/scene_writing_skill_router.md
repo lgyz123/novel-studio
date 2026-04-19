@@ -1,7 +1,7 @@
 # scene writing skill router
 
 - phase：scene_writing
-- genre_tags：xianxia
+- genre_tags：xianxia、mystery
 - trope_tags：system
 - demand_tags：continuity、scene-writing、naming
 

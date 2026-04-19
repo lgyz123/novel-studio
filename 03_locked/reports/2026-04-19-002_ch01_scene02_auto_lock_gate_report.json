@@ -1,5 +1,5 @@
 {
-  "task_id": "2026-04-18-035_ch01_scene09_auto-R1",
+  "task_id": "2026-04-19-002_ch01_scene02_auto",
   "passed": true,
   "checks": [
     {
@@ -20,12 +20,12 @@
     {
       "name": "revise_policy",
       "passed": true,
-      "details": "revision_count=1, max=5"
+      "details": "revision_count=0, max=5"
     },
     {
       "name": "scene_purpose_defined",
       "passed": true,
-      "details": "基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene09。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。。本次重点解决：高频母题复读但未承担新功能：麻绳, 风带着水腥气, 什么, 背后。"
+      "details": "继续推进第 1 章，写出 scene02。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
     },
     {
       "name": "chapter_metadata_complete",
@@ -45,22 +45,22 @@
     {
       "name": "information_gain",
       "passed": true,
-      "details": "昨晚那具浮尸的腰牌还在他怀里。不是麻的，是块薄木片，边缘已经磨圆了，上面…；他需要这份活儿。不是喜欢，是需要。；是两个人，穿着灰布短打，腰上挂着木牌——是巡河队的人。他们没往这边走，停…"
+      "details": "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…；老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…；他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…"
     },
     {
       "name": "plot_progress",
       "passed": true,
-      "details": "巷子窄，两边是土墙，墙头长着枯草。这个时辰，巷子里没人，只有几只瘦猫在垃圾堆里翻找。孟浮灯走到一…"
+      "details": "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵。夜里捞上来的那具尸体还…"
     },
     {
       "name": "character_decision",
       "passed": true,
-      "details": "孟浮灯把尸体拖到岸边，用草席盖住脸，然后蹲在石阶上等。天还没亮透，码头上只有几个早起的船工在搬货…"
+      "details": "孟浮灯把麻布盖回去。"
     },
     {
       "name": "motif_redundancy",
       "passed": true,
-      "details": "复现母题 木牌, 在码头, 胸口, 什么，且本场至少为 木牌, 在码头, 胸口 提供了新的叙事功能。"
+      "details": "复现母题 麻绳, 岸边, 窝棚，且本场至少为 麻绳, 岸边, 窝棚 提供了新的叙事功能。"
     },
     {
       "name": "canon_consistency",
@@ -70,7 +70,7 @@
     {
       "name": "state_transition_evidence",
       "passed": true,
-      "details": "昨晚那具浮尸的腰牌还在他怀里。不是麻的，是块薄木片，边缘已经磨圆了，上面…；他需要这份活儿。不是喜欢，是需要。；是两个人，穿着灰布短打，腰上挂着木牌——是巡河队的人。他们没往这边走，停…"
+      "details": "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…；老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…；他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…"
     },
     {
       "name": "required_information_gain",
@@ -80,7 +80,7 @@
     {
       "name": "decision_requirement",
       "passed": true,
-      "details": "孟浮灯把尸体拖到岸边，用草席盖住脸，然后蹲在石阶上等。天还没亮透，码头上只有几个早起的船工在搬货…"
+      "details": "孟浮灯把麻布盖回去。"
     },
     {
       "name": "required_state_change",
@@ -90,7 +90,7 @@
     {
       "name": "scene_function_landed",
       "passed": true,
-      "details": "expected=n/a actual=制造错误判断"
+      "details": "expected=n/a actual=发现线索"
     },
     {
       "name": "chapter_state_alignment",
@@ -100,12 +100,12 @@
     {
       "name": "motif_high_risk_explained",
       "passed": true,
-      "details": "复现母题 木牌, 在码头, 胸口, 什么，且本场至少为 木牌, 在码头, 胸口 提供了新的叙事功能。"
+      "details": "复现母题 麻绳, 岸边, 窝棚，且本场至少为 麻绳, 岸边, 窝棚 提供了新的叙事功能。"
     },
     {
       "name": "weak_scene_quota",
       "passed": true,
-      "details": "current=reflection, streak=0, disallowed=none"
+      "details": "current=discovery, streak=0, disallowed=none"
     }
   ],
   "policy_override": {

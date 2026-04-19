@@ -1,7 +1,7 @@
 # character_creation skill router
 
 - phase：character_creation
-- genre_tags：xianxia、romance
+- genre_tags：xianxia、romance、mystery
 - trope_tags：system
 - demand_tags：planning、character、naming
 

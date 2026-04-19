@@ -11,6 +11,17 @@ from project_inputs import get_list, get_section, load_human_input
 
 ROOT = Path(__file__).resolve().parent.parent
 
+GENERIC_STORY_RULE_MARKERS = (
+    "每场都要",
+    "必须",
+    "至少",
+    "不要",
+    "是否",
+    "最合适",
+    "剧情推进",
+    "背景板",
+)
+
 
 def chapter_label(chapter_number: int) -> str:
     return f"ch{int(chapter_number):02d}"
@@ -158,36 +169,68 @@ def build_chapter_spine(
     open_questions = [str(item).strip() for item in get_list(manual_required, "open_questions", legacy=None) if str(item).strip()]
     must_have = [str(item).strip() for item in get_list(manual_required, "must_have", legacy=None) if str(item).strip()]
     taboo_beats = [str(item).strip() for item in get_list(blueprint, "taboo_beats") if str(item).strip()]
-    chapter_goal = str(
-        blueprint.get("chapter_goal")
-        or blueprint.get("first_chapter_goal")
-        or volume.get("function")
-        or project.get("premise")
-        or "让局面从求活承接进入新的现实压力。"
-    ).strip()
+    if chapter_number <= 1:
+        chapter_goal = str(
+            blueprint.get("first_chapter_goal")
+            or blueprint.get("chapter_goal")
+            or volume.get("function")
+            or project.get("premise")
+            or "从求活日常切入，并让异常线索第一次压进现实处境。"
+        ).strip()
+    else:
+        chapter_goal = str(
+            blueprint.get("chapter_goal")
+            or blueprint.get("first_chapter_goal")
+            or volume.get("function")
+            or project.get("premise")
+            or "让局面从求活承接进入新的现实压力。"
+        ).strip()
+    opening_status = str(blueprint.get("opening_status") or "").strip()
+    premise = str(project.get("premise") or "").strip()
+    protagonist_goal = str((((get_section(human_input, "cast").get("protagonist") or {}) if isinstance(get_section(human_input, "cast").get("protagonist"), dict) else {}).get("goal") or "")).strip()
+    protagonist_fear = str((((get_section(human_input, "cast").get("protagonist") or {}) if isinstance(get_section(human_input, "cast").get("protagonist"), dict) else {}).get("fear") or "")).strip()
     protagonist = (((story_state.get("characters") or {}).get("protagonist")) or {}) if isinstance(story_state, dict) else {}
     protagonist_goals = [str(item).strip() for item in (protagonist.get("active_goals") or []) if str(item).strip()]
     protagonist_tensions = [str(item).strip() for item in (protagonist.get("open_tensions") or []) if str(item).strip()]
 
-    pressure_source = must_have[0] if must_have else chapter_goal
+    pressure_source = ""
     if protagonist_tensions:
         pressure_source = protagonist_tensions[0]
+    elif opening_status and "第二章需要" in opening_status:
+        pressure_source = opening_status.split("第二章需要", 1)[-1].strip("；。 ")
+    elif opening_status and chapter_number <= 1:
+        pressure_source = opening_status.split("；", 1)[0].strip("；。 ")
+    elif premise:
+        pressure_source = premise
+    elif must_have:
+        pressure_source = must_have[0]
+    else:
+        pressure_source = chapter_goal
+    if any(marker in pressure_source for marker in GENERIC_STORY_RULE_MARKERS):
+        pressure_source = "异常尸体牵出的名字和后患开始压进主角的日常求活。"
 
     wrong_judgment = (
         open_questions[0]
         if open_questions
         else "主角暂时把眼前的异常当成能压过去的小麻烦，没意识到它会反咬回来。"
     )
+    if any(marker in wrong_judgment for marker in GENERIC_STORY_RULE_MARKERS):
+        wrong_judgment = "主角先把异常余波当成做活路上的附带麻烦，误以为还能靠老办法压过去。"
     irreversible_consequence = (
         must_have[1]
         if len(must_have) > 1
         else "本章中段必须出现一次回不了头的处理后果，逼迫主角调整做法。"
     )
+    if any(marker in irreversible_consequence for marker in GENERIC_STORY_RULE_MARKERS):
+        irreversible_consequence = "主角会因为一次求稳处理留下回不了头的后果，旧的求活顺序被迫改写。"
     end_state = (
         protagonist_goals[0]
         if protagonist_goals
-        else "本章结尾时，主角不能再只维持旧日常，必须带着新的行动负担往下走。"
+        else protagonist_goal
+        or "本章结尾时，主角不能再只维持旧日常，必须带着新的行动负担往下走。"
     )
+    if any(marker in end_state for marker in GENERIC_STORY_RULE_MARKERS):
+        end_state = protagonist_goal or protagonist_fear or "本章结尾时，主角必须带着更具体的行动负担继续求活。"
     if taboo_beats:
         end_state = f"{end_state} 同时避免：{taboo_beats[0]}"
 
@@ -341,11 +384,10 @@ def build_chapter_opening_task(
         if scene_number == 1
         else f"继续推进第 {chapter_number} 章，写出 scene{scene_number:02d}。"
     )
-    chapter_goal = str(blueprint.get("chapter_goal") or blueprint.get("first_chapter_goal") or "").strip()
     if volume.get("function"):
         goal = f"{goal} 本章重点：{volume['function']}"
-    if chapter_goal:
-        goal = f"{goal} 当前章节目标：{chapter_goal}"
+    if chapter_spine.get("chapter_goal"):
+        goal = f"{goal} 当前章节目标：{chapter_spine['chapter_goal']}"
     info_gain = [
         "补入至少一个只属于本章的新事实、新限制或新压力来源。",
         "让主角对当前局面产生新的理解、误判或行动边界。",

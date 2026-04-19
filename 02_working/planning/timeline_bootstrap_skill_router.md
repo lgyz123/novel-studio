@@ -1,7 +1,7 @@
 # timeline skill router
 
 - phase：timeline_bootstrap
-- genre_tags：xianxia
+- genre_tags：xianxia、mystery
 - trope_tags：system
 - demand_tags：planning、timeline、history
 

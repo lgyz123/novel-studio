@@ -1,7 +1,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto-R2
+- task_id：2026-04-19-003_ch01_scene03_auto-R2
 - chapter_id：ch01
 - next_stage：第一章撰写
 
@@ -24,7 +24,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：in_progress
-产物：02_working/drafts/ch01_scene20_v3.md
+产物：02_working/drafts/ch01_scene03_v3.md
 说明：当前任务已进入 scene 落稿。
 
 ## 当前缺口提醒
@@ -35,7 +35,7 @@
 ## planning skill router
 
 - phase：planning_bootstrap
-- genre_tags：xianxia
+- genre_tags：xianxia、mystery
 - trope_tags：system
 - demand_tags：planning、worldbuilding、outline-driven
 

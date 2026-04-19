@@ -472,6 +472,7 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("当前章节目标", task_text)
         self.assertIn("# chapter_spine", task_text)
         self.assertIn("当前场次聚焦：建立新压力", task_text)
+        self.assertNotIn("第二章先确立新的日常压力源", task_text)
 
     def test_build_chapter_opening_task_changes_spine_focus_for_later_scenes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -495,7 +496,34 @@ class ProjectRuntimeTest(unittest.TestCase):
             )
 
         self.assertIn("当前场次聚焦：逼出后果", task_text)
-        self.assertIn("回不了头的处理后果", task_text)
+        self.assertIn("回不了头的后果", task_text)
+
+    def test_build_chapter_opening_task_scene01_avoids_generic_rule_as_pressure_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest/novel_manifest.md").write_text(
+                "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                encoding="utf-8",
+            )
+            (root / "01_inputs/human_input.yaml").write_text(
+                "project:\n  premise: 孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。\n"
+                "cast:\n  protagonist:\n    name: 孟浮灯\n    goal: 先在不暴露自己的前提下活下去。\n"
+                "story_blueprint:\n  chapter_goal: 第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。\n"
+                "  first_chapter_goal: 从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。\n"
+                "manual_required:\n  must_have:\n    - 每场都要有可验证的新信息、新动作或现实后果中的至少两项。\n"
+                "    - 底层日常必须是剧情推进载体，不只是背景板。\n"
+                "  open_questions:\n    - 第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？\n",
+                encoding="utf-8",
+            )
+
+            _, task_text = build_chapter_opening_task(root, {"generation": {}}, chapter_number=1, scene_number=1)
+
+        self.assertNotIn("每场都要有可验证的新信息", task_text)
+        self.assertNotIn("第二章的核心压力源具体落在哪条线最合适", task_text)
+        self.assertIn("孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕", task_text)
+        self.assertNotIn("当前章节目标：第二章先确立新的日常压力源", task_text)
 
     def test_render_chapter_state_includes_chapter_spine_and_existing_locked_scene(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
