@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 import time
 from pathlib import Path
 from typing import Any
@@ -2860,12 +2861,16 @@ TASK_FRAGMENT_PREFIXES = (
     "在码头",
     "风带着",
     "只有远处",
+    "下面还有",
+    "几枚铜钱",
 )
 
 
 def is_noisy_task_fragment(text: str) -> bool:
     candidate = str(text or "").strip()
     if not candidate:
+        return True
+    if candidate in {"一个", "两个字", "一个字", "一块木牌", "一行小字", "下面还有", "几枚铜钱", "码头"}:
         return True
     if any(candidate.startswith(prefix) for prefix in TASK_FRAGMENT_PREFIXES):
         return True
@@ -3064,6 +3069,40 @@ def load_latest_run_summary_state() -> dict[str, str]:
     return state
 
 
+RESTART_CLEANUP_DIRS = [
+    "01_inputs/tasks/generated",
+    "02_working/context",
+    "02_working/drafts",
+    "02_working/reviews",
+    "02_working/logs",
+    "02_working/canon_updates",
+    "02_working/planning",
+    "02_working/outlines",
+    "03_locked/chapters",
+    "03_locked/canon",
+    "03_locked/reports",
+    "03_locked/candidates",
+    "03_locked/state/history",
+    "03_locked/state/trackers",
+]
+
+RESTART_CLEANUP_FILES = [
+    "01_inputs/tasks/current_task.md",
+    "03_locked/state/story_state.json",
+]
+
+
+def clean_runtime_outputs_for_restart() -> None:
+    for rel_path in RESTART_CLEANUP_DIRS:
+        path = ROOT / rel_path
+        if path.exists():
+            shutil.rmtree(path)
+    for rel_path in RESTART_CLEANUP_FILES:
+        path = ROOT / rel_path
+        if path.exists():
+            path.unlink()
+
+
 def choose_preferred_resume_task(
     current_task_text: str | None,
     summary_task_text: str | None,
@@ -3214,6 +3253,7 @@ def prepare_runtime_start(config: dict) -> str | None:
     if run_mode != "restart":
         return None
 
+    clean_runtime_outputs_for_restart()
     run = config.get("run", {})
     restart_from_task = str(run.get("restart_from_task") or "").strip()
     if restart_from_task:

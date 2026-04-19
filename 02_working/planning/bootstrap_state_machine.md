@@ -1,7 +1,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-014_ch01_scene17_auto
+- task_id：2026-04-19-019_ch01_scene20_auto
 - chapter_id：ch01
 - next_stage：第一章撰写
 
@@ -24,7 +24,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：in_progress
-产物：02_working/drafts/ch01_scene17.md
+产物：02_working/drafts/ch01_scene20.md
 说明：当前任务已进入 scene 落稿。
 
 ## 当前缺口提醒

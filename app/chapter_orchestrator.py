@@ -133,6 +133,73 @@ def latest_locked_scene(root: Path, chapter_number: int | None = None) -> str | 
     return str(sorted(candidates, key=lambda item: item[0])[-1][1].relative_to(root).as_posix())
 
 
+def list_locked_scenes(root: Path, chapter_number: int) -> list[str]:
+    chapter_dir = root / "03_locked/chapters"
+    if not chapter_dir.exists():
+        return []
+    scenes: list[tuple[int, str]] = []
+    for path in chapter_dir.glob(f"{chapter_label(chapter_number)}_scene*.md"):
+        _, scene_number = extract_scene_progress(path.name)
+        if scene_number is None:
+            continue
+        scenes.append((scene_number, path.relative_to(root).as_posix()))
+    return [rel_path for _, rel_path in sorted(scenes)]
+
+
+def build_chapter_spine(
+    human_input: dict[str, Any],
+    story_state: dict[str, Any],
+    chapter_number: int,
+    volume: dict[str, str],
+) -> dict[str, str]:
+    blueprint = get_section(human_input, "story_blueprint")
+    manual_required = get_section(human_input, "manual_required")
+    project = get_section(human_input, "project", legacy="basic")
+    open_questions = [str(item).strip() for item in get_list(manual_required, "open_questions", legacy=None) if str(item).strip()]
+    must_have = [str(item).strip() for item in get_list(manual_required, "must_have", legacy=None) if str(item).strip()]
+    taboo_beats = [str(item).strip() for item in get_list(blueprint, "taboo_beats") if str(item).strip()]
+    chapter_goal = str(
+        blueprint.get("chapter_goal")
+        or blueprint.get("first_chapter_goal")
+        or volume.get("function")
+        or project.get("premise")
+        or "让局面从求活承接进入新的现实压力。"
+    ).strip()
+    protagonist = (((story_state.get("characters") or {}).get("protagonist")) or {}) if isinstance(story_state, dict) else {}
+    protagonist_goals = [str(item).strip() for item in (protagonist.get("active_goals") or []) if str(item).strip()]
+    protagonist_tensions = [str(item).strip() for item in (protagonist.get("open_tensions") or []) if str(item).strip()]
+
+    pressure_source = must_have[0] if must_have else chapter_goal
+    if protagonist_tensions:
+        pressure_source = protagonist_tensions[0]
+
+    wrong_judgment = (
+        open_questions[0]
+        if open_questions
+        else "主角暂时把眼前的异常当成能压过去的小麻烦，没意识到它会反咬回来。"
+    )
+    irreversible_consequence = (
+        must_have[1]
+        if len(must_have) > 1
+        else "本章中段必须出现一次回不了头的处理后果，逼迫主角调整做法。"
+    )
+    end_state = (
+        protagonist_goals[0]
+        if protagonist_goals
+        else "本章结尾时，主角不能再只维持旧日常，必须带着新的行动负担往下走。"
+    )
+    if taboo_beats:
+        end_state = f"{end_state} 同时避免：{taboo_beats[0]}"
+
+    return {
+        "chapter_goal": chapter_goal,
+        "pressure_source": pressure_source,
+        "wrong_judgment": wrong_judgment,
+        "irreversible_consequence": irreversible_consequence,
+        "end_state": end_state,
+    }
+
+
 def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: str | None = None) -> str:
     human_input = load_human_input(root)
     story_state = load_story_state(root)
@@ -144,11 +211,14 @@ def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: 
         or (((story_state.get("characters") or {}).get("protagonist") or {}).get("name") or "主角")
     ).strip() or "主角"
     known_facts = (((story_state.get("characters") or {}).get("protagonist") or {}).get("known_facts") or [])[:4]
+    existing_items = [str(((item or {}).get("name") or "")).strip() for item in (story_state.get("items") or []) if isinstance(item, dict)]
     manual_required = get_section(human_input, "manual_required")
     story_blueprint = get_section(human_input, "story_blueprint")
     open_questions = (manual_required.get("open_questions") or human_input.get("open_questions") or [])[:4]
     must_avoid = (manual_required.get("must_avoid") or human_input.get("must_avoid") or [])[:4]
     previous_hint = previous_locked_file or latest_locked_scene(root, chapter_number=chapter_number - 1) or "00_manifest/novel_manifest.md"
+    locked_scenes = list_locked_scenes(root, chapter_number)
+    chapter_spine = build_chapter_spine(human_input, story_state, chapter_number, volume)
     lines = [
         f"# {chapter_label(chapter_number)} 当前状态",
         "",
@@ -157,18 +227,35 @@ def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: 
         f"- 本章功能：{volume.get('function') or '承接上一章并推进当前长线。'}",
         f"- 直接前文：{previous_hint}",
         "",
+        "## 本章主线骨架",
+        f"- 本章目标：{chapter_spine['chapter_goal']}",
+        f"- 新压力源：{chapter_spine['pressure_source']}",
+        f"- 错误判断：{chapter_spine['wrong_judgment']}",
+        f"- 不可逆后果：{chapter_spine['irreversible_consequence']}",
+        f"- 结尾状态：{chapter_spine['end_state']}",
+        "",
         "## 已锁定场景",
-        "- [待生成本章锁定场景]",
+    ]
+    if locked_scenes:
+        lines.extend([f"- {item}" for item in locked_scenes])
+    else:
+        lines.append("- [待生成本章锁定场景]")
+    lines.extend(
+        [
         "",
         "## 当前主角状态",
         f"- 主角：{protagonist_name}",
         f"- 当前默认目标：{str(protagonist.get('goal') or story_blueprint.get('chapter_goal') or '先求活，再被卷入更大的局面。').strip()}",
-    ]
+        ]
+    )
     if known_facts:
         lines.extend(["", "## 已锁定线索"])
         lines.extend([f"- {str(item).strip()}" for item in known_facts if str(item).strip()])
     else:
         lines.extend(["", "## 已锁定线索", "- [待从前文与 story_state 回填]"])
+    if existing_items:
+        lines.extend(["", "## 当前关键物件"])
+        lines.extend([f"- {item}" for item in existing_items[:5] if item])
     lines.extend(["", "## 暂不展开的内容"])
     hidden = [str(item).strip() for item in open_questions + must_avoid if str(item).strip()]
     if hidden:
@@ -181,6 +268,7 @@ def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: 
             "## scene01 建议目标",
             f"- 写出 {chapter_label(chapter_number)} 的开场承接，让局面在上一章基础上出现新的可验证变化。",
             "- 第一场既要重新落地人物生存处境，也要给出本章独有的新压力、新线索或新后果。",
+            f"- 本场优先服务：{chapter_spine['pressure_source']}",
         ]
     )
     return "\n".join(lines).strip() + "\n"

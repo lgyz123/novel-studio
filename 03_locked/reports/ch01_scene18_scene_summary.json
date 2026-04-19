@@ -1,0 +1,172 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene18",
+  "locked_file": "03_locked/chapters/ch01_scene18.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene18",
+    "scene_function": "触发调查",
+    "new_information_items": [
+      "孟浮灯把苇叶从水里捞起来，拧干，塞进背后的竹筐。筐底已经铺了一层，湿漉漉…",
+      "现在那尸体应该已经送到义庄了，或者被哪家领走了。这种事常有，运河里总有些…",
+      "他背起竹筐，沿着泥滩往岸上走。筐里的苇叶还在滴水，顺着他的脊背往下淌。走…"
+    ],
+    "protagonist_decision": "孟浮灯把苇叶从水里捞起来，拧干，塞进背后的竹筐。筐底已经铺了一层，湿漉漉地压着筐底。他直起身，腰…",
+    "state_changes": [
+      "protagonist_mode: 隐匿/压制 -> 调查/试探",
+      "risk_level: medium -> low"
+    ],
+    "motifs_used": [
+      "木牌",
+      "铜钱",
+      "背后",
+      "码头",
+      "屋里",
+      "义庄",
+      "岸边",
+      "门口",
+      "是半块木牌",
+      "但那木牌",
+      "叶的气味",
+      "后颈",
+      "窗边",
+      "想起来了"
+    ],
+    "motif_functions": {
+      "木牌": [
+        "发现线索",
+        "提高风险",
+        "制造错误判断",
+        "引发后果",
+        "触发调查"
+      ],
+      "铜钱": [
+        "发现线索",
+        "触发调查"
+      ],
+      "背后": [
+        "触发调查"
+      ],
+      "码头": [
+        "制造错误判断",
+        "发现线索",
+        "触发调查"
+      ],
+      "屋里": [
+        "发现线索",
+        "触发调查"
+      ],
+      "义庄": [
+        "发现线索"
+      ],
+      "岸边": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "门口": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "是半块木牌": [
+        "触发调查"
+      ],
+      "但那木牌": [
+        "触发调查"
+      ],
+      "叶的气味": [
+        "触发调查"
+      ],
+      "后颈": [
+        "触发调查"
+      ],
+      "窗边": [
+        "触发调查"
+      ],
+      "想起来了": [
+        "触发调查"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "是半块木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "但那木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene14",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene15",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene11",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene12",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene13",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene16",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene17",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene18",
+        "scene_function": "触发调查"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene07",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene07",
+    "first_investigation_trigger_scene_id": "ch01_scene07",
+    "first_artifact_change_scene_id": "ch01_scene07",
+    "consecutive_transition_runs": []
+  }
+}

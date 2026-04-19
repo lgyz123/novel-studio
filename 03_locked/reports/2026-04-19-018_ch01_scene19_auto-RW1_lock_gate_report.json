@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-19-018_ch01_scene19_auto-RW1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：继续推进第1章，写出scene19。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：方向基本正确，但本场结构推进信号仍不足。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "他决定去。但不是现在。"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "孟浮灯把最后一块船板钉牢，直起身，用袖子抹了把额头的汗。天光从棚顶的破洞漏下来，照得满屋木屑像浮…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "他关上门，背靠着粗糙的木壁。屋里除了一张破木板搭的床、一个瘸腿的矮凳、墙角堆着的几件旧工具和那卷…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 工钱, 铜钱, 缆绳, 码头，且本场至少为 工钱, 铜钱, 缆绳 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "他决定去。但不是现在。；孟浮灯把最后一块船板钉牢，直起身，用袖子抹了把额头的汗。天光从棚顶的破洞漏下来，照得满屋木屑像浮…；他关上门，背靠着粗糙的木壁。屋里除了一张破木板搭的床、一个瘸腿的矮凳、墙角堆着的几件旧工具和那卷…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "他关上门，背靠着粗糙的木壁。屋里除了一张破木板搭的床、一个瘸腿的矮凳、墙角堆着的几件旧工具和那卷…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 工钱, 铜钱, 缆绳, 码头，且本场至少为 工钱, 铜钱, 缆绳 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=atmosphere,transition,reflection"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
-from app.chapter_orchestrator import build_chapter_opening_task, should_rollover_after_lock
+from app.chapter_orchestrator import build_chapter_opening_task, render_chapter_state, should_rollover_after_lock
 import app.main as main_module
 from app.project_inputs import render_human_input_markdown
 from app.runtime_config import load_runtime_config
@@ -470,6 +470,79 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("# chapter_state\n03_locked/canon/ch02_state.md", task_text)
         self.assertIn("# output_target\n02_working/drafts/ch02_scene01.md", task_text)
         self.assertIn("当前章节目标", task_text)
+
+    def test_render_chapter_state_includes_chapter_spine_and_existing_locked_scene(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest/novel_manifest.md").write_text(
+                "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                encoding="utf-8",
+            )
+            (root / "01_inputs/human_input.yaml").write_text(
+                "project:\n  premise: 采药少年误入仙途。\nstory_blueprint:\n  chapter_goal: 第一章先立足，再给出新的现实压力。\nmanual_required:\n  must_have:\n    - 让主角先感到新的催逼。\n  open_questions:\n    - 名字背后的来历先不揭破。\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                encoding="utf-8",
+            )
+            (root / "03_locked/chapters/ch01_scene01.md").write_text("已锁正文", encoding="utf-8")
+            (root / "03_locked/state/story_state.json").write_text(
+                "{\n  \"characters\": {\"protagonist\": {\"known_facts\": [\"半截红绳\"], \"active_goals\": [\"先把眼前麻烦压下去\"]}},\n  \"items\": [{\"name\": \"平安符\"}]\n}",
+                encoding="utf-8",
+            )
+
+            chapter_state = render_chapter_state(root, 1)
+
+        self.assertIn("## 本章主线骨架", chapter_state)
+        self.assertIn("本章目标", chapter_state)
+        self.assertIn("新压力源", chapter_state)
+        self.assertIn("错误判断", chapter_state)
+        self.assertIn("03_locked/chapters/ch01_scene01.md", chapter_state)
+        self.assertIn("## 当前关键物件", chapter_state)
+        self.assertIn("平安符", chapter_state)
+
+    def test_prepare_runtime_start_restart_cleans_previous_runtime_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs/tasks/generated").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+                (root / "00_manifest/novel_manifest.md").write_text(
+                    "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                    encoding="utf-8",
+                )
+                (root / "01_inputs/human_input.yaml").write_text(
+                    "project:\n  premise: 采药少年误入仙途。\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                    encoding="utf-8",
+                )
+                (root / "01_inputs/tasks/current_task.md").write_text("# task_id\nold_task\n", encoding="utf-8")
+                (root / "01_inputs/tasks/generated/old.md").write_text("old", encoding="utf-8")
+                (root / "02_working/drafts/old.md").write_text("old", encoding="utf-8")
+                (root / "03_locked/chapters/ch01_scene01.md").write_text("old", encoding="utf-8")
+                (root / "03_locked/state/story_state.json").write_text("{}", encoding="utf-8")
+
+                task_id = main_module.prepare_runtime_start(
+                    {"run": {"mode": "restart", "start_chapter": 1, "start_scene": 1}, "generation": {}}
+                )
+                current_task_exists = (root / "01_inputs/tasks/current_task.md").exists()
+                old_draft_exists = (root / "02_working/drafts/old.md").exists()
+                old_locked_exists = (root / "03_locked/chapters/ch01_scene01.md").exists()
+                story_state_exists = (root / "03_locked/state/story_state.json").exists()
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIn("_ch01_scene01_auto", task_id or "")
+        self.assertFalse(old_draft_exists)
+        self.assertFalse(old_locked_exists)
+        self.assertFalse(story_state_exists)
+        self.assertTrue(current_task_exists)
 
     def test_should_rollover_after_lock_uses_run_scene_limit(self) -> None:
         self.assertTrue(should_rollover_after_lock({"run": {"max_scenes_per_chapter": 12}}, "03_locked/chapters/ch01_scene12.md"))

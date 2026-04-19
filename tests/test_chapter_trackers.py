@@ -29,6 +29,9 @@ class ChapterTrackersTest(unittest.TestCase):
         self.assertNotIn("轻则扣钱", labels)
         self.assertNotIn("可这块牌", labels)
         self.assertNotIn("想起老张头说过", labels)
+        self.assertNotIn("一个", labels)
+        self.assertNotIn("两个字", labels)
+        self.assertNotIn("一块木牌", labels)
 
     def test_load_tracker_bundle_filters_polluted_motif_labels_from_existing_tracker(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

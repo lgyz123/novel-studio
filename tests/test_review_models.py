@@ -60,6 +60,7 @@ from app.main import (
 from app.review_models import (
     RepairMode,
     ReviewIssue,
+    ReviewIssueType,
     ReviewScope,
     ReviewSeverity,
     ReviewStatus,
@@ -650,12 +651,51 @@ scene_realism
                 "在码头",
                 "风带着水腥气",
                 "只有远处码头",
+                "一个",
+                "两个字",
+                "一块木牌",
+                "下面还有",
+                "几枚铜钱",
+                "码头",
                 "主角意识到主动调查会立即引来监视。",
                 "红绳",
             ]
         )
 
         self.assertEqual(cleaned, ["主角意识到主动调查会立即引来监视。", "红绳"])
+
+    def test_structured_review_result_normalizes_extended_issue_types(self) -> None:
+        result = StructuredReviewResult.from_dict(
+            {
+                "task_id": "scene_001",
+                "status": "revise",
+                "summary": "需要修订。",
+                "decision_reason": "结构缺口。",
+                "issues": [
+                    {
+                        "id": "ISSUE-001",
+                        "type": "required_plot_progress",
+                        "severity": "high",
+                        "scope": "scene",
+                        "target": "scene_001",
+                        "message": "推进不足",
+                        "suggested_action": "rewrite_scene",
+                    },
+                    {
+                        "id": "ISSUE-002",
+                        "type": "required_decision_shift",
+                        "severity": "high",
+                        "scope": "scene",
+                        "target": "scene_001",
+                        "message": "决策偏移不足",
+                        "suggested_action": "rewrite_scene",
+                    },
+                ],
+            }
+        )
+
+        self.assertEqual(result.issues[0].type, ReviewIssueType.scene_purpose)
+        self.assertEqual(result.issues[1].type, ReviewIssueType.scene_purpose)
 
     def test_build_generated_task_content_prefers_configured_length_override(self) -> None:
         task_text = """# task_id

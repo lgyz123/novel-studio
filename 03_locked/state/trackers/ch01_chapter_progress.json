@@ -4,7 +4,7 @@
   "protagonist_goal": "[待从前文与 story_state 回填]；尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
   "protagonist_mode": "隐匿/压制",
   "investigation_stage": "被动留意",
-  "risk_level": "medium",
+  "risk_level": "high",
   "current_relationships": [
     "他认得这：疑似旧识",
     "种牌子：疑似旧识",
@@ -28,14 +28,14 @@
     "一具来历不明的尸首，若是牵扯到什么不该牵扯的，整条船、整个码头都可能被查、被罚、被摊上额外的“水捐”或“清淤钱”"
   ],
   "completed_scene_functions": [
-    "ch01_scene09: 触发调查",
-    "ch01_scene14: 发现线索",
-    "ch01_scene15: 发现线索",
     "ch01_scene10: 制造错误判断",
     "ch01_scene11: 发现线索",
     "ch01_scene12: 发现线索",
     "ch01_scene13: 发现线索",
-    "ch01_scene16: 制造错误判断"
+    "ch01_scene16: 制造错误判断",
+    "ch01_scene17: 制造错误判断",
+    "ch01_scene18: 触发调查",
+    "ch01_scene19: 发现线索"
   ],
   "remaining_scene_functions": [
     "揭示关系",
@@ -43,541 +43,6 @@
   ],
   "consecutive_transition_scene_count": 0,
   "scene_summaries": [
-    {
-      "scene_id": "ch01_scene05",
-      "scene_function": "发现线索",
-      "new_information_items": [
-        "他记得昨夜在腰间摸到过一道整齐的切口，像是被什么薄刃划开的。但此刻借着灰…",
-        "孟浮灯停下手。这不是寻常的溺毙，也不是简单的劫杀。腰间的切口太干净，像是…",
-        "他得做个决定。尸体天亮后会被坊正的人拉走，之后是烧是埋，再与他无关。那枚…"
-      ],
-      "protagonist_decision": "天还没亮透，孟浮灯已经蹲在河滩边，把昨夜捞上来的那具尸体重新翻了一遍。他得赶在坊正派人来收走之前…",
-      "state_changes": [
-        "investigation_stage: 主动调查 -> 被动留意",
-        "risk_level: low -> medium"
-      ],
-      "motifs_used": [
-        "工牌",
-        "胸口",
-        "什么",
-        "铜符",
-        "朝码头",
-        "里的铜符",
-        "胸口的窟窿",
-        "这意味",
-        "意味",
-        "名字",
-        "还在袖袋",
-        "湿冷的袖袋",
-        "湿漉漉的绳",
-        "老头认钱",
-        "工钱",
-        "而这意味",
-        "的气味",
-        "也不能找码头",
-        "本来该去码头",
-        "他不认识",
-        "和这铜符",
-        "有什么关",
-        "想起昨夜在尸体袖",
-        "想起城西有家旧书"
-      ],
-      "motif_functions": {
-        "工牌": [
-          "发现线索"
-        ],
-        "胸口": [
-          "提高风险",
-          "发现线索",
-          "触发调查"
-        ],
-        "什么": [
-          "提高风险"
-        ],
-        "铜符": [
-          "触发调查",
-          "发现线索"
-        ],
-        "朝码头": [
-          "触发调查",
-          "发现线索"
-        ],
-        "里的铜符": [
-          "触发调查"
-        ],
-        "胸口的窟窿": [
-          "触发调查",
-          "发现线索"
-        ],
-        "这意味": [
-          "发现线索"
-        ],
-        "意味": [
-          "发现线索"
-        ],
-        "名字": [
-          "发现线索"
-        ],
-        "还在袖袋": [
-          "发现线索"
-        ],
-        "湿冷的袖袋": [
-          "发现线索"
-        ],
-        "湿漉漉的绳": [
-          "发现线索"
-        ],
-        "老头认钱": [
-          "发现线索"
-        ],
-        "工钱": [
-          "发现线索"
-        ],
-        "而这意味": [
-          "发现线索"
-        ],
-        "的气味": [
-          "发现线索"
-        ],
-        "也不能找码头": [
-          "发现线索"
-        ],
-        "本来该去码头": [
-          "发现线索"
-        ],
-        "他不认识": [
-          "发现线索"
-        ],
-        "和这铜符": [
-          "发现线索"
-        ],
-        "有什么关": [
-          "发现线索"
-        ],
-        "想起昨夜在尸体袖": [
-          "发现线索"
-        ],
-        "想起城西有家旧书": [
-          "发现线索"
-        ]
-      },
-      "artifacts_changed": [
-        {
-          "label": "铜符",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "high",
-          "change_types": [
-            "significance_level"
-          ]
-        },
-        {
-          "label": "还在袖袋",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "湿冷的袖袋",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "湿漉漉的绳",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "老头认钱",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "工钱",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        }
-      ],
-      "open_questions_created": [],
-      "open_questions_resolved": [],
-      "reveal_changes": {},
-      "canon_risk_flags": []
-    },
-    {
-      "scene_id": "ch01_scene06",
-      "scene_function": "发现线索",
-      "new_information_items": [
-        "他走到岸边那棵歪脖子柳树底下，背靠着树干坐下。从这里能看见整段河面，也能…",
-        "胸口那个硬块，他大概知道是什么。前年冬天，码头仓库里冻死过一个挑夫，收拾…",
-        "孟浮灯盯着水里的黑影。如果这人怀里也有那样一块竹牌，如果他胸口那个硬块就…"
-      ],
-      "protagonist_decision": "孟浮灯站起身，腿有些麻。他得做个决定。这具尸体天亮前必须处理掉，要么报给码头管事的，要么自己拖到…",
-      "state_changes": [
-        "protagonist_mode: 隐匿/压制 -> 行动推进",
-        "investigation_stage: 主动调查 -> 被动留意",
-        "risk_level: low -> medium"
-      ],
-      "motifs_used": [
-        "胸口",
-        "什么",
-        "竹牌",
-        "意味",
-        "铜钱",
-        "一个",
-        "的人",
-        "什么符",
-        "这不是竹牌",
-        "自己袖袋",
-        "而这张符",
-        "带着水腥气",
-        "约的腐烂味",
-        "就意味",
-        "胸口那个硬",
-        "心口的位置",
-        "要么报给码头",
-        "他走到岸边",
-        "上游码头",
-        "黑黢黢的棚屋",
-        "穿着码头",
-        "下地磕碰岸边",
-        "弯弯曲曲",
-        "整段河面",
-        "上游码头那片",
-        "这具尸体",
-        "想起老张头含糊的",
-        "白森森的骨头"
-      ],
-      "motif_functions": {
-        "胸口": [
-          "提高风险",
-          "发现线索",
-          "触发调查"
-        ],
-        "什么": [
-          "提高风险"
-        ],
-        "竹牌": [
-          "发现线索",
-          "触发调查"
-        ],
-        "意味": [
-          "发现线索",
-          "触发调查"
-        ],
-        "铜钱": [
-          "发现线索"
-        ],
-        "一个": [
-          "触发调查"
-        ],
-        "的人": [
-          "触发调查"
-        ],
-        "什么符": [
-          "发现线索"
-        ],
-        "这不是竹牌": [
-          "发现线索"
-        ],
-        "自己袖袋": [
-          "发现线索"
-        ],
-        "而这张符": [
-          "发现线索"
-        ],
-        "带着水腥气": [
-          "发现线索"
-        ],
-        "约的腐烂味": [
-          "发现线索"
-        ],
-        "就意味": [
-          "发现线索"
-        ],
-        "胸口那个硬": [
-          "发现线索"
-        ],
-        "心口的位置": [
-          "发现线索"
-        ],
-        "要么报给码头": [
-          "发现线索"
-        ],
-        "他走到岸边": [
-          "发现线索"
-        ],
-        "上游码头": [
-          "发现线索"
-        ],
-        "黑黢黢的棚屋": [
-          "发现线索"
-        ],
-        "穿着码头": [
-          "发现线索"
-        ],
-        "下地磕碰岸边": [
-          "发现线索"
-        ],
-        "弯弯曲曲": [
-          "发现线索"
-        ],
-        "整段河面": [
-          "发现线索"
-        ],
-        "上游码头那片": [
-          "发现线索"
-        ],
-        "这具尸体": [
-          "发现线索"
-        ],
-        "想起老张头含糊的": [
-          "发现线索"
-        ],
-        "白森森的骨头": [
-          "发现线索"
-        ]
-      },
-      "artifacts_changed": [
-        {
-          "label": "什么符",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "medium",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "这不是竹牌",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "medium",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "自己袖袋",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        },
-        {
-          "label": "而这张符",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "medium",
-          "change_types": [
-            "introduced"
-          ]
-        }
-      ],
-      "open_questions_created": [],
-      "open_questions_resolved": [],
-      "reveal_changes": {},
-      "canon_risk_flags": []
-    },
-    {
-      "scene_id": "ch01_scene07",
-      "scene_function": "触发调查",
-      "new_information_items": [
-        "铁片是从前天那具年轻尸首衣襟里掉出来的。竹片则是去年冬天的事，那时他还在…",
-        "老赵带来的消息，让这两样东西的分量变了。它们不再只是可疑的物件，而成了一…",
-        "他把铁片和竹片重新裹好，塞回原处。屋里很静，能听见远处运河上早起船只的摇…"
-      ],
-      "protagonist_decision": "天还没亮透，孟浮灯就醒了。不是自己醒的，是屋外有人拍门。拍得不算重，但很急，一下接一下，像催命。…",
-      "state_changes": [
-        "investigation_stage: 未启动 -> 被动留意",
-        "risk_level: low -> high"
-      ],
-      "motifs_used": [
-        "不是码头",
-        "在码头",
-        "什么",
-        "竹牌",
-        "意味",
-        "也意味",
-        "名字",
-        "也不是码头",
-        "铜钱",
-        "一个",
-        "名册",
-        "昨晚的潮气",
-        "确认屋里",
-        "在昏暗的屋里",
-        "他退回屋里",
-        "的人",
-        "想起了前天夜里从",
-        "想起城里那些登记",
-        "是码头",
-        "或是钱",
-        "个决定意味",
-        "但也意味",
-        "后颈有些发",
-        "说是南边码头",
-        "和后来在码头",
-        "回到屋里",
-        "听着远处码头",
-        "字或记号",
-        "他被两条汉子",
-        "老赵的饼摊已"
-      ],
-      "motif_functions": {
-        "不是码头": [
-          "发现线索"
-        ],
-        "在码头": [
-          "发现线索",
-          "触发调查"
-        ],
-        "什么": [
-          "提高风险"
-        ],
-        "竹牌": [
-          "发现线索",
-          "触发调查"
-        ],
-        "意味": [
-          "发现线索",
-          "触发调查"
-        ],
-        "也意味": [
-          "发现线索"
-        ],
-        "名字": [
-          "发现线索"
-        ],
-        "也不是码头": [
-          "制造错误判断",
-          "触发调查"
-        ],
-        "铜钱": [
-          "发现线索",
-          "触发调查"
-        ],
-        "一个": [
-          "触发调查"
-        ],
-        "名册": [
-          "触发调查"
-        ],
-        "昨晚的潮气": [
-          "触发调查"
-        ],
-        "确认屋里": [
-          "触发调查"
-        ],
-        "在昏暗的屋里": [
-          "触发调查"
-        ],
-        "他退回屋里": [
-          "触发调查"
-        ],
-        "的人": [
-          "触发调查"
-        ],
-        "想起了前天夜里从": [
-          "触发调查"
-        ],
-        "想起城里那些登记": [
-          "触发调查"
-        ],
-        "是码头": [
-          "触发调查"
-        ],
-        "或是钱": [
-          "触发调查"
-        ],
-        "个决定意味": [
-          "触发调查"
-        ],
-        "但也意味": [
-          "触发调查"
-        ],
-        "后颈有些发": [
-          "触发调查"
-        ],
-        "说是南边码头": [
-          "触发调查"
-        ],
-        "和后来在码头": [
-          "触发调查"
-        ],
-        "回到屋里": [
-          "触发调查"
-        ],
-        "听着远处码头": [
-          "触发调查"
-        ],
-        "字或记号": [
-          "触发调查"
-        ],
-        "他被两条汉子": [
-          "触发调查"
-        ],
-        "老赵的饼摊已": [
-          "触发调查"
-        ]
-      },
-      "artifacts_changed": [
-        {
-          "label": "名册",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "high",
-          "change_types": [
-            "significance_level"
-          ]
-        },
-        {
-          "label": "或是钱",
-          "holder": "主角",
-          "location": "随身携带",
-          "visibility": "hidden",
-          "significance_level": "low",
-          "change_types": [
-            "introduced"
-          ]
-        }
-      ],
-      "open_questions_created": [],
-      "open_questions_resolved": [],
-      "reveal_changes": {},
-      "canon_risk_flags": []
-    },
     {
       "scene_id": "ch01_scene08",
       "scene_function": "发现线索",
@@ -1997,22 +1462,717 @@
       "open_questions_resolved": [],
       "reveal_changes": {},
       "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch01_scene17",
+      "scene_function": "制造错误判断",
+      "new_information_items": [
+        "他从裤袋里掏出那团湿软的符纸，放在桌上。纸团慢慢舒展开，露出晕染的朱砂纹…",
+        "那里原本应该是符胆的位置，但此刻显露出来的，不是常见的敕令或神将名号，而…",
+        "牒。文书，凭证，登记册。在码头和衙门打交道的这些年，他听过这个字。粮船过…"
+      ],
+      "protagonist_decision": "孟浮灯把尸体拖到岸边，用脚抵住湿滑的石阶，让它半搁在浅滩上。水从衣袍里渗出来，在石板上洇开一片深…",
+      "state_changes": [],
+      "motifs_used": [
+        "麻绳",
+        "胸口",
+        "那符",
+        "这符",
+        "名字",
+        "货栈",
+        "铜钱",
+        "背后",
+        "他听过",
+        "码头",
+        "窝棚",
+        "屋里",
+        "渡口",
+        "但符",
+        "带符",
+        "那贴符",
+        "贴符",
+        "那半张残符",
+        "塞进裤袋",
+        "但裤袋",
+        "刮到符",
+        "登记册",
+        "归册",
+        "可符",
+        "但贴符",
+        "那种粗麻绳",
+        "留出的绳",
+        "至于贴符",
+        "裤袋",
+        "破旧的账册",
+        "脂的气味",
+        "胸口只剩下",
+        "岸边",
+        "河道",
+        "门口",
+        "生辰和籍"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索",
+          "提高风险",
+          "引发后果",
+          "制造错误判断"
+        ],
+        "胸口": [
+          "提高风险",
+          "发现线索",
+          "触发调查",
+          "制造错误判断"
+        ],
+        "那符": [
+          "发现线索"
+        ],
+        "这符": [
+          "触发调查",
+          "制造错误判断"
+        ],
+        "名字": [
+          "发现线索"
+        ],
+        "货栈": [
+          "制造错误判断"
+        ],
+        "铜钱": [
+          "发现线索",
+          "触发调查"
+        ],
+        "背后": [
+          "触发调查"
+        ],
+        "他听过": [
+          "引发后果"
+        ],
+        "码头": [
+          "制造错误判断",
+          "发现线索",
+          "触发调查"
+        ],
+        "窝棚": [
+          "发现线索",
+          "制造错误判断"
+        ],
+        "屋里": [
+          "发现线索"
+        ],
+        "渡口": [
+          "触发调查",
+          "制造错误判断"
+        ],
+        "但符": [
+          "制造错误判断"
+        ],
+        "带符": [
+          "制造错误判断"
+        ],
+        "那贴符": [
+          "制造错误判断"
+        ],
+        "贴符": [
+          "制造错误判断"
+        ],
+        "那半张残符": [
+          "制造错误判断"
+        ],
+        "塞进裤袋": [
+          "制造错误判断"
+        ],
+        "但裤袋": [
+          "制造错误判断"
+        ],
+        "刮到符": [
+          "制造错误判断"
+        ],
+        "登记册": [
+          "制造错误判断"
+        ],
+        "归册": [
+          "制造错误判断"
+        ],
+        "可符": [
+          "制造错误判断"
+        ],
+        "但贴符": [
+          "制造错误判断"
+        ],
+        "那种粗麻绳": [
+          "制造错误判断"
+        ],
+        "留出的绳": [
+          "制造错误判断"
+        ],
+        "至于贴符": [
+          "制造错误判断"
+        ],
+        "裤袋": [
+          "制造错误判断"
+        ],
+        "破旧的账册": [
+          "制造错误判断"
+        ],
+        "脂的气味": [
+          "制造错误判断"
+        ],
+        "胸口只剩下": [
+          "制造错误判断"
+        ],
+        "岸边": [
+          "制造错误判断"
+        ],
+        "河道": [
+          "制造错误判断"
+        ],
+        "门口": [
+          "制造错误判断"
+        ],
+        "生辰和籍": [
+          "制造错误判断"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "这符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "significance_level"
+          ]
+        },
+        {
+          "label": "但符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "带符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "那贴符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "贴符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "那半张残符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "塞进裤袋",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "但裤袋",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "刮到符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "登记册",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "归册",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "可符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "但贴符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "那种粗麻绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "留出的绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "至于贴符",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "裤袋",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "破旧的账册",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch01_scene18",
+      "scene_function": "触发调查",
+      "new_information_items": [
+        "孟浮灯把苇叶从水里捞起来，拧干，塞进背后的竹筐。筐底已经铺了一层，湿漉漉…",
+        "现在那尸体应该已经送到义庄了，或者被哪家领走了。这种事常有，运河里总有些…",
+        "他背起竹筐，沿着泥滩往岸上走。筐里的苇叶还在滴水，顺着他的脊背往下淌。走…"
+      ],
+      "protagonist_decision": "孟浮灯把苇叶从水里捞起来，拧干，塞进背后的竹筐。筐底已经铺了一层，湿漉漉地压着筐底。他直起身，腰…",
+      "state_changes": [
+        "protagonist_mode: 隐匿/压制 -> 调查/试探",
+        "risk_level: medium -> low"
+      ],
+      "motifs_used": [
+        "木牌",
+        "铜钱",
+        "背后",
+        "码头",
+        "屋里",
+        "义庄",
+        "岸边",
+        "门口",
+        "是半块木牌",
+        "但那木牌",
+        "叶的气味",
+        "后颈",
+        "窗边",
+        "想起来了"
+      ],
+      "motif_functions": {
+        "木牌": [
+          "发现线索",
+          "提高风险",
+          "制造错误判断",
+          "引发后果",
+          "触发调查"
+        ],
+        "铜钱": [
+          "发现线索",
+          "触发调查"
+        ],
+        "背后": [
+          "触发调查"
+        ],
+        "码头": [
+          "制造错误判断",
+          "发现线索",
+          "触发调查"
+        ],
+        "屋里": [
+          "发现线索",
+          "触发调查"
+        ],
+        "义庄": [
+          "发现线索"
+        ],
+        "岸边": [
+          "制造错误判断",
+          "触发调查"
+        ],
+        "门口": [
+          "制造错误判断",
+          "触发调查"
+        ],
+        "是半块木牌": [
+          "触发调查"
+        ],
+        "但那木牌": [
+          "触发调查"
+        ],
+        "叶的气味": [
+          "触发调查"
+        ],
+        "后颈": [
+          "触发调查"
+        ],
+        "窗边": [
+          "触发调查"
+        ],
+        "想起来了": [
+          "触发调查"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "是半块木牌",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "但那木牌",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch01_scene19",
+      "scene_function": "发现线索",
+      "new_information_items": [
+        "他决定去。但不是现在。"
+      ],
+      "protagonist_decision": "他关上门，背靠着粗糙的木壁。屋里除了一张破木板搭的床、一个瘸腿的矮凳、墙角堆着的几件旧工具和那卷…",
+      "state_changes": [
+        "protagonist_mode: 调查/试探 -> 隐匿/压制",
+        "risk_level: low -> high"
+      ],
+      "motifs_used": [
+        "胸口",
+        "工钱",
+        "铜钱",
+        "想起老张头的话",
+        "已经模糊",
+        "缆绳",
+        "码头",
+        "屋里",
+        "渡口",
+        "岸边",
+        "河道",
+        "这月的赁钱",
+        "赁钱",
+        "烂缆绳",
+        "需要钱",
+        "磨刀",
+        "磨好了刀",
+        "这次的赁钱",
+        "铁牌",
+        "这铁牌",
+        "水腥味",
+        "腐殖气味",
+        "泥的腥气",
+        "道意味",
+        "船舱",
+        "什么图案",
+        "想起昨天回码头时",
+        "想起昨天夜里"
+      ],
+      "motif_functions": {
+        "胸口": [
+          "提高风险",
+          "发现线索",
+          "触发调查",
+          "制造错误判断"
+        ],
+        "工钱": [
+          "发现线索",
+          "触发调查"
+        ],
+        "铜钱": [
+          "发现线索",
+          "触发调查"
+        ],
+        "想起老张头的话": [
+          "触发调查",
+          "发现线索"
+        ],
+        "已经模糊": [
+          "触发调查"
+        ],
+        "缆绳": [
+          "触发调查",
+          "发现线索",
+          "制造错误判断"
+        ],
+        "码头": [
+          "制造错误判断",
+          "发现线索",
+          "触发调查"
+        ],
+        "屋里": [
+          "发现线索",
+          "触发调查"
+        ],
+        "渡口": [
+          "触发调查",
+          "制造错误判断",
+          "发现线索"
+        ],
+        "岸边": [
+          "制造错误判断",
+          "触发调查",
+          "发现线索"
+        ],
+        "河道": [
+          "制造错误判断",
+          "发现线索"
+        ],
+        "这月的赁钱": [
+          "发现线索"
+        ],
+        "赁钱": [
+          "发现线索"
+        ],
+        "烂缆绳": [
+          "发现线索"
+        ],
+        "需要钱": [
+          "发现线索"
+        ],
+        "磨刀": [
+          "发现线索"
+        ],
+        "磨好了刀": [
+          "发现线索"
+        ],
+        "这次的赁钱": [
+          "发现线索"
+        ],
+        "铁牌": [
+          "发现线索"
+        ],
+        "这铁牌": [
+          "发现线索"
+        ],
+        "水腥味": [
+          "发现线索"
+        ],
+        "腐殖气味": [
+          "发现线索"
+        ],
+        "泥的腥气": [
+          "发现线索"
+        ],
+        "道意味": [
+          "发现线索"
+        ],
+        "船舱": [
+          "发现线索"
+        ],
+        "什么图案": [
+          "发现线索"
+        ],
+        "想起昨天回码头时": [
+          "发现线索"
+        ],
+        "想起昨天夜里": [
+          "发现线索"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "这月的赁钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "赁钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "烂缆绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "需要钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "磨刀",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "磨好了刀",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "这次的赁钱",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "铁牌",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        },
+        {
+          "label": "这铁牌",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "medium",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
     }
   ],
   "chapter_structure_summary": {
     "scene_function_table": [
-      {
-        "scene_id": "ch01_scene05",
-        "scene_function": "发现线索"
-      },
-      {
-        "scene_id": "ch01_scene06",
-        "scene_function": "发现线索"
-      },
-      {
-        "scene_id": "ch01_scene07",
-        "scene_function": "触发调查"
-      },
       {
         "scene_id": "ch01_scene08",
         "scene_function": "发现线索"
@@ -2048,12 +2208,24 @@
       {
         "scene_id": "ch01_scene16",
         "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene17",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene18",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene19",
+        "scene_function": "发现线索"
       }
     ],
-    "first_clue_scene_id": "ch01_scene05",
-    "first_old_acquaintance_hint_scene_id": "ch01_scene07",
-    "first_investigation_trigger_scene_id": "ch01_scene05",
-    "first_artifact_change_scene_id": "ch01_scene05",
+    "first_clue_scene_id": "ch01_scene08",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "ch01_scene09",
+    "first_artifact_change_scene_id": "ch01_scene08",
     "consecutive_transition_runs": []
   }
 }

@@ -65,6 +65,10 @@ INVALID_ARTIFACT_LABEL_PATTERNS = [
     re.compile(r"^[\u4e00-\u9fff]{0,4}(?:把|将|挪|摸|拿|想|看|攥|连|用|松开|绑住|拖着)"),
 ]
 INVALID_MOTIF_LABEL_PREFIXES = (
+    "一个",
+    "两个",
+    "一块",
+    "一行",
     "不是",
     "可这",
     "轻则",
@@ -90,6 +94,8 @@ INVALID_MOTIF_LABEL_PREFIXES = (
     "半晌",
 )
 INVALID_MOTIF_LABEL_PARTS = (
+    "两个字",
+    "一个字",
     "扣钱",
     "领钱",
     "做活",
@@ -687,6 +693,8 @@ def normalize_motif_label(category: str, label: str) -> str:
 def is_valid_motif_label(category: str, label: str) -> bool:
     text = str(label or "").strip()
     if len(text) < 2 or len(text) > 8:
+        return False
+    if text in {"一个", "两个字", "一个字", "一块木牌", "一行小字"}:
         return False
     if any(text.startswith(prefix) for prefix in INVALID_MOTIF_LABEL_PREFIXES):
         return False

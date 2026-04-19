@@ -13,18 +13,18 @@
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene14",
         "ch01_scene11",
-        "ch01_scene16"
+        "ch01_scene16",
+        "ch01_scene17"
       ],
-      "recent_usage_count": 10,
+      "recent_usage_count": 11,
       "recent_functions": [
         "发现线索",
-        "发现线索",
-        "制造错误判断"
+        "制造错误判断",
+        "发现线索"
       ],
-      "last_function": "制造错误判断",
-      "function_novelty_score": 1.0,
+      "last_function": "发现线索",
+      "function_novelty_score": 0.4,
       "allow_next_scene": true,
       "only_if_new_function": true,
       "redundancy_risk": "medium",
@@ -43,21 +43,21 @@
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene04",
         "ch01_scene08",
-        "ch01_scene12"
+        "ch01_scene12",
+        "ch01_scene18"
       ],
-      "recent_usage_count": 10,
+      "recent_usage_count": 11,
       "recent_functions": [
-        "触发调查",
         "发现线索",
-        "发现线索"
+        "发现线索",
+        "触发调查"
       ],
-      "last_function": "发现线索",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
+      "last_function": "触发调查",
+      "function_novelty_score": 0.4,
+      "allow_next_scene": true,
       "only_if_new_function": true,
-      "redundancy_risk": "high",
+      "redundancy_risk": "medium",
       "notes": "locked_scene_repeated_without_new_function"
     },
     {
@@ -293,18 +293,18 @@
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene12",
-        "ch01_scene13",
-        "ch01_scene16"
+        "ch01_scene16",
+        "ch01_scene17",
+        "ch01_scene19"
       ],
-      "recent_usage_count": 17,
+      "recent_usage_count": 19,
       "recent_functions": [
-        "触发调查",
-        "发现线索",
-        "制造错误判断"
+        "制造错误判断",
+        "制造错误判断",
+        "发现线索"
       ],
-      "last_function": "制造错误判断",
-      "function_novelty_score": 1.0,
+      "last_function": "发现线索",
+      "function_novelty_score": 0.4,
       "allow_next_scene": true,
       "only_if_new_function": true,
       "redundancy_risk": "medium",
@@ -330,33 +330,6 @@
       "allow_next_scene": true,
       "only_if_new_function": false,
       "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
-      "motif_id": "identity_motif_一个名字",
-      "category": "identity_motif",
-      "label": "一个名字",
-      "narrative_functions": [
-        "提高风险",
-        "发现线索",
-        "制造错误判断"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene05",
-        "ch01_scene04"
-      ],
-      "recent_usage_count": 3,
-      "recent_functions": [
-        "提高风险",
-        "发现线索",
-        "制造错误判断"
-      ],
-      "last_function": "制造错误判断",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": true,
-      "redundancy_risk": "medium",
       "notes": ""
     },
     {
@@ -472,33 +445,6 @@
       "allow_next_scene": true,
       "only_if_new_function": false,
       "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
-      "motif_id": "identity_motif_一行小字",
-      "category": "identity_motif",
-      "label": "一行小字",
-      "narrative_functions": [
-        "发现线索",
-        "触发调查",
-        "引发后果"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene05",
-        "ch01_scene08"
-      ],
-      "recent_usage_count": 3,
-      "recent_functions": [
-        "发现线索",
-        "触发调查",
-        "引发后果"
-      ],
-      "last_function": "引发后果",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": true,
-      "redundancy_risk": "medium",
       "notes": ""
     },
     {
@@ -1224,17 +1170,20 @@
       "category": "artifact_motif",
       "label": "这符",
       "narrative_functions": [
-        "触发调查"
+        "触发调查",
+        "制造错误判断"
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene05"
+        "ch01_scene05",
+        "ch01_scene17"
       ],
-      "recent_usage_count": 1,
+      "recent_usage_count": 2,
       "recent_functions": [
-        "触发调查"
+        "触发调查",
+        "制造错误判断"
       ],
-      "last_function": "触发调查",
+      "last_function": "制造错误判断",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
       "only_if_new_function": false,
@@ -1536,31 +1485,6 @@
         "发现线索"
       ],
       "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
-      "motif_id": "identity_motif_一个字",
-      "category": "identity_motif",
-      "label": "一个字",
-      "narrative_functions": [
-        "发现线索",
-        "触发调查"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene06",
-        "ch01_scene07"
-      ],
-      "recent_usage_count": 2,
-      "recent_functions": [
-        "发现线索",
-        "触发调查"
-      ],
-      "last_function": "触发调查",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
       "only_if_new_function": false,
@@ -1985,21 +1909,21 @@
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene05",
         "ch01_scene09",
-        "ch01_scene10"
+        "ch01_scene10",
+        "ch01_scene18"
       ],
-      "recent_usage_count": 6,
+      "recent_usage_count": 7,
       "recent_functions": [
-        "触发调查",
         "发现线索",
-        "发现线索"
+        "发现线索",
+        "触发调查"
       ],
-      "last_function": "发现线索",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
+      "last_function": "触发调查",
+      "function_novelty_score": 0.4,
+      "allow_next_scene": true,
       "only_if_new_function": true,
-      "redundancy_risk": "high",
+      "redundancy_risk": "medium",
       "notes": ""
     },
     {
@@ -2428,33 +2352,6 @@
       "notes": ""
     },
     {
-      "motif_id": "identity_motif_一个",
-      "category": "identity_motif",
-      "label": "一个",
-      "narrative_functions": [
-        "触发调查",
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene08",
-        "ch01_scene07",
-        "ch01_scene12"
-      ],
-      "recent_usage_count": 5,
-      "recent_functions": [
-        "触发调查",
-        "触发调查",
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": true,
-      "redundancy_risk": "medium",
-      "notes": "locked_scene_repeated_without_new_function"
-    },
-    {
       "motif_id": "identity_motif_模糊的编",
       "category": "identity_motif",
       "label": "模糊的编",
@@ -2481,17 +2378,20 @@
       "category": "memory_trigger_motif",
       "label": "想起老张头的话",
       "narrative_functions": [
-        "触发调查"
+        "触发调查",
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene06"
+        "ch01_scene06",
+        "ch01_scene19"
       ],
-      "recent_usage_count": 1,
+      "recent_usage_count": 2,
       "recent_functions": [
-        "触发调查"
+        "触发调查",
+        "发现线索"
       ],
-      "last_function": "触发调查",
+      "last_function": "发现线索",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
       "only_if_new_function": false,
@@ -3212,28 +3112,6 @@
       "notes": ""
     },
     {
-      "motif_id": "identity_motif_两个字",
-      "category": "identity_motif",
-      "label": "两个字",
-      "narrative_functions": [
-        "引发后果"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene08"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "引发后果"
-      ],
-      "last_function": "引发后果",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
       "motif_id": "identity_motif_他听过",
       "category": "identity_motif",
       "label": "他听过",
@@ -3287,10 +3165,12 @@
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene08"
+        "ch01_scene08",
+        "ch01_scene18"
       ],
-      "recent_usage_count": 2,
+      "recent_usage_count": 3,
       "recent_functions": [
+        "触发调查",
         "触发调查",
         "触发调查"
       ],
@@ -3299,7 +3179,7 @@
       "allow_next_scene": false,
       "only_if_new_function": true,
       "redundancy_risk": "high",
-      "notes": ""
+      "notes": "locked_scene_repeated_without_new_function"
     },
     {
       "motif_id": "artifact_motif_半串铜钱",
@@ -3424,29 +3304,6 @@
       "motif_id": "artifact_motif_扣例钱",
       "category": "artifact_motif",
       "label": "扣例钱",
-      "narrative_functions": [
-        "触发调查"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene08"
-      ],
-      "recent_usage_count": 2,
-      "recent_functions": [
-        "触发调查",
-        "触发调查"
-      ],
-      "last_function": "触发调查",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
-      "only_if_new_function": true,
-      "redundancy_risk": "high",
-      "notes": ""
-    },
-    {
-      "motif_id": "identity_motif_一行字",
-      "category": "identity_motif",
-      "label": "一行字",
       "narrative_functions": [
         "触发调查"
       ],
@@ -3855,30 +3712,6 @@
       "motif_id": "artifact_motif_剩下的绳",
       "category": "artifact_motif",
       "label": "剩下的绳",
-      "narrative_functions": [
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene10"
-      ],
-      "recent_usage_count": 3,
-      "recent_functions": [
-        "发现线索",
-        "发现线索",
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
-      "only_if_new_function": true,
-      "redundancy_risk": "high",
-      "notes": ""
-    },
-    {
-      "motif_id": "artifact_motif_一块磨刀",
-      "category": "artifact_motif",
-      "label": "一块磨刀",
       "narrative_functions": [
         "发现线索"
       ],
@@ -4752,28 +4585,6 @@
       "notes": ""
     },
     {
-      "motif_id": "identity_motif_一个歪歪",
-      "category": "identity_motif",
-      "label": "一个歪歪",
-      "narrative_functions": [
-        "触发调查"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene13"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "触发调查"
-      ],
-      "last_function": "触发调查",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
       "motif_id": "memory_trigger_motif_想起尸体腋下那块",
       "category": "memory_trigger_motif",
       "label": "想起尸体腋下那块",
@@ -5066,28 +4877,6 @@
       "notes": ""
     },
     {
-      "motif_id": "artifact_motif_一块木牌",
-      "category": "artifact_motif",
-      "label": "一块木牌",
-      "narrative_functions": [
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene12"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
       "motif_id": "artifact_motif_几枚铜钱",
       "category": "artifact_motif",
       "label": "几枚铜钱",
@@ -5286,28 +5075,6 @@
       "notes": ""
     },
     {
-      "motif_id": "smell_motif_底意味",
-      "category": "smell_motif",
-      "label": "底意味",
-      "narrative_functions": [
-        "制造错误判断"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene16"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "制造错误判断"
-      ],
-      "last_function": "制造错误判断",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
       "motif_id": "body_sensation_motif_背脊上",
       "category": "body_sensation_motif",
       "label": "背脊上",
@@ -5334,21 +5101,27 @@
       "category": "environment_motif",
       "label": "码头",
       "narrative_functions": [
-        "制造错误判断"
+        "制造错误判断",
+        "发现线索",
+        "触发调查"
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene16"
+        "ch01_scene17",
+        "ch01_scene18",
+        "ch01_scene19"
       ],
-      "recent_usage_count": 1,
+      "recent_usage_count": 6,
       "recent_functions": [
-        "制造错误判断"
+        "制造错误判断",
+        "触发调查",
+        "发现线索"
       ],
-      "last_function": "制造错误判断",
+      "last_function": "发现线索",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
+      "only_if_new_function": true,
+      "redundancy_risk": "medium",
       "notes": ""
     },
     {
@@ -5367,6 +5140,1305 @@
         "制造错误判断"
       ],
       "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_在账册",
+      "category": "artifact_motif",
+      "label": "在账册",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_背脊拱起",
+      "category": "body_sensation_motif",
+      "label": "背脊拱起",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_窝棚",
+      "category": "environment_motif",
+      "label": "窝棚",
+      "narrative_functions": [
+        "发现线索",
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_屋里",
+      "category": "environment_motif",
+      "label": "屋里",
+      "narrative_functions": [
+        "发现线索",
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17",
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "发现线索",
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "identity_motif_义庄",
+      "category": "identity_motif",
+      "label": "义庄",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_水钱",
+      "category": "artifact_motif",
+      "label": "水钱",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_给了定钱",
+      "category": "artifact_motif",
+      "label": "给了定钱",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_这半吊钱",
+      "category": "artifact_motif",
+      "label": "这半吊钱",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_指节攥得发",
+      "category": "body_sensation_motif",
+      "label": "指节攥得发",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_渡口",
+      "category": "environment_motif",
+      "label": "渡口",
+      "narrative_functions": [
+        "触发调查",
+        "制造错误判断",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18",
+        "ch01_scene17",
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 3,
+      "recent_functions": [
+        "触发调查",
+        "制造错误判断",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": true,
+      "redundancy_risk": "medium",
+      "notes": ""
+    },
+    {
+      "motif_id": "identity_motif_出现在尸",
+      "category": "identity_motif",
+      "label": "出现在尸",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起前天夜里捞起",
+      "category": "memory_trigger_motif",
+      "label": "想起前天夜里捞起",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_但符",
+      "category": "artifact_motif",
+      "label": "但符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_带符",
+      "category": "artifact_motif",
+      "label": "带符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_那贴符",
+      "category": "artifact_motif",
+      "label": "那贴符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_贴符",
+      "category": "artifact_motif",
+      "label": "贴符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_那半张残符",
+      "category": "artifact_motif",
+      "label": "那半张残符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_塞进裤袋",
+      "category": "artifact_motif",
+      "label": "塞进裤袋",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_但裤袋",
+      "category": "artifact_motif",
+      "label": "但裤袋",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_刮到符",
+      "category": "artifact_motif",
+      "label": "刮到符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_登记册",
+      "category": "artifact_motif",
+      "label": "登记册",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_归册",
+      "category": "artifact_motif",
+      "label": "归册",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_可符",
+      "category": "artifact_motif",
+      "label": "可符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_但贴符",
+      "category": "artifact_motif",
+      "label": "但贴符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_那种粗麻绳",
+      "category": "artifact_motif",
+      "label": "那种粗麻绳",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_留出的绳",
+      "category": "artifact_motif",
+      "label": "留出的绳",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_至于贴符",
+      "category": "artifact_motif",
+      "label": "至于贴符",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_裤袋",
+      "category": "artifact_motif",
+      "label": "裤袋",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_破旧的账册",
+      "category": "artifact_motif",
+      "label": "破旧的账册",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_脂的气味",
+      "category": "smell_motif",
+      "label": "脂的气味",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_胸口只剩下",
+      "category": "body_sensation_motif",
+      "label": "胸口只剩下",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_岸边",
+      "category": "environment_motif",
+      "label": "岸边",
+      "narrative_functions": [
+        "制造错误判断",
+        "触发调查",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17",
+        "ch01_scene18",
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 3,
+      "recent_functions": [
+        "制造错误判断",
+        "触发调查",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": true,
+      "redundancy_risk": "medium",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_河道",
+      "category": "environment_motif",
+      "label": "河道",
+      "narrative_functions": [
+        "制造错误判断",
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17",
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "制造错误判断",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_门口",
+      "category": "environment_motif",
+      "label": "门口",
+      "narrative_functions": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17",
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 2,
+      "recent_functions": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "identity_motif_生辰和籍",
+      "category": "identity_motif",
+      "label": "生辰和籍",
+      "narrative_functions": [
+        "制造错误判断"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene17"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "制造错误判断"
+      ],
+      "last_function": "制造错误判断",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_是半块木牌",
+      "category": "artifact_motif",
+      "label": "是半块木牌",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_但那木牌",
+      "category": "artifact_motif",
+      "label": "但那木牌",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_叶的气味",
+      "category": "smell_motif",
+      "label": "叶的气味",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_后颈",
+      "category": "body_sensation_motif",
+      "label": "后颈",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_窗边",
+      "category": "environment_motif",
+      "label": "窗边",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起来了",
+      "category": "memory_trigger_motif",
+      "label": "想起来了",
+      "narrative_functions": [
+        "触发调查"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene18"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "触发调查"
+      ],
+      "last_function": "触发调查",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_这月的赁钱",
+      "category": "artifact_motif",
+      "label": "这月的赁钱",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_赁钱",
+      "category": "artifact_motif",
+      "label": "赁钱",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_烂缆绳",
+      "category": "artifact_motif",
+      "label": "烂缆绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_需要钱",
+      "category": "artifact_motif",
+      "label": "需要钱",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_磨刀",
+      "category": "artifact_motif",
+      "label": "磨刀",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_磨好了刀",
+      "category": "artifact_motif",
+      "label": "磨好了刀",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_这次的赁钱",
+      "category": "artifact_motif",
+      "label": "这次的赁钱",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_铁牌",
+      "category": "artifact_motif",
+      "label": "铁牌",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_这铁牌",
+      "category": "artifact_motif",
+      "label": "这铁牌",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_水腥味",
+      "category": "smell_motif",
+      "label": "水腥味",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_腐殖气味",
+      "category": "smell_motif",
+      "label": "腐殖气味",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_泥的腥气",
+      "category": "smell_motif",
+      "label": "泥的腥气",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "smell_motif_道意味",
+      "category": "smell_motif",
+      "label": "道意味",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "environment_motif_船舱",
+      "category": "environment_motif",
+      "label": "船舱",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "identity_motif_什么图案",
+      "category": "identity_motif",
+      "label": "什么图案",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起昨天回码头时",
+      "category": "memory_trigger_motif",
+      "label": "想起昨天回码头时",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "memory_trigger_motif_想起昨天夜里",
+      "category": "memory_trigger_motif",
+      "label": "想起昨天夜里",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene19"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
       "only_if_new_function": false,

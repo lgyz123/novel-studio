@@ -1,0 +1,419 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene17",
+  "locked_file": "03_locked/chapters/ch01_scene17.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene17",
+    "scene_function": "制造错误判断",
+    "new_information_items": [
+      "他从裤袋里掏出那团湿软的符纸，放在桌上。纸团慢慢舒展开，露出晕染的朱砂纹…",
+      "那里原本应该是符胆的位置，但此刻显露出来的，不是常见的敕令或神将名号，而…",
+      "牒。文书，凭证，登记册。在码头和衙门打交道的这些年，他听过这个字。粮船过…"
+    ],
+    "protagonist_decision": "孟浮灯把尸体拖到岸边，用脚抵住湿滑的石阶，让它半搁在浅滩上。水从衣袍里渗出来，在石板上洇开一片深…",
+    "state_changes": [],
+    "motifs_used": [
+      "麻绳",
+      "胸口",
+      "那符",
+      "这符",
+      "名字",
+      "货栈",
+      "铜钱",
+      "背后",
+      "他听过",
+      "码头",
+      "窝棚",
+      "屋里",
+      "渡口",
+      "但符",
+      "带符",
+      "那贴符",
+      "贴符",
+      "那半张残符",
+      "塞进裤袋",
+      "但裤袋",
+      "刮到符",
+      "登记册",
+      "归册",
+      "可符",
+      "但贴符",
+      "那种粗麻绳",
+      "留出的绳",
+      "至于贴符",
+      "裤袋",
+      "破旧的账册",
+      "脂的气味",
+      "胸口只剩下",
+      "岸边",
+      "河道",
+      "门口",
+      "生辰和籍"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索",
+        "提高风险",
+        "引发后果",
+        "制造错误判断"
+      ],
+      "胸口": [
+        "提高风险",
+        "发现线索",
+        "触发调查",
+        "制造错误判断"
+      ],
+      "那符": [
+        "发现线索"
+      ],
+      "这符": [
+        "触发调查",
+        "制造错误判断"
+      ],
+      "名字": [
+        "发现线索"
+      ],
+      "货栈": [
+        "制造错误判断"
+      ],
+      "铜钱": [
+        "发现线索",
+        "触发调查"
+      ],
+      "背后": [
+        "触发调查"
+      ],
+      "他听过": [
+        "引发后果"
+      ],
+      "码头": [
+        "制造错误判断",
+        "发现线索",
+        "触发调查"
+      ],
+      "窝棚": [
+        "发现线索",
+        "制造错误判断"
+      ],
+      "屋里": [
+        "发现线索"
+      ],
+      "渡口": [
+        "触发调查",
+        "制造错误判断"
+      ],
+      "但符": [
+        "制造错误判断"
+      ],
+      "带符": [
+        "制造错误判断"
+      ],
+      "那贴符": [
+        "制造错误判断"
+      ],
+      "贴符": [
+        "制造错误判断"
+      ],
+      "那半张残符": [
+        "制造错误判断"
+      ],
+      "塞进裤袋": [
+        "制造错误判断"
+      ],
+      "但裤袋": [
+        "制造错误判断"
+      ],
+      "刮到符": [
+        "制造错误判断"
+      ],
+      "登记册": [
+        "制造错误判断"
+      ],
+      "归册": [
+        "制造错误判断"
+      ],
+      "可符": [
+        "制造错误判断"
+      ],
+      "但贴符": [
+        "制造错误判断"
+      ],
+      "那种粗麻绳": [
+        "制造错误判断"
+      ],
+      "留出的绳": [
+        "制造错误判断"
+      ],
+      "至于贴符": [
+        "制造错误判断"
+      ],
+      "裤袋": [
+        "制造错误判断"
+      ],
+      "破旧的账册": [
+        "制造错误判断"
+      ],
+      "脂的气味": [
+        "制造错误判断"
+      ],
+      "胸口只剩下": [
+        "制造错误判断"
+      ],
+      "岸边": [
+        "制造错误判断"
+      ],
+      "河道": [
+        "制造错误判断"
+      ],
+      "门口": [
+        "制造错误判断"
+      ],
+      "生辰和籍": [
+        "制造错误判断"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "这符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "但符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "带符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那贴符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "贴符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那半张残符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "塞进裤袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "但裤袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "刮到符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "登记册",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "归册",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "可符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "但贴符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "那种粗麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "留出的绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "至于贴符",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "裤袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "破旧的账册",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene14",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene15",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene11",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene12",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene13",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene16",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene18",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene17",
+        "scene_function": "制造错误判断"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene07",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene07",
+    "first_investigation_trigger_scene_id": "ch01_scene07",
+    "first_artifact_change_scene_id": "ch01_scene07",
+    "consecutive_transition_runs": []
+  }
+}

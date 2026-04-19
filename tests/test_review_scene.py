@@ -727,6 +727,65 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertTrue(signals["motif_redundancy"]["repetition_has_new_function"])
         self.assertTrue(signals["motif_redundancy"]["same_function_reuse_allowed"])
 
+    def test_build_structural_review_signals_filters_noisy_repeated_motifs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    json.dumps(
+                        {
+                            "chapter_id": "ch01",
+                            "active_motifs": [
+                                {
+                                    "motif_id": "artifact_motif_one",
+                                    "category": "artifact_motif",
+                                    "label": "一个",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                                {
+                                    "motif_id": "artifact_motif_money",
+                                    "category": "artifact_motif",
+                                    "label": "几枚铜钱",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                                {
+                                    "motif_id": "artifact_motif_rope",
+                                    "category": "artifact_motif",
+                                    "label": "麻绳",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                            ],
+                        },
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["发现线索"], "consecutive_transition_scene_count": 1}', encoding="utf-8")
+
+                signals = review_scene_module.build_structural_review_signals(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene03_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    draft_text="他把麻绳卷进袖里，顺手把几枚铜钱压进木盒底层。",
+                    based_on_text="前文里他已经碰过这些旧物。",
+                    chapter_state="章节状态",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("麻绳", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertNotIn("一个", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertNotIn("几枚铜钱", signals["motif_redundancy"]["repeated_motifs"])
+
     def test_structural_gate_allows_transition_scene_without_hard_decision_when_progress_exists(self) -> None:
         signals = review_scene_module.build_empty_structural_review()
         signals["scene_function"] = "过渡/氛围"

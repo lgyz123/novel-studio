@@ -12,6 +12,7 @@ from chapter_trackers import (
     chapter_id_from_task_or_locked,
     detect_artifact_state_conflicts as detect_tracker_artifact_state_conflicts,
     detect_forbidden_reveal_violations,
+    is_valid_motif_label,
     load_tracker_bundle,
     motif_entries_in_text,
 )
@@ -231,6 +232,17 @@ def normalize_text_key(text: str) -> str:
     lowered = re.sub(r"\s+", " ", lowered)
     lowered = re.sub(r"[\W_]+", "", lowered)
     return lowered
+
+
+def is_noise_motif_label(label: str) -> bool:
+    text = str(label or "").strip()
+    if not text:
+        return True
+    if text in {"一个", "两个字", "一个字", "一块木牌", "一行小字", "下面还有", "几枚铜钱", "码头"}:
+        return True
+    if text.startswith(("在码头", "风带着", "只有远处", "前几天在码头", "他在码头", "想起前几天在码头")):
+        return True
+    return False
 
 
 def split_text_fragments(text: str) -> list[str]:
@@ -777,6 +789,11 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
         if not isinstance(entry, dict):
             continue
         label = str(entry.get("label") or "").strip()
+        category = str(entry.get("category") or "").strip()
+        if is_noise_motif_label(label):
+            continue
+        if category and not is_valid_motif_label(category, label):
+            continue
         if label and label not in repeated_motifs:
             repeated_motifs.append(label)
     motif_has_new_function = True
