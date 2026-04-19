@@ -304,6 +304,14 @@ def get_deepseek_takeover_startup_message(config: dict | None = None) -> str | N
     return "警告：已配置 DeepSeek takeover，但当前未检测到可用的 API key；本轮不会触发接管。"
 
 
+def get_writer_runtime_mode_message(config: dict | None = None) -> str | None:
+    if not config:
+        return None
+    if should_use_deepseek_writer(config):
+        return "DeepSeek-first 模式已启用：writer 将直接使用 DeepSeek 成稿，takeover 仅作为本地 writer 兜底配置保留。"
+    return get_deepseek_takeover_startup_message(config)
+
+
 def should_use_minimal_local_revision_task(config: dict | None, task_text: str, mode: str) -> bool:
     if mode not in {"revise", "rewrite"}:
         return False
@@ -2519,7 +2527,7 @@ def write_draft(config: dict, current_context: str) -> dict:
     decision = generate_decision_json(config, current_context)
     task_id = decision["task_id"]
     writer_provider = str(config.get("writer", {}).get("provider", "")).strip().lower() or "unknown"
-    writer_mode = "draft_generated"
+    writer_mode = "deepseek_primary" if should_use_deepseek_writer(config) else "draft_generated"
     fallbacks_used: list[str] = []
     initial_validation_errors: list[str] = []
 
@@ -2849,6 +2857,9 @@ TASK_FRAGMENT_PREFIXES = (
     "货栈后墙根那",
     "有些绳",
     "尸身往岸边",
+    "在码头",
+    "风带着",
+    "只有远处",
 )
 
 
@@ -2857,6 +2868,8 @@ def is_noisy_task_fragment(text: str) -> bool:
     if not candidate:
         return True
     if any(candidate.startswith(prefix) for prefix in TASK_FRAGMENT_PREFIXES):
+        return True
+    if any(fragment in candidate for fragment in ["风带着水腥气", "只有远处码头", "前几天在码头", "他在码头", "想起前几天在码头"]):
         return True
     if len(candidate) >= 6 and not re.search(r"[。！？?!：:；;，,、“”‘’（）()]", candidate):
         if candidate.endswith(("那", "这", "昨", "边", "里", "上", "下", "着", "过")):
@@ -3028,6 +3041,51 @@ def extract_task_progress(task_text: str) -> tuple[int | None, int | None]:
     return extract_chapter_number(output_target or task_text), extract_scene_number(output_target or task_text)
 
 
+def extract_progress_from_task_file(task_file: str | None) -> tuple[int | None, int | None]:
+    raw = str(task_file or "").strip()
+    if not raw:
+        return (None, None)
+    return extract_chapter_number(raw), extract_scene_number(raw)
+
+
+def load_latest_run_summary_state() -> dict[str, str]:
+    summary_path = ROOT / "02_working/reviews/latest_run_summary.md"
+    if not summary_path.exists():
+        return {}
+
+    content = summary_path.read_text(encoding="utf-8")
+    state: dict[str, str] = {}
+    for key in ["task_id", "review_status", "task_file", "locked_file"]:
+        match = re.search(rf"(?m)^- {re.escape(key)}:\s*(.+?)\s*$", content)
+        if match:
+            value = match.group(1).strip()
+            if value:
+                state[key] = value
+    return state
+
+
+def choose_preferred_resume_task(
+    current_task_text: str | None,
+    summary_task_text: str | None,
+) -> str | None:
+    candidates: list[tuple[tuple[int, int, int], str]] = []
+
+    for task_text in [current_task_text, summary_task_text]:
+        raw = str(task_text or "").strip()
+        if not raw:
+            continue
+        chapter_number, scene_number = extract_task_progress(raw)
+        if chapter_number is None or scene_number is None:
+            continue
+        task_id = extract_markdown_field(raw, "task_id") or ""
+        revision_count = extract_revision_count(task_id)
+        candidates.append(((chapter_number, scene_number, revision_count), raw))
+
+    if not candidates:
+        return current_task_text or summary_task_text
+    return sorted(candidates, key=lambda item: item[0])[-1][1]
+
+
 def latest_locked_file_for_bootstrap(start_chapter: int) -> str | None:
     chapter_dir = ROOT / "03_locked/chapters"
     if not chapter_dir.exists():
@@ -3050,12 +3108,47 @@ def prepare_runtime_start(config: dict) -> str | None:
     run_mode = get_run_mode(config)
     if run_mode == "continue":
         current_task_path = ROOT / "01_inputs/tasks/current_task.md"
-        if not current_task_path.exists():
-            return None
         locked_dir = config.get("paths", {}).get("locked_dir", "03_locked")
-        task_text = current_task_path.read_text(encoding="utf-8")
-        current_chapter, current_scene = extract_task_progress(task_text)
-        latest_locked_file = latest_locked_file_for_bootstrap(current_chapter or get_start_progress(config)[0])
+        current_task_text = current_task_path.read_text(encoding="utf-8") if current_task_path.exists() else None
+        summary_state = load_latest_run_summary_state()
+        summary_task_text: str | None = None
+        summary_task_file = str(summary_state.get("task_file") or "").strip()
+        summary_review_status = str(summary_state.get("review_status") or "").strip().lower()
+        if summary_task_file and summary_review_status != "lock":
+            summary_task_path = ROOT / summary_task_file
+            if summary_task_path.exists():
+                summary_task_text = summary_task_path.read_text(encoding="utf-8")
+
+        task_text = choose_preferred_resume_task(current_task_text, summary_task_text)
+        seed_chapter = get_start_progress(config)[0]
+        current_chapter, current_scene = extract_task_progress(task_text or "")
+        latest_locked_file = latest_locked_file_for_bootstrap(current_chapter or seed_chapter)
+        if not task_text:
+            if not latest_locked_file:
+                return None
+            latest_locked_chapter = extract_chapter_number(latest_locked_file)
+            latest_locked_scene = extract_scene_number(latest_locked_file)
+            if latest_locked_chapter is None or latest_locked_scene is None:
+                return None
+            if should_rollover_after_lock(config, latest_locked_file):
+                next_chapter = latest_locked_chapter + 1
+                next_scene = 1
+            else:
+                next_chapter = latest_locked_chapter
+                next_scene = latest_locked_scene + 1
+            next_task_id, next_task_text = build_chapter_opening_task(
+                ROOT,
+                config,
+                chapter_number=next_chapter,
+                scene_number=next_scene,
+                previous_locked_file=latest_locked_file,
+            )
+            next_task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+            save_text(next_task_file, next_task_text)
+            if not should_continue_after_lock(config, next_task_file):
+                return None
+            task_text = next_task_text
+            current_chapter, current_scene = extract_task_progress(task_text)
         if latest_locked_file:
             latest_locked_chapter = extract_chapter_number(latest_locked_file)
             latest_locked_scene = extract_scene_number(latest_locked_file)
@@ -4783,9 +4876,9 @@ def main() -> None:
     try:
         config = load_runtime_config(ROOT)
         validate_local_model_endpoints(config)
-        takeover_message = get_deepseek_takeover_startup_message(config)
-        if takeover_message:
-            print(takeover_message)
+        runtime_message = get_writer_runtime_mode_message(config)
+        if runtime_message:
+            print(runtime_message)
         max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
         manual_intervention_after = get_effective_manual_intervention_threshold(config, max_revisions)
         loop_round = 1

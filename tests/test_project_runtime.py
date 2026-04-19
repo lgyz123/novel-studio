@@ -353,6 +353,94 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("_ch01_scene09_auto", task_id or "")
         self.assertIn("# output_target\n02_working/drafts/ch01_scene09.md", current_task)
 
+    def test_prepare_runtime_start_in_continue_mode_can_resume_from_latest_summary_task(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs/tasks/generated").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+                (root / "00_manifest/novel_manifest.md").write_text(
+                    "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                    encoding="utf-8",
+                )
+                (root / "01_inputs/human_input.yaml").write_text(
+                    "project:\n  premise: 采药少年误入仙途。\n  genre: 修仙\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                    encoding="utf-8",
+                )
+                (root / "03_locked/chapters/ch01_scene04.md").write_text("已锁正文", encoding="utf-8")
+                (root / "01_inputs/tasks/generated/2026-04-19-013_ch01_scene06_auto-R1.md").write_text(
+                    "# task_id\n2026-04-19-013_ch01_scene06_auto-R1\n\n# output_target\n02_working/drafts/ch01_scene06_v2.md\n",
+                    encoding="utf-8",
+                )
+                (root / "02_working/reviews/latest_run_summary.md").write_text(
+                    "# Latest Run Summary\n\n## 本轮概况\n- task_id: 2026-04-19-013_ch01_scene06_auto-R1\n- review_status: revise\n\n## 输出产物\n- task_file: 01_inputs/tasks/generated/2026-04-19-013_ch01_scene06_auto-R1.md\n",
+                    encoding="utf-8",
+                )
+
+                task_id = main_module.prepare_runtime_start(
+                    {
+                        "run": {"mode": "continue", "target_chapter": 1, "target_scene": 10},
+                        "generation": {},
+                        "paths": {"locked_dir": "03_locked"},
+                    }
+                )
+
+                current_task = (root / "01_inputs/tasks/current_task.md").read_text(encoding="utf-8")
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertEqual(task_id, "2026-04-19-013_ch01_scene06_auto-R1")
+        self.assertIn("# output_target\n02_working/drafts/ch01_scene06_v2.md", current_task)
+
+    def test_prepare_runtime_start_in_continue_mode_ignores_locked_summary_task_and_advances(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs/tasks/generated").mkdir(parents=True, exist_ok=True)
+                (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/chapters").mkdir(parents=True, exist_ok=True)
+                (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+                (root / "00_manifest/novel_manifest.md").write_text(
+                    "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                    encoding="utf-8",
+                )
+                (root / "01_inputs/human_input.yaml").write_text(
+                    "project:\n  premise: 采药少年误入仙途。\n  genre: 修仙\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                    encoding="utf-8",
+                )
+                (root / "03_locked/chapters/ch01_scene06.md").write_text("已锁正文", encoding="utf-8")
+                (root / "01_inputs/tasks/generated/2026-04-19-013_ch01_scene06_auto.md").write_text(
+                    "# task_id\n2026-04-19-013_ch01_scene06_auto\n\n# output_target\n02_working/drafts/ch01_scene06.md\n",
+                    encoding="utf-8",
+                )
+                (root / "02_working/reviews/latest_run_summary.md").write_text(
+                    "# Latest Run Summary\n\n## 本轮概况\n- task_id: 2026-04-19-013_ch01_scene06_auto\n- review_status: lock\n\n## 输出产物\n- task_file: 01_inputs/tasks/generated/2026-04-19-013_ch01_scene06_auto.md\n- locked_file: 03_locked/chapters/ch01_scene06.md\n",
+                    encoding="utf-8",
+                )
+
+                task_id = main_module.prepare_runtime_start(
+                    {
+                        "run": {"mode": "continue", "target_chapter": 1, "target_scene": 7},
+                        "generation": {},
+                        "paths": {"locked_dir": "03_locked"},
+                    }
+                )
+
+                current_task = (root / "01_inputs/tasks/current_task.md").read_text(encoding="utf-8")
+            finally:
+                main_module.ROOT = previous_root
+
+        self.assertIn("_ch01_scene07_auto", task_id or "")
+        self.assertIn("# output_target\n02_working/drafts/ch01_scene07.md", current_task)
+
     def test_build_chapter_opening_task_uses_human_input_and_previous_locked_scene(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

@@ -64,6 +64,56 @@ INVALID_ARTIFACT_LABEL_PATTERNS = [
     re.compile(r"^(?:孟浮灯|他|她|他们|对方|目前|比如|或者|掌心|手指|勉强|从墙角|泡烂|想起|连着)"),
     re.compile(r"^[\u4e00-\u9fff]{0,4}(?:把|将|挪|摸|拿|想|看|攥|连|用|松开|绑住|拖着)"),
 ]
+INVALID_MOTIF_LABEL_PREFIXES = (
+    "不是",
+    "可这",
+    "轻则",
+    "重则",
+    "混着",
+    "带着",
+    "风带着",
+    "只有",
+    "只是",
+    "像是",
+    "像被",
+    "他朝",
+    "她朝",
+    "盯着",
+    "看着",
+    "拖着",
+    "拖到",
+    "尸身",
+    "把尸",
+    "将尸",
+    "有些",
+    "那点",
+    "半晌",
+)
+INVALID_MOTIF_LABEL_PARTS = (
+    "扣钱",
+    "领钱",
+    "做活",
+    "码头上",
+    "往岸边",
+    "到岸边",
+    "盯着",
+    "看着",
+    "拖着",
+    "尸身",
+    "风带着",
+    "混着",
+    "不是码头",
+    "不是绳",
+    "不是牌",
+)
+INVALID_MOTIF_LABEL_PATTERNS = [
+    re.compile(r"^(?:的|得|地)[\u4e00-\u9fff]{1,6}$"),
+    re.compile(r"^[\u4e00-\u9fff]{1,2}则[\u4e00-\u9fff]{1,4}$"),
+    re.compile(r"^[\u4e00-\u9fff]{1,6}(?:说过|做活|扣钱|领钱)$"),
+    re.compile(r"^(?:风带着|混着|盯着|看着|拖着)[\u4e00-\u9fff]{1,6}$"),
+]
+VALID_ENVIRONMENT_MOTIF_RE = re.compile(r"^(?:窝棚|棚屋|岸边|桥洞|河道|码头|船舱|门口|窗边|屋里|渡口|旧码头|老码头|旧窝棚|破棚屋|旧棚屋)$")
+VALID_SMELL_MOTIF_RE = re.compile(r"^(?:水腥气|血腥味|铁锈味|霉气|潮气|臭味|怪味|气味)$")
 
 
 class MotifEntry(BaseModel):
@@ -105,9 +155,21 @@ class ChapterMotifTracker(BaseModel):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ChapterMotifTracker":
+        raw_entries = data.get("active_motifs", []) if isinstance(data, dict) else []
+        sanitized_entries: list[dict[str, Any]] = []
+        for entry in raw_entries if isinstance(raw_entries, list) else []:
+            if not isinstance(entry, dict):
+                continue
+            label = str(entry.get("label") or "").strip()
+            category = str(entry.get("category") or "").strip()
+            if not is_valid_motif_label(category, label):
+                continue
+            sanitized_entries.append(dict(entry))
+        sanitized_data = dict(data or {})
+        sanitized_data["active_motifs"] = sanitized_entries
         if hasattr(cls, "model_validate"):
-            return cls.model_validate(data)
-        return cls.parse_obj(data)
+            return cls.model_validate(sanitized_data)
+        return cls.parse_obj(sanitized_data)
 
 
 class RevelationTracker(BaseModel):
@@ -606,6 +668,41 @@ def clean_extracted_label(label: str) -> str:
     return text.strip()
 
 
+def normalize_motif_label(category: str, label: str) -> str:
+    text = clean_extracted_label(label)
+    if category == "environment_motif":
+        match = re.search(r"(?:窝棚|棚屋|岸边|桥洞|河道|码头|船舱|门口|窗边|屋里|渡口)$", text)
+        return match.group(0) if match else text
+    if category == "smell_motif":
+        match = re.search(r"([\u4e00-\u9fff]{0,2}(?:气味|味|臭|腥气|潮气|霉气))$", text)
+        return match.group(1) if match else text
+    if category == "memory_trigger_motif":
+        if "说过" in text:
+            return ""
+        match = re.search(r"((?:想起|记起|梦见|闻见|看见)[\u4e00-\u9fff]{0,4})$", text)
+        return match.group(1) if match else text
+    return text
+
+
+def is_valid_motif_label(category: str, label: str) -> bool:
+    text = str(label or "").strip()
+    if len(text) < 2 or len(text) > 8:
+        return False
+    if any(text.startswith(prefix) for prefix in INVALID_MOTIF_LABEL_PREFIXES):
+        return False
+    if any(part in text for part in INVALID_MOTIF_LABEL_PARTS):
+        return False
+    if any(pattern.search(text) for pattern in INVALID_MOTIF_LABEL_PATTERNS):
+        return False
+    if category == "smell_motif" and not VALID_SMELL_MOTIF_RE.fullmatch(text):
+        return False
+    if category == "environment_motif" and not VALID_ENVIRONMENT_MOTIF_RE.fullmatch(text):
+        return False
+    if category == "memory_trigger_motif" and not text.startswith(("想起", "记起", "梦见", "闻见", "看见")):
+        return False
+    return True
+
+
 def is_valid_artifact_label(label: str) -> bool:
     text = str(label or "").strip()
     if len(text) < 2 or len(text) > 6:
@@ -652,8 +749,10 @@ def extract_candidate_motifs_from_text(text: str) -> list[tuple[str, str]]:
         for pattern in patterns:
             for match in pattern.findall(str(text or "")):
                 label = match if isinstance(match, str) else match[0]
-                label = clean_extracted_label(label)
+                label = normalize_motif_label(category, label)
                 if len(label) < 2:
+                    continue
+                if not is_valid_motif_label(category, label):
                     continue
                 if category == "artifact_motif" and not is_valid_artifact_label(label):
                     continue

@@ -42,7 +42,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-013_ch01_scene16_auto
+- task_id：2026-04-19-014_ch01_scene17_auto
 - chapter_id：ch01
 - next_stage：第一章撰写
 
@@ -65,7 +65,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：in_progress
-产物：02_working/drafts/ch01_scene16.md
+产物：02_working/drafts/ch01_scene17.md
 说明：当前任务已进入 scene 落稿。
 
 ## 当前缺口提醒
@@ -91,7 +91,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-013_ch01_scene16_auto
+- task_id：2026-04-19-014_ch01_scene17_auto
 - chapter_id：ch01
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -135,7 +135,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-013_ch01_scene16_auto
+- task_id：2026-04-19-014_ch01_scene17_auto
 - chapter_id：ch01
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
@@ -187,7 +187,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-013_ch01_scene16_auto
+- task_id：2026-04-19-014_ch01_scene17_auto
 - chapter_id：ch01
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -228,13 +228,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch01_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-013_ch01_scene16_auto
+- task_id：2026-04-19-014_ch01_scene17_auto
 - chapter_id：ch01
 - 写入位置：02_working/outlines/ch01_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
 
 ## 本章当前目标
-- 继续推进第 1 章，写出 scene16。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 继续推进第 1 章，写出 scene17。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 
 ## 已有章节锚点
 - 当前还缺少足够的章节锚点，建议用 locked scenes 或 chapter_state 补齐。
@@ -274,7 +274,7 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 当前 scene contract
-- 核心目标：继续推进第 1 章，写出 scene16。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 核心目标：继续推进第 1 章，写出 scene17。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 - 场景功能：本场结束时必须形成新的章内起点，不能只是重复上章余波。
 - 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
 - 局面推进要求：本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。
@@ -520,11 +520,6 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 最近结构化场景摘要
-- ch01_scene11｜发现线索
-  - 新信息：孟浮灯直起身，把筐挎在肩上。陈三站在两步外，手里拎着个空水桶，桶沿还挂着…；“什么事？” “不清楚。”陈三压低了声音，“天没亮就封了，说是里头有东西…
-  - 新动作/决策：巷口传来脚步声，不紧不慢的。孟浮灯没回头，弯腰捡起墙角的破筐，把筐底几根散落的麻绳重新盘好。脚步…
-  - 状态变化：protagonist_mode: 隐匿/压制 -> 观察/求活
-  - 物件变化：麻绳
 - ch01_scene12｜发现线索
   - 新信息：“问看见什么没有。”老妇人说，“问夜里运河上有没有船经过，有没有人从水里…；巷子里那线天光暗了些，积水映出灰蒙蒙的倒影。他贴着墙根往回走，脚步放得比…
   - 新动作/决策：他继续往前走，拐进另一条巷子。这条巷子更窄，两边墙高，头顶只剩一线天光。地上湿漉漉的，不知是哪里…
@@ -535,16 +530,21 @@ Use this skill to turn vague scene intent into a compact structural contract the
   - 新动作/决策：老张头让他把尸体拖到岸边的苇丛里，别让天亮前过路的船看见。孟浮灯照做了，用脚踩倒一片枯杆，腾出一…
   - 状态变化：protagonist_mode: 隐匿/压制 -> 行动推进；risk_level: low -> medium
   - 物件变化：对着账册；断绳
+- ch01_scene16｜制造错误判断
+  - 新信息：泥土混着草屑粘在尸体的背脊上。孟浮灯用袖口擦掉那些泥，动作很慢。他不是在…；衣料下面露出一角黄纸。
+  - 新动作/决策：泥土混着草屑粘在尸体的背脊上。孟浮灯用袖口擦掉那些泥，动作很慢。他不是在检查，是在拖延。天亮前他…
+  - 状态变化：protagonist_mode: 行动推进 -> 隐匿/压制
+  - 物件变化：麻绳；债册
 
 # 相关 tracker 摘要
 - 章节目标：维持日常求活与从运河做活
 - 主角当前目标：[待从前文与 story_state 回填]；尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…
-- 当前模式 / 调查阶段 / 风险：行动推进 / 被动留意 / medium
+- 当前模式 / 调查阶段 / 风险：隐匿/压制 / 被动留意 / medium
 - 当前未解问题：第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？；不要现代词汇、现代设施、现代口语；不要后宫、脸谱反派、流水线升级
 - 已确认事实：[待从前文与 story_state 回填]；尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…；孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…
 - 待验证事实：他认得这种牌子；灰蒙蒙的，像是要下雨，又像是永远这副样子；巡检司的人来了，若发现少了什么，轻则扣钱，重则吃板子，甚至可能被安上个“窃盗亡人物”的罪名，送去服苦役
-- 关键物件切片：麻绳（持有者：主角；位置：随身携带；可见性：visible）；木牌（持有者：主角；位置：随身携带；可见性：hidden）；盯着木牌（持有者：主角；位置：随身携带；可见性：hidden）
-- 章节结构锚点：首个线索场=ch01_scene04；首个旧识暗示场=ch01_scene07；首个调查触发场=ch01_scene04
+- 关键物件切片：麻绳（持有者：主角；位置：随身携带；可见性：hidden）；木牌（持有者：主角；位置：随身携带；可见性：hidden）；盯着木牌（持有者：主角；位置：随身携带；可见性：hidden）
+- 章节结构锚点：首个线索场=ch01_scene05；首个旧识暗示场=ch01_scene07；首个调查触发场=ch01_scene05
 
 # scene writing skill router
 来源文件：02_working/planning/scene_writing_skill_router.md
@@ -744,7 +744,7 @@ Use these questions:
 - is_ok：True
 
 # 少量必要 prose 参考
-来源文件：03_locked/chapters/ch01_scene15.md
+来源文件：03_locked/chapters/ch01_scene16.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-“你不知道。”
+苇荡里的芦苇长得比人高，枯黄的叶子在晨风里沙沙响。孟浮灯找到一处干爽的土坡，把席子卷放下来。他拨开芦苇，挖了个浅坑，把尸体推进去，又盖上枯叶和泥土。做完这些，天已经亮了。他站在苇荡边缘，看着运河上渐渐多起来的船只，知道自己已经没有退路了。

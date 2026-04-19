@@ -6,9 +6,9 @@
       "label": "麻绳",
       "holder": "主角",
       "location": "随身携带",
-      "visibility": "visible",
+      "visibility": "hidden",
       "significance_level": "high",
-      "last_changed_scene": "ch01_scene11",
+      "last_changed_scene": "ch01_scene16",
       "linked_facts": [
         "他把麻绳缠好，站起身。腰后的木轴硌着旧伤，一阵钝痛。他得去领今天的工牌。…"
       ]
@@ -1404,6 +1404,16 @@
       "visibility": "hidden",
       "significance_level": "low",
       "last_changed_scene": "ch01_scene13",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_债册",
+      "label": "债册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene16",
       "linked_facts": []
     }
   ]

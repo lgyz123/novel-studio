@@ -35,6 +35,7 @@ from app.main import (
     extract_revision_count,
     get_effective_manual_intervention_threshold,
     get_deepseek_takeover_startup_message,
+    get_writer_runtime_mode_message,
     extract_supervisor_round,
     has_supervisor_retry_budget,
     is_deepseek_takeover_enabled,
@@ -354,6 +355,18 @@ prose_repair
             "DeepSeek takeover 已启用：本地 writer 连续失败时会自动切换到 DeepSeek 接管。",
         )
 
+    def test_writer_runtime_mode_message_prefers_deepseek_first_message(self) -> None:
+        self.assertEqual(
+            get_writer_runtime_mode_message(
+                {
+                    "writer": {"provider": "deepseek", "model": "deepseek-chat", "base_url": "https://api.deepseek.com"},
+                    "generation": {"deepseek_takeover_enabled": True},
+                    "supervisor": {"enabled": True, "api_key": "sk-test"},
+                }
+            ),
+            "DeepSeek-first 模式已启用：writer 将直接使用 DeepSeek 成稿，takeover 仅作为本地 writer 兜底配置保留。",
+        )
+
     def test_should_trigger_deepseek_takeover_on_hard_local_failures(self) -> None:
         self.assertTrue(
             should_trigger_deepseek_takeover(
@@ -634,6 +647,9 @@ scene_realism
             [
                 "着腐叶的气味",
                 "他朝码头",
+                "在码头",
+                "风带着水腥气",
+                "只有远处码头",
                 "主角意识到主动调查会立即引来监视。",
                 "红绳",
             ]

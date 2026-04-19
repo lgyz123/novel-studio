@@ -506,7 +506,13 @@ def build_requirement_lock_checks(task_text: str, legacy_result: dict[str, Any] 
     repeated_same_function_motifs = normalize_string_list(motif_redundancy.get("repeated_same_function_motifs", []))
     consecutive_same_function_motifs = normalize_string_list(motif_redundancy.get("consecutive_same_function_motifs", []))
     redundancy_reason = str(motif_redundancy.get("redundancy_reason") or "").strip()
-    motif_high_risk = bool(stale_function_motifs or repeated_same_function_motifs or consecutive_same_function_motifs or (repeated_motifs and not motif_redundancy.get("repetition_has_new_function", True)) or not motif_redundancy.get("same_function_reuse_allowed", True))
+    motif_high_risk = bool(
+        repeated_same_function_motifs
+        or consecutive_same_function_motifs
+        or len(stale_function_motifs) >= 2
+        or (repeated_motifs and not motif_redundancy.get("repetition_has_new_function", True) and len(stale_function_motifs) >= 2)
+        or not motif_redundancy.get("same_function_reuse_allowed", True)
+    )
     motif_reason_specific = bool(redundancy_reason and redundancy_reason not in GENERIC_REDUNDANCY_REASONS and len(redundancy_reason) >= 8)
     motif_risk_ok = not motif_high_risk or (motif_reason_specific and bool(motif_redundancy.get("repetition_has_new_function", False)) and bool(motif_redundancy.get("same_function_reuse_allowed", False)))
 
@@ -600,7 +606,14 @@ def build_structural_lock_checks(legacy_result: dict[str, Any] | None) -> list[L
         ),
         LockGateCheck(
             name="motif_redundancy",
-            passed=(not repeated_motifs or bool(motif_redundancy.get("repetition_has_new_function"))) and (not repeated_same_function_motifs or bool(motif_redundancy.get("same_function_reuse_allowed", True))),
+            passed=(
+                (
+                    not repeated_motifs
+                    or bool(motif_redundancy.get("repetition_has_new_function"))
+                    or len([str(item).strip() for item in motif_redundancy.get("stale_function_motifs", []) if str(item).strip()]) < 2
+                )
+                and (not repeated_same_function_motifs or bool(motif_redundancy.get("same_function_reuse_allowed", True)))
+            ),
             details=(
                 str(motif_redundancy.get("redundancy_reason") or "motif repetition without new function").strip()
                 if repeated_motifs

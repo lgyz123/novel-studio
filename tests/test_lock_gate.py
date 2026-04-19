@@ -330,6 +330,34 @@ class LockGateTest(unittest.TestCase):
         self.assertNotEqual(updated["verdict"], "lock")
         self.assertTrue(any(check.name == "motif_redundancy" and not check.passed for check in report.checks))
 
+    def test_lock_gate_allows_single_stale_motif_repeat_without_same_function_streak(self) -> None:
+        reviewer_result = {
+            "task_id": "scene_012_draft_05",
+            "verdict": "lock",
+            "summary": "结构上可锁定。",
+            "major_issues": [],
+            "minor_issues": [],
+            "information_gain": {"has_new_information": True, "new_information_items": ["麻绳表面多了一层新泥。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他把麻绳换到背阴处再处理。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他改了收尾顺序。"},
+            "motif_redundancy": {
+                "repeated_motifs": ["麻绳"],
+                "new_function_motifs": [],
+                "stale_function_motifs": ["麻绳"],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": False,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "麻绳再次出现，但本场主要承担承接和处理顺序变化。",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        updated, report = apply_lock_gate(BASE_TASK, reviewer_result, max_revisions=5)
+
+        self.assertEqual(updated["verdict"], "lock")
+        self.assertTrue(all(check.name != "motif_redundancy" or check.passed for check in report.checks))
+
     def test_lock_gate_blocks_lock_when_task_required_information_and_decision_do_not_land(self) -> None:
         task_text = BASE_TASK + """
 # scene_function

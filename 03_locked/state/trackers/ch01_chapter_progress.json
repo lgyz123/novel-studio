@@ -2,7 +2,7 @@
   "chapter_id": "ch01",
   "chapter_goal": "维持日常求活与从运河做活",
   "protagonist_goal": "[待从前文与 story_state 回填]；尸身是个年轻男子，面孔被水泡得发白浮肿，但身上那件青灰色的袍子料子细密，…",
-  "protagonist_mode": "行动推进",
+  "protagonist_mode": "隐匿/压制",
   "investigation_stage": "被动留意",
   "risk_level": "medium",
   "current_relationships": [
@@ -28,14 +28,14 @@
     "一具来历不明的尸首，若是牵扯到什么不该牵扯的，整条船、整个码头都可能被查、被罚、被摊上额外的“水捐”或“清淤钱”"
   ],
   "completed_scene_functions": [
-    "ch01_scene08: 发现线索",
     "ch01_scene09: 触发调查",
     "ch01_scene14: 发现线索",
     "ch01_scene15: 发现线索",
     "ch01_scene10: 制造错误判断",
     "ch01_scene11: 发现线索",
     "ch01_scene12: 发现线索",
-    "ch01_scene13: 发现线索"
+    "ch01_scene13: 发现线索",
+    "ch01_scene16: 制造错误判断"
   ],
   "remaining_scene_functions": [
     "揭示关系",
@@ -43,66 +43,6 @@
   ],
   "consecutive_transition_scene_count": 0,
   "scene_summaries": [
-    {
-      "scene_id": "ch01_scene04",
-      "scene_function": "制造错误判断",
-      "new_information_items": [
-        "他弯腰，把瓦片丢进水里。瓦片斜着切过水面，没发出什么声响，只留下一圈很快…",
-        "棚户区深处，靠近废弃货栈的地方，有间半塌的土坯房。墙根被雨水泡得发软，屋…",
-        "他走到墙角，掀开油布。下面是个粗陶坛子，坛口用泥封着。他蹲下身，手指抠进…"
-      ],
-      "protagonist_decision": "天光暗下来的时候，孟浮灯正蹲在河沿的石阶上，用一块碎瓦片刮着木桩上的青苔。远处有船工的号子，短促…",
-      "state_changes": [
-        "protagonist_mode: 行动推进 -> 隐匿/压制",
-        "investigation_stage: 被动留意 -> 主动调查",
-        "risk_level: high -> low"
-      ],
-      "motifs_used": [
-        "不是码头",
-        "什么",
-        "的册",
-        "陈年的土腥气",
-        "也不是码头",
-        "走到门口",
-        "他在屋里",
-        "货栈",
-        "空的"
-      ],
-      "motif_functions": {
-        "不是码头": [
-          "发现线索"
-        ],
-        "什么": [
-          "提高风险"
-        ],
-        "的册": [
-          "触发调查"
-        ],
-        "陈年的土腥气": [
-          "制造错误判断"
-        ],
-        "也不是码头": [
-          "制造错误判断"
-        ],
-        "走到门口": [
-          "制造错误判断"
-        ],
-        "他在屋里": [
-          "制造错误判断"
-        ],
-        "货栈": [
-          "制造错误判断"
-        ],
-        "空的": [
-          "制造错误判断"
-        ]
-      },
-      "artifacts_changed": [],
-      "open_questions_created": [],
-      "open_questions_resolved": [],
-      "reveal_changes": {},
-      "canon_risk_flags": []
-    },
     {
       "scene_id": "ch01_scene05",
       "scene_function": "发现线索",
@@ -1957,14 +1897,110 @@
       "open_questions_resolved": [],
       "reveal_changes": {},
       "canon_risk_flags": []
+    },
+    {
+      "scene_id": "ch01_scene16",
+      "scene_function": "制造错误判断",
+      "new_information_items": [
+        "泥土混着草屑粘在尸体的背脊上。孟浮灯用袖口擦掉那些泥，动作很慢。他不是在…",
+        "衣料下面露出一角黄纸。",
+        "不是昨晚看见的那张。那张贴在胸口，已经被水泡得字迹模糊，只隐约能看出是某…"
+      ],
+      "protagonist_decision": "泥土混着草屑粘在尸体的背脊上。孟浮灯用袖口擦掉那些泥，动作很慢。他不是在检查，是在拖延。天亮前他…",
+      "state_changes": [
+        "protagonist_mode: 行动推进 -> 隐匿/压制"
+      ],
+      "motifs_used": [
+        "麻绳",
+        "胸口",
+        "一行小字",
+        "名字",
+        "一个",
+        "背后",
+        "名册",
+        "债册",
+        "底意味",
+        "背脊上",
+        "码头",
+        "录进册子"
+      ],
+      "motif_functions": {
+        "麻绳": [
+          "发现线索",
+          "提高风险",
+          "引发后果",
+          "制造错误判断"
+        ],
+        "胸口": [
+          "提高风险",
+          "发现线索",
+          "触发调查",
+          "制造错误判断"
+        ],
+        "一行小字": [
+          "发现线索",
+          "触发调查",
+          "引发后果"
+        ],
+        "名字": [
+          "发现线索"
+        ],
+        "一个": [
+          "触发调查",
+          "发现线索"
+        ],
+        "背后": [
+          "触发调查"
+        ],
+        "名册": [
+          "触发调查"
+        ],
+        "债册": [
+          "制造错误判断"
+        ],
+        "底意味": [
+          "制造错误判断"
+        ],
+        "背脊上": [
+          "制造错误判断"
+        ],
+        "码头": [
+          "制造错误判断"
+        ],
+        "录进册子": [
+          "制造错误判断"
+        ]
+      },
+      "artifacts_changed": [
+        {
+          "label": "麻绳",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "high",
+          "change_types": [
+            "visibility"
+          ]
+        },
+        {
+          "label": "债册",
+          "holder": "主角",
+          "location": "随身携带",
+          "visibility": "hidden",
+          "significance_level": "low",
+          "change_types": [
+            "introduced"
+          ]
+        }
+      ],
+      "open_questions_created": [],
+      "open_questions_resolved": [],
+      "reveal_changes": {},
+      "canon_risk_flags": []
     }
   ],
   "chapter_structure_summary": {
     "scene_function_table": [
-      {
-        "scene_id": "ch01_scene04",
-        "scene_function": "制造错误判断"
-      },
       {
         "scene_id": "ch01_scene05",
         "scene_function": "发现线索"
@@ -2008,11 +2044,15 @@
       {
         "scene_id": "ch01_scene13",
         "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene16",
+        "scene_function": "制造错误判断"
       }
     ],
-    "first_clue_scene_id": "ch01_scene04",
+    "first_clue_scene_id": "ch01_scene05",
     "first_old_acquaintance_hint_scene_id": "ch01_scene07",
-    "first_investigation_trigger_scene_id": "ch01_scene04",
+    "first_investigation_trigger_scene_id": "ch01_scene05",
     "first_artifact_change_scene_id": "ch01_scene05",
     "consecutive_transition_runs": []
   }

@@ -727,6 +727,40 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertTrue(signals["motif_redundancy"]["repetition_has_new_function"])
         self.assertTrue(signals["motif_redundancy"]["same_function_reuse_allowed"])
 
+    def test_structural_gate_allows_transition_scene_without_hard_decision_when_progress_exists(self) -> None:
+        signals = review_scene_module.build_empty_structural_review()
+        signals["scene_function"] = "过渡/氛围"
+        signals["information_gain"] = {"has_new_information": True, "new_information_items": ["他听见货栈后巷多了生面脚步。"]}
+        signals["plot_progress"] = {"has_plot_progress": True, "progress_reason": "他因此改了回屋路线。"}
+        signals["character_decision"] = {"has_decision_or_behavior_shift": False, "decision_detail": "主要是轻推进。"}
+        signals["motif_redundancy"] = {"repeated_motifs": [], "repetition_has_new_function": True, "same_function_reuse_allowed": True}
+        signals["canon_consistency"] = {"is_consistent": True, "consistency_issues": []}
+
+        failures = review_scene_module.structural_gate_failures(signals)
+
+        self.assertNotIn("missing_character_decision", failures)
+
+    def test_structural_gate_ignores_single_weak_motif_repetition_without_same_function_streak(self) -> None:
+        signals = review_scene_module.build_empty_structural_review()
+        signals["scene_function"] = "过渡/氛围"
+        signals["information_gain"] = {"has_new_information": True, "new_information_items": ["他确认麻绳上沾着新泥。"]}
+        signals["plot_progress"] = {"has_plot_progress": True, "progress_reason": "他把麻绳换到背阴处再处理。"}
+        signals["character_decision"] = {"has_decision_or_behavior_shift": True, "decision_detail": "他改了收尾顺序。"}
+        signals["motif_redundancy"] = {
+            "repeated_motifs": ["麻绳"],
+            "stale_function_motifs": ["麻绳"],
+            "repeated_same_function_motifs": [],
+            "consecutive_same_function_motifs": [],
+            "repetition_has_new_function": False,
+            "same_function_reuse_allowed": True,
+        }
+        signals["canon_consistency"] = {"is_consistent": True, "consistency_issues": []}
+
+        failures = review_scene_module.structural_gate_failures(signals)
+
+        self.assertNotIn("motif_redundancy_without_new_function", failures)
+
+
 
 if __name__ == "__main__":
     unittest.main()

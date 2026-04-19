@@ -1,11 +1,11 @@
 # task_id
-2026-04-19-013_ch01_scene16_auto
+2026-04-19-014_ch01_scene17_auto
 
 # goal
-继续推进第 1 章，写出 scene16。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+继续推进第 1 章，写出 scene17。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
 
 # based_on
-03_locked/chapters/ch01_scene15.md
+03_locked/chapters/ch01_scene16.md
 
 # chapter_state
 03_locked/canon/ch01_state.md
@@ -43,4 +43,4 @@
 1500-2600字
 
 # output_target
-02_working/drafts/ch01_scene16.md
+02_working/drafts/ch01_scene17.md

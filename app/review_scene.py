@@ -564,6 +564,7 @@ def load_review_tracker_bundle(task_text: str | None, chapter_state: str = "") -
 
 def build_empty_structural_review() -> dict[str, Any]:
     return {
+        "scene_function": "",
         "information_gain": {
             "has_new_information": False,
             "new_information_items": [],
@@ -739,6 +740,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
 
     has_plot_progress = bool(progress_reason) or has_decision
     scene_function = classify_scene_function(draft_text)
+    signals["scene_function"] = scene_function
     chapter_state_shift_reasons: list[str] = []
     if any(marker in draft_text for marker in INVESTIGATION_MARKERS) and str(chapter_progress.get("investigation_stage") or "") != "主动调查":
         chapter_state_shift_reasons.append("调查阶段从未启动/留意推进到更明确的调查动作")
@@ -824,7 +826,13 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 if label not in disallowed_same_function_motifs:
                     disallowed_same_function_motifs.append(label)
 
-        motif_has_new_function = not stale_function_motifs
+        weak_repetition_only = bool(
+            stale_function_motifs
+            and not repeated_same_function_motifs
+            and not consecutive_same_function_motifs
+            and len(stale_function_motifs) == 1
+        )
+        motif_has_new_function = not stale_function_motifs or weak_repetition_only
         same_function_reuse_allowed = not disallowed_same_function_motifs
         if consecutive_same_function_motifs and stale_function_motifs:
             redundancy_reason = f"母题 {', '.join(consecutive_same_function_motifs[:4])} 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
@@ -869,6 +877,8 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
 
 def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
     failures: list[str] = []
+    scene_function = str(signals.get("scene_function") or "").strip()
+    transition_scene = scene_function == "过渡/氛围"
     information_gain = signals.get("information_gain", {})
     plot_progress = signals.get("plot_progress", {})
     character_decision = signals.get("character_decision", {})
@@ -879,9 +889,19 @@ def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
         failures.append("missing_information_gain")
     if not plot_progress.get("has_plot_progress"):
         failures.append("missing_plot_progress")
-    if not character_decision.get("has_decision_or_behavior_shift"):
+    if not character_decision.get("has_decision_or_behavior_shift") and not (
+        transition_scene and (information_gain.get("has_new_information") or plot_progress.get("has_plot_progress"))
+    ):
         failures.append("missing_character_decision")
-    if motif_redundancy.get("repeated_motifs") and not motif_redundancy.get("repetition_has_new_function"):
+    if (
+        motif_redundancy.get("repeated_motifs")
+        and not motif_redundancy.get("repetition_has_new_function")
+        and (
+            len(motif_redundancy.get("stale_function_motifs") or []) >= 2
+            or bool(motif_redundancy.get("repeated_same_function_motifs"))
+            or bool(motif_redundancy.get("consecutive_same_function_motifs"))
+        )
+    ):
         failures.append("motif_redundancy_without_new_function")
     if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
         failures.append("motif_same_function_reuse_not_allowed")
@@ -894,6 +914,8 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
     major_issues: list[str] = []
     minor_issues: list[str] = []
 
+    scene_function = str(signals.get("scene_function") or "").strip()
+    transition_scene = scene_function == "过渡/氛围"
     information_gain = signals.get("information_gain", {})
     plot_progress = signals.get("plot_progress", {})
     character_decision = signals.get("character_decision", {})
@@ -908,11 +930,21 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
     if not plot_progress.get("has_plot_progress"):
         major_issues.append("本场没有形成可追踪的情节推进，局面、风险、关系或认知没有发生明确变化。")
 
-    if not character_decision.get("has_decision_or_behavior_shift"):
+    if not character_decision.get("has_decision_or_behavior_shift") and not (
+        transition_scene and (information_gain.get("has_new_information") or plot_progress.get("has_plot_progress"))
+    ):
         major_issues.append("主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。")
 
     repeated_motifs = motif_redundancy.get("repeated_motifs") or []
-    if repeated_motifs and not motif_redundancy.get("repetition_has_new_function"):
+    if (
+        repeated_motifs
+        and not motif_redundancy.get("repetition_has_new_function")
+        and (
+            len(motif_redundancy.get("stale_function_motifs") or []) >= 2
+            or bool(motif_redundancy.get("repeated_same_function_motifs"))
+            or bool(motif_redundancy.get("consecutive_same_function_motifs"))
+        )
+    ):
         major_issues.append(f"高频母题复读但未承担新功能：{', '.join(repeated_motifs[:4])}。")
     if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
         major_issues.append(f"母题同功能连续复用已超限：{', '.join((motif_redundancy.get('repeated_same_function_motifs') or [])[:4])}。")
@@ -1254,6 +1286,9 @@ def normalize_review_result(
     def merge_structural_payload() -> dict[str, Any]:
         merged = build_empty_structural_review()
         for field, local_value in local_structural.items():
+            if not isinstance(local_value, dict):
+                merged[field] = local_value
+                continue
             candidate = result.get(field) if isinstance(result.get(field), dict) else {}
             merged[field] = dict(local_value)
             if field == "information_gain":
