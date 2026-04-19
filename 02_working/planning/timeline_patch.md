@@ -1,7 +1,7 @@
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-006_ch01_scene14_auto-R2
+- task_id：2026-04-19-013_ch01_scene16_auto
 - chapter_id：ch01
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。

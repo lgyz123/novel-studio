@@ -75,16 +75,16 @@ generation:
   max_auto_revisions: 5
   # 本地 reviewer / writer 默认更早交给 supervisor，避免在低质量 revise loop 里空转太久
   local_manual_intervention_after: 3
-  auto_continue_until_scene: 15
+  auto_continue_until_scene: 20
   max_supervisor_rounds: 8
   supervisor_rescue_draft_enabled: true
 
 run:
   mode: continue
   start_chapter: 1
-  start_scene: 11
+  start_scene: 16
   target_chapter: 1
-  target_scene: 15
+  target_scene: 20
   max_scenes_per_chapter:
   restart_from_task: ""
 
