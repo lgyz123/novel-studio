@@ -695,7 +695,7 @@ scene_072-R5
         finally:
             main_module.maybe_supervise_manual_decision = previous_supervisor
 
-    def test_route_review_result_auto_locks_after_supervisor_rescue_on_manual_intervention(self) -> None:
+    def test_route_review_result_does_not_auto_lock_after_supervisor_rescue_on_revision_threshold_only(self) -> None:
         task_text = """# task_id
 scene_080-RW6
 
@@ -758,13 +758,81 @@ scene_080-RW6
                 save_structured_review_result(root, reviewer_result)
                 created = main_module.route_review_result(config, task_text, "02_working/drafts/ch01_scene80_v6.md", reviewer_result)
 
+                self.assertNotIn("locked_file", created)
+                self.assertIn("manual_intervention_file", created)
+            finally:
+                main_module.ROOT = previous_root
+
+    def test_route_review_result_auto_locks_after_supervisor_rescue_only_for_explicit_no_actionable_fix_reason(self) -> None:
+        task_text = """# task_id
+scene_081-RW6
+
+# goal
+继续修订当前 scene。
+
+# based_on
+02_working/drafts/scene_081_v5.md
+
+# chapter_state
+03_locked/canon/ch01_state.md
+
+# supervisor_round
+2
+
+# constraints
+- 保持单视角
+
+# output_target
+02_working/drafts/ch01_scene81_v6.md
+"""
+        reviewer_result = {
+            "task_id": "scene_081-RW6",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["reviewer 未继续给出可执行修订任务"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "reviewer 未继续给出可执行修订任务",
+            "force_manual_intervention_reason": "reviewer 未继续给出可执行修订任务",
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认了新的物件状态。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "局面已经发生了可追踪变化。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "主角做出了新的现实动作偏移。"},
+            "motif_redundancy": {"repeated_motifs": ["阿绣"], "repetition_has_new_function": True, "redundancy_reason": "母题复现承担了新的动作功能。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+        config = {
+            "paths": {"working_dir": "02_working", "inputs_dir": "01_inputs", "locked_dir": "03_locked"},
+            "generation": {"max_auto_revisions": 5},
+            "supervisor": {"enabled": True},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = main_module.ROOT
+            main_module.ROOT = root
+            try:
+                chapter_state_path = root / "03_locked/canon/ch01_state.md"
+                chapter_state_path.parent.mkdir(parents=True, exist_ok=True)
+                chapter_state_path.write_text("# 已锁定场景\n- ch01_scene80\n", encoding="utf-8")
+
+                draft_path = root / "02_working/drafts/ch01_scene81_v6.md"
+                draft_path.parent.mkdir(parents=True, exist_ok=True)
+                draft_path.write_text("这是通过救场后保留下来的正文。", encoding="utf-8")
+
+                rescue_record = root / "02_working/reviews/scene_081-RW6_supervisor_rescue.json"
+                rescue_record.parent.mkdir(parents=True, exist_ok=True)
+                rescue_record.write_text('{"task_id": "scene_081-RW6", "draft_text": "这是救场稿。"}', encoding="utf-8")
+
+                save_structured_review_result(root, reviewer_result)
+                created = main_module.route_review_result(config, task_text, "02_working/drafts/ch01_scene81_v6.md", reviewer_result)
+
                 self.assertIn("locked_file", created)
                 self.assertNotIn("manual_intervention_file", created)
-                self.assertEqual(created["locked_file"], "03_locked/chapters/ch01_scene80.md")
+                self.assertEqual(created["locked_file"], "03_locked/chapters/ch01_scene81.md")
                 self.assertTrue((root / created["locked_file"]).exists())
                 self.assertIn("lock_gate_report_file", created)
 
-                structured = load_structured_review_result(root, "scene_080-RW6")
+                structured = load_structured_review_result(root, "scene_081-RW6")
                 self.assertEqual(structured.status, ReviewStatus.lock)
                 self.assertIn("supervisor 已完成救场", structured.summary)
             finally:

@@ -6,330 +6,113 @@
     "scene_id": "ch01_scene02",
     "scene_function": "发现线索",
     "new_information_items": [
-      "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…",
-      "这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
-      "人放平之后，还得把身上的湿麻布理开，免得拧成一团，明早再来不好收拾。孟浮…"
+      "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…",
+      "老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…",
+      "他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…"
     ],
-    "protagonist_decision": "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上堆着烂席、断木牌和半锈的…",
+    "protagonist_decision": "孟浮灯把麻布盖回去。",
     "state_changes": [
-      "protagonist_mode: 调查/试探 -> 隐匿/压制"
+      "protagonist_mode: 隐匿/压制 -> 行动推进"
     ],
     "motifs_used": [
-      "那截红绳",
       "麻绳",
-      "掌心麻绳",
-      "断木牌",
-      "体脚上的绳",
-      "连着平安符",
-      "指腹抹去符",
-      "正正写在符",
-      "烂绳",
-      "挂符",
-      "没有再把符",
+      "岸边",
+      "窝棚",
+      "那根红绳",
       "红绳",
-      "和平安符",
-      "掌心被麻绳",
-      "摸见里头符",
-      "野狗闻着味",
-      "里的腥甜味",
-      "是让那股味",
-      "胸口发空",
-      "鼻腔",
-      "胃里仍会往",
-      "胸口盖严",
-      "板上挪到岸边",
-      "也是这样",
-      "今夜先到",
-      "还没有彻"
+      "四文钱",
+      "屋里"
     ],
     "motif_functions": {
-      "那截红绳": [
-        "揭示关系",
-        "发现线索"
-      ],
       "麻绳": [
+        "扩展世界信息"
+      ],
+      "岸边": [
+        "扩展世界信息",
         "发现线索"
       ],
-      "掌心麻绳": [
+      "窝棚": [
+        "扩展世界信息",
         "发现线索"
       ],
-      "断木牌": [
-        "发现线索"
-      ],
-      "体脚上的绳": [
-        "发现线索"
-      ],
-      "连着平安符": [
-        "发现线索"
-      ],
-      "指腹抹去符": [
-        "发现线索"
-      ],
-      "正正写在符": [
-        "发现线索"
-      ],
-      "烂绳": [
-        "发现线索"
-      ],
-      "挂符": [
-        "发现线索"
-      ],
-      "没有再把符": [
+      "那根红绳": [
         "发现线索"
       ],
       "红绳": [
         "发现线索"
       ],
-      "和平安符": [
+      "四文钱": [
         "发现线索"
       ],
-      "掌心被麻绳": [
-        "发现线索"
-      ],
-      "摸见里头符": [
-        "发现线索"
-      ],
-      "野狗闻着味": [
-        "发现线索"
-      ],
-      "里的腥甜味": [
-        "发现线索"
-      ],
-      "是让那股味": [
-        "发现线索"
-      ],
-      "胸口发空": [
-        "发现线索"
-      ],
-      "鼻腔": [
-        "发现线索"
-      ],
-      "胃里仍会往": [
-        "发现线索"
-      ],
-      "胸口盖严": [
-        "发现线索"
-      ],
-      "板上挪到岸边": [
-        "发现线索"
-      ],
-      "也是这样": [
-        "发现线索"
-      ],
-      "今夜先到": [
-        "发现线索"
-      ],
-      "还没有彻": [
+      "屋里": [
         "发现线索"
       ]
     },
     "artifacts_changed": [
       {
-        "label": "麻绳",
+        "label": "那根红绳",
         "holder": "主角",
         "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "high",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility",
-          "significance_level"
-        ]
-      },
-      {
-        "label": "掌心麻绳",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "high",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility",
-          "significance_level"
-        ]
-      },
-      {
-        "label": "断木牌",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "introduced"
-        ]
-      },
-      {
-        "label": "体脚上的绳",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
+        "visibility": "visible",
         "significance_level": "low",
         "change_types": [
           "introduced"
-        ]
-      },
-      {
-        "label": "那截红绳",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "high",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility",
-          "significance_level"
-        ]
-      },
-      {
-        "label": "连着平安符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility"
-        ]
-      },
-      {
-        "label": "指腹抹去符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility"
-        ]
-      },
-      {
-        "label": "正正写在符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "introduced"
-        ]
-      },
-      {
-        "label": "烂绳",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "low",
-        "change_types": [
-          "introduced"
-        ]
-      },
-      {
-        "label": "挂符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility"
-        ]
-      },
-      {
-        "label": "没有再把符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility"
         ]
       },
       {
         "label": "红绳",
         "holder": "主角",
         "location": "随身携带",
-        "visibility": "hidden",
+        "visibility": "visible",
         "significance_level": "high",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility",
-          "significance_level"
-        ]
-      },
-      {
-        "label": "和平安符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
         "change_types": [
           "introduced"
         ]
       },
       {
-        "label": "掌心被麻绳",
+        "label": "四文钱",
         "holder": "主角",
         "location": "随身携带",
-        "visibility": "hidden",
+        "visibility": "visible",
         "significance_level": "low",
-        "change_types": [
-          "holder",
-          "location",
-          "visibility",
-          "significance_level"
-        ]
-      },
-      {
-        "label": "摸见里头符",
-        "holder": "主角",
-        "location": "随身携带",
-        "visibility": "hidden",
-        "significance_level": "medium",
         "change_types": [
           "introduced"
         ]
       }
     ],
     "open_questions_created": [
-      "木轮压过冻泥，吱呀一声长，一声短，像是老旧门板在夜里自己开合",
-      "孟浮灯肩膀抵着车辕，掌心麻绳早被水泡得发硬，勒进肉里，疼倒像是能让人清醒些"
+      "红绳系得很紧，绳结已经磨得发硬，像是系了很多年",
+      "脚踝上的红绳已经褪成淡粉色，石头也磨得没了棱角，像是戴了很久",
+      "麻布包裹被扛起时，里面传来一声轻微的“咔哒”声，像是石头磕到了什么硬物"
     ],
     "open_questions_resolved": [],
     "reveal_changes": {
       "confirmed_added": [
-        "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…",
-        "这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
-        "人放平之后，还得把身上的湿麻布理开，免得拧成一团，明早再来不好收拾。孟浮…",
-        "锹刃冻了一层硬泥，他用鞋底一蹭，才露出底下暗黯的铁色",
-        "孟浮灯蹲下去，从死者胸前把泡烂的衣襟一点点拨开，手指碰到里层时，摸到一小团又冷又硬的东西"
+        "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…",
+        "老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…",
+        "他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…",
+        "布不够长，露出一截脚踝，脚踝上系着根褪了色的红绳，绳上串着颗磨得发白的石头",
+        "一个老妇人端着木盆出来，看见他，愣了一下，随即低下头，快步走回屋里"
       ],
       "suspected_added": [
-        "木轮压过冻泥，吱呀一声长，一声短，像是老旧门板在夜里自己开合",
-        "孟浮灯肩膀抵着车辕，掌心麻绳早被水泡得发硬，勒进肉里，疼倒像是能让人清醒些",
-        "天边泛出一点灰白时，那小小一截木片已经立在暗处，看不分明，像是刚埋下去的东西里，只有那个名字还没有彻底沉进去"
+        "红绳系得很紧，绳结已经磨得发硬，像是系了很多年",
+        "脚踝上的红绳已经褪成淡粉色，石头也磨得没了棱角，像是戴了很久",
+        "麻布包裹被扛起时，里面传来一声轻微的“咔哒”声，像是石头磕到了什么硬物"
       ],
       "protagonist_known_added": [
-        "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…",
-        "这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
-        "人放平之后，还得把身上的湿麻布理开，免得拧成一团，明早再来不好收拾。孟浮…"
+        "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…",
+        "老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…",
+        "他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…"
       ],
       "reader_known_added": [
-        "坡后那片地白日看着就荒，夜里更像一块掀开的旧疮。几个旧土包东高西低，边上…",
-        "这地方留着几个浅坑，本就是给夜里新送来的无名尸备着的。他顺着旧坑边沿又扩…",
-        "人放平之后，还得把身上的湿麻布理开，免得拧成一团，明早再来不好收拾。孟浮…",
-        "锹刃冻了一层硬泥，他用鞋底一蹭，才露出底下暗黯的铁色",
-        "孟浮灯蹲下去，从死者胸前把泡烂的衣襟一点点拨开，手指碰到里层时，摸到一小团又冷又硬的东西",
-        "木轮压过冻泥，吱呀一声长，一声短，像是老旧门板在夜里自己开合",
-        "孟浮灯肩膀抵着车辕，掌心麻绳早被水泡得发硬，勒进肉里，疼倒像是能让人清醒些",
-        "天边泛出一点灰白时，那小小一截木片已经立在暗处，看不分明，像是刚埋下去的东西里，只有那个名字还没有彻底沉进去"
+        "运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…",
+        "老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…",
+        "他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…",
+        "布不够长，露出一截脚踝，脚踝上系着根褪了色的红绳，绳上串着颗磨得发白的石头",
+        "一个老妇人端着木盆出来，看见他，愣了一下，随即低下头，快步走回屋里",
+        "红绳系得很紧，绳结已经磨得发硬，像是系了很多年",
+        "脚踝上的红绳已经褪成淡粉色，石头也磨得没了棱角，像是戴了很久",
+        "麻布包裹被扛起时，里面传来一声轻微的“咔哒”声，像是石头磕到了什么硬物"
       ]
     },
     "canon_risk_flags": []
@@ -337,14 +120,18 @@
   "chapter_structure_summary": {
     "scene_function_table": [
       {
+        "scene_id": "ch01_scene01",
+        "scene_function": "扩展世界信息"
+      },
+      {
         "scene_id": "ch01_scene02",
         "scene_function": "发现线索"
       }
     ],
-    "first_clue_scene_id": "ch01_scene02",
+    "first_clue_scene_id": "ch01_scene01",
     "first_old_acquaintance_hint_scene_id": "",
-    "first_investigation_trigger_scene_id": "",
-    "first_artifact_change_scene_id": "ch01_scene02",
+    "first_investigation_trigger_scene_id": "ch01_scene01",
+    "first_artifact_change_scene_id": "ch01_scene01",
     "consecutive_transition_runs": []
   }
 }

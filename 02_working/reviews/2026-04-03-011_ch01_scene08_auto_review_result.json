@@ -1,8 +1,0 @@
-{
-  "task_id": "2026-04-03-011_ch01_scene08_auto",
-  "status": "manual_intervention",
-  "summary": "DeepSeek reviewer 输出不可用，转人工介入。",
-  "issues": [],
-  "strengths": [],
-  "decision_reason": "DeepSeek reviewer schema 校验失败：1 validation error for StructuredReviewResult\nissues.1.type\n  Input should be 'continuity', 'timeline', 'pov', 'knowledge', 'style', 'scene_purpose', 'foreshadowing' or 'redundancy' [type=enum, input_value='required_plot_progress', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/enum"
-}

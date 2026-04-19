@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.story_state import STORY_STATE_REL_PATH, StoryState, extract_item_candidates, load_story_state, update_story_state_on_lock
+from app.story_state import STORY_STATE_REL_PATH, StoryState, clean_story_state, extract_item_candidates, load_story_state, update_story_state_on_lock
 from app.story_state import rebuild_story_state_from_locked
 
 
@@ -192,6 +192,39 @@ class StoryStateTest(unittest.TestCase):
         self.assertIn("平安符", items)
         self.assertIn("红绳", items)
         self.assertIn("线头", items)
+
+    def test_story_state_filters_sentence_fragments_from_items_and_known_facts(self) -> None:
+        dirty_state = StoryState.from_dict(
+            {
+                "timeline": {"current_book_time": "unknown", "recent_events": []},
+                "characters": {
+                    "protagonist": {
+                        "location": "码头",
+                        "physical_state": "unknown",
+                        "mental_state": "unknown",
+                        "known_facts": ["红绳", "孟浮灯松开麻绳", "而是催命符"],
+                        "active_goals": ["维持日常求活", "过码头卸货时被缆绳"],
+                        "open_tensions": ["一个名字被录入了册", "未解线索"],
+                    }
+                },
+                "unresolved_promises": [],
+                "revealed_secrets": [],
+                "items": [
+                    {"id": "ITEM-001", "name": "红绳", "owner": "孟浮灯", "status": "贴身保留", "last_seen_in": "ch01_scene01"},
+                    {"id": "ITEM-002", "name": "孟浮灯松开麻绳", "owner": "孟浮灯", "status": "待确认", "last_seen_in": "ch01_scene01"},
+                ],
+                "relationship_deltas": [],
+                "last_locked_scene": "ch01_scene01",
+            }
+        )
+
+        cleaned = clean_story_state(dirty_state)
+
+        protagonist = cleaned.characters["protagonist"]
+        self.assertEqual(protagonist.known_facts, ["红绳"])
+        self.assertEqual(protagonist.active_goals, ["维持日常求活"])
+        self.assertEqual(protagonist.open_tensions, ["未解线索"])
+        self.assertEqual([item.name for item in cleaned.items], ["红绳"])
 
     def test_story_state_bootstraps_protagonist_name_and_location_from_task_and_chapter_state(self) -> None:
         task_text = """# task_id

@@ -63,6 +63,17 @@ class ReviewIssue(BaseModel):
             raise ValueError("issue id must match ISSUE-001 format")
         return value
 
+    @validator("type", pre=True)
+    def normalize_issue_type(cls, value: Any) -> Any:
+        text = str(value or "").strip()
+        if text == "required_plot_progress":
+            return ReviewIssueType.scene_purpose.value
+        if text == "required_decision_shift":
+            return ReviewIssueType.scene_purpose.value
+        if text == "required_state_change":
+            return ReviewIssueType.continuity.value
+        return value
+
 
 class StructuredReviewResult(BaseModel):
     task_id: str = Field(min_length=1)

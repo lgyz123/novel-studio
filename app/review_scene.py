@@ -12,6 +12,7 @@ from chapter_trackers import (
     chapter_id_from_task_or_locked,
     detect_artifact_state_conflicts as detect_tracker_artifact_state_conflicts,
     detect_forbidden_reveal_violations,
+    is_valid_motif_label,
     load_tracker_bundle,
     motif_entries_in_text,
 )
@@ -30,6 +31,38 @@ def should_use_deepseek(config: dict) -> bool:
     model = str(reviewer.get("model", "")).strip()
     provider = str(reviewer.get("provider", "")).strip().lower()
     return provider == "deepseek" or (base_url == "https://api.deepseek.com" and model == "deepseek-chat")
+
+
+def is_local_reviewer_mode(config: dict | None = None) -> bool:
+    if not config:
+        return False
+    reviewer = config.get("reviewer", {})
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    return provider not in {"", "deepseek"}
+
+
+def should_use_compact_local_review_prompt(config: dict | None = None) -> bool:
+    return is_local_reviewer_mode(config)
+
+
+def get_local_reviewer_strategy(config: dict | None = None) -> str:
+    if not is_local_reviewer_mode(config):
+        return "llm_primary"
+    reviewer = (config or {}).get("reviewer", {})
+    strategy = str(reviewer.get("local_review_strategy", "")).strip().lower()
+    if strategy in {"deterministic_primary", "llm_primary"}:
+        return strategy
+    return "deterministic_primary"
+
+
+def should_consult_local_reviewer_reference(config: dict | None = None) -> bool:
+    if not is_local_reviewer_mode(config):
+        return False
+    reviewer = (config or {}).get("reviewer", {})
+    value = reviewer.get("use_local_reference", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
 
 
 def read_text(rel_path: str) -> str:
@@ -110,6 +143,56 @@ def call_ollama(
     raise last_error
 
 
+def should_validate_local_models(config: dict | None = None) -> bool:
+    if not config:
+        return True
+    value = config.get("agent", {}).get("validate_local_models_on_start", True)
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "0", "no", "off"}
+    return bool(value)
+
+
+def fetch_ollama_model_names(base_url: str, timeout: int = 8) -> list[str]:
+    url = f"{str(base_url).rstrip('/')}/api/tags"
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    data = response.json()
+    models = data.get("models", []) if isinstance(data, dict) else []
+    names: list[str] = []
+    for item in models:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def validate_local_reviewer_endpoint(config: dict) -> None:
+    if not should_validate_local_models(config):
+        return
+
+    reviewer = config.get("reviewer", {})
+    provider = str(reviewer.get("provider", "")).strip().lower()
+    base_url = str(reviewer.get("base_url", "")).strip()
+    model = str(reviewer.get("model", "")).strip()
+    if provider == "deepseek" or not base_url or not model:
+        return
+
+    try:
+        available = fetch_ollama_model_names(base_url)
+    except requests.exceptions.RequestException as error:
+        raise ValueError(f"reviewer 本地模型服务不可达：{base_url}；请先确认 Ollama 服务已启动。原始错误：{error}") from error
+
+    if model not in available:
+        preview = "、".join(available[:12]) if available else "无"
+        raise ValueError(
+            f"reviewer 配置的模型 `{model}` 不在 {base_url} 的已加载列表中。当前可见模型：{preview}"
+        )
+
+    print(f"本地模型预检通过：reviewer -> {model} @ {base_url}")
+
+
 def summarize_response_for_debug(response_data: dict) -> str:
     message = response_data.get("message", {})
     summary = {
@@ -149,6 +232,17 @@ def normalize_text_key(text: str) -> str:
     lowered = re.sub(r"\s+", " ", lowered)
     lowered = re.sub(r"[\W_]+", "", lowered)
     return lowered
+
+
+def is_noise_motif_label(label: str) -> bool:
+    text = str(label or "").strip()
+    if not text:
+        return True
+    if text in {"一个", "两个字", "一个字", "一块木牌", "一行小字", "下面还有", "几枚铜钱", "码头"}:
+        return True
+    if text.startswith(("在码头", "风带着", "只有远处", "前几天在码头", "他在码头", "想起前几天在码头")):
+        return True
+    return False
 
 
 def split_text_fragments(text: str) -> list[str]:
@@ -237,12 +331,76 @@ def sanitize_reviewer_raw_output(raw_text: str, max_chars: int = 2200) -> tuple[
     }
 
 
+def should_skip_json_refinement_for_local_reviewer(
+    config: dict,
+    raw_review_text: str,
+    raw_output_meta: dict[str, Any] | None = None,
+) -> bool:
+    if should_use_deepseek(config):
+        return False
+
+    text = str(raw_review_text or "").strip()
+    if not text:
+        return True
+
+    meta = raw_output_meta or {}
+    if bool(meta.get("low_value_english")):
+        return True
+    if int(meta.get("repeated_fragments", 0) or 0) >= 2:
+        return True
+
+    lower_text = text.lower()
+    obvious_meta_markers = [
+        "we need to produce a json object",
+        "single json object",
+        "the output must be a json object",
+        "must output a single json object",
+        "we need to review",
+        "we need to evaluate",
+        "the assistant must output",
+    ]
+    if any(marker in lower_text for marker in obvious_meta_markers):
+        return True
+
+    return False
+
+
+def build_reviewer_trace(
+    *,
+    provider: str,
+    mode: str,
+    json_refinement_attempted: bool,
+    deterministic_fallback_used: bool,
+    low_confidence: bool,
+    repeated_fragments: int,
+) -> dict[str, Any]:
+    return {
+        "provider": str(provider or "").strip() or "unknown",
+        "mode": mode,
+        "json_refinement_attempted": bool(json_refinement_attempted),
+        "deterministic_fallback_used": bool(deterministic_fallback_used),
+        "low_confidence": bool(low_confidence),
+        "repeated_fragments": max(int(repeated_fragments or 0), 0),
+    }
+
+
 def sanitize_issue_text(text: str) -> str:
     compacted, repeated_count = dedupe_repeated_fragments(str(text).strip(), max_unique_fragments=4)
     cleaned = compacted.strip()
     if repeated_count > 0 and cleaned:
         cleaned = f"{cleaned}（重复内容已压缩）"
     return cleaned[:180].strip()
+
+
+def is_usable_structural_text(text: str) -> bool:
+    cleaned = sanitize_issue_text(text)
+    if not cleaned:
+        return False
+    if is_mostly_english(cleaned):
+        return False
+    if re.search(r"[A-Za-z]{3,}", cleaned):
+        return False
+    return True
 
 
 def strip_scene_heading(text: str) -> str:
@@ -315,6 +473,12 @@ DECISION_OR_SHIFT_MARKERS = [
     "推迟",
     "扣住",
     "挪开",
+    "扔",
+    "抛",
+    "丢进",
+    "塞给",
+    "转身",
+    "假装",
 ]
 
 PLOT_PROGRESS_MARKERS = [
@@ -332,6 +496,10 @@ PLOT_PROGRESS_MARKERS = [
     "让他",
     "没能",
     "只好",
+    "突然将",
+    "突然把",
+    "转身要",
+    "后退时",
 ]
 
 WRONG_PROTAGONIST_NAMES = ["孟繁灯", "孟繁星", "孟浮星"]
@@ -362,6 +530,28 @@ INVESTIGATION_MARKERS = [
     "探查",
 ]
 
+REALISM_TONE_MARKERS = ["底层现实主义修仙", "底层求活", "不要跳成大场面", "不要引入新的组织或职位称呼", "不要一上来就把更高层真相全部掀开"]
+SPECTACLE_DRIFT_MARKERS = [
+    "渗血",
+    "青烟",
+    "黑血",
+    "冷光",
+    "发烫",
+    "忽明忽暗",
+    "蛛网状纹路",
+    "浮出半张人脸",
+    "烙进",
+    "抽搐着扭向",
+    "泪痣正在渗出暗红",
+    "化作一缕青烟",
+    "突然变得滚烫",
+    "活物",
+    "司命府",
+    "契约",
+    "苏醒",
+]
+INSTITUTION_DRIFT_MARKERS = ["司命使", "清道坊", "失踪人口核查", "禁录符", "漕运三十六行"]
+
 def load_review_tracker_bundle(task_text: str | None, chapter_state: str = "") -> dict[str, Any]:
     if not str(task_text or "").strip():
         return {}
@@ -386,6 +576,7 @@ def load_review_tracker_bundle(task_text: str | None, chapter_state: str = "") -
 
 def build_empty_structural_review() -> dict[str, Any]:
     return {
+        "scene_function": "",
         "information_gain": {
             "has_new_information": False,
             "new_information_items": [],
@@ -474,7 +665,7 @@ def sentence_has_plot_progress(sentence: str) -> bool:
         return False
     if any(marker in text for marker in PLOT_PROGRESS_MARKERS):
         return True
-    return bool(re.search(r"(差点|结果|于是|随后|接着).*(翻倒|暴露|滑出|漏出|停下|改变|延后)", text))
+    return bool(re.search(r"(差点|结果|于是|随后|接着|突然|后退时).*(翻倒|暴露|滑出|漏出|停下|改变|延后|扔|抛|现身|逼近|喝止)", text))
 
 
 def summarize_sentence(sentence: str, max_chars: int = 36) -> str:
@@ -482,6 +673,26 @@ def summarize_sentence(sentence: str, max_chars: int = 36) -> str:
     if len(compact) <= max_chars:
         return compact
     return compact[:max_chars].rstrip() + "…"
+
+
+def detect_local_tone_drift(task_text: str | None, draft_text: str, chapter_state: str = "", tracker_bundle: dict[str, Any] | None = None) -> list[str]:
+    config_text = "\n".join([str(task_text or ""), str(chapter_state or "")])
+    if not any(marker in config_text for marker in REALISM_TONE_MARKERS):
+        return []
+
+    tracker_text = json.dumps(tracker_bundle or {}, ensure_ascii=False) if isinstance(tracker_bundle, dict) else ""
+    allowed_text = "\n".join([config_text, tracker_text])
+    new_institutions = [marker for marker in INSTITUTION_DRIFT_MARKERS if marker in draft_text and marker not in allowed_text]
+    new_spectacles = [marker for marker in SPECTACLE_DRIFT_MARKERS if marker in draft_text and marker not in allowed_text]
+
+    if len(new_spectacles) >= 3 or (new_institutions and len(new_spectacles) >= 2):
+        details: list[str] = []
+        if new_institutions:
+            details.append(f"新增机构/职位：{'、'.join(new_institutions[:3])}")
+        if new_spectacles:
+            details.append(f"异象词过重：{'、'.join(new_spectacles[:4])}")
+        return [f"基调漂移：当前任务要求偏底层现实承接，但正文出现了过重的异象/设定放大（{'；'.join(details)}）。"]
+    return []
 
 
 def count_term_occurrences(text: str, term: str) -> int:
@@ -541,6 +752,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
 
     has_plot_progress = bool(progress_reason) or has_decision
     scene_function = classify_scene_function(draft_text)
+    signals["scene_function"] = scene_function
     chapter_state_shift_reasons: list[str] = []
     if any(marker in draft_text for marker in INVESTIGATION_MARKERS) and str(chapter_progress.get("investigation_stage") or "") != "主动调查":
         chapter_state_shift_reasons.append("调查阶段从未启动/留意推进到更明确的调查动作")
@@ -577,6 +789,11 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
         if not isinstance(entry, dict):
             continue
         label = str(entry.get("label") or "").strip()
+        category = str(entry.get("category") or "").strip()
+        if is_noise_motif_label(label):
+            continue
+        if category and not is_valid_motif_label(category, label):
+            continue
         if label and label not in repeated_motifs:
             repeated_motifs.append(label)
     motif_has_new_function = True
@@ -626,7 +843,13 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 if label not in disallowed_same_function_motifs:
                     disallowed_same_function_motifs.append(label)
 
-        motif_has_new_function = not stale_function_motifs
+        weak_repetition_only = bool(
+            stale_function_motifs
+            and not repeated_same_function_motifs
+            and not consecutive_same_function_motifs
+            and len(stale_function_motifs) == 1
+        )
+        motif_has_new_function = not stale_function_motifs or weak_repetition_only
         same_function_reuse_allowed = not disallowed_same_function_motifs
         if consecutive_same_function_motifs and stale_function_motifs:
             redundancy_reason = f"母题 {', '.join(consecutive_same_function_motifs[:4])} 在相邻场景连续承担同一功能，且本场没有提供新的功能增量。"
@@ -660,6 +883,7 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
                 consistency_issues.append(f"chapter_state 明确禁止主动调查，但正文出现了“{marker}”式调查推进。")
                 break
     consistency_issues.extend(detect_tracker_artifact_state_conflicts(draft_text, artifact_state))
+    consistency_issues.extend(detect_local_tone_drift(task_text, draft_text, chapter_state=chapter_state, tracker_bundle=tracker_bundle))
     signals["canon_consistency"] = {
         "is_consistent": not consistency_issues,
         "consistency_issues": consistency_issues[:3],
@@ -670,6 +894,8 @@ def build_structural_review_signals(task_text: str | None, draft_text: str, base
 
 def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
     failures: list[str] = []
+    scene_function = str(signals.get("scene_function") or "").strip()
+    transition_scene = scene_function == "过渡/氛围"
     information_gain = signals.get("information_gain", {})
     plot_progress = signals.get("plot_progress", {})
     character_decision = signals.get("character_decision", {})
@@ -680,9 +906,19 @@ def structural_gate_failures(signals: dict[str, Any]) -> list[str]:
         failures.append("missing_information_gain")
     if not plot_progress.get("has_plot_progress"):
         failures.append("missing_plot_progress")
-    if not character_decision.get("has_decision_or_behavior_shift"):
+    if not character_decision.get("has_decision_or_behavior_shift") and not (
+        transition_scene and (information_gain.get("has_new_information") or plot_progress.get("has_plot_progress"))
+    ):
         failures.append("missing_character_decision")
-    if motif_redundancy.get("repeated_motifs") and not motif_redundancy.get("repetition_has_new_function"):
+    if (
+        motif_redundancy.get("repeated_motifs")
+        and not motif_redundancy.get("repetition_has_new_function")
+        and (
+            len(motif_redundancy.get("stale_function_motifs") or []) >= 2
+            or bool(motif_redundancy.get("repeated_same_function_motifs"))
+            or bool(motif_redundancy.get("consecutive_same_function_motifs"))
+        )
+    ):
         failures.append("motif_redundancy_without_new_function")
     if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
         failures.append("motif_same_function_reuse_not_allowed")
@@ -695,6 +931,8 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
     major_issues: list[str] = []
     minor_issues: list[str] = []
 
+    scene_function = str(signals.get("scene_function") or "").strip()
+    transition_scene = scene_function == "过渡/氛围"
     information_gain = signals.get("information_gain", {})
     plot_progress = signals.get("plot_progress", {})
     character_decision = signals.get("character_decision", {})
@@ -709,11 +947,21 @@ def build_structural_issue_summary(signals: dict[str, Any]) -> tuple[list[str], 
     if not plot_progress.get("has_plot_progress"):
         major_issues.append("本场没有形成可追踪的情节推进，局面、风险、关系或认知没有发生明确变化。")
 
-    if not character_decision.get("has_decision_or_behavior_shift"):
+    if not character_decision.get("has_decision_or_behavior_shift") and not (
+        transition_scene and (information_gain.get("has_new_information") or plot_progress.get("has_plot_progress"))
+    ):
         major_issues.append("主角没有做出可追踪的决策或行为偏移，只有感受变化，不足以支撑 scene 推进。")
 
     repeated_motifs = motif_redundancy.get("repeated_motifs") or []
-    if repeated_motifs and not motif_redundancy.get("repetition_has_new_function"):
+    if (
+        repeated_motifs
+        and not motif_redundancy.get("repetition_has_new_function")
+        and (
+            len(motif_redundancy.get("stale_function_motifs") or []) >= 2
+            or bool(motif_redundancy.get("repeated_same_function_motifs"))
+            or bool(motif_redundancy.get("consecutive_same_function_motifs"))
+        )
+    ):
         major_issues.append(f"高频母题复读但未承担新功能：{', '.join(repeated_motifs[:4])}。")
     if motif_redundancy.get("repeated_same_function_motifs") and not motif_redundancy.get("same_function_reuse_allowed", True):
         major_issues.append(f"母题同功能连续复用已超限：{', '.join((motif_redundancy.get('repeated_same_function_motifs') or [])[:4])}。")
@@ -1017,6 +1265,28 @@ def normalize_review_result(
 
         return cleaned
 
+    def prefer_chinese_text(candidate_text: Any, fallback_text: str) -> str:
+        candidate = sanitize_issue_text(candidate_text or "")
+        if not is_usable_structural_text(candidate):
+            return fallback_text
+        return candidate
+
+    def prefer_chinese_list(candidate_items: Any, fallback_items: list[str], limit: int) -> list[str]:
+        cleaned: list[str] = []
+        seen: set[str] = set()
+
+        for item in candidate_items or []:
+            text = sanitize_issue_text(item)
+            if not is_usable_structural_text(text):
+                continue
+            key = normalize_text_key(text)
+            if key in seen:
+                continue
+            seen.add(key)
+            cleaned.append(text)
+
+        return (cleaned or fallback_items)[:limit]
+
     verdict = result.get("verdict", "revise")
     cleaned_major = clean_list(filter_shared_issues(result.get("major_issues", []), task_text=task_text, limit=3))
     cleaned_minor = clean_list(filter_shared_issues(result.get("minor_issues", []), task_text=task_text, limit=3))
@@ -1033,32 +1303,69 @@ def normalize_review_result(
     def merge_structural_payload() -> dict[str, Any]:
         merged = build_empty_structural_review()
         for field, local_value in local_structural.items():
+            if not isinstance(local_value, dict):
+                merged[field] = local_value
+                continue
             candidate = result.get(field) if isinstance(result.get(field), dict) else {}
             merged[field] = dict(local_value)
             if field == "information_gain":
-                reviewer_items = [sanitize_issue_text(item) for item in candidate.get("new_information_items", []) if str(item).strip()]
                 merged[field]["has_new_information"] = bool(candidate.get("has_new_information", local_value["has_new_information"])) and bool(local_value["has_new_information"])
-                merged[field]["new_information_items"] = (reviewer_items or local_value["new_information_items"])[:3]
+                merged[field]["new_information_items"] = prefer_chinese_list(
+                    candidate.get("new_information_items", []),
+                    local_value["new_information_items"],
+                    3,
+                )
             elif field == "plot_progress":
                 merged[field]["has_plot_progress"] = bool(candidate.get("has_plot_progress", local_value["has_plot_progress"])) and bool(local_value["has_plot_progress"])
-                merged[field]["progress_reason"] = sanitize_issue_text(candidate.get("progress_reason") or local_value["progress_reason"]) or local_value["progress_reason"]
+                merged[field]["progress_reason"] = prefer_chinese_text(
+                    candidate.get("progress_reason"),
+                    local_value["progress_reason"],
+                )
             elif field == "character_decision":
                 merged[field]["has_decision_or_behavior_shift"] = bool(candidate.get("has_decision_or_behavior_shift", local_value["has_decision_or_behavior_shift"])) and bool(local_value["has_decision_or_behavior_shift"])
-                merged[field]["decision_detail"] = sanitize_issue_text(candidate.get("decision_detail") or local_value["decision_detail"]) or local_value["decision_detail"]
+                merged[field]["decision_detail"] = prefer_chinese_text(
+                    candidate.get("decision_detail"),
+                    local_value["decision_detail"],
+                )
             elif field == "motif_redundancy":
-                reviewer_motifs = [sanitize_issue_text(item) for item in candidate.get("repeated_motifs", []) if str(item).strip()]
-                merged[field]["repeated_motifs"] = (reviewer_motifs or local_value["repeated_motifs"])[:5]
-                merged[field]["new_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("new_function_motifs", local_value["new_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["stale_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("stale_function_motifs", local_value["stale_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["repeated_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("repeated_same_function_motifs", local_value["repeated_same_function_motifs"]) if str(item).strip()][:5]
-                merged[field]["consecutive_same_function_motifs"] = [sanitize_issue_text(item) for item in candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]) if str(item).strip()][:5]
+                merged[field]["repeated_motifs"] = prefer_chinese_list(
+                    candidate.get("repeated_motifs", []),
+                    local_value["repeated_motifs"],
+                    5,
+                )
+                merged[field]["new_function_motifs"] = prefer_chinese_list(
+                    candidate.get("new_function_motifs", local_value["new_function_motifs"]),
+                    local_value["new_function_motifs"],
+                    5,
+                )
+                merged[field]["stale_function_motifs"] = prefer_chinese_list(
+                    candidate.get("stale_function_motifs", local_value["stale_function_motifs"]),
+                    local_value["stale_function_motifs"],
+                    5,
+                )
+                merged[field]["repeated_same_function_motifs"] = prefer_chinese_list(
+                    candidate.get("repeated_same_function_motifs", local_value["repeated_same_function_motifs"]),
+                    local_value["repeated_same_function_motifs"],
+                    5,
+                )
+                merged[field]["consecutive_same_function_motifs"] = prefer_chinese_list(
+                    candidate.get("consecutive_same_function_motifs", local_value["consecutive_same_function_motifs"]),
+                    local_value["consecutive_same_function_motifs"],
+                    5,
+                )
                 merged[field]["repetition_has_new_function"] = bool(candidate.get("repetition_has_new_function", local_value["repetition_has_new_function"])) and bool(local_value["repetition_has_new_function"])
                 merged[field]["same_function_reuse_allowed"] = bool(candidate.get("same_function_reuse_allowed", local_value["same_function_reuse_allowed"])) and bool(local_value["same_function_reuse_allowed"])
-                merged[field]["redundancy_reason"] = sanitize_issue_text(candidate.get("redundancy_reason") or local_value["redundancy_reason"]) or local_value["redundancy_reason"]
+                merged[field]["redundancy_reason"] = prefer_chinese_text(
+                    candidate.get("redundancy_reason"),
+                    local_value["redundancy_reason"],
+                )
             elif field == "canon_consistency":
-                reviewer_issues = [sanitize_issue_text(item) for item in candidate.get("consistency_issues", []) if str(item).strip()]
                 merged[field]["is_consistent"] = bool(candidate.get("is_consistent", local_value["is_consistent"])) and bool(local_value["is_consistent"])
-                merged[field]["consistency_issues"] = (reviewer_issues or local_value["consistency_issues"])[:3]
+                merged[field]["consistency_issues"] = prefer_chinese_list(
+                    candidate.get("consistency_issues", []),
+                    local_value["consistency_issues"],
+                    3,
+                )
         return merged
 
     structural_payload = merge_structural_payload()
@@ -1084,8 +1391,8 @@ def normalize_review_result(
 
     if low_confidence:
         low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理。"
-        if low_confidence_note not in cleaned_minor:
-            cleaned_minor = [low_confidence_note] + cleaned_minor
+        cleaned_minor = [item for item in cleaned_minor if item != low_confidence_note]
+        cleaned_minor = [low_confidence_note] + cleaned_minor
 
     if is_mostly_english(summary) or not summary:
         _, _, fallback_summary, _ = build_chinese_issue_fallback(
@@ -1145,21 +1452,13 @@ def normalize_review_result(
             result["verdict"] = "revise"
             result["recommended_next_step"] = "create_revision_task"
 
-    positive_summary_markers = ["方向正确", "基本满足", "可作为终稿"]
-    negative_summary_markers = ["未完成", "不足", "需要小修", "仍需", "还需", "不够", "偏弱"]
-    heavy_minor_markers = ["核心推进", "未完成", "不足", "偏弱", "不够", "需要补", "需要加强"]
-    minor_is_light = len(cleaned_minor) <= 2 and not any(
-        any(marker in item for marker in heavy_minor_markers) for item in cleaned_minor
-    )
-    if (
-        verdict == "revise"
-        and len(cleaned_major) == 1
-        and not hard_failures
-        and any(marker in summary for marker in positive_summary_markers)
-        and not any(marker in summary for marker in negative_summary_markers)
-        and minor_is_light
+    if should_auto_lock_from_structural_signals(
+        structural_payload=structural_payload,
+        summary=summary,
+        major_issues=cleaned_major,
+        minor_issues=cleaned_minor,
+        hard_failures=hard_failures,
     ):
-        cleaned_minor = cleaned_major + cleaned_minor
         cleaned_major = []
         verdict = "lock"
         result["verdict"] = "lock"
@@ -1171,6 +1470,10 @@ def normalize_review_result(
         result["task_goal_fulfilled"] = True
 
     result["major_issues"] = cleaned_major
+    if low_confidence:
+        low_confidence_note = "Reviewer 原始输出主要是无效英文分析，已降权处理。"
+        cleaned_minor = [item for item in cleaned_minor if item != low_confidence_note]
+        cleaned_minor = [low_confidence_note] + cleaned_minor
     result["minor_issues"] = cleaned_minor
     result["summary"] = summary
     result["verdict"] = verdict
@@ -1335,6 +1638,130 @@ def build_local_review_fallback(
     }
 
 
+def should_auto_lock_from_structural_signals(
+    *,
+    structural_payload: dict[str, Any],
+    summary: str,
+    major_issues: list[str],
+    minor_issues: list[str],
+    hard_failures: list[str],
+) -> bool:
+    if hard_failures:
+        return False
+    if not structural_payload.get("information_gain", {}).get("has_new_information"):
+        return False
+    if not structural_payload.get("plot_progress", {}).get("has_plot_progress"):
+        return False
+    if not structural_payload.get("character_decision", {}).get("has_decision_or_behavior_shift"):
+        return False
+    if not structural_payload.get("canon_consistency", {}).get("is_consistent", True):
+        return False
+
+    positive_summary_markers = [
+        "方向正确",
+        "基本满足",
+        "可作为终稿",
+        "具备信息增量",
+        "情节推进",
+        "行为偏移",
+        "未发现明显母题空转",
+        "未发现明显母题空转或 canon 漂移",
+    ]
+    negative_summary_markers = ["未完成", "不足", "需要小修", "仍需", "还需", "不够", "偏弱"]
+    if not any(marker in summary for marker in positive_summary_markers):
+        return False
+    if any(marker in summary for marker in negative_summary_markers):
+        return False
+
+    placeholder_major = {"当前草稿未充分完成 task 的核心推进目标。"}
+    meaningful_major = [item for item in major_issues if item not in placeholder_major]
+    meaningful_minor = [
+        item
+        for item in minor_issues
+        if "无效英文分析" not in item
+        and not item.startswith("[skill audit][")
+        and not item.startswith("本场新增信息：")
+    ]
+    return not meaningful_major and len(meaningful_minor) <= 1
+
+
+def load_skill_audit_entries(root: Path) -> list[dict[str, Any]]:
+    audit_path = root / "02_working/planning/skill_audit.json"
+    if not audit_path.exists():
+        return []
+    try:
+        audit_payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    audits = audit_payload.get("audits", []) if isinstance(audit_payload, dict) else []
+    return [item for item in audits if isinstance(item, dict)]
+
+
+def audit_all_skill_router_phases(root: Path, task_text: str) -> tuple[list[str], list[str]]:
+    output_target = extract_markdown_field(task_text, "output_target") or ""
+    if output_target and not output_target.startswith("02_working/drafts/"):
+        return [], []
+
+    major_issues: list[str] = []
+    minor_issues: list[str] = []
+    router_path = root / "02_working/planning/scene_writing_skill_router.json"
+    audits = load_skill_audit_entries(root)
+    if audits:
+        for item in audits:
+            phase = str(item.get("phase") or "").strip() or "unknown"
+            for issue in item.get("major_issues", []) or []:
+                text = str(issue).strip()
+                if text:
+                    major_issues.append(f"[skill audit][{phase}] {text}")
+            for issue in item.get("minor_issues", []) or []:
+                text = str(issue).strip()
+                if text:
+                    minor_issues.append(f"[skill audit][{phase}] {text}")
+        return major_issues, minor_issues
+
+    if not router_path.exists():
+        return [], []
+
+    try:
+        data = json.loads(router_path.read_text(encoding="utf-8"))
+    except Exception:
+        return ["scene writing skill router 结果文件损坏或不可解析，当前 skill 选择不可回放。"], []
+
+    selected = data.get("selected_skills", []) if isinstance(data, dict) else []
+    if not isinstance(selected, list):
+        selected = []
+
+    selected_names = [
+        str(item.get("skill") or "").strip()
+        for item in selected
+        if isinstance(item, dict) and str(item.get("skill") or "").strip()
+    ]
+
+    chapter_state_path = extract_markdown_field(task_text, "chapter_state") or ""
+    if chapter_state_path and "continuity-guard" not in selected_names:
+        major_issues.append("scene writing skill router 漏选 `continuity-guard`，但当前任务依赖 chapter_state 承接，存在明显连续性风险。")
+
+    if len(selected_names) > 3:
+        major_issues.append(f"scene writing skill router 选择了 {len(selected_names)} 个 skill，已超过当前约定上限 3 个，存在上下文过载风险。")
+
+    if not major_issues and selected_names:
+        minor_issues.append(f"本轮 scene writing skill router 已启用：{'、'.join(selected_names)}。")
+
+    return major_issues, minor_issues
+
+
+def audit_scene_writing_skill_router(root: Path, task_text: str) -> tuple[list[str], list[str]]:
+    major, minor = audit_all_skill_router_phases(root, task_text)
+    scene_major = [item for item in major if "[skill audit][scene_writing]" in item]
+    scene_minor = [item for item in minor if "[skill audit][scene_writing]" in item]
+    if scene_major or scene_minor:
+        return scene_major, scene_minor
+
+    stripped_major = [item for item in major if "[skill audit][" not in item]
+    stripped_minor = [item for item in minor if "[skill audit][" not in item]
+    return stripped_major, stripped_minor
+
+
 def extract_markdown_field(task_text: str, field_name: str) -> str | None:
     import re
 
@@ -1347,6 +1774,7 @@ def extract_markdown_field(task_text: str, field_name: str) -> str | None:
 
 
 def build_review_prompt(
+    config: dict | None,
     task_text: str,
     chapter_state: str,
     based_on_text: str,
@@ -1380,6 +1808,46 @@ def build_review_prompt(
             "chapter_progress": tracker_bundle.get("chapter_progress", {}),
         }
     tracker_summary_text = json.dumps(prompt_tracker_summary, ensure_ascii=False, indent=2) if prompt_tracker_summary else "{}"
+    if should_use_compact_local_review_prompt(config):
+        return f"""你是小说 scene 审稿器。只输出一个 JSON 对象，不要解释，不要英文分析。
+
+必须检查并输出这些字段：
+- task_id
+- verdict
+- task_goal_fulfilled
+- major_issues
+- minor_issues
+- recommended_next_step
+- summary
+- information_gain
+- plot_progress
+- character_decision
+- motif_redundancy
+- canon_consistency
+
+判定规则：
+1. 没有新信息，不能 lock。
+2. 没有情节推进，不能 lock。
+3. 主角没有明确动作/决策偏移，不能 lock。
+4. 有 canon 冲突，不能 lock。
+5. 如果只是小问题，用 revise；方向错了才用 rewrite。
+6. `summary`、问题条目、结构字段说明必须用中文。
+
+【任务】
+{task_text}
+
+【chapter_state】
+{chapter_state}
+
+【tracker 摘要】
+{tracker_summary_text}
+
+【前文参考】
+{normalized_based_on}
+
+【待审草稿】
+{normalized_draft}
+"""
     return f"""请审查下面这段 scene 草稿。
 
 你只能输出一个合法 JSON 对象。
@@ -1395,6 +1863,7 @@ def build_review_prompt(
 - motif_redundancy：本场复读了哪些母题；若复读，本次是否承担了新功能、是否仍在复用同一功能、这种同功能复用是否仍被允许；`redundancy_reason` 必须明确。
 - canon_consistency：是否与 `chapter_state` / 前文 / locked notes 冲突；若冲突，列出 `consistency_issues`。
 如果以下任一项不满足，默认不能 lock：没有新信息、没有情节推进、没有决策变化、母题复读且无新功能、存在 canon 冲突。
+除 `task_id / verdict / recommended_next_step` 这些枚举字段外，其余字符串字段与问题条目必须使用中文，不要混入英文分析句。
 
 你输出的 JSON 必须包含这些字段：
 - `task_id`
@@ -1505,6 +1974,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         based_on_text = "[未提供 based_on]"
 
     tracker_bundle = load_review_tracker_bundle(task_text, chapter_state=chapter_state)
+    reviewer_provider = str(config.get("reviewer", {}).get("provider", "")).strip().lower() or "unknown"
 
     if should_use_deepseek(config):
         structured_result = review_scene_with_deepseek(
@@ -1537,6 +2007,14 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
         )
         result["task_id"] = task_id
         result = ensure_non_empty_structural_fields(result)
+        result["review_trace"] = build_reviewer_trace(
+            provider=reviewer_provider,
+            mode="deepseek_structured",
+            json_refinement_attempted=False,
+            deterministic_fallback_used=False,
+            low_confidence=False,
+            repeated_fragments=0,
+        )
         out_path = f"02_working/reviews/{task_id}_reviewer.json"
         save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
         result["review_result_path"] = save_structured_deepseek_review(ROOT, structured_result)
@@ -1545,57 +2023,118 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
 
     system_prompt = read_text("prompts/reviewer_system.md")
     schema = json.loads(read_text("prompts/reviewer_output_schema.json"))
+    local_reviewer_strategy = get_local_reviewer_strategy(config)
+    consulted_local_reference = False
 
     user_prompt = build_review_prompt(
+        config,
         task_text=task_text,
         chapter_state=chapter_state,
         based_on_text=based_on_text,
         draft_text=draft_text,
     )
 
-    raw_response = call_ollama(
-        model=config["reviewer"]["model"],
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        base_url=config["reviewer"]["base_url"],
-        num_ctx=config["reviewer"]["num_ctx"],
-        temperature=config["reviewer"].get("temperature", 0.1),
-        timeout=config["reviewer"]["request_timeout"],
-        num_predict=config["reviewer"].get("num_predict", 900),
-        response_format=schema,
-    )
-    raw_output = extract_message_text(raw_response)
+    raw_output = ""
     raw_output_for_retry = raw_output
     raw_output_meta = {"low_value_english": False, "repeated_fragments": 0, "truncated": False}
+    review_mode = "direct_json"
+    json_refinement_attempted = False
+    deterministic_fallback_used = False
 
-    try:
-        result = extract_json_object(raw_output)
-    except Exception:
-        raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
-        print("Reviewer 原始输出如下：")
-        print("=" * 40)
-        print(raw_output_for_retry)
-        print("=" * 40)
-        if not raw_output.strip():
-            print("Reviewer 原始响应摘要：")
-            print(summarize_response_for_debug(raw_response))
-            raise ValueError(
-                "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
+    if local_reviewer_strategy == "deterministic_primary":
+        if should_consult_local_reviewer_reference(config):
+            consulted_local_reference = True
+            raw_response = call_ollama(
+                model=config["reviewer"]["model"],
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                base_url=config["reviewer"]["base_url"],
+                num_ctx=config["reviewer"]["num_ctx"],
+                temperature=config["reviewer"].get("temperature", 0.1),
+                timeout=config["reviewer"]["request_timeout"],
+                num_predict=config["reviewer"].get("reference_num_predict", 400),
+                response_format=None,
             )
-        print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
+            raw_output = extract_message_text(raw_response)
+            raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
+            if raw_output_for_retry:
+                print("本地 reviewer 补充参考输出如下：")
+                print("=" * 40)
+                print(raw_output_for_retry)
+                print("=" * 40)
+
+        review_mode = "deterministic_primary"
+        deterministic_fallback_used = True
+        result = build_local_review_fallback(
+            task_id,
+            raw_output_for_retry,
+            task_text=task_text,
+            draft_text=draft_text,
+            based_on_text=based_on_text,
+            chapter_state=chapter_state,
+            low_confidence=bool(raw_output_meta.get("low_value_english")),
+        )
+    else:
+        raw_response = call_ollama(
+            model=config["reviewer"]["model"],
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            base_url=config["reviewer"]["base_url"],
+            num_ctx=config["reviewer"]["num_ctx"],
+            temperature=config["reviewer"].get("temperature", 0.1),
+            timeout=config["reviewer"]["request_timeout"],
+            num_predict=config["reviewer"].get("num_predict", 900),
+            response_format=schema,
+        )
+        raw_output = extract_message_text(raw_response)
+        raw_output_for_retry = raw_output
+
         try:
-            result = extract_reviewer_json(config, task_id, raw_output_for_retry)
+            result = extract_json_object(raw_output)
         except Exception:
-            print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
-            result = build_local_review_fallback(
-                task_id,
-                raw_output_for_retry,
-                task_text=task_text,
-                draft_text=draft_text,
-                based_on_text=based_on_text,
-                chapter_state=chapter_state,
-                low_confidence=raw_output_meta["low_value_english"],
-            )
+            raw_output_for_retry, raw_output_meta = sanitize_reviewer_raw_output(raw_output)
+            print("Reviewer 原始输出如下：")
+            print("=" * 40)
+            print(raw_output_for_retry)
+            print("=" * 40)
+            if not raw_output.strip():
+                print("Reviewer 原始响应摘要：")
+                print(summarize_response_for_debug(raw_response))
+                raise ValueError(
+                    "Reviewer 模型返回空内容；请求已成功到达服务端，但可读输出字段为空，可能是模型空 content 或返回在非标准字段。"
+                )
+            if should_skip_json_refinement_for_local_reviewer(config, raw_output_for_retry, raw_output_meta):
+                print("检测到本地 reviewer 输出为低价值分析或元话语，直接切换到 deterministic reviewer 兜底。")
+                review_mode = "deterministic_fallback"
+                deterministic_fallback_used = True
+                result = build_local_review_fallback(
+                    task_id,
+                    raw_output_for_retry,
+                    task_text=task_text,
+                    draft_text=draft_text,
+                    based_on_text=based_on_text,
+                    chapter_state=chapter_state,
+                    low_confidence=True,
+                )
+            else:
+                print("Reviewer 未直接输出 JSON，正在尝试提纯为 JSON...")
+                json_refinement_attempted = True
+                try:
+                    result = extract_reviewer_json(config, task_id, raw_output_for_retry)
+                    review_mode = "json_refined"
+                except Exception:
+                    print("Reviewer 二次提纯失败，正在使用本地规则生成兜底审稿结果...")
+                    review_mode = "deterministic_fallback"
+                    deterministic_fallback_used = True
+                    result = build_local_review_fallback(
+                        task_id,
+                        raw_output_for_retry,
+                        task_text=task_text,
+                        draft_text=draft_text,
+                        based_on_text=based_on_text,
+                        chapter_state=chapter_state,
+                        low_confidence=raw_output_meta["low_value_english"],
+                    )
 
     result = normalize_review_result(
         result,
@@ -1610,6 +2149,14 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
     result = ensure_non_empty_structural_fields(result)
     validate(instance=result, schema=schema)
     validate_review_content(result)
+    result["review_trace"] = build_reviewer_trace(
+        provider=reviewer_provider,
+        mode=f"{review_mode}_with_reference" if consulted_local_reference and review_mode == "deterministic_primary" else review_mode,
+        json_refinement_attempted=json_refinement_attempted,
+        deterministic_fallback_used=deterministic_fallback_used,
+        low_confidence=bool(raw_output_meta.get("low_value_english")),
+        repeated_fragments=int(raw_output_meta.get("repeated_fragments", 0) or 0),
+    )
 
     out_path = f"02_working/reviews/{task_id}_reviewer.json"
     save_text(out_path, json.dumps(result, ensure_ascii=False, indent=2))
@@ -1620,6 +2167,7 @@ def review_scene_file(config: dict, draft_rel_path: str) -> tuple[dict, str]:
 def main() -> None:
     try:
         config = load_yaml("app/config.yaml")
+        validate_local_reviewer_endpoint(config)
 
         if len(sys.argv) < 2:
             print("用法: python3 app/review_scene.py <scene_draft_path>")

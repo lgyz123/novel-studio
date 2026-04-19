@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-19-001_ch01_scene01_auto",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=0, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "写出第 1 章第 1 个短场景，承接前文并为本章建立新的局面。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…；老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…；孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思。"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "他停下手，盯着那道焦痕看了几息。运河的水浑黄，裹着上游冲下来的草屑和油污，在尸体周围打转。远处码…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "no repeated motifs"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…；老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…；孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思。"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "他停下手，盯着那道焦痕看了几息。运河的水浑黄，裹着上游冲下来的草屑和油污，在尸体周围打转。远处码…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=扩展世界信息"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "未识别到明显的高频母题复读。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=reveal, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

@@ -379,6 +379,45 @@ def extract_item_candidates(text: str) -> list[str]:
     return dedupe_strings(normalized)
 
 
+def looks_like_state_fragment(text: str) -> bool:
+    value = str(text or "").strip()
+    if not value:
+        return True
+    if len(value) > 24:
+        return True
+    if any(marker in value for marker in ("，", "。", "：", "；", "？", "！", "[", "]", "“", "”", "\"")):
+        return True
+    if re.search(r"(松开|拖到|塞回|捡起|拾起|看见|想起|走到|回到|放下|停住|留下|录入|混着|过码头)", value):
+        return True
+    return False
+
+
+def clean_short_state_list(items: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for item in items:
+        text = str(item or "").strip()
+        if not text or looks_like_state_fragment(text):
+            continue
+        cleaned.append(text)
+    return dedupe_strings(cleaned)
+
+
+def clean_known_fact_list(items: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for item in items:
+        text = str(item or "").strip()
+        if not text:
+            continue
+        if text.startswith(("而是", "但是", "只是", "不是")):
+            continue
+        if re.search(r"(松开|拖到|塞回|捡起|拾起|看见|想起|走到|回到|放下|停住|留下|录入|混着|过码头)", text):
+            continue
+        if len(text) > 48:
+            continue
+        cleaned.append(text)
+    return dedupe_strings(cleaned)
+
+
 def infer_item_status(source_text: str) -> str:
     if any(marker in source_text for marker in ("贴身保留", "贴身", "腰间")):
         return "贴身保留"
@@ -506,6 +545,8 @@ def infer_items(
     source_lines.extend([line.strip() for line in str(locked_text or "").splitlines() if line.strip()])
     for line in source_lines:
         for name in extract_item_candidates(line):
+            if looks_like_state_fragment(name):
+                continue
             if name in existing_by_name:
                 continue
             results.append(
@@ -646,6 +687,31 @@ def clean_story_state(state: StoryState) -> StoryState:
         cleaned_relationships.append(item)
 
     state.relationship_deltas = cleaned_relationships
+    for character in state.characters.values():
+        character.known_facts = clean_known_fact_list(character.known_facts)
+        character.active_goals = clean_short_state_list(character.active_goals)
+        character.open_tensions = clean_short_state_list(character.open_tensions)
+
+    cleaned_items: list[ItemState] = []
+    seen_item_names: set[str] = set()
+    for item in state.items:
+        item.name = str(item.name or "").strip()
+        item.notes = str(item.notes or "").strip()
+        if looks_like_state_fragment(item.name):
+            continue
+        if item.name in seen_item_names:
+            continue
+        seen_item_names.add(item.name)
+        cleaned_items.append(item)
+    state.items = cleaned_items
+
+    cleaned_promises: list[PromiseState] = []
+    for item in state.unresolved_promises:
+        item.description = str(item.description or "").strip()
+        if not item.description or len(item.description) > 40:
+            continue
+        cleaned_promises.append(item)
+    state.unresolved_promises = cleaned_promises
     return state
 
 

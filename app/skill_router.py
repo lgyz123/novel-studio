@@ -1,4 +1,6 @@
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 
@@ -72,10 +74,72 @@ def route_writer_skills(
         )
         rejected_candidates.append(
             _skill_entry(
+                "timeline-history",
+                "chapter-sequence",
+                0.46,
+                "时间线补全在 bootstrap 内单独走 timeline patch，本轮主路由先聚焦世界观和大纲。",
+            )
+        )
+        rejected_candidates.append(
+            _skill_entry(
                 "continuity-guard",
                 "scene-canon",
                 0.24,
                 "此阶段以补 planning proposal 为主，还不是正文落稿校验阶段。",
+            )
+        )
+
+    elif phase == "timeline_bootstrap":
+        demand_tags.extend(["planning", "timeline", "history"])
+        selected_skills.append(
+            _skill_entry(
+                "timeline-history",
+                "chapter-sequence",
+                0.93,
+                "timeline_bootstrap 阶段需要把历史锚点与章节承接显式化。",
+            )
+        )
+        rejected_candidates.append(
+            _skill_entry(
+                "worldbuilding",
+                "institutional",
+                0.31,
+                "本轮重点是时间承接和历史锚点，不是制度补丁主导。",
+            )
+        )
+        rejected_candidates.append(
+            _skill_entry(
+                "continuity-guard",
+                "timeline-check",
+                0.29,
+                "当前仍是写前时间策划，不是正文连续性修复。",
+            )
+        )
+
+    elif phase == "character_creation":
+        demand_tags.extend(["planning", "character", "naming"])
+        selected_skills.append(
+            _skill_entry(
+                "character-design",
+                "protagonist-card",
+                0.91,
+                "character_creation 阶段需要先明确角色功能卡、行为锚点和关系张力。",
+            )
+        )
+        selected_skills.append(
+            _skill_entry(
+                "naming",
+                "person",
+                0.86,
+                "character_creation 阶段需要把角色槽位转成可用名字候选与命名风格约束。",
+            )
+        )
+        rejected_candidates.append(
+            _skill_entry(
+                "continuity-guard",
+                "scene-canon",
+                0.28,
+                "当前仍处于角色补全过程，尚未进入正文连续性校验。",
             )
         )
 
@@ -193,3 +257,16 @@ def render_skill_router_markdown(result: dict[str, Any], heading: str = "# skill
     risk_flags = result.get("risk_flags", [])
     lines.extend(["", "## risk_flags", f"- {'、'.join(risk_flags) if risk_flags else '无'}"])
     return "\n".join(lines).strip() + "\n"
+
+
+def save_skill_router_outputs(root: Path, rel_stem: str, result: dict[str, Any], heading: str) -> dict[str, str]:
+    json_path = root / f"{rel_stem}.json"
+    md_path = root / f"{rel_stem}.md"
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    md_path.write_text(render_skill_router_markdown(result, heading=heading), encoding="utf-8")
+    return {
+        "json_file": str(json_path.relative_to(root)),
+        "md_file": str(md_path.relative_to(root)),
+    }

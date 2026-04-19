@@ -8,10 +8,59 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
-from app.chapter_trackers import detect_artifact_state_conflicts, detect_forbidden_reveal_violations, load_tracker_bundle, update_trackers_on_lock
+from app.chapter_trackers import (
+    detect_artifact_state_conflicts,
+    detect_forbidden_reveal_violations,
+    extract_candidate_motifs_from_text,
+    load_tracker_bundle,
+    update_trackers_on_lock,
+)
 
 
 class ChapterTrackersTest(unittest.TestCase):
+    def test_extract_candidate_motifs_from_text_filters_polluted_phrase_fragments(self) -> None:
+        text = "风带着水腥气钻进棚屋，轻则扣钱，可这块牌却还挂在码头边。孟浮灯想起老张头说过的话。"
+
+        motifs = extract_candidate_motifs_from_text(text)
+        labels = {label for _, label in motifs}
+
+        self.assertIn("棚屋", labels)
+        self.assertNotIn("风带着水腥气", labels)
+        self.assertNotIn("轻则扣钱", labels)
+        self.assertNotIn("可这块牌", labels)
+        self.assertNotIn("想起老张头说过", labels)
+        self.assertNotIn("一个", labels)
+        self.assertNotIn("两个字", labels)
+        self.assertNotIn("一块木牌", labels)
+
+    def test_load_tracker_bundle_filters_polluted_motif_labels_from_existing_tracker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            tracker_dir = root / "03_locked/state/trackers"
+            tracker_dir.mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+            (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "active_motifs": [
+                            {"motif_id": "environment_motif_码头", "category": "environment_motif", "label": "码头"},
+                            {"motif_id": "environment_motif_轻则扣钱", "category": "environment_motif", "label": "轻则扣钱"},
+                            {"motif_id": "smell_motif_混着水腥气", "category": "smell_motif", "label": "混着水腥气"},
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            bundle = load_tracker_bundle(root, "ch01", chapter_state_text="", story_state={}, upto_scene_id=None)
+
+        labels = [item["label"] for item in bundle["chapter_motif_tracker"]["active_motifs"]]
+        self.assertIn("码头", labels)
+        self.assertNotIn("轻则扣钱", labels)
+        self.assertNotIn("混着水腥气", labels)
+
     def test_detect_artifact_state_conflicts_ignores_unresolved_status_location(self) -> None:
         conflicts = detect_artifact_state_conflicts(
             "孟浮灯把红绳和平安符先裹进油布，贴身收着，暂不声张。",
@@ -50,6 +99,60 @@ class ChapterTrackersTest(unittest.TestCase):
         )
 
         self.assertEqual(conflicts, [])
+
+    def test_load_tracker_bundle_filters_polluted_artifact_labels_and_holders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            tracker_dir = root / "03_locked/state/trackers"
+            tracker_dir.mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+            (tracker_dir / "ch01_artifact_state.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "items": [
+                            {"item_id": "artifact_平安符", "label": "平安符", "holder": "主角", "location": "随身携带"},
+                            {"item_id": "artifact_不是绳", "label": "不是绳", "holder": "觉到几处", "location": "待确认"},
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            bundle = load_tracker_bundle(root, "ch01", chapter_state_text="", story_state={}, upto_scene_id=None)
+
+        labels = [item["label"] for item in bundle["artifact_state"]["items"]]
+        self.assertIn("平安符", labels)
+        self.assertNotIn("不是绳", labels)
+
+    def test_load_tracker_bundle_filters_action_phrase_artifact_labels(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            tracker_dir = root / "03_locked/state/trackers"
+            tracker_dir.mkdir(parents=True, exist_ok=True)
+            (root / "03_locked/state").mkdir(parents=True, exist_ok=True)
+            (tracker_dir / "ch01_artifact_state.json").write_text(
+                json.dumps(
+                    {
+                        "chapter_id": "ch01",
+                        "items": [
+                            {"item_id": "artifact_麻绳", "label": "麻绳", "holder": "主角", "location": "随身携带"},
+                            {"item_id": "artifact_松开麻绳", "label": "松开麻绳", "holder": "他蹲", "location": "待确认"},
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            bundle = load_tracker_bundle(root, "ch01", chapter_state_text="", story_state={}, upto_scene_id=None)
+
+        labels = [item["label"] for item in bundle["artifact_state"]["items"]]
+        holders = {item["label"]: item["holder"] for item in bundle["artifact_state"]["items"]}
+        self.assertIn("麻绳", labels)
+        self.assertNotIn("松开麻绳", labels)
+        self.assertEqual(holders["麻绳"], "主角")
 
     def test_update_trackers_on_lock_writes_expanded_revelation_artifact_and_chapter_state(self) -> None:
         task_text = """# task_id

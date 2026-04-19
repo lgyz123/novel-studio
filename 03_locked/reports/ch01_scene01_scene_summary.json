@@ -1,0 +1,181 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene01",
+  "locked_file": "03_locked/chapters/ch01_scene01.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene01",
+    "scene_function": "扩展世界信息",
+    "new_information_items": [
+      "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…",
+      "老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…",
+      "孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思。"
+    ],
+    "protagonist_decision": "他停下手，盯着那道焦痕看了几息。运河的水浑黄，裹着上游冲下来的草屑和油污，在尸体周围打转。远处码…",
+    "state_changes": [
+      "protagonist_mode: 行动推进 -> 隐匿/压制",
+      "investigation_stage: 未启动 -> 被动留意",
+      "risk_level: high -> low"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "这趟的脚钱",
+      "是块木牌",
+      "木牌",
+      "这牌",
+      "带这种牌",
+      "码头",
+      "河道",
+      "岸边",
+      "窝棚",
+      "数字"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "扩展世界信息"
+      ],
+      "这趟的脚钱": [
+        "扩展世界信息"
+      ],
+      "是块木牌": [
+        "扩展世界信息"
+      ],
+      "木牌": [
+        "扩展世界信息"
+      ],
+      "这牌": [
+        "扩展世界信息"
+      ],
+      "带这种牌": [
+        "扩展世界信息"
+      ],
+      "码头": [
+        "扩展世界信息"
+      ],
+      "河道": [
+        "扩展世界信息"
+      ],
+      "岸边": [
+        "扩展世界信息"
+      ],
+      "窝棚": [
+        "扩展世界信息"
+      ],
+      "数字": [
+        "扩展世界信息"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "麻绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility",
+          "significance_level"
+        ]
+      },
+      {
+        "label": "这趟的脚钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "是块木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "holder",
+          "location",
+          "visibility",
+          "significance_level"
+        ]
+      },
+      {
+        "label": "这牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "带这种牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [
+      "最扎眼的是额头正中，一道竖着的焦痕，像是被什么细长的烙铁烫过，皮肉翻卷，边缘发黑",
+      "报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了",
+      "而额头上的焦痕，像是某种标记，或者……某种处理"
+    ],
+    "open_questions_resolved": [],
+    "reveal_changes": {
+      "confirmed_added": [
+        "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…",
+        "老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…",
+        "孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思"
+      ],
+      "suspected_added": [
+        "最扎眼的是额头正中，一道竖着的焦痕，像是被什么细长的烙铁烫过，皮肉翻卷，边缘发黑",
+        "报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了",
+        "而额头上的焦痕，像是某种标记，或者……某种处理"
+      ],
+      "protagonist_known_added": [
+        "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…",
+        "老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…",
+        "孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思"
+      ],
+      "reader_known_added": [
+        "尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…",
+        "老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…",
+        "孟浮灯感觉后背的寒意爬了上来，问不见了是什么意思",
+        "最扎眼的是额头正中，一道竖着的焦痕，像是被什么细长的烙铁烫过，皮肉翻卷，边缘发黑",
+        "报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了",
+        "而额头上的焦痕，像是某种标记，或者……某种处理"
+      ]
+    },
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene01",
+        "scene_function": "扩展世界信息"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene01",
+    "first_old_acquaintance_hint_scene_id": "",
+    "first_investigation_trigger_scene_id": "ch01_scene01",
+    "first_artifact_change_scene_id": "ch01_scene01",
+    "consecutive_transition_runs": []
+  }
+}

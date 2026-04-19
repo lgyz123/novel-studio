@@ -1,55 +1,40 @@
 {
   "timeline": {
-    "current_book_time": "unknown",
+    "current_book_time": "夜间",
     "recent_events": [
       "EVENT-001"
     ]
   },
   "characters": {
     "protagonist": {
-      "location": "运河边",
-      "physical_state": "持续劳作、未麻木",
-      "mental_state": "被未解线索持续牵动",
+      "location": "从运河",
+      "physical_state": "疲惫",
+      "mental_state": "克制、被未解线索持续牵动",
       "known_facts": [
-        "红绳",
-        "平安符背面的“阿绣”",
-        "乱葬岗处理尸体后的余波",
-        "孟浮灯对名字与无名尸之间关系的敏感"
+        "[待从前文与 story_state 回填]"
       ],
-      "active_goals": [],
-      "open_tensions": [
-        "他尚未形成调查念头，也不该主动追问这条线索"
-      ]
+      "active_goals": [
+        "维持日常求活与从运河做活"
+      ],
+      "open_tensions": []
     }
   },
   "unresolved_promises": [
     {
       "id": "PROMISE-001",
-      "description": "不揭示阿绣身份",
+      "description": "第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？",
       "introduced_in": "ch01_scene01",
       "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-002",
-      "description": "不展开司命体系",
+      "description": "不要现代词汇、现代设施、现代口语。",
       "introduced_in": "ch01_scene01",
       "expected_payoff_window": "chapter_01_scene_02_onward"
     },
     {
       "id": "PROMISE-003",
-      "description": "不引入谢观鱼、裴照骨、净苦和尚",
-      "introduced_in": "ch01_scene01",
-      "expected_payoff_window": "chapter_01_scene_02_onward"
-    },
-    {
-      "id": "PROMISE-004",
-      "description": "不扩大为大规模怪异事件",
-      "introduced_in": "ch01_scene01",
-      "expected_payoff_window": "chapter_01_scene_02_onward"
-    },
-    {
-      "id": "PROMISE-005",
-      "description": "不急于抛出主线真相",
+      "description": "不要后宫、脸谱反派、流水线升级。",
       "introduced_in": "ch01_scene01",
       "expected_payoff_window": "chapter_01_scene_02_onward"
     }
@@ -58,62 +43,37 @@
   "items": [
     {
       "id": "ITEM-001",
-      "name": "红绳",
-      "owner": "待确认",
+      "name": "麻绳",
+      "owner": "几乎握",
       "status": "状态待确认",
       "last_seen_in": "ch01_scene01",
-      "notes": "红绳"
+      "notes": "运河边的风很冷，孟浮灯蹲下身，把麻绳从浮尸腋下穿过去。水面一晃，他的手指被冻得发木，几乎握不住结。这已经是今早第三具了，前两具都是码头力夫，夜里失足落水，泡得发胀，没什么可看的。但这具不一样。"
     },
     {
       "id": "ITEM-002",
-      "name": "平安符",
-      "owner": "待确认",
+      "name": "孟浮灯把麻绳",
+      "owner": "孟浮灯",
       "status": "状态待确认",
       "last_seen_in": "ch01_scene01",
-      "notes": "平安符背面的“阿绣”"
+      "notes": "孟浮灯把麻绳收紧，打了个死结。按规矩，这种身上带明显异状、又不像本地苦力的浮尸，得先报给河泊所的小吏看过，才能往义庄送。报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了。不报，万一后面查出什么，第一个倒霉的就是捞尸的人。"
     },
     {
       "id": "ITEM-003",
-      "name": "麻绳",
-      "owner": "孟浮灯",
+      "name": "木牌",
+      "owner": "四下看了",
       "status": "状态待确认",
       "last_seen_in": "ch01_scene01",
-      "notes": "运河的腥气混着煤灰味渗入衣领，孟浮灯的麻绳在掌心勒出深红的印子。竹篙点破水面时，他听见自己牙关微颤的声响——这具浮尸的下巴上还沾着半片桃花，花瓣边缘已经发皱，像被泡烂的纸钱。"
+      "notes": "他直起身，四下看了看。这段河道偏僻，离主码头有半里地，岸边只有些歪斜的柳树和堆杂物的草棚。雾还没散，远处的人影都模模糊糊的。他蹲回去，伸手在尸体怀里摸索。布料底下硬邦邦的，有个扁平的物件。掏出来一看，是块木牌，半个巴掌大，边缘磨得光滑，正面刻着字，被水泡得有些模糊，但还能辨认：“丙戌七十三”。"
     },
     {
       "id": "ITEM-004",
-      "name": "浮灯俯身捞起那截绳",
-      "owner": "孟浮灯",
+      "name": "麻袋",
+      "owner": "码头上",
       "status": "状态待确认",
       "last_seen_in": "ch01_scene01",
-      "notes": "\"小孟，这具算不算？\"老张头的竹篙在水面划出波纹，浑浊的水里浮着半截褪色的红绳。孟浮灯俯身捞起那截绳子，系着的平安符已经泡烂，但符纸背面的墨迹还洇着\"阿绣\"两个字。"
-    },
-    {
-      "id": "ITEM-005",
-      "name": "但符",
-      "owner": "孟浮灯",
-      "status": "状态待确认",
-      "last_seen_in": "ch01_scene01",
-      "notes": "\"小孟，这具算不算？\"老张头的竹篙在水面划出波纹，浑浊的水里浮着半截褪色的红绳。孟浮灯俯身捞起那截绳子，系着的平安符已经泡烂，但符纸背面的墨迹还洇着\"阿绣\"两个字。"
-    },
-    {
-      "id": "ITEM-006",
-      "name": "孟浮灯把那截红绳",
-      "owner": "孟浮灯",
-      "status": "状态待确认",
-      "last_seen_in": "ch01_scene01",
-      "notes": "对岸的灯塔突然亮起，刺得他睁不开眼。孟浮灯把那截红绳塞进怀里，继续往河心划去。水面漂来一截枯枝，远处隐约有铃声。他停了停手，又把竹篙往前送了一尺。"
+      "notes": "码头上已经热闹起来。力夫们扛着麻袋在跳板上来回，监工拎着短棍站在高处。孟浮灯穿过人群，走到靠西边的一排窝棚前。老张头正蹲在棚口就着咸菜喝粥，见他过来，抬了抬眼皮。"
     }
   ],
-  "relationship_deltas": [
-    {
-      "id": "REL-001",
-      "source": "孟浮灯",
-      "target": "阿绣",
-      "delta": "“阿绣”这个名字已经留在他心里，但目前仍只是被记住、被反复想起，还没有转成明确行动",
-      "introduced_in": "ch01_scene01",
-      "status": "active"
-    }
-  ],
+  "relationship_deltas": [],
   "last_locked_scene": "ch01_scene01"
 }

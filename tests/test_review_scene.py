@@ -1,5 +1,6 @@
-import unittest
 import tempfile
+import json
+import unittest
 from pathlib import Path
 
 import sys
@@ -13,6 +14,7 @@ import app.review_scene as review_scene_module
 class ReviewSceneSanitizationTest(unittest.TestCase):
     def test_build_review_prompt_marks_based_on_as_reference_only(self) -> None:
         prompt = review_scene_module.build_review_prompt(
+            None,
             task_text="# task_id\nscene11\n",
             chapter_state="chapter state",
             based_on_text="【scene10】前文内容",
@@ -48,6 +50,7 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
                 )
 
                 prompt = review_scene_module.build_review_prompt(
+                    None,
                     task_text="# task_id\n2026-04-03-017_ch01_scene02_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
                     chapter_state="# ch01 当前状态\n\n## 暂不展开的内容\n- 不提前揭示阿绣替他收过尸账\n",
                     based_on_text="【scene01】孟浮灯摸到红绳。",
@@ -104,6 +107,28 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertFalse(signals["canon_consistency"]["is_consistent"])
         self.assertTrue(any("artifact_state" in item or "物件“平安符”" in item for item in signals["canon_consistency"]["consistency_issues"]))
 
+    def test_build_structural_review_signals_flags_tone_drift_for_low_realism_task(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_tone\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n- 不要跳成大场面、不要引入新的组织或职位称呼。\n",
+            draft_text="尸身突然抽搐着扭向他，黑血在水面铺开蛛网状纹路。淤泥中浮出半张人脸，眼尾的泪痣正在渗出暗红。",
+            based_on_text="孟浮灯在河边收工。",
+            chapter_state="当前只需落地新的现实压力。",
+        )
+
+        self.assertFalse(signals["canon_consistency"]["is_consistent"])
+        self.assertTrue(any("基调漂移" in item for item in signals["canon_consistency"]["consistency_issues"]))
+
+    def test_build_structural_review_signals_flags_lower_threshold_tone_drift(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_tone\n\n# constraints\n- 类型基调保持为：底层现实主义修仙\n",
+            draft_text="锁链正在渗血，老人烟斗忽明忽暗，泥里像有活物在慢慢游走。",
+            based_on_text="孟浮灯在河边收工。",
+            chapter_state="当前只需落地新的现实压力。",
+        )
+
+        self.assertFalse(signals["canon_consistency"]["is_consistent"])
+        self.assertTrue(any("基调漂移" in item for item in signals["canon_consistency"]["consistency_issues"]))
+
     def test_sanitize_reviewer_raw_output_compresses_repeated_english_analysis(self) -> None:
         raw_text = " ".join(
             [
@@ -138,6 +163,71 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertFalse(result["information_gain"]["has_new_information"])
         self.assertFalse(result["plot_progress"]["has_plot_progress"])
         self.assertFalse(result["character_decision"]["has_decision_or_behavior_shift"])
+
+    def test_structural_signals_recognize_throwing_object_as_decision_and_progress(self) -> None:
+        signals = review_scene_module.build_structural_review_signals(
+            task_text="# task_id\nscene_throw\n",
+            draft_text="孟浮灯听见官船逼近，突然将铜铃往水里一扔，转身贴着芦苇根后退半步。",
+            based_on_text="孟浮灯原本蹲在岸边。",
+            chapter_state="当前仍处于求活观察阶段。",
+        )
+
+        self.assertTrue(signals["character_decision"]["has_decision_or_behavior_shift"])
+        self.assertTrue(signals["plot_progress"]["has_plot_progress"])
+
+    def test_local_reviewer_skips_json_refinement_for_meta_english(self) -> None:
+        sanitized, meta = review_scene_module.sanitize_reviewer_raw_output(
+            "We need to produce a JSON object. The assistant must output a single JSON object."
+        )
+
+        self.assertTrue(
+            review_scene_module.should_skip_json_refinement_for_local_reviewer(
+                {
+                    "reviewer": {
+                        "provider": "ollama",
+                        "model": "gpt-oss:20b",
+                        "base_url": "http://example.com",
+                    }
+                },
+                sanitized,
+                meta,
+            )
+        )
+
+    def test_build_review_prompt_uses_compact_variant_for_local_reviewer(self) -> None:
+        prompt = review_scene_module.build_review_prompt(
+            {"reviewer": {"provider": "ollama"}},
+            task_text="# task_id\nscene11\n",
+            chapter_state="chapter state",
+            based_on_text="前文",
+            draft_text="当前草稿",
+        )
+
+        self.assertIn("你是小说 scene 审稿器", prompt)
+        self.assertIn("只输出一个 JSON 对象", prompt)
+        self.assertNotIn("你不是文风评论员", prompt)
+
+    def test_local_reviewer_strategy_defaults_to_deterministic_primary(self) -> None:
+        self.assertEqual(
+            review_scene_module.get_local_reviewer_strategy({"reviewer": {"provider": "ollama"}}),
+            "deterministic_primary",
+        )
+
+    def test_build_reviewer_trace_marks_deterministic_fallback(self) -> None:
+        trace = review_scene_module.build_reviewer_trace(
+            provider="ollama",
+            mode="deterministic_fallback",
+            json_refinement_attempted=False,
+            deterministic_fallback_used=True,
+            low_confidence=True,
+            repeated_fragments=3,
+        )
+
+        self.assertEqual(trace["provider"], "ollama")
+        self.assertEqual(trace["mode"], "deterministic_fallback")
+        self.assertTrue(trace["deterministic_fallback_used"])
+        self.assertTrue(trace["low_confidence"])
+        self.assertEqual(trace["repeated_fragments"], 3)
 
     def test_normalize_review_result_dedupes_repeated_issue_text(self) -> None:
         result = {
@@ -263,6 +353,46 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertTrue(normalized["plot_progress"]["progress_reason"])
         self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
         self.assertTrue(normalized["motif_redundancy"]["redundancy_reason"])
+
+    def test_normalize_review_result_replaces_english_structural_fields_with_local_chinese(self) -> None:
+        result = {
+            "task_id": "scene_107b",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["推进不足。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "需要修订。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["Found a hidden receipt."]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "The plot moves forward."},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "He decides to hide it first."},
+            "motif_redundancy": {
+                "repeated_motifs": ["rope tail"],
+                "new_function_motifs": [],
+                "stale_function_motifs": [],
+                "repeated_same_function_motifs": [],
+                "consecutive_same_function_motifs": [],
+                "repetition_has_new_function": True,
+                "same_function_reuse_allowed": True,
+                "redundancy_reason": "The repeated motif has a new function.",
+            },
+            "canon_consistency": {"is_consistent": True, "consistency_issues": ["No canon issue detected."]},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            raw_review_text="Need revision.",
+            task_text="# constraints\n- 保持单视角\n",
+            low_confidence=False,
+            draft_text="孟浮灯把旧票塞进袖里，没有立刻上交，转身先回屋把门闩上。",
+            based_on_text="孟浮灯刚收工回屋。",
+            chapter_state="当前仍处于低烈度观察推进阶段。",
+        )
+
+        self.assertFalse(any("Found a hidden receipt" in item for item in normalized["information_gain"]["new_information_items"]))
+        self.assertFalse(any("rope tail" in item for item in normalized["motif_redundancy"]["repeated_motifs"]))
+        self.assertFalse("The plot moves forward." == normalized["plot_progress"]["progress_reason"])
+        self.assertFalse("He decides to hide it first." == normalized["character_decision"]["decision_detail"])
 
     def test_normalize_review_result_drops_unexpected_fields(self) -> None:
         result = {
@@ -439,6 +569,100 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertNotEqual(normalized["verdict"], "lock")
         self.assertTrue(any("canon" in item or "chapter_state" in item for item in normalized["major_issues"]))
 
+    def test_normalize_review_result_merges_multi_phase_skill_audit_into_issues(self) -> None:
+        result = {
+            "task_id": "scene_108",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["已有结构问题。"],
+            "minor_issues": [],
+            "recommended_next_step": "create_revision_task",
+            "summary": "需要修订。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["确认袖里多了一张旧票。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "主角改变了交差顺序。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他决定先藏票再回屋。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "无明显复读。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                planning_dir = root / "02_working/planning"
+                planning_dir.mkdir(parents=True, exist_ok=True)
+                (planning_dir / "skill_audit.json").write_text(
+                    json.dumps(
+                        {
+                            "audits": [
+                                {
+                                    "phase": "planning_bootstrap",
+                                    "selected_skills": ["worldbuilding", "scene-outline"],
+                                    "major_issues": [],
+                                    "minor_issues": ["planning_bootstrap router 当前启用：worldbuilding、scene-outline。"],
+                                    "is_ok": True,
+                                },
+                                {
+                                    "phase": "scene_writing",
+                                    "selected_skills": ["character-design"],
+                                    "major_issues": ["scene_writing router 漏选 `continuity-guard`，会带来明显连续性风险。"],
+                                    "minor_issues": [],
+                                    "is_ok": False,
+                                },
+                            ]
+                        },
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
+
+                normalized = review_scene_module.normalize_review_result(
+                    result,
+                    raw_review_text="需要继续修订。",
+                    task_text="# task_id\nscene_108\n\n# chapter_state\n03_locked/canon/ch01_state.md\n\n# output_target\n02_working/drafts/ch01_scene08.md\n",
+                    low_confidence=False,
+                    draft_text="孟浮灯把旧票塞进袖里，先改了回屋的步子。",
+                    based_on_text="孟浮灯刚收工回屋。",
+                    chapter_state="当前仍处于求活观察阶段。",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertFalse(any("[skill audit][" in item for item in normalized["minor_issues"]))
+        self.assertFalse(any("[skill audit][" in item for item in normalized["major_issues"]))
+
+    def test_normalize_review_result_auto_locks_when_structural_signals_are_all_green(self) -> None:
+        result = {
+            "task_id": "scene_109",
+            "verdict": "revise",
+            "task_goal_fulfilled": False,
+            "major_issues": ["当前草稿未充分完成 task 的核心推进目标。"],
+            "minor_issues": ["Reviewer 原始输出主要是无效英文分析，已降权处理。"],
+            "recommended_next_step": "create_revision_task",
+            "summary": "本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。",
+            "information_gain": {"has_new_information": True, "new_information_items": ["他摸到尸体腰间多了一块冷玉。"]},
+            "plot_progress": {"has_plot_progress": True, "progress_reason": "他因此改了交差顺序。"},
+            "character_decision": {"has_decision_or_behavior_shift": True, "decision_detail": "他先把冷玉塞进袖口。"},
+            "motif_redundancy": {"repeated_motifs": [], "repetition_has_new_function": True, "redundancy_reason": "未识别到明显的高频母题复读。"},
+            "canon_consistency": {"is_consistent": True, "consistency_issues": []},
+        }
+
+        normalized = review_scene_module.normalize_review_result(
+            result,
+            raw_review_text="We need to produce a JSON object.",
+            task_text="# task_id\nscene_109\n",
+            low_confidence=True,
+            draft_text="孟浮灯摸到尸体腰间多了一块冷玉，决定先把那东西塞进袖口，随后改了交差顺序。",
+            based_on_text="孟浮灯原本只想把尸体拖上岸。",
+            chapter_state="当前仍处于求活观察阶段。",
+        )
+
+        self.assertEqual(normalized["verdict"], "lock")
+        self.assertEqual(normalized["recommended_next_step"], "lock_scene")
+        self.assertTrue(normalized["task_goal_fulfilled"])
+        self.assertEqual(normalized["major_issues"], [])
+
     def test_build_structural_review_signals_marks_new_function_reuse_as_allowed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -502,6 +726,99 @@ class ReviewSceneSanitizationTest(unittest.TestCase):
         self.assertIn("红绳", signals["motif_redundancy"]["new_function_motifs"])
         self.assertTrue(signals["motif_redundancy"]["repetition_has_new_function"])
         self.assertTrue(signals["motif_redundancy"]["same_function_reuse_allowed"])
+
+    def test_build_structural_review_signals_filters_noisy_repeated_motifs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            previous_root = review_scene_module.ROOT
+            review_scene_module.ROOT = root
+            try:
+                tracker_dir = root / "03_locked/state/trackers"
+                tracker_dir.mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon").mkdir(parents=True, exist_ok=True)
+                (root / "03_locked/canon/ch01_state.md").write_text("章节状态", encoding="utf-8")
+                (tracker_dir / "ch01_chapter_motif_tracker.json").write_text(
+                    json.dumps(
+                        {
+                            "chapter_id": "ch01",
+                            "active_motifs": [
+                                {
+                                    "motif_id": "artifact_motif_one",
+                                    "category": "artifact_motif",
+                                    "label": "一个",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                                {
+                                    "motif_id": "artifact_motif_money",
+                                    "category": "artifact_motif",
+                                    "label": "几枚铜钱",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                                {
+                                    "motif_id": "artifact_motif_rope",
+                                    "category": "artifact_motif",
+                                    "label": "麻绳",
+                                    "narrative_functions": ["发现线索"],
+                                    "recent_scene_ids": ["ch01_scene01"],
+                                },
+                            ],
+                        },
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
+                (tracker_dir / "ch01_revelation_tracker.json").write_text('{"chapter_id": "ch01", "confirmed_facts": [], "suspected_facts": [], "unrevealed_facts": [], "forbidden_premature_reveals": []}', encoding="utf-8")
+                (tracker_dir / "ch01_artifact_state.json").write_text('{"chapter_id": "ch01", "items": []}', encoding="utf-8")
+                (tracker_dir / "ch01_chapter_progress.json").write_text('{"chapter_id": "ch01", "chapter_goal": "推进", "completed_scene_functions": [], "remaining_scene_functions": ["发现线索"], "consecutive_transition_scene_count": 1}', encoding="utf-8")
+
+                signals = review_scene_module.build_structural_review_signals(
+                    task_text="# task_id\n2026-04-03-017_ch01_scene03_auto\n\n# chapter_state\n03_locked/canon/ch01_state.md\n",
+                    draft_text="他把麻绳卷进袖里，顺手把几枚铜钱压进木盒底层。",
+                    based_on_text="前文里他已经碰过这些旧物。",
+                    chapter_state="章节状态",
+                )
+            finally:
+                review_scene_module.ROOT = previous_root
+
+        self.assertIn("麻绳", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertNotIn("一个", signals["motif_redundancy"]["repeated_motifs"])
+        self.assertNotIn("几枚铜钱", signals["motif_redundancy"]["repeated_motifs"])
+
+    def test_structural_gate_allows_transition_scene_without_hard_decision_when_progress_exists(self) -> None:
+        signals = review_scene_module.build_empty_structural_review()
+        signals["scene_function"] = "过渡/氛围"
+        signals["information_gain"] = {"has_new_information": True, "new_information_items": ["他听见货栈后巷多了生面脚步。"]}
+        signals["plot_progress"] = {"has_plot_progress": True, "progress_reason": "他因此改了回屋路线。"}
+        signals["character_decision"] = {"has_decision_or_behavior_shift": False, "decision_detail": "主要是轻推进。"}
+        signals["motif_redundancy"] = {"repeated_motifs": [], "repetition_has_new_function": True, "same_function_reuse_allowed": True}
+        signals["canon_consistency"] = {"is_consistent": True, "consistency_issues": []}
+
+        failures = review_scene_module.structural_gate_failures(signals)
+
+        self.assertNotIn("missing_character_decision", failures)
+
+    def test_structural_gate_ignores_single_weak_motif_repetition_without_same_function_streak(self) -> None:
+        signals = review_scene_module.build_empty_structural_review()
+        signals["scene_function"] = "过渡/氛围"
+        signals["information_gain"] = {"has_new_information": True, "new_information_items": ["他确认麻绳上沾着新泥。"]}
+        signals["plot_progress"] = {"has_plot_progress": True, "progress_reason": "他把麻绳换到背阴处再处理。"}
+        signals["character_decision"] = {"has_decision_or_behavior_shift": True, "decision_detail": "他改了收尾顺序。"}
+        signals["motif_redundancy"] = {
+            "repeated_motifs": ["麻绳"],
+            "stale_function_motifs": ["麻绳"],
+            "repeated_same_function_motifs": [],
+            "consecutive_same_function_motifs": [],
+            "repetition_has_new_function": False,
+            "same_function_reuse_allowed": True,
+        }
+        signals["canon_consistency"] = {"is_consistent": True, "consistency_issues": []}
+
+        failures = review_scene_module.structural_gate_failures(signals)
+
+        self.assertNotIn("motif_redundancy_without_new_function", failures)
+
 
 
 if __name__ == "__main__":
