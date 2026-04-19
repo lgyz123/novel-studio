@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-047_ch01_scene13_auto-R1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene13。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：场景在主角向老张头提问后突然截断，对话未完成，可能影响阅读连贯性。；根据该问题执行局部修补，避免不必要的整场重写。问题：木牌作为核心线索在多个场景中重复出现，功能上仍以‘发现线索’和‘提高风险’为主，可能缺乏新叙事功能。；根据该问题执行局部修补，避免不必要的整场重写。问题：老张头的对话信息量有限，主要重复已知风险，未提供足够新信息推动情节。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边的苇丛里，用脚踩倒一片枯杆，腾出一块勉强能藏人的浅坑…；天刚蒙蒙亮，巷子里就有了动静。挑水的、倒夜香的、赶早去码头等活的人影在薄…；他拐进另一条更窄的巷子，贴着墙根走。晨雾还没散，石板路上湿漉漉的，泛着一…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "他拿起绳子，走到屋角的水缸边，舀了一瓢水，把绳子浸进去搓洗。污渍慢慢化开，水变成了淡红色。搓到绳…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边的苇丛里，用脚踩倒一片枯杆，腾出一块勉强能藏人的浅坑。他蹲下身，手指探进尸体…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 麻绳, 木牌, 胸口, 什么，且本场至少为 麻绳, 木牌, 胸口 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边的苇丛里，用脚踩倒一片枯杆，腾出一块勉强能藏人的浅坑…；天刚蒙蒙亮，巷子里就有了动静。挑水的、倒夜香的、赶早去码头等活的人影在薄…；他拐进另一条更窄的巷子，贴着墙根走。晨雾还没散，石板路上湿漉漉的，泛着一…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边的苇丛里，用脚踩倒一片枯杆，腾出一块勉强能藏人的浅坑。他蹲下身，手指探进尸体…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少让一个状态变量发生变化：已知信息 / 角色判断 / 行动计划 / 风险等级 / 关系态势 / 物件位置或可见性。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=触发调查"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 麻绳, 木牌, 胸口, 什么，且本场至少为 麻绳, 木牌, 胸口 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=decision, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

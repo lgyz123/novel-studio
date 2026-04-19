@@ -1,0 +1,236 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene14",
+  "locked_file": "03_locked/chapters/ch01_scene14.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene14",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "天还没亮透，运河边的风带着水腥气，刮得人脸上发麻。孟浮灯蹲在码头石阶上，…",
+      "衣襟里是空的。他又摸了摸袖袋、裤腰，什么都没有。连个铜板、半块干粮都没留…",
+      "孟浮灯把草席重新盖好，退到棚子外头。天光灰蒙蒙的，运河对岸的屋舍还黑着。…"
+    ],
+    "protagonist_decision": "孟浮灯把草席重新盖好，退到棚子外头。天光灰蒙蒙的，运河对岸的屋舍还黑着。他靠在棚柱上，等老张头。…",
+    "state_changes": [
+      "risk_level: low -> medium"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "木牌",
+      "在码头",
+      "风带着水腥气",
+      "什么",
+      "约莫铜钱",
+      "空的",
+      "的气味",
+      "在岸边",
+      "铜钱",
+      "的人",
+      "带着水腥气",
+      "袖袋",
+      "缆绳",
+      "孟浮灯",
+      "草绳",
+      "走路时牌",
+      "一股霉味",
+      "着草药的气味",
+      "河泥水的味",
+      "指节有些僵",
+      "浮灯蹲在码头",
+      "屋子在码头",
+      "孟浮灯在屋里",
+      "船工在岸边",
+      "他退到码头",
+      "役突然来码头"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索",
+        "提高风险",
+        "引发后果"
+      ],
+      "木牌": [
+        "发现线索",
+        "提高风险",
+        "制造错误判断",
+        "引发后果",
+        "触发调查"
+      ],
+      "在码头": [
+        "发现线索",
+        "触发调查"
+      ],
+      "风带着水腥气": [
+        "发现线索"
+      ],
+      "什么": [
+        "提高风险",
+        "发现线索"
+      ],
+      "约莫铜钱": [
+        "触发调查",
+        "发现线索"
+      ],
+      "空的": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "的气味": [
+        "发现线索"
+      ],
+      "在岸边": [
+        "提高风险"
+      ],
+      "铜钱": [
+        "发现线索",
+        "触发调查"
+      ],
+      "的人": [
+        "触发调查",
+        "发现线索"
+      ],
+      "带着水腥气": [
+        "发现线索"
+      ],
+      "袖袋": [
+        "引入阻力"
+      ],
+      "缆绳": [
+        "触发调查",
+        "发现线索"
+      ],
+      "孟浮灯": [
+        "触发调查"
+      ],
+      "草绳": [
+        "发现线索"
+      ],
+      "走路时牌": [
+        "发现线索"
+      ],
+      "一股霉味": [
+        "发现线索"
+      ],
+      "着草药的气味": [
+        "发现线索"
+      ],
+      "河泥水的味": [
+        "发现线索"
+      ],
+      "指节有些僵": [
+        "发现线索"
+      ],
+      "浮灯蹲在码头": [
+        "发现线索"
+      ],
+      "屋子在码头": [
+        "发现线索"
+      ],
+      "孟浮灯在屋里": [
+        "发现线索"
+      ],
+      "船工在岸边": [
+        "发现线索"
+      ],
+      "他退到码头": [
+        "发现线索"
+      ],
+      "役突然来码头": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "约莫铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "草绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "走路时牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene11",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene12",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene13",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene14",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene03",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene03",
+    "first_investigation_trigger_scene_id": "ch01_scene04",
+    "first_artifact_change_scene_id": "ch01_scene03",
+    "consecutive_transition_runs": []
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-029_ch01_scene07_auto-RW1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：继续推进第1章，写出scene07。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：通过重写确保竹片与木牌的连续性连接，引用刘三失踪以深化威胁，并满足scene_purpose要求，形成新的章内起点。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "铁片是从前天那具年轻尸首衣襟里掉出来的。竹片则是去年冬天的事，那时他还在…；老赵带来的消息，让这两样东西的分量变了。它们不再只是可疑的物件，而成了一…；他把铁片和竹片重新裹好，塞回原处。屋里很静，能听见远处运河上早起船只的摇…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "老赵搓了搓手，声音压得更低：“今早坊里来了几个生面孔，在打听夜里在河边捞东西的人。穿的不是衙门的…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "天还没亮透，孟浮灯就醒了。不是自己醒的，是屋外有人拍门。拍得不算重，但很急，一下接一下，像催命。…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 不是码头, 在码头, 什么, 也不是码头，且本场至少为 不是码头, 在码头, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "铁片是从前天那具年轻尸首衣襟里掉出来的。竹片则是去年冬天的事，那时他还在…；老赵带来的消息，让这两样东西的分量变了。它们不再只是可疑的物件，而成了一…；他把铁片和竹片重新裹好，塞回原处。屋里很静，能听见远处运河上早起船只的摇…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "天还没亮透，孟浮灯就醒了。不是自己醒的，是屋外有人拍门。拍得不算重，但很急，一下接一下，像催命。…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=触发调查"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 不是码头, 在码头, 什么, 也不是码头，且本场至少为 不是码头, 在码头, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=decision, streak=1, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

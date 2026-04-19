@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-028_ch01_scene08_auto-RW1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构重写：继续推进第1章，写出scene08。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：确立新的日常压力源，让主角被迫形成更明确的应对方式。本次重点解决：明确时间流连续性，解释额头标记的仙门背景意义，并强化本章新压力源和主角微决策的后果。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "这不是昨晚那具。昨晚那具已经拖去义庄，换了三十文铜钱，老张头还多给了半块…；不是泥污，也不是水草。是个规整的菱形印记，青里透紫，像皮肤底下渗出来的颜…；孟浮灯盯着印记。尸体是个少年，看着不过十四五岁，身上穿的是粗麻衣，袖口磨…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "盖好之后，他退开两步，看了看。不仔细看，发现不了。但这只能瞒一时，等尸体开始腐烂，气味散出来，还…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "这不是昨晚那具。昨晚那具已经拖去义庄，换了三十文铜钱，老张头还多给了半块干饼。眼前这具是刚漂过来…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 木牌, 不是码头, 胸口, 什么，且本场至少为 木牌, 不是码头, 胸口 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "这不是昨晚那具。昨晚那具已经拖去义庄，换了三十文铜钱，老张头还多给了半块…；不是泥污，也不是水草。是个规整的菱形印记，青里透紫，像皮肤底下渗出来的颜…；孟浮灯盯着印记。尸体是个少年，看着不过十四五岁，身上穿的是粗麻衣，袖口磨…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "这不是昨晚那具。昨晚那具已经拖去义庄，换了三十文铜钱，老张头还多给了半块干饼。眼前这具是刚漂过来…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=触发调查"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 木牌, 不是码头, 胸口, 什么，且本场至少为 木牌, 不是码头, 胸口 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=decision, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

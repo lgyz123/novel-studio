@@ -80,11 +80,11 @@ generation:
   supervisor_rescue_draft_enabled: true
 
 run:
-  mode: restart
+  mode: continue
   start_chapter: 1
-  start_scene: 1
+  start_scene: 11
   target_chapter: 1
-  target_scene: 10
+  target_scene: 15
   max_scenes_per_chapter:
   restart_from_task: ""
 

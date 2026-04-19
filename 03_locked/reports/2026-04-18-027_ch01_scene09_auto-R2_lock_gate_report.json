@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-027_ch01_scene09_auto-R2",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=2, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene09。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：方向基本正确，但本场结构推进信号仍不足。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "天还没亮透，远处码头上已经有人影晃动。他得赶在巡河吏过来之前把尸身处理掉…；他掀开草席一角，又看了一眼。是个男人，三十上下，衣服是粗布，但料子比码头…；孟浮灯把手伸进尸体的衣襟里摸索。胸口冰凉，皮肤已经僵了。他在内侧摸到一块…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边，用草席盖住脸。水从衣角往下滴，在泥地上洇开一圈暗色。他蹲着喘气，手指在膝盖…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 木牌, 胸口, 尸体拖到岸边, 的册，且本场至少为 木牌, 胸口, 尸体拖到岸边 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "天还没亮透，远处码头上已经有人影晃动。他得赶在巡河吏过来之前把尸身处理掉…；他掀开草席一角，又看了一眼。是个男人，三十上下，衣服是粗布，但料子比码头…；孟浮灯把手伸进尸体的衣襟里摸索。胸口冰凉，皮肤已经僵了。他在内侧摸到一块…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到岸边，用草席盖住脸。水从衣角往下滴，在泥地上洇开一圈暗色。他蹲着喘气，手指在膝盖…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "matched: 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=触发调查"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 木牌, 胸口, 尸体拖到岸边, 的册，且本场至少为 木牌, 胸口, 尸体拖到岸边 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=decision, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

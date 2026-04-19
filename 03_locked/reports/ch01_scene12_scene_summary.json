@@ -1,0 +1,298 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene12",
+  "locked_file": "03_locked/chapters/ch01_scene12.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene12",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "“问看见什么没有。”老妇人说，“问夜里运河上有没有船经过，有没有人从水里…",
+      "巷子里那线天光暗了些，积水映出灰蒙蒙的倒影。他贴着墙根往回走，脚步放得比…",
+      "一块木牌，几枚铜钱，还有一小撮黑褐色的碎屑。碎屑是上次从尸体衣襟里发现的…"
+    ],
+    "protagonist_decision": "他继续往前走，拐进另一条巷子。这条巷子更窄，两边墙高，头顶只剩一线天光。地上湿漉漉的，不知是哪里…",
+    "state_changes": [
+      "protagonist_mode: 观察/求活 -> 隐匿/压制"
+    ],
+    "motifs_used": [
+      "木牌",
+      "在码头",
+      "什么",
+      "像刀",
+      "意味",
+      "布袋",
+      "想起那具尸体",
+      "他不认识",
+      "铜钱",
+      "一个",
+      "的人",
+      "就意味",
+      "什么了",
+      "了什么",
+      "继续在码头",
+      "孟浮灯",
+      "塞回布袋",
+      "系紧袋",
+      "苦味",
+      "口的细绳",
+      "一块木牌",
+      "几枚铜钱",
+      "淡淡的苦味",
+      "有股土腥味",
+      "会先在门口",
+      "药铺门口",
+      "米铺门口",
+      "转身往屋里",
+      "而是站在门口",
+      "以继续在码头",
+      "走到窗边",
+      "他需要去码头",
+      "陌生纹路",
+      "什么没有",
+      "想起老吴家的儿子"
+    ],
+    "motif_functions": {
+      "木牌": [
+        "发现线索",
+        "提高风险",
+        "制造错误判断",
+        "引发后果",
+        "触发调查"
+      ],
+      "在码头": [
+        "发现线索",
+        "触发调查"
+      ],
+      "什么": [
+        "提高风险",
+        "发现线索"
+      ],
+      "像刀": [
+        "发现线索"
+      ],
+      "意味": [
+        "发现线索",
+        "触发调查"
+      ],
+      "布袋": [
+        "发现线索",
+        "制造错误判断"
+      ],
+      "想起那具尸体": [
+        "发现线索"
+      ],
+      "他不认识": [
+        "发现线索"
+      ],
+      "铜钱": [
+        "发现线索",
+        "触发调查"
+      ],
+      "一个": [
+        "触发调查",
+        "发现线索"
+      ],
+      "的人": [
+        "触发调查",
+        "发现线索"
+      ],
+      "就意味": [
+        "发现线索"
+      ],
+      "什么了": [
+        "制造错误判断"
+      ],
+      "了什么": [
+        "制造错误判断"
+      ],
+      "继续在码头": [
+        "触发调查"
+      ],
+      "孟浮灯": [
+        "触发调查"
+      ],
+      "塞回布袋": [
+        "制造错误判断",
+        "发现线索"
+      ],
+      "系紧袋": [
+        "制造错误判断",
+        "发现线索"
+      ],
+      "苦味": [
+        "制造错误判断"
+      ],
+      "口的细绳": [
+        "发现线索"
+      ],
+      "一块木牌": [
+        "发现线索"
+      ],
+      "几枚铜钱": [
+        "发现线索"
+      ],
+      "淡淡的苦味": [
+        "发现线索"
+      ],
+      "有股土腥味": [
+        "发现线索"
+      ],
+      "会先在门口": [
+        "发现线索"
+      ],
+      "药铺门口": [
+        "发现线索"
+      ],
+      "米铺门口": [
+        "发现线索"
+      ],
+      "转身往屋里": [
+        "发现线索"
+      ],
+      "而是站在门口": [
+        "发现线索"
+      ],
+      "以继续在码头": [
+        "发现线索"
+      ],
+      "走到窗边": [
+        "发现线索"
+      ],
+      "他需要去码头": [
+        "发现线索"
+      ],
+      "陌生纹路": [
+        "发现线索"
+      ],
+      "什么没有": [
+        "发现线索"
+      ],
+      "想起老吴家的儿子": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "像刀",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "塞回布袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "系紧袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "口的细绳",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "一块木牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "几枚铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene13",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene14",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene15",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene11",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene12",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene04",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene07",
+    "first_investigation_trigger_scene_id": "ch01_scene04",
+    "first_artifact_change_scene_id": "ch01_scene05",
+    "consecutive_transition_runs": []
+  }
+}

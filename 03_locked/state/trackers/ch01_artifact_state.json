@@ -6,10 +6,12 @@
       "label": "麻绳",
       "holder": "主角",
       "location": "随身携带",
-      "visibility": "hidden",
+      "visibility": "visible",
       "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
+      "last_changed_scene": "ch01_scene11",
+      "linked_facts": [
+        "他把麻绳缠好，站起身。腰后的木轴硌着旧伤，一阵钝痛。他得去领今天的工牌。…"
+      ]
     },
     {
       "item_id": "artifact_木牌",
@@ -18,7 +20,7 @@
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "high",
-      "last_changed_scene": "ch01_scene02",
+      "last_changed_scene": "ch01_scene12",
       "linked_facts": [
         "孟浮灯的手指在木牌边缘停了一下。他认得这种牌子。去年秋天，上游漂下来一具…"
       ]
@@ -62,7 +64,7 @@
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
+      "last_changed_scene": "ch01_scene08",
       "linked_facts": []
     },
     {
@@ -121,6 +123,1288 @@
       "linked_facts": [
         "这牌子不单是换了活计，更像一道无声的圈禁——他被暂时隔在了码头最不起眼的角落，远离水边，也远离那些可能看见、可能听见、可能多嘴的活计"
       ]
+    },
+    {
+      "item_id": "artifact_有人出钱",
+      "label": "有人出钱",
+      "holder": "短打的汉",
+      "location": "待确认",
+      "visibility": "visible",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene03",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_现在木牌",
+      "label": "现在木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene04",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_可木牌",
+      "label": "可木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene04",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_竹牌",
+      "label": "竹牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": [
+        "竹牌的边缘已经磨圆了，刻痕里积着暗红色的垢，像是长期被人握在手里摩挲"
+      ]
+    },
+    {
+      "item_id": "artifact_发搬运钱",
+      "label": "发搬运钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_继续拉绳",
+      "label": "继续拉绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_能领工钱",
+      "label": "能领工钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene04",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_怀里的木牌",
+      "label": "怀里的木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_腰牌",
+      "label": "腰牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_现在符牌",
+      "label": "现在符牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_取走符牌",
+      "label": "取走符牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_铜符",
+      "label": "铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_如果符牌",
+      "label": "如果符牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那这枚铜符",
+      "label": "那这枚铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_了铜符",
+      "label": "了铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_符牌",
+      "label": "符牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_的册",
+      "label": "的册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_可铜符",
+      "label": "可铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_一袋袋",
+      "label": "一袋袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那符",
+      "label": "那符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_像刀",
+      "label": "像刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_约莫铜钱",
+      "label": "约莫铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene14",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_是枚铜符",
+      "label": "是枚铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_里的铜符",
+      "label": "里的铜符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_给钱",
+      "label": "给钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这符",
+      "label": "这符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_约铜钱",
+      "label": "约铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_是为了符",
+      "label": "是为了符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_铜牌",
+      "label": "铜牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_录名牌",
+      "label": "录名牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_修船的钱",
+      "label": "修船的钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_得从工钱",
+      "label": "得从工钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_布袋",
+      "label": "布袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_什么符牌",
+      "label": "什么符牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_没了那牌",
+      "label": "没了那牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_发现牌",
+      "label": "发现牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_如果牌",
+      "label": "如果牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_塞进布袋",
+      "label": "塞进布袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_还在袖袋",
+      "label": "还在袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_湿冷的袖袋",
+      "label": "湿冷的袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_湿漉漉的绳",
+      "label": "湿漉漉的绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_老头认钱",
+      "label": "老头认钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene05",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_工钱",
+      "label": "工钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_按件算钱",
+      "label": "按件算钱",
+      "holder": "待确认",
+      "location": "待确认",
+      "visibility": "visible",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_也不像符",
+      "label": "也不像符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那几枚铜钱",
+      "label": "那几枚铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_收进袖袋",
+      "label": "收进袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_铜钱",
+      "label": "铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_收钱",
+      "label": "收钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_但绳",
+      "label": "但绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那为什么符",
+      "label": "那为什么符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_多半是符",
+      "label": "多半是符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_骨灰掺符",
+      "label": "骨灰掺符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_是从暗袋",
+      "label": "是从暗袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_暗袋",
+      "label": "暗袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene15",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_皱纹像刀",
+      "label": "皱纹像刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_挂木牌",
+      "label": "挂木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_有些牌",
+      "label": "有些牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_功钱",
+      "label": "功钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这种钱",
+      "label": "这种钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这不是木牌",
+      "label": "这不是木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_名册",
+      "label": "名册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_造册",
+      "label": "造册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_两文钱",
+      "label": "两文钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_什么符",
+      "label": "什么符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这不是竹牌",
+      "label": "这不是竹牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_自己袖袋",
+      "label": "自己袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_而这张符",
+      "label": "而这张符",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene06",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_袖袋",
+      "label": "袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_轻则罚钱",
+      "label": "轻则罚钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_像块小木牌",
+      "label": "像块小木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_腰里挂刀",
+      "label": "腰里挂刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_验尸的钱",
+      "label": "验尸的钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这钱",
+      "label": "这钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_半串铜钱",
+      "label": "半串铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_缆绳",
+      "label": "缆绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那半串铜钱",
+      "label": "那半串铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_还有袖袋",
+      "label": "还有袖袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_尤其是木牌",
+      "label": "尤其是木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_扣例钱",
+      "label": "扣例钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_但腰牌",
+      "label": "但腰牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_一根绳",
+      "label": "一根绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_或是钱",
+      "label": "或是钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene07",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_但钱",
+      "label": "但钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_才能入册",
+      "label": "才能入册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_不要钱",
+      "label": "不要钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene08",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那捆新麻绳",
+      "label": "那捆新麻绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_误时罚钱",
+      "label": "误时罚钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_清扫钱",
+      "label": "清扫钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_要罚钱",
+      "label": "要罚钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_罚钱",
+      "label": "罚钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_剩下的绳",
+      "label": "剩下的绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_一块磨刀",
+      "label": "一块磨刀",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_几截短绳",
+      "label": "几截短绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_新割的绳",
+      "label": "新割的绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那段新麻绳",
+      "label": "那段新麻绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_一段新绳",
+      "label": "一段新绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_开始解绳",
+      "label": "开始解绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene11",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_米袋",
+      "label": "米袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这是什么册",
+      "label": "这是什么册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_人跟麻袋",
+      "label": "人跟麻袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_那人合上册",
+      "label": "那人合上册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_收工钱",
+      "label": "收工钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_找出半袋",
+      "label": "找出半袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene09",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_按册",
+      "label": "按册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_核对册",
+      "label": "核对册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_玉佩",
+      "label": "玉佩",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_递上册",
+      "label": "递上册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_这笔钱",
+      "label": "这笔钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_像钩",
+      "label": "像钩",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_可钱",
+      "label": "可钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_搓到绳",
+      "label": "搓到绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene13",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_在湿绳",
+      "label": "在湿绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene13",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_草绳",
+      "label": "草绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene14",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_走路时牌",
+      "label": "走路时牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene14",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_后来铜钱",
+      "label": "后来铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene15",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_身上有牌",
+      "label": "身上有牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene15",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_塞回布袋",
+      "label": "塞回布袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_系紧袋",
+      "label": "系紧袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "high",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_擦到缆绳",
+      "label": "擦到缆绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_都是旧绳",
+      "label": "都是旧绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_嵌在绳",
+      "label": "嵌在绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_比布袋",
+      "label": "比布袋",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene10",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_口的细绳",
+      "label": "口的细绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_一块木牌",
+      "label": "一块木牌",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "medium",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_几枚铜钱",
+      "label": "几枚铜钱",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene12",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_对着账册",
+      "label": "对着账册",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene13",
+      "linked_facts": []
+    },
+    {
+      "item_id": "artifact_断绳",
+      "label": "断绳",
+      "holder": "主角",
+      "location": "随身携带",
+      "visibility": "hidden",
+      "significance_level": "low",
+      "last_changed_scene": "ch01_scene13",
+      "linked_facts": []
     }
   ]
 }

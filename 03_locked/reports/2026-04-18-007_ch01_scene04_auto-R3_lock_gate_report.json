@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-007_ch01_scene04_auto-R3",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=3, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构修复：继续推进第1章，写出scene04。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：确立新的日常压力源，让主角被迫形成更明确的应对方式。本次重点解决：强化场景目的，确保本场结束时形成新的章内起点，补入新事实和决策后果，修复时间过渡和动作连续性。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "他慢慢站起身，四下看了看。暮色浓重，河岸边的杂物堆和破船影影绰绰，看不清…；他没有直接回自己那间窝棚。棚户区深处，靠近废弃货栈的地方，有一间半塌的土…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "他慢慢站起身，四下看了看。暮色浓重，河岸边的杂物堆和破船影影绰绰，看不清是否藏着人。风从河面吹来…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "远处有船工的号子，短促，一声就断了。他停下手，抬头望了望天色。云层压得很低，灰里透出一点暗沉的赭…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 木牌, 在码头, 一个名字, 什么，且本场至少为 木牌, 在码头, 一个名字 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "他慢慢站起身，四下看了看。暮色浓重，河岸边的杂物堆和破船影影绰绰，看不清…；他没有直接回自己那间窝棚。棚户区深处，靠近废弃货栈的地方，有一间半塌的土…；他慢慢站起身，四下看了看。暮色浓重，河岸边的杂物堆和破船影影绰绰，看不清是否藏着人。风从河面吹来…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "远处有船工的号子，短促，一声就断了。他停下手，抬头望了望天色。云层压得很低，灰里透出一点暗沉的赭…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=制造错误判断"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 木牌, 在码头, 一个名字, 什么，且本场至少为 木牌, 在码头, 一个名字 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=reflection, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene15",
+  "locked_file": "03_locked/chapters/ch01_scene15.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene15",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "孟浮灯把麻绳从腋下抽出来，在岸边的石头上绕了两圈。绳头湿漉漉的，沾着水草…",
+      "尸体还躺在岸边的草席上，用一块旧帆布盖着。帆布是码头上捡来的，破了几个洞…",
+      "老张头的声音从后面传来：“弄完了没？” 孟浮灯没回头，把油纸包塞进怀里，…"
+    ],
+    "protagonist_decision": "他把碎屑塞进腰带内侧一个缝死的暗袋里。这个动作很轻，几乎只是手指贴着腰侧滑过去。暗袋是去年缝的，…",
+    "state_changes": [
+      "protagonist_mode: 调查/试探 -> 观察/求活",
+      "investigation_stage: 主动调查 -> 未启动"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "不是码头",
+      "什么",
+      "的气味",
+      "在岸边",
+      "铜钱",
+      "一个",
+      "暗袋",
+      "的人",
+      "是码头",
+      "什么了",
+      "孟浮灯",
+      "后来铜钱",
+      "身上有牌",
+      "让沾了河腥气",
+      "股呛人的气味",
+      "体还躺在岸边",
+      "帆布是码头",
+      "你往怀里塞东",
+      "很多不该看见"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索",
+        "提高风险",
+        "引发后果"
+      ],
+      "不是码头": [
+        "发现线索"
+      ],
+      "什么": [
+        "提高风险",
+        "发现线索"
+      ],
+      "的气味": [
+        "发现线索"
+      ],
+      "在岸边": [
+        "提高风险",
+        "发现线索"
+      ],
+      "铜钱": [
+        "发现线索",
+        "触发调查"
+      ],
+      "一个": [
+        "触发调查"
+      ],
+      "暗袋": [
+        "触发调查",
+        "发现线索"
+      ],
+      "的人": [
+        "触发调查",
+        "发现线索"
+      ],
+      "是码头": [
+        "触发调查"
+      ],
+      "什么了": [
+        "制造错误判断"
+      ],
+      "孟浮灯": [
+        "触发调查"
+      ],
+      "后来铜钱": [
+        "发现线索"
+      ],
+      "身上有牌": [
+        "发现线索"
+      ],
+      "让沾了河腥气": [
+        "发现线索"
+      ],
+      "股呛人的气味": [
+        "发现线索"
+      ],
+      "体还躺在岸边": [
+        "发现线索"
+      ],
+      "帆布是码头": [
+        "发现线索"
+      ],
+      "你往怀里塞东": [
+        "发现线索"
+      ],
+      "很多不该看见": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "暗袋",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "high",
+        "change_types": [
+          "significance_level"
+        ]
+      },
+      {
+        "label": "后来铜钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "身上有牌",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "medium",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene11",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene10",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene12",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene13",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene14",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene15",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene04",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene07",
+    "first_investigation_trigger_scene_id": "ch01_scene04",
+    "first_artifact_change_scene_id": "ch01_scene05",
+    "consecutive_transition_runs": []
+  }
+}

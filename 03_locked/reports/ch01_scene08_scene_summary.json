@@ -1,0 +1,193 @@
+{
+  "chapter_id": "ch01",
+  "scene_id": "ch01_scene08",
+  "locked_file": "03_locked/chapters/ch01_scene08.md",
+  "scene_summary": {
+    "scene_id": "ch01_scene08",
+    "scene_function": "发现线索",
+    "new_information_items": [
+      "他停了一下，看着那截绳子。不是麻绳，是船上用的旧缆，浸了水又沉又硬，勒进…",
+      "站着的那个从怀里掏出个小木牌，用炭笔在上面划了一道。“记下了。去账房领钱…",
+      "那人站起来，拍了拍手上的灰。“上头传了话，从今天起，捞上来的尸首，都得先…"
+    ],
+    "protagonist_decision": "岸上已经等着两个人，穿着灰扑扑的短褂，袖口绣着小小的“漕”字。是漕帮派来收验的。他们不说话，只看…",
+    "state_changes": [
+      "protagonist_mode: 隐匿/压制 -> 行动推进",
+      "risk_level: high -> medium"
+    ],
+    "motifs_used": [
+      "麻绳",
+      "木牌",
+      "领钱",
+      "什么",
+      "隐约的腐味",
+      "的册",
+      "给钱",
+      "名字",
+      "空的",
+      "按件算钱",
+      "从码头",
+      "一个",
+      "的人",
+      "带着水腥气",
+      "缆绳",
+      "但钱",
+      "才能入册",
+      "不要钱",
+      "截是他从码头",
+      "想起老张头昨天说"
+    ],
+    "motif_functions": {
+      "麻绳": [
+        "发现线索",
+        "提高风险",
+        "引发后果"
+      ],
+      "木牌": [
+        "发现线索",
+        "提高风险",
+        "制造错误判断",
+        "引发后果",
+        "触发调查"
+      ],
+      "领钱": [
+        "发现线索"
+      ],
+      "什么": [
+        "提高风险"
+      ],
+      "隐约的腐味": [
+        "制造错误判断",
+        "发现线索"
+      ],
+      "的册": [
+        "触发调查"
+      ],
+      "给钱": [
+        "触发调查"
+      ],
+      "名字": [
+        "发现线索"
+      ],
+      "空的": [
+        "制造错误判断",
+        "触发调查"
+      ],
+      "按件算钱": [
+        "提高风险"
+      ],
+      "从码头": [
+        "触发调查"
+      ],
+      "一个": [
+        "触发调查"
+      ],
+      "的人": [
+        "触发调查"
+      ],
+      "带着水腥气": [
+        "发现线索"
+      ],
+      "缆绳": [
+        "触发调查",
+        "发现线索"
+      ],
+      "但钱": [
+        "发现线索"
+      ],
+      "才能入册": [
+        "发现线索"
+      ],
+      "不要钱": [
+        "发现线索"
+      ],
+      "截是他从码头": [
+        "发现线索"
+      ],
+      "想起老张头昨天说": [
+        "发现线索"
+      ]
+    },
+    "artifacts_changed": [
+      {
+        "label": "但钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "才能入册",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      },
+      {
+        "label": "不要钱",
+        "holder": "主角",
+        "location": "随身携带",
+        "visibility": "hidden",
+        "significance_level": "low",
+        "change_types": [
+          "introduced"
+        ]
+      }
+    ],
+    "open_questions_created": [],
+    "open_questions_resolved": [],
+    "reveal_changes": {},
+    "canon_risk_flags": []
+  },
+  "chapter_structure_summary": {
+    "scene_function_table": [
+      {
+        "scene_id": "ch01_scene01",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene02",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene03",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene04",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene05",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene06",
+        "scene_function": "发现线索"
+      },
+      {
+        "scene_id": "ch01_scene09",
+        "scene_function": "制造错误判断"
+      },
+      {
+        "scene_id": "ch01_scene07",
+        "scene_function": "触发调查"
+      },
+      {
+        "scene_id": "ch01_scene08",
+        "scene_function": "发现线索"
+      }
+    ],
+    "first_clue_scene_id": "ch01_scene01",
+    "first_old_acquaintance_hint_scene_id": "ch01_scene01",
+    "first_investigation_trigger_scene_id": "ch01_scene04",
+    "first_artifact_change_scene_id": "ch01_scene01",
+    "consecutive_transition_runs": []
+  }
+}

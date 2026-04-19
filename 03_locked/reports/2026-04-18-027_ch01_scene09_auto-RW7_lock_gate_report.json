@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-027_ch01_scene09_auto-RW7",
+  "passed": false,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": false,
+      "details": "revision_count=7, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行重写：彻底移除所有提前揭示第二章压力源具体内容的表达，强化功钱与仙门录名黑幕的关联暗示，明确竹签的最终去向，并确保木牌母题在本场有新的叙事功能。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "“因为藏起来没用。”老张头像是看穿了他的念头，把木牌搁在膝上，双手拢在袖…；“对。”老张头点头，“人死了，功钱就是块废铜。衙门不会认，仙门更不会认。…；他伸手拿起功钱。铜片在掌心留下一圈湿凉的触感。"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "老张头终于放下木牌，拿起竹签凑到灯下。他看了很久，久到孟浮灯以为他又要开始念叨什么规矩。但老张头…"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到义庄后墙，用脚抵住门板，侧身挤了进去。屋里比外面更暗，只有墙角一盏油灯，灯芯捻得…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 木牌, 一个名字, 什么, 名字，且本场至少为 木牌, 一个名字, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "“因为藏起来没用。”老张头像是看穿了他的念头，把木牌搁在膝上，双手拢在袖…；“对。”老张头点头，“人死了，功钱就是块废铜。衙门不会认，仙门更不会认。…；他伸手拿起功钱。铜片在掌心留下一圈湿凉的触感。"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "孟浮灯把尸体拖到义庄后墙，用脚抵住门板，侧身挤了进去。屋里比外面更暗，只有墙角一盏油灯，灯芯捻得…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": false,
+      "details": "禁止提前揭示的内容“第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？”在正文中出现了过度熟识化表达。"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 木牌, 一个名字, 什么, 名字，且本场至少为 木牌, 一个名字, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "task_id": "2026-04-18-016_ch01_scene07_auto-RW1",
+  "passed": true,
+  "checks": [
+    {
+      "name": "timeline_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "continuity_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "pov_blockers",
+      "passed": true,
+      "details": "none"
+    },
+    {
+      "name": "revise_policy",
+      "passed": true,
+      "details": "revision_count=1, max=5"
+    },
+    {
+      "name": "scene_purpose_defined",
+      "passed": true,
+      "details": "基于上一版草稿进行结构重写：继续推进第1章，写出scene07。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：引入只属于本章的新事实、新限制或新压力来源，确保主角做出带后果的微决策，并实现状态变化，形成新的章内起点。"
+    },
+    {
+      "name": "chapter_metadata_complete",
+      "passed": true,
+      "details": "complete"
+    },
+    {
+      "name": "draft_min_length",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "draft_repetition",
+      "passed": true,
+      "details": "no draft text available"
+    },
+    {
+      "name": "information_gain",
+      "passed": true,
+      "details": "义庄后墙的窄门开了一条缝，老张头的半张脸露在阴影里。他没说话，侧身让开。…；孟浮灯没去拿。他蹲下身，把尸体翻过来，让那张泡得发白的脸朝上。老张头皱了…；孟浮灯把那东西抽出来。是块叠成方块的油纸，边缘被水浸得发软，但中间还干着…"
+    },
+    {
+      "name": "plot_progress",
+      "passed": true,
+      "details": "场景中存在可追踪的行为偏移，局面因此发生了轻微变化。"
+    },
+    {
+      "name": "character_decision",
+      "passed": true,
+      "details": "尸体的衣襟散开了些，露出胸口一道细长的旧疤，颜色比周围皮肤深，像是愈合了很久。孟浮灯盯着那道疤看…"
+    },
+    {
+      "name": "motif_redundancy",
+      "passed": true,
+      "details": "复现母题 胸口, 下面还有, 什么, 的册，且本场至少为 胸口, 下面还有, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "canon_consistency",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "state_transition_evidence",
+      "passed": true,
+      "details": "义庄后墙的窄门开了一条缝，老张头的半张脸露在阴影里。他没说话，侧身让开。…；孟浮灯没去拿。他蹲下身，把尸体翻过来，让那张泡得发白的脸朝上。老张头皱了…；孟浮灯把那东西抽出来。是块叠成方块的油纸，边缘被水浸得发软，但中间还干着…"
+    },
+    {
+      "name": "required_information_gain",
+      "passed": true,
+      "details": "matched"
+    },
+    {
+      "name": "decision_requirement",
+      "passed": true,
+      "details": "尸体的衣襟散开了些，露出胸口一道细长的旧疤，颜色比周围皮肤深，像是愈合了很久。孟浮灯盯着那道疤看…"
+    },
+    {
+      "name": "required_state_change",
+      "passed": true,
+      "details": "not specified"
+    },
+    {
+      "name": "scene_function_landed",
+      "passed": true,
+      "details": "expected=n/a actual=发现线索"
+    },
+    {
+      "name": "chapter_state_alignment",
+      "passed": true,
+      "details": "consistent"
+    },
+    {
+      "name": "motif_high_risk_explained",
+      "passed": true,
+      "details": "复现母题 胸口, 下面还有, 什么, 的册，且本场至少为 胸口, 下面还有, 什么 提供了新的叙事功能。"
+    },
+    {
+      "name": "weak_scene_quota",
+      "passed": true,
+      "details": "current=discovery, streak=0, disallowed=none"
+    }
+  ],
+  "policy_override": {
+    "present": false,
+    "reason": ""
+  }
+}

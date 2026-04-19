@@ -3052,36 +3052,71 @@ def prepare_runtime_start(config: dict) -> str | None:
         current_task_path = ROOT / "01_inputs/tasks/current_task.md"
         if not current_task_path.exists():
             return None
-        task_text = current_task_path.read_text(encoding="utf-8")
-        output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
-        current_chapter, current_scene = extract_task_progress(task_text)
-        if not output_target or current_chapter is None or current_scene is None:
-            return None
         locked_dir = config.get("paths", {}).get("locked_dir", "03_locked")
-        locked_file = f"{locked_dir}/chapters/{Path(output_target).name}"
-        if not (ROOT / locked_file).exists():
-            return None
+        task_text = current_task_path.read_text(encoding="utf-8")
+        current_chapter, current_scene = extract_task_progress(task_text)
+        latest_locked_file = latest_locked_file_for_bootstrap(current_chapter or get_start_progress(config)[0])
+        if latest_locked_file:
+            latest_locked_chapter = extract_chapter_number(latest_locked_file)
+            latest_locked_scene = extract_scene_number(latest_locked_file)
+            if (
+                latest_locked_chapter is not None
+                and latest_locked_scene is not None
+                and current_chapter is not None
+                and current_scene is not None
+                and (latest_locked_chapter, latest_locked_scene) >= (current_chapter, current_scene)
+            ):
+                if should_rollover_after_lock(config, latest_locked_file):
+                    next_chapter = latest_locked_chapter + 1
+                    next_scene = 1
+                else:
+                    next_chapter = latest_locked_chapter
+                    next_scene = latest_locked_scene + 1
+                next_task_id, next_task_text = build_chapter_opening_task(
+                    ROOT,
+                    config,
+                    chapter_number=next_chapter,
+                    scene_number=next_scene,
+                    previous_locked_file=latest_locked_file,
+                )
+                next_task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+                save_text(next_task_file, next_task_text)
+                if should_continue_after_lock(config, next_task_file):
+                    task_text = next_task_text
+        for _ in range(100):
+            output_target = (extract_markdown_field(task_text, "output_target") or "").strip()
+            current_chapter, current_scene = extract_task_progress(task_text)
+            if not output_target or current_chapter is None or current_scene is None:
+                return None
 
-        if should_rollover_after_lock(config, locked_file):
-            next_chapter = current_chapter + 1
-            next_scene = 1
-        else:
-            next_chapter = current_chapter
-            next_scene = current_scene + 1
+            locked_stem = infer_locked_scene_stem(task_text, output_target)
+            locked_suffix = Path(output_target).suffix or ".md"
+            locked_file = f"{locked_dir}/chapters/{locked_stem}{locked_suffix}"
+            if not (ROOT / locked_file).exists():
+                current_task_path.write_text(task_text, encoding="utf-8")
+                return extract_markdown_field(task_text, "task_id") or None
 
-        next_task_id, next_task_text = build_chapter_opening_task(
-            ROOT,
-            config,
-            chapter_number=next_chapter,
-            scene_number=next_scene,
-            previous_locked_file=locked_file,
-        )
-        next_task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
-        save_text(next_task_file, next_task_text)
-        if should_continue_after_lock(config, next_task_file):
-            save_text("01_inputs/tasks/current_task.md", next_task_text)
-            return next_task_id
-        return None
+            if should_rollover_after_lock(config, locked_file):
+                next_chapter = current_chapter + 1
+                next_scene = 1
+            else:
+                next_chapter = current_chapter
+                next_scene = current_scene + 1
+
+            next_task_id, next_task_text = build_chapter_opening_task(
+                ROOT,
+                config,
+                chapter_number=next_chapter,
+                scene_number=next_scene,
+                previous_locked_file=locked_file,
+            )
+            next_task_file = f"01_inputs/tasks/generated/{next_task_id}.md"
+            save_text(next_task_file, next_task_text)
+            if not should_continue_after_lock(config, next_task_file):
+                return None
+            task_text = next_task_text
+
+        raise RuntimeError("continue 模式跳过已锁场景时超过安全上限，请检查 task/locked 状态。")
 
     if run_mode != "restart":
         return None
