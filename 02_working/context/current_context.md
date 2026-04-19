@@ -42,7 +42,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto
+- task_id：2026-04-19-019_ch01_scene20_auto-R2
 - chapter_id：ch01
 - next_stage：第一章撰写
 
@@ -65,7 +65,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：in_progress
-产物：02_working/drafts/ch01_scene20.md
+产物：02_working/drafts/ch01_scene20_v3.md
 说明：当前任务已进入 scene 落稿。
 
 ## 当前缺口提醒
@@ -81,7 +81,7 @@
 - demand_tags：planning、worldbuilding、outline-driven
 
 ## selected_skills
-- worldbuilding｜mode=inst
+- worldbuilding｜mod
 
 [已截断]
 
@@ -91,7 +91,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto
+- task_id：2026-04-19-019_ch01_scene20_auto-R2
 - chapter_id：ch01
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -125,7 +125,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - The project needs worldbuilding completion proposals.
 - Manifest materials are thematic but not yet operational.
 - The task needs institutional response, spatial hierarchy, power-system limits, or region-specific survival logic.
-- The user wants setting that affects behav
+- The user wants setting that affects be
 
 [已截断]
 
@@ -135,7 +135,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto
+- task_id：2026-04-19-019_ch01_scene20_auto-R2
 - chapter_id：ch01
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
@@ -177,7 +177,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - demand_tags：planning、timeline、history
 
 ## selected_skills
-- timeline-history｜mode=chapter-sequence｜score=0.93｜timeline_bootst
+- timeline-history｜mode=chapter-sequence｜score=0.93｜timeline_boo
 
 [已截断]
 
@@ -187,7 +187,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto
+- task_id：2026-04-19-019_ch01_scene20_auto-R2
 - chapter_id：ch01
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -218,7 +218,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - naming｜mode=person｜score=0.86｜character_creation 阶段需要把角色槽位转成可用名字候选与命名风格约束。
 
 ## rejected_candidates
-- c
+
 
 [已截断]
 
@@ -228,13 +228,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch01_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-019_ch01_scene20_auto
+- task_id：2026-04-19-019_ch01_scene20_auto-R2
 - chapter_id：ch01
 - 写入位置：02_working/outlines/ch01_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
 
 ## 本章当前目标
-- 继续推进第 1 章，写出 scene20。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene20。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。
 
 ## 已有章节锚点
 - 当前还缺少足够的章节锚点，建议用 locked scenes 或 chapter_state 补齐。
@@ -261,11 +261,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 
 # Scene Outline
 
-Use this skill to turn vague scene intent into a compact structural contract the writer can actually satisfy.
-
-## Use when
-
-- The task is for chapter outline
+Use this skill to turn vague scene intent into a compact structural contract the writer can a
 
 [已截断]
 
@@ -274,12 +270,13 @@ Use this skill to turn vague scene intent into a compact structural contract the
 
 
 # 当前 scene contract
-- 核心目标：继续推进第 1 章，写出 scene20。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
+- 核心目标：基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene20。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：本场具备信息增量、情节推进、行为偏移，且未发现明显母题空转或 canon 漂移。
 - 场景功能：本场结束时必须形成新的章内起点，不能只是重复上章余波。
 - 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
 - 局面推进要求：本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。
 - 决策偏移要求：主角必须做出一个会影响本章后续处理方式的新动作或新决定。
 - 状态变化要求：至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。
+- 避免复用：麻绳；木牌；胸口；符牌
 
 # 本次必须遵守的项目总纲
 # 《无住人间》小说总纲
@@ -743,7 +740,7 @@ Use these questions:
 - is_ok：True
 
 # 少量必要 prose 参考
-来源文件：03_locked/chapters/ch01_scene19.md
+来源文件：02_working/drafts/ch01_scene20_v2.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-他得活下去。但怀里的这块铁，让他觉得，活下去的路，似乎又窄了一些。
+老板抬眼看看他，又看看门外将暗的天色。“你呀，别修那船了。”老头把算盘一推，“疤脸刘盯上的东西，没几个人能囫囵拿走的。”他收起那二十二文，挥挥手，“剩下的算了，就当给你提个醒。”孟浮灯攥着空了的钱袋走出铺子，天已经黑透了。他站在街口，看着远处码头稀疏的灯火，忽然明白过来——疤脸刘要的不是钱，是要他低头，是要他变成码头司可以随意拿捏的线人。他转身朝窝棚走去，脚步比来时快了些。今晚得把藏着的木牌换个地方，船可以不要，但那条线索不能断。

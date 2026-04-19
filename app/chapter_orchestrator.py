@@ -200,6 +200,36 @@ def build_chapter_spine(
     }
 
 
+def build_scene_spine_focus(chapter_spine: dict[str, str], scene_number: int) -> dict[str, str]:
+    if scene_number <= 2:
+        return {
+            "focus_label": "建立新压力",
+            "scene_purpose": f"本场要把“{chapter_spine['pressure_source']}”落成新的现实压力，不能只重复旧余波。",
+            "plot_progress": f"让主角第一次在当前章里真正撞上“{chapter_spine['pressure_source']}”带来的麻烦或限制。",
+            "decision_shift": f"主角必须先做一个求稳、压事或暂避锋芒的现实动作，为后面的错误判断埋钩子：{chapter_spine['wrong_judgment']}",
+        }
+    if scene_number <= 5:
+        return {
+            "focus_label": "制造误判",
+            "scene_purpose": f"本场要把“{chapter_spine['wrong_judgment']}”坐实成具体误判或偏差做法。",
+            "plot_progress": f"让主角基于当前误判采取一次看似合理、实际上会放大麻烦的处理。",
+            "decision_shift": f"主角必须改动处理顺序、保留物件或行动边界，推动后续走向“{chapter_spine['irreversible_consequence']}”。",
+        }
+    if scene_number <= 8:
+        return {
+            "focus_label": "逼出后果",
+            "scene_purpose": f"本场要把“{chapter_spine['irreversible_consequence']}”推进到可见后果层。",
+            "plot_progress": "不能只继续氛围承接，必须让前面累积的误判在现实里开始反咬主角。",
+            "decision_shift": f"主角必须被迫调整旧做法，接受新的行动负担，朝“{chapter_spine['end_state']}”靠近。",
+        }
+    return {
+        "focus_label": "改写结尾状态",
+        "scene_purpose": f"本场要把本章结尾状态推到更清晰的位置：{chapter_spine['end_state']}",
+        "plot_progress": "让这一场对本章主线形成收束性推进，而不是只补边角信息。",
+        "decision_shift": "主角必须做出会直接决定本章后续方向的动作或承诺。",
+    }
+
+
 def render_chapter_state(root: Path, chapter_number: int, previous_locked_file: str | None = None) -> str:
     human_input = load_human_input(root)
     story_state = load_story_state(root)
@@ -302,6 +332,9 @@ def build_chapter_opening_task(
     premise = str(project.get("premise") or "").strip()
     genre = str(project.get("genre") or "").strip()
     volume = resolve_volume_context(root, chapter_number)
+    story_state = load_story_state(root)
+    chapter_spine = build_chapter_spine(human_input, story_state, chapter_number, volume)
+    scene_focus = build_scene_spine_focus(chapter_spine, scene_number)
     based_on = previous_locked_file or latest_locked_scene(root, chapter_number=chapter_number - 1) or "00_manifest/novel_manifest.md"
     goal = (
         f"写出第 {chapter_number} 章第 {scene_number} 个短场景，承接前文并为本章建立新的局面。"
@@ -338,10 +371,21 @@ def build_chapter_opening_task(
         f"# goal\n{goal}",
         f"# based_on\n{based_on}",
         f"# chapter_state\n{state_path}",
-        "# scene_purpose\n本场结束时必须形成新的章内起点，不能只是重复上章余波。",
+        "# chapter_spine\n"
+        + "\n".join(
+            [
+                f"- 本章目标：{chapter_spine['chapter_goal']}",
+                f"- 本章新压力源：{chapter_spine['pressure_source']}",
+                f"- 本章错误判断：{chapter_spine['wrong_judgment']}",
+                f"- 本章不可逆后果：{chapter_spine['irreversible_consequence']}",
+                f"- 本章结尾状态：{chapter_spine['end_state']}",
+                f"- 当前场次聚焦：{scene_focus['focus_label']}",
+            ]
+        ),
+        f"# scene_purpose\n{scene_focus['scene_purpose']}",
         "# required_information_gain\n" + "\n".join(f"- {item}" for item in info_gain),
-        "# required_plot_progress\n本场必须把上一章后的局面真正往前推一步，为本章建立新的现实问题。",
-        "# required_decision_shift\n主角必须做出一个会影响本章后续处理方式的新动作或新决定。",
+        f"# required_plot_progress\n{scene_focus['plot_progress']}",
+        f"# required_decision_shift\n{scene_focus['decision_shift']}",
         "# required_state_change\n- 至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。",
         "# constraints\n" + "\n".join(f"- {item}" for item in constraints),
     ]

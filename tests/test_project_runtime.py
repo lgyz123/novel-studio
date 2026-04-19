@@ -470,6 +470,32 @@ class ProjectRuntimeTest(unittest.TestCase):
         self.assertIn("# chapter_state\n03_locked/canon/ch02_state.md", task_text)
         self.assertIn("# output_target\n02_working/drafts/ch02_scene01.md", task_text)
         self.assertIn("当前章节目标", task_text)
+        self.assertIn("# chapter_spine", task_text)
+        self.assertIn("当前场次聚焦：建立新压力", task_text)
+
+    def test_build_chapter_opening_task_changes_spine_focus_for_later_scenes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "00_manifest").mkdir(parents=True, exist_ok=True)
+            (root / "01_inputs").mkdir(parents=True, exist_ok=True)
+            (root / "00_manifest/novel_manifest.md").write_text(
+                "#### 第一卷：灰灯卷\n- 功能：从运河捞尸切入，建立底层视角与仙门录名黑幕\n",
+                encoding="utf-8",
+            )
+            (root / "01_inputs/human_input.yaml").write_text(
+                "project:\n  premise: 采药少年误入仙途。\nstory_blueprint:\n  chapter_goal: 第一章要先立足，再被新的现实压力推着走。\nmanual_required:\n  must_have:\n    - 先把新的催逼立起来。\n    - 中段必须出现回不了头的处理后果。\n  open_questions:\n    - 主角会先把这件事当成能压过去的小麻烦。\ncast:\n  protagonist:\n    name: 楚天阳\n",
+                encoding="utf-8",
+            )
+
+            _, task_text = build_chapter_opening_task(
+                root,
+                {"generation": {}},
+                chapter_number=1,
+                scene_number=7,
+            )
+
+        self.assertIn("当前场次聚焦：逼出后果", task_text)
+        self.assertIn("回不了头的处理后果", task_text)
 
     def test_render_chapter_state_includes_chapter_spine_and_existing_locked_scene(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
