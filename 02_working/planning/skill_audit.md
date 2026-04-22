@@ -22,8 +22,8 @@
 - is_ok：True
 
 ## scene_writing
-- selected_skills：continuity-guard、naming
+- selected_skills：continuity-guard
 - major_issues：无
 - minor_issues：
-  - scene_writing router 当前启用：continuity-guard、naming。
+  - scene_writing router 当前启用：continuity-guard。
 - is_ok：True

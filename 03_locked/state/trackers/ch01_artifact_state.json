@@ -2,40 +2,30 @@
   "chapter_id": "ch01",
   "items": [
     {
-      "item_id": "ITEM-004",
-      "label": "麻袋",
-      "holder": "码头上",
-      "location": "状态待确认",
-      "visibility": "unknown",
-      "significance_level": "medium",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
       "item_id": "artifact_麻绳",
       "label": "麻绳",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
+      "last_changed_scene": "ch01_scene02",
       "linked_facts": []
     },
     {
-      "item_id": "artifact_这趟的脚钱",
-      "label": "这趟的脚钱",
+      "item_id": "artifact_录名册",
+      "label": "录名册",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
       "significance_level": "high",
       "last_changed_scene": "ch01_scene01",
       "linked_facts": [
-        "报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了"
+        "最上面一行，写着“录名册·丙申年秋”"
       ]
     },
     {
-      "item_id": "artifact_是块木牌",
-      "label": "是块木牌",
+      "item_id": "artifact_说要攒钱",
+      "label": "说要攒钱",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
@@ -44,67 +34,32 @@
       "linked_facts": []
     },
     {
-      "item_id": "artifact_木牌",
-      "label": "木牌",
+      "item_id": "artifact_水顺着绳",
+      "label": "水顺着绳",
       "holder": "主角",
       "location": "随身携带",
       "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_这牌",
-      "label": "这牌",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_带这种牌",
-      "label": "带这种牌",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "hidden",
-      "significance_level": "high",
-      "last_changed_scene": "ch01_scene01",
-      "linked_facts": []
-    },
-    {
-      "item_id": "artifact_那根红绳",
-      "label": "那根红绳",
-      "holder": "主角",
-      "location": "随身携带",
-      "visibility": "visible",
       "significance_level": "low",
       "last_changed_scene": "ch01_scene02",
       "linked_facts": []
     },
     {
-      "item_id": "artifact_红绳",
-      "label": "红绳",
+      "item_id": "artifact_那些挂着牌",
+      "label": "那些挂着牌",
       "holder": "主角",
       "location": "随身携带",
-      "visibility": "visible",
-      "significance_level": "high",
+      "visibility": "hidden",
+      "significance_level": "medium",
       "last_changed_scene": "ch01_scene02",
-      "linked_facts": [
-        "他掀开麻布一角，又看了一眼。红绳系得很紧，绳结已经磨得发硬，像是系了很多…",
-        "布不够长，露出一截脚踝，脚踝上系着根褪了色的红绳，绳上串着颗磨得发白的石头",
-        "红绳系得很紧，绳结已经磨得发硬，像是系了很多年",
-        "脚踝上的红绳已经褪成淡粉色，石头也磨得没了棱角，像是戴了很久"
-      ]
+      "linked_facts": []
     },
     {
-      "item_id": "artifact_四文钱",
-      "label": "四文钱",
+      "item_id": "artifact_腰间佩",
+      "label": "腰间佩",
       "holder": "主角",
       "location": "随身携带",
-      "visibility": "visible",
-      "significance_level": "low",
+      "visibility": "hidden",
+      "significance_level": "medium",
       "last_changed_scene": "ch01_scene02",
       "linked_facts": []
     }

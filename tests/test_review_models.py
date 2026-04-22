@@ -27,6 +27,7 @@ from app.main import (
     call_writer_model,
     clean_model_output,
     continue_truncated_draft,
+    condense_reviewer_result_for_novel_writer_mode,
     sanitize_task_phrase_list,
     contains_outline_style,
     contains_script_style,
@@ -36,6 +37,7 @@ from app.main import (
     get_effective_manual_intervention_threshold,
     get_deepseek_takeover_startup_message,
     get_writer_runtime_mode_message,
+    is_novel_writer_agent_mode,
     extract_supervisor_round,
     has_supervisor_retry_budget,
     is_deepseek_takeover_enabled,
@@ -77,6 +79,30 @@ from app.review_models import (
 
 
 class ReviewModelsTest(unittest.TestCase):
+    def test_novel_writer_agent_mode_detects_writer_first_mode(self) -> None:
+        self.assertTrue(is_novel_writer_agent_mode({"agent": {"mode": "novel-writer"}}))
+        self.assertFalse(is_novel_writer_agent_mode({"agent": {"mode": "prototype"}}))
+
+    def test_condense_reviewer_result_for_novel_writer_mode_collapses_to_short_rewrite_verdict(self) -> None:
+        reviewer_result = {
+            "verdict": "revise",
+            "summary": "问题很多。",
+            "major_issues": ["主线没有推进。", "动作后果不够明确。"],
+            "minor_issues": ["母题复用略重。", "结尾偏虚。"],
+            "review_trace": {"mode": "deepseek_structured"},
+        }
+
+        condensed = condense_reviewer_result_for_novel_writer_mode(
+            reviewer_result,
+            "# task_id\nscene_001\n",
+        )
+
+        self.assertEqual(condensed["verdict"], "rewrite")
+        self.assertEqual(condensed["recommended_next_step"], "rewrite_scene")
+        self.assertEqual(condensed["major_issues"], ["主线没有推进。", "动作后果不够明确。"])
+        self.assertEqual(condensed["minor_issues"], ["母题复用略重。"])
+        self.assertIn("short_verdict", condensed["review_trace"]["mode"])
+
     def test_should_use_deepseek_writer_when_provider_is_configured(self) -> None:
         config = {
             "writer": {
@@ -1903,6 +1929,92 @@ scene_lock_guard
 
         self.assertNotIn("locked_file", created)
         self.assertIn("task_file", created)
+
+    def test_novel_writer_mode_routes_non_lock_to_single_rewrite_task(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+
+            task_text = """# task_id
+scene_novel
+
+# output_target
+02_working/drafts/scene_novel.md
+"""
+            (root / "02_working/drafts/scene_novel.md").write_text("正文", encoding="utf-8")
+
+            config = {
+                "agent": {"mode": "novel-writer"},
+                "paths": {
+                    "locked_dir": "03_locked",
+                    "working_dir": "02_working",
+                    "inputs_dir": "01_inputs",
+                },
+                "generation": {"max_auto_revisions": 1},
+                "supervisor": {"enabled": False},
+            }
+            reviewer_result = {
+                "task_id": "scene_novel",
+                "verdict": "revise",
+                "summary": "需要调整。",
+                "major_issues": ["主线没有推进。"],
+                "minor_issues": [],
+            }
+
+            import app.main as main_module
+
+            original_root = main_module.ROOT
+            try:
+                main_module.ROOT = root
+                created = route_review_result(config, task_text, "02_working/drafts/scene_novel.md", reviewer_result)
+            finally:
+                main_module.ROOT = original_root
+
+        self.assertIn("task_file", created)
+        self.assertTrue(created["task_file"].endswith("_rewrite_auto.md"))
+
+    def test_novel_writer_mode_stops_after_one_rewrite(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "02_working/drafts").mkdir(parents=True, exist_ok=True)
+            (root / "02_working/reviews").mkdir(parents=True, exist_ok=True)
+
+            task_text = """# task_id
+scene_novel-R1
+
+# output_target
+02_working/drafts/scene_novel_v2.md
+"""
+            (root / "02_working/drafts/scene_novel_v2.md").write_text("正文", encoding="utf-8")
+
+            config = {
+                "agent": {"mode": "novel-writer"},
+                "paths": {
+                    "locked_dir": "03_locked",
+                    "working_dir": "02_working",
+                    "inputs_dir": "01_inputs",
+                },
+                "generation": {"max_auto_revisions": 1},
+                "supervisor": {"enabled": False},
+            }
+            reviewer_result = {
+                "task_id": "scene_novel-R1",
+                "verdict": "rewrite",
+                "summary": "仍需调整。",
+                "major_issues": ["后果不够明确。"],
+                "minor_issues": [],
+            }
+
+            import app.main as main_module
+
+            original_root = main_module.ROOT
+            try:
+                main_module.ROOT = root
+                created = route_review_result(config, task_text, "02_working/drafts/scene_novel_v2.md", reviewer_result)
+            finally:
+                main_module.ROOT = original_root
+
+        self.assertIn("manual_intervention_file", created)
 
     def test_repair_invalid_draft_uses_continued_attempt_after_truncation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

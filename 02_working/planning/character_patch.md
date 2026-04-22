@@ -1,7 +1,7 @@
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -23,7 +23,7 @@
 ## character_creation skill router
 
 - phase：character_creation
-- genre_tags：xianxia、romance、mystery
+- genre_tags：xianxia、romance
 - trope_tags：system
 - demand_tags：planning、character、naming
 

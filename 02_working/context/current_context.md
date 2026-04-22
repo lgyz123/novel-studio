@@ -29,7 +29,7 @@
 【时间线校验】 已启动
 梳理长线骨架…
 
-- 当前 book time：夜间
+- 当前 book time：白天
 - 近期事件：EVENT-001
 - 近期事件：EVENT-002
 
@@ -39,7 +39,7 @@
 # 前置状态机
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - next_stage：第一章撰写
 
@@ -62,7 +62,7 @@
 说明：章节 working outline 已生成。
 5. 第一章撰写
 状态：in_progress
-产物：02_working/drafts/ch01_scene03_v3.md
+产物：02_working/drafts/ch01_scene03_v3_rewrite8.md
 说明：当前任务已进入 scene 落稿。
 
 ## 当前缺口提醒
@@ -73,12 +73,12 @@
 ## planning skill router
 
 - phase：planning_bootstrap
-- genre_tags：xianxia、mystery
+- genre_tags：xianxia
 - trope_tags：system
 - demand_tags：planning、worldbuilding、outline-driven
 
 ## selected_skills
-- worldbuil
+- worldbu
 
 [已截断]
 
@@ -88,7 +88,7 @@
 # 世界观补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - 写入位置：02_working/planning/worldview_patch.md
 - 说明：以下内容是写前补全候选，不直接进入 canon。
@@ -122,7 +122,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - The project needs worldbuilding completion proposals.
 - Manifest materials are thematic but not yet operational.
 - The task needs institutional response, spatial hierarchy, power-system limits, or region-specific survival logic.
-- The user wants setting that affects be
+- The user wants setting that affects b
 
 [已截断]
 
@@ -132,13 +132,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 时间线补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - 写入位置：02_working/planning/timeline_patch.md
 - 说明：以下时间线只作为写前承接候选，不直接覆盖 story_state。
 
 ## 当前时间锚点
-- current_book_time：夜间
+- current_book_time：白天
 - recent_event：EVENT-001
 - recent_event：EVENT-002
 
@@ -166,7 +166,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 ## timeline skill router
 
 - phase：timeline_bootstrap
-- genre_tags：xianxia、mystery
+- genre_tags：xianxia
 - trope_tags：system
 - demand_tags：planning、timeline、history
 
@@ -174,7 +174,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - timeline-history｜mode=chapter-sequence｜score=0.93｜timeline_bootstrap 阶段需要把历史锚点与章节承接显式化。
 
 ## rejected_candidates
-- worldbuilding｜m
+- worldbuilding｜mode=ins
 
 [已截断]
 
@@ -184,7 +184,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # 角色补全 proposal
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - 写入位置：02_working/planning/character_patch.md
 - 说明：这一版用于串联“角色创建”阶段，让前置状态机有明确产物。
@@ -206,7 +206,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 ## character_creation skill router
 
 - phase：character_creation
-- genre_tags：xianxia、romance、mystery
+- genre_tags：xianxia、romance
 - trope_tags：system
 - demand_tags：planning、character、naming
 
@@ -214,7 +214,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - character-design｜mode=protagonist-card｜score=0.91｜character_creation 阶段需要先明确角色功能卡、行为锚点和关系张力。
 - naming｜mode=person｜score=0.86｜character_creation 阶段需要把角色槽位转成可用名字候选与命名风格约束。
 
-## rejected_can
+## rejected_candidates
 
 [已截断]
 
@@ -224,13 +224,13 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 # ch01_outline 工作稿
 
 - planner/bootstrap agent：deterministic prewrite bootstrap
-- task_id：2026-04-19-003_ch01_scene03_auto-R2
+- task_id：2026-04-19-005_ch01_scene03_auto-RW8
 - chapter_id：ch01
 - 写入位置：02_working/outlines/ch01_outline.md
 - 说明：这是 working outline，不直接替代 00_manifest 或 locked canon。
 
 ## 本章当前目标
-- 基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene03。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：时间线不清晰：scene03 开头暗示尸体刚拖到窄巷，但 based_on_text 描述尸体已在夜间捞起，可能导致读者困惑时间进展。；根据该问题执行局部修补，避免不必要的整场重写。问题：线索连续性断裂：scene03 专注于红绳，但 based_on_text 忽略红绳，强调其他细节，可能导致读者困惑或破坏线索连贯性。；根据该问题执行局部修补，避免不必要的整场重写。问题：世界观规则矛盾：scene03 中孟浮灯考虑义庄和管事，但 based_on_text 暗示不同处理流程，可能导致规则不一致。
+- 基于上一版草稿进行结构修复：继续推进第1章，写出scene03。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。本次重点解决：强化场景结构推进信号，明确状态变化；确保主角对青崖宗和录名候验的认知保持模糊；减少岸边等母题的冗余，同时保持叙事功能；增加一个只属于本章的新事实或压力来源；让主角基于误判采取行动，放大后续麻烦。
 
 ## 已有章节锚点
 - 当前还缺少足够的章节锚点，建议用 locked scenes 或 chapter_state 补齐。
@@ -249,7 +249,14 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 ## 与前置状态机的连接
 - 角色创建阶段：把主视角、支撑角色、压力源角色的功能卡补齐。
 - 大纲定制阶段：把上面的章节骨架改成当前项目真实的章内锚点与顺序。
-- 第一章撰
+- 第一章撰写阶段：基于本 outline 和 scene contract 继续落到具体 scene 任务。
+
+## 使用中的 skill：scene-outline
+来源文件：skills/scene-outline/SKILL.md
+
+# Scene Outline
+
+Use this skill to turn vague scene intent into a compact 
 
 [已截断]
 
@@ -258,13 +265,7 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 
 
 # 当前 scene contract
-- 核心目标：基于上一版草稿进行结构修复：继续推进第 1 章，写出 scene03。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。本次重点解决：根据该问题执行局部修补，避免不必要的整场重写。问题：时间线不清晰：scene03 开头暗示尸体刚拖到窄巷，但 based_on_text 描述尸体已在夜间捞起，可能导致读者困惑时间进展。；根据该问题执行局部修补，避免不必要的整场重写。问题：线索连续性断裂：scene03 专注于红绳，但 based_on_text 忽略红绳，强调其他细节，可能导致读者困惑或破坏线索连贯性。；根据该问题执行局部修补，避免不必要的整场重写。问题：世界观规则矛盾：scene03 中孟浮灯考虑义庄和管事，但 based_on_text 暗示不同处理流程，可能导致规则不一致。
-- 场景功能：继续围绕“继续推进第 1 章，写出 scene03。 本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕 当前章节目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。”推进，并在场景结束时形成新的可验证变化。
-- 新信息要求：保持与项目故事梗概一致：孟浮灯在运河与码头底层求活时，被一具来历异常的尸体和它牵出的名字卷入更大的秩序黑幕。；补入至少一个只属于本章的新事实、新限制或新压力来源。；让主角对当前局面产生新的理解、误判或行动边界。
-- 局面推进要求：让主角基于当前误判采取一次看似合理、实际上会放大麻烦的处理。
-- 决策偏移要求：主角必须改动处理顺序、保留物件或行动边界，推动后续走向“底层日常必须是剧情推进载体，不只是背景板。”。
-- 状态变化要求：至少一个状态变量改变：已知信息 / 风险等级 / 行动计划 / 关系态势 / 物件位置。
-- 避免复用：麻绳；岸边
+- 核心目标：基于上一版草稿进行结构修复：继续推进第1章，写出scene03。本章重点：从运河捞尸切入，建立底层视角与仙门录名黑幕。当前章节目标：从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。本次重点解决：强化场景结构推进信号，明确状态变化；确保主角对青崖宗和录名候验的认知保持模糊；减少岸边等母题的冗余，同时保持叙事功能；增加一个只属于本章的新事实或压力来源；让主角基于误判采取行动，放大后续麻烦。
 
 # 本次必须遵守的项目总纲
 # 《无住人间》小说总纲
@@ -485,11 +486,11 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 - 直接前文：00_manifest/novel_manifest.md
 
 ## 本章主线骨架
-- 本章目标：第二章先确立新的日常压力源，再让主角被迫形成更明确的应对方式。
-- 新压力源：每场都要有可验证的新信息、新动作或现实后果中的至少两项。
-- 错误判断：第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？
-- 不可逆后果：底层日常必须是剧情推进载体，不只是背景板。
-- 结尾状态：本章结尾时，主角不能再只维持旧日常，必须带着新的行动负担往下走。 同时避免：不要一上来就把更高层真相全部掀开。
+- 本章目标：从运河捞尸切入，建立底层视角与仙门录名黑幕的入口。
+- 新压力源：把局面从单场异动推成更稳定的章内压力
+- 错误判断：主角先把异常余波当成做活路上的附带麻烦，误以为还能靠老办法压过去。
+- 不可逆后果：主角会因为一次求稳处理留下回不了头的后果，旧的求活顺序被迫改写。
+- 结尾状态：先在不暴露自己的前提下活下去，再判断是否要追索异常线索。 同时避免：不要一上来就把更高层真相全部掀开。
 
 ## 已锁定场景
 - [待生成本章锁定场景]
@@ -509,46 +510,44 @@ Use this skill to patch setting gaps in a way that directly improves scene writi
 ## scene01 建议目标
 - 写出 ch01 的开场承接，让局面在上一章基础上出现新的可验证变化。
 - 第一场既要重新落地人物生存处境，也要给出本章独有的新压力、新线索或新后果。
-- 本场优先服务：每场都要有可验证的新信息、新动作或现实后果中的至少两项。
+- 本场优先服务：把局面从单场异动推成更稳定的章内压力
 
 
 # 最近结构化场景摘要
-- ch01_scene01｜扩展世界信息
-  - 新信息：尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…；老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…
-  - 新动作/决策：他停下手，盯着那道焦痕看了几息。运河的水浑黄，裹着上游冲下来的草屑和油污，在尸体周围打转。远处码…
-  - 状态变化：protagonist_mode: 行动推进 -> 隐匿/压制；investigation_stage: 未启动 -> 被动留意
-  - 物件变化：麻绳；这趟的脚钱
+- ch01_scene01｜发现线索
+  - 新信息：拖到一半，他停住了。不是累，是看见了东西。；尸体的右手攥着，指节僵得掰不开，但掌心里露出一角纸，被水浸透了，糊成一团…
+  - 新动作/决策：拖到一半，他停住了。不是累，是看见了东西。
+  - 状态变化：protagonist_mode: 观察/求活 -> 隐匿/压制；investigation_stage: 未启动 -> 被动留意
+  - 物件变化：麻绳；录名册
 - ch01_scene02｜发现线索
-  - 新信息：运河对岸的屋脊开始显出轮廓，灰蒙蒙的，像浸了水的纸。他站起身，膝盖有点僵…；老张头说过，天亮前得把尸体送到义庄去。义庄在城西，要走半个时辰。送过去，…
-  - 新动作/决策：孟浮灯把麻布盖回去。
-  - 状态变化：protagonist_mode: 隐匿/压制 -> 行动推进
-  - 物件变化：那根红绳；红绳
+  - 新信息：不是码头苦力常穿的粗麻，也不是城里小吏那种规整的补子。布料本身不算顶好，…；平常的法子是拖到义庄后头那片空地，等管事的来验看、登记，然后要么等人认领…
+  - 新动作/决策：孟浮灯把尸体拖到岸边，没急着翻检。他先蹲下来，把麻绳从尸身腋下抽出来，一圈圈绕回自己腰间。水顺着…
+  - 状态变化：risk_level: low -> high
+  - 物件变化：水顺着绳；那些挂着牌
 
 # 相关 tracker 摘要
 - 章节目标：维持日常求活与从运河做活
-- 主角当前目标：[待从前文与 story_state 回填]；尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…
-- 当前模式 / 调查阶段 / 风险：行动推进 / 被动留意 / low
+- 主角当前目标：[待从前文与 story_state 回填]；拖到一半，他停住了。不是累，是看见了东西
+- 当前模式 / 调查阶段 / 风险：隐匿/压制 / 被动留意 / high
 - 当前未解问题：第二章的核心压力源具体落在哪条线最合适：人、物、规矩还是搜查后果？；不要现代词汇、现代设施、现代口语；不要后宫、脸谱反派、流水线升级
-- 已确认事实：[待从前文与 story_state 回填]；尸体面朝下浮着，背上的衣服料子细密，不是粗麻。孟浮灯用竹竿拨了一下，让它…；老张头点点头，重新端起碗，把剩下的粥一口喝干。他把碗搁在脚边，从腰后抽出…
-- 待验证事实：最扎眼的是额头正中，一道竖着的焦痕，像是被什么细长的烙铁烫过，皮肉翻卷，边缘发黑；报了，少不了一顿盘问，耽误半天工夫，这趟的脚钱可能就没了；而额头上的焦痕，像是某种标记，或者……某种处理
-- 关键物件切片：麻袋（持有者：码头上；位置：状态待确认；可见性：unknown）；麻绳（持有者：主角；位置：随身携带；可见性：hidden）；这趟的脚钱（持有者：主角；位置：随身携带；可见性：hidden）
-- 章节结构锚点：首个线索场=ch01_scene01；首个旧识暗示场=未记录；首个调查触发场=ch01_scene01
+- 已确认事实：[待从前文与 story_state 回填]；拖到一半，他停住了。不是累，是看见了东西；尸体的右手攥着，指节僵得掰不开，但掌心里露出一角纸，被水浸透了，糊成一团…
+- 待验证事实：他认得这身灰布短打，是西岸苦力营的样式，但脸泡得发胀，辨不出是谁；下面是一列列名字，大多糊了，唯独中间一个名字，墨迹格外深，像是后来添上去的，水也没能完全化开；可当他走回草棚时，却发现席子被掀开了一角——不是风吹的，那痕迹太整齐，像是有人翻检过
+- 关键物件切片：麻绳（持有者：主角；位置：随身携带；可见性：hidden）；录名册（持有者：主角；位置：随身携带；可见性：hidden）；说要攒钱（持有者：主角；位置：随身携带；可见性：hidden）
+- 章节结构锚点：首个线索场=ch01_scene01；首个旧识暗示场=ch01_scene01；首个调查触发场=ch01_scene01
 
 # scene writing skill router
 来源文件：02_working/planning/scene_writing_skill_router.md
 
 
 - phase：scene_writing
-- genre_tags：xianxia、mystery
+- genre_tags：xianxia
 - trope_tags：system
-- demand_tags：continuity、scene-writing、naming
+- demand_tags：continuity、scene-writing
 
 ## selected_skills
 - continuity-guard｜mode=scene-canon｜score=0.95｜scene 写作依赖 chapter_state、story_state 或 tracker 承接，默认必须启用 continuity-guard。
-- naming｜mode=person｜score=0.64｜当前任务包含明确命名需求，应补充 naming 候选与风格约束。
 
 ## rejected_candidates
-- scene-outline｜mode=scene-contract｜score=0.42｜当前由 task contract 直接约束场景，暂不重复加载 scene-outline。
 - worldbuilding｜mode=institutional｜score=0.2｜当前是正文落稿阶段，世界观补丁已应在 planning 阶段提前生成。
 
 ## risk_flags
@@ -634,70 +633,6 @@ Pattern:
 
 [已截断]
 
-# writer skill：naming
-来源文件：skills/naming/SKILL.md
-
-# Naming
-
-Use this skill to generate names that fit the project's genre, social layer, tone, and existing canon.
-
-## Use when
-
-- The task explicitly asks for naming, titles, labels, or candidate lists.
-- Character creation needs a person name.
-- Worldbuilding needs place names, sect names, artifact names, or technique names.
-- Outline work needs placeholder names upgraded into usable canon candidates.
-
-## Do not use when
-
-- The task already has fixed canon names.
-- The task is about prose refinement with no naming need.
-
-## Required inputs
-
-Read only what you need:
-
-- `01_inputs/tasks/current_task.md`
-- relevant character or world manifest excerpts
-- existing canon names when collision risk matters
-
-## Workflow
-
-[已截断]
-
-参考：skills/naming/references/person.md
-
-# Person Naming
-
-## Inputs that matter
-
-- gender or presentation
-- social class
-- regional flavor
-- era feel
-- role weight: protagonist / supporting / one-scene role
-
-## Good candidate properties
-
-- readable
-- fits the genre
-- memorable without being noisy
-- g
-
-[已截断]
-
-参考：skills/naming/references/world.md
-
-# World Naming
-
-Use these questions:
-
-- Is this name for a place, organization, artifact, or technique?
-- Should it sound official, vernacular, sacred, feared, or commercial?
-- Does it come from local speech, institutional naming, or inherited older language?
-
-[已截断]
-
 # skill audit
 来源文件：02_working/planning/skill_audit.md
 
@@ -725,14 +660,14 @@ Use these questions:
 - is_ok：True
 
 ## scene_writing
-- selected_skills：continuity-guard、naming
+- selected_skills：continuity-guard
 - major_issues：无
 - minor_issues：
-  - scene_writing router 当前启用：continuity-guard、naming。
+  - scene_writing router 当前启用：continuity-guard。
 - is_ok：True
 
 # 少量必要 prose 参考
-来源文件：02_working/drafts/ch01_scene03_v2.md
+来源文件：02_working/drafts/ch01_scene03_v3_rewrite7.md
 - 仅用于承接声口与场面，不得顺着旧文风滑行，更不能照抄旧场气氛。
 
-他把红绳塞进自己贴身的衣袋里，草席重新盖好，站起身。得先把尸体送到管事房那边去，听候发落。至于绳子……他摸了摸衣袋里那圈硬硬的物件。等过了这阵，找个懂行的人悄悄问一问，问一问这到底是什么来路。他推起板车，车轮碾过青石板，发出沉闷的滚动声，巷子里的晨雾被搅散又聚拢。管事房的门虚掩着，透出灯光和人声，孟浮灯在门外停了片刻，将板车靠墙放稳，推门走了进去。
+但他没意识到，这个看似稳妥的拖延，恰恰留下了最要命的痕迹——席子下的尸体还在原地，而夜晚的运河边，并不只有他一个人会来。

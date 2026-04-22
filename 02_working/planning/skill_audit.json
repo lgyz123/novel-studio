@@ -38,12 +38,11 @@
     {
       "phase": "scene_writing",
       "selected_skills": [
-        "continuity-guard",
-        "naming"
+        "continuity-guard"
       ],
       "major_issues": [],
       "minor_issues": [
-        "scene_writing router 当前启用：continuity-guard、naming。"
+        "scene_writing router 当前启用：continuity-guard。"
       ],
       "is_ok": true
     }

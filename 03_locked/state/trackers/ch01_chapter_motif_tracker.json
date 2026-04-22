@@ -6,7 +6,32 @@
       "category": "artifact_motif",
       "label": "麻绳",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene01",
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 3,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "artifact_motif_录名册",
+      "category": "artifact_motif",
+      "label": "录名册",
+      "narrative_functions": [
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
@@ -14,10 +39,10 @@
       ],
       "recent_usage_count": 2,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
@@ -25,11 +50,11 @@
       "notes": "bootstrap_from_recent_locked_scenes"
     },
     {
-      "motif_id": "artifact_motif_这趟的脚钱",
+      "motif_id": "artifact_motif_说要攒钱",
       "category": "artifact_motif",
-      "label": "这趟的脚钱",
+      "label": "说要攒钱",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
@@ -37,10 +62,10 @@
       ],
       "recent_usage_count": 2,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
@@ -48,11 +73,11 @@
       "notes": "bootstrap_from_recent_locked_scenes"
     },
     {
-      "motif_id": "artifact_motif_是块木牌",
-      "category": "artifact_motif",
-      "label": "是块木牌",
+      "motif_id": "body_sensation_motif_指节僵得掰",
+      "category": "body_sensation_motif",
+      "label": "指节僵得掰",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
@@ -60,10 +85,10 @@
       ],
       "recent_usage_count": 2,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
@@ -71,11 +96,11 @@
       "notes": "bootstrap_from_recent_locked_scenes"
     },
     {
-      "motif_id": "artifact_motif_木牌",
-      "category": "artifact_motif",
-      "label": "木牌",
+      "motif_id": "body_sensation_motif_背脊微微一",
+      "category": "body_sensation_motif",
+      "label": "背脊微微一",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
@@ -83,56 +108,10 @@
       ],
       "recent_usage_count": 2,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
-      "only_if_new_function": true,
-      "redundancy_risk": "high",
-      "notes": "bootstrap_from_recent_locked_scenes"
-    },
-    {
-      "motif_id": "artifact_motif_这牌",
-      "category": "artifact_motif",
-      "label": "这牌",
-      "narrative_functions": [
-        "扩展世界信息"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene01"
-      ],
-      "recent_usage_count": 2,
-      "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
-      ],
-      "last_function": "扩展世界信息",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
-      "only_if_new_function": true,
-      "redundancy_risk": "high",
-      "notes": "bootstrap_from_recent_locked_scenes"
-    },
-    {
-      "motif_id": "artifact_motif_带这种牌",
-      "category": "artifact_motif",
-      "label": "带这种牌",
-      "narrative_functions": [
-        "扩展世界信息"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene01"
-      ],
-      "recent_usage_count": 2,
-      "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
-      ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
@@ -144,18 +123,20 @@
       "category": "environment_motif",
       "label": "码头",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene01"
+        "ch01_scene01",
+        "ch01_scene02"
       ],
-      "recent_usage_count": 2,
+      "recent_usage_count": 3,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
@@ -163,11 +144,36 @@
       "notes": "bootstrap_from_recent_locked_scenes"
     },
     {
-      "motif_id": "environment_motif_河道",
+      "motif_id": "environment_motif_门口",
       "category": "environment_motif",
-      "label": "河道",
+      "label": "门口",
       "narrative_functions": [
-        "扩展世界信息"
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene01",
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 3,
+      "recent_functions": [
+        "发现线索",
+        "发现线索",
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 0.0,
+      "allow_next_scene": false,
+      "only_if_new_function": true,
+      "redundancy_risk": "high",
+      "notes": "locked_scene_repeated_without_new_function"
+    },
+    {
+      "motif_id": "identity_motif_录名册",
+      "category": "identity_motif",
+      "label": "录名册",
+      "narrative_functions": [
+        "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
@@ -175,95 +181,152 @@
       ],
       "recent_usage_count": 2,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
+        "发现线索",
+        "发现线索"
       ],
-      "last_function": "扩展世界信息",
+      "last_function": "发现线索",
       "function_novelty_score": 0.0,
       "allow_next_scene": false,
       "only_if_new_function": true,
       "redundancy_risk": "high",
       "notes": "bootstrap_from_recent_locked_scenes"
+    },
+    {
+      "motif_id": "artifact_motif_水顺着绳",
+      "category": "artifact_motif",
+      "label": "水顺着绳",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_那些挂着牌",
+      "category": "artifact_motif",
+      "label": "那些挂着牌",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "artifact_motif_腰间佩",
+      "category": "artifact_motif",
+      "label": "腰间佩",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_后颈衣领被",
+      "category": "body_sensation_motif",
+      "label": "后颈衣领被",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
+    },
+    {
+      "motif_id": "body_sensation_motif_鼻腔里全是",
+      "category": "body_sensation_motif",
+      "label": "鼻腔里全是",
+      "narrative_functions": [
+        "发现线索"
+      ],
+      "status": "active",
+      "recent_scene_ids": [
+        "ch01_scene02"
+      ],
+      "recent_usage_count": 1,
+      "recent_functions": [
+        "发现线索"
+      ],
+      "last_function": "发现线索",
+      "function_novelty_score": 1.0,
+      "allow_next_scene": true,
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
     },
     {
       "motif_id": "environment_motif_岸边",
       "category": "environment_motif",
       "label": "岸边",
       "narrative_functions": [
-        "扩展世界信息",
         "发现线索"
       ],
       "status": "active",
       "recent_scene_ids": [
-        "ch01_scene01",
         "ch01_scene02"
       ],
-      "recent_usage_count": 3,
+      "recent_usage_count": 1,
       "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息",
         "发现线索"
       ],
       "last_function": "发现线索",
       "function_novelty_score": 1.0,
       "allow_next_scene": true,
-      "only_if_new_function": true,
-      "redundancy_risk": "medium",
-      "notes": "bootstrap_from_recent_locked_scenes"
+      "only_if_new_function": false,
+      "redundancy_risk": "low",
+      "notes": ""
     },
     {
-      "motif_id": "environment_motif_窝棚",
+      "motif_id": "environment_motif_河道",
       "category": "environment_motif",
-      "label": "窝棚",
-      "narrative_functions": [
-        "扩展世界信息",
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene01",
-        "ch01_scene02"
-      ],
-      "recent_usage_count": 3,
-      "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息",
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": true,
-      "redundancy_risk": "medium",
-      "notes": "bootstrap_from_recent_locked_scenes"
-    },
-    {
-      "motif_id": "identity_motif_数字",
-      "category": "identity_motif",
-      "label": "数字",
-      "narrative_functions": [
-        "扩展世界信息"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene01"
-      ],
-      "recent_usage_count": 2,
-      "recent_functions": [
-        "扩展世界信息",
-        "扩展世界信息"
-      ],
-      "last_function": "扩展世界信息",
-      "function_novelty_score": 0.0,
-      "allow_next_scene": false,
-      "only_if_new_function": true,
-      "redundancy_risk": "high",
-      "notes": "bootstrap_from_recent_locked_scenes"
-    },
-    {
-      "motif_id": "artifact_motif_那根红绳",
-      "category": "artifact_motif",
-      "label": "那根红绳",
+      "label": "河道",
       "narrative_functions": [
         "发现线索"
       ],
@@ -283,53 +346,9 @@
       "notes": ""
     },
     {
-      "motif_id": "artifact_motif_红绳",
-      "category": "artifact_motif",
-      "label": "红绳",
-      "narrative_functions": [
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene02"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
-      "motif_id": "artifact_motif_四文钱",
-      "category": "artifact_motif",
-      "label": "四文钱",
-      "narrative_functions": [
-        "发现线索"
-      ],
-      "status": "active",
-      "recent_scene_ids": [
-        "ch01_scene02"
-      ],
-      "recent_usage_count": 1,
-      "recent_functions": [
-        "发现线索"
-      ],
-      "last_function": "发现线索",
-      "function_novelty_score": 1.0,
-      "allow_next_scene": true,
-      "only_if_new_function": false,
-      "redundancy_risk": "low",
-      "notes": ""
-    },
-    {
-      "motif_id": "environment_motif_屋里",
-      "category": "environment_motif",
-      "label": "屋里",
+      "motif_id": "memory_trigger_motif_想起去年冬天在运",
+      "category": "memory_trigger_motif",
+      "label": "想起去年冬天在运",
       "narrative_functions": [
         "发现线索"
       ],

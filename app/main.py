@@ -313,6 +313,40 @@ def get_writer_runtime_mode_message(config: dict | None = None) -> str | None:
     return get_deepseek_takeover_startup_message(config)
 
 
+def is_novel_writer_agent_mode(config: dict | None = None) -> bool:
+    if not config:
+        return False
+    agent = config.get("agent", {})
+    mode = str(agent.get("mode") or "").strip().lower()
+    return mode in {"novel-writer", "novel_writer", "writer-first"}
+
+
+def condense_reviewer_result_for_novel_writer_mode(reviewer_result: dict[str, Any], task_text: str) -> dict[str, Any]:
+    if not isinstance(reviewer_result, dict):
+        return reviewer_result
+    if str(reviewer_result.get("verdict") or "").strip() == "lock":
+        return reviewer_result
+
+    updated = dict(reviewer_result)
+    major_issues, minor_issues = get_filtered_reviewer_issues(reviewer_result, task_text)
+    major_issues = [str(item).strip() for item in major_issues if str(item).strip()]
+    minor_issues = [str(item).strip() for item in minor_issues if str(item).strip()]
+    condensed = (major_issues + minor_issues)[:3]
+    if not condensed:
+        condensed = ["本场还没有形成足够明确的新推进，请直接重写并补足一个新动作和一个后果。"]
+
+    updated["verdict"] = "rewrite"
+    updated["recommended_next_step"] = "rewrite_scene"
+    updated["major_issues"] = condensed[:2]
+    updated["minor_issues"] = condensed[2:3]
+    updated["summary"] = "；".join(condensed[:2]) if condensed else "需要一次直接重写。"
+    trace = dict(updated.get("review_trace") or {})
+    trace_mode = str(trace.get("mode") or "unknown").strip() or "unknown"
+    trace["mode"] = f"{trace_mode}_short_verdict"
+    updated["review_trace"] = trace
+    return updated
+
+
 def should_use_minimal_local_revision_task(config: dict | None, task_text: str, mode: str) -> bool:
     if mode not in {"revise", "rewrite"}:
         return False
@@ -4089,6 +4123,13 @@ def save_latest_run_summary(
     return rel_path
 
 
+def safe_update_structured_review_status(task_id: str, status: ReviewStatus, summary: str) -> None:
+    try:
+        update_structured_review_status(ROOT, task_id, status, summary)
+    except FileNotFoundError:
+        return
+
+
 def extract_scene_stem(text: str | None) -> str | None:
     raw = str(text or "").strip()
     if not raw:
@@ -4697,8 +4738,12 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     max_revisions = int(config.get("generation", {}).get("max_auto_revisions", 5))
     verdict = reviewer_result.get("verdict")
     created: dict[str, str] = {}
+    if is_novel_writer_agent_mode(config) and str(verdict or "").strip() != "lock":
+        reviewer_result["verdict"] = "rewrite"
+        reviewer_result["recommended_next_step"] = "rewrite_scene"
+        verdict = "rewrite"
 
-    if should_auto_lock_after_supervisor_rescue(config, task_text, reviewer_result):
+    if not is_novel_writer_agent_mode(config) and should_auto_lock_after_supervisor_rescue(config, task_text, reviewer_result):
         auto_lock_result = build_supervisor_auto_lock_result(
             reviewer_result,
             str(reviewer_result.get("force_manual_intervention_reason") or "").strip(),
@@ -4788,7 +4833,11 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
     task_id = extract_markdown_field(task_text, "task_id") or "generated-task"
     forced_manual_reason = str(reviewer_result.get("force_manual_intervention_reason", "")).strip()
 
-    if not forced_manual_reason and should_force_supervisor_takeover(config, task_text, reviewer_result):
+    if (
+        not is_novel_writer_agent_mode(config)
+        and not forced_manual_reason
+        and should_force_supervisor_takeover(config, task_text, reviewer_result)
+    ):
         forced_manual_reason = "本地 reviewer / writer 连续多轮未稳定收敛，提前交由 supervisor 接管。"
         reviewer_result["force_manual_intervention_reason"] = forced_manual_reason
         summary = str(reviewer_result.get("summary") or "").strip()
@@ -4839,17 +4888,21 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             manual_intervention_file,
             build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=forced_manual_reason),
         )
-        update_structured_review_status(
-            ROOT,
-            task_id,
-            ReviewStatus.manual_intervention,
-            forced_manual_reason,
-        )
+        safe_update_structured_review_status(task_id, ReviewStatus.manual_intervention, forced_manual_reason)
         created["manual_intervention_file"] = manual_intervention_file
         return created
 
     if mode in {"revise", "rewrite"} and extract_revision_count(task_id) >= max_revisions:
         max_revision_reason = f"{str(reviewer_result.get('summary', '')).strip()} 已达到最大自动修订次数，转人工介入。"
+        if is_novel_writer_agent_mode(config):
+            manual_intervention_file = f"{working_dir}/reviews/{task_id}_manual_intervention.md"
+            save_text(
+                manual_intervention_file,
+                build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=max_revision_reason),
+            )
+            safe_update_structured_review_status(task_id, ReviewStatus.manual_intervention, max_revision_reason)
+            created["manual_intervention_file"] = manual_intervention_file
+            return created
         supervised_result = None
         supervisor_decision_path = None
         supervisor_task_content = None
@@ -4890,12 +4943,7 @@ def route_review_result(config: dict, task_text: str, draft_file: str, reviewer_
             manual_intervention_file,
             build_manual_intervention_content(task_text, reviewer_result, draft_file, max_revisions, trigger_reason=max_revision_reason),
         )
-        update_structured_review_status(
-            ROOT,
-            task_id,
-            ReviewStatus.manual_intervention,
-            max_revision_reason,
-        )
+        safe_update_structured_review_status(task_id, ReviewStatus.manual_intervention, max_revision_reason)
         created["manual_intervention_file"] = manual_intervention_file
         return created
 
@@ -4987,6 +5035,9 @@ def main() -> None:
                 raise
 
             reviewer_result = json.loads(read_text(reviewer_json_path))
+            if is_novel_writer_agent_mode(config):
+                reviewer_result = condense_reviewer_result_for_novel_writer_mode(reviewer_result, current_task_text)
+                save_text(reviewer_json_path, json.dumps(reviewer_result, ensure_ascii=False, indent=2))
             effective_task_id = (
                 extract_markdown_field(str(draft_result.get("task_text") or ""), "task_id")
                 or str(reviewer_result.get("task_id") or "").strip()

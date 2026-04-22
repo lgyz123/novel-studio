@@ -1,7 +1,7 @@
 # planning skill router
 
 - phase：planning_bootstrap
-- genre_tags：xianxia、mystery
+- genre_tags：xianxia
 - trope_tags：system
 - demand_tags：planning、worldbuilding、outline-driven
 

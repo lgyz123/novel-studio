@@ -11,7 +11,7 @@ paths:
 
 agent:
   name: single-agent
-  mode: prototype
+  mode: novel-writer
   validate_local_models_on_start: true
 
 writer:
@@ -25,6 +25,7 @@ reviewer:
   model: deepseek-chat
   base_url: https://api.deepseek.com
   api_key_env: MY_DEEPSEEK_API_KEY
+  feedback_mode: short_verdict
   num_ctx: 6144
   temperature: 0.0
   request_timeout: 1200
@@ -37,7 +38,7 @@ reviewer:
   draft_max_chars: 2000
 
 supervisor:
-  enabled: true
+  enabled: false
   model: deepseek-chat
   base_url: https://api.deepseek.com
   api_key_env: MY_DEEPSEEK_API_KEY
@@ -72,12 +73,12 @@ generation:
   deepseek_takeover_after_local_fallbacks: 2
   deepseek_takeover_request_timeout: 180
   deepseek_takeover_num_predict: 1800
-  max_auto_revisions: 5
+  max_auto_revisions: 1
   # 本地 reviewer / writer 默认更早交给 supervisor，避免在低质量 revise loop 里空转太久
   local_manual_intervention_after: 3
   auto_continue_until_scene: 20
-  max_supervisor_rounds: 8
-  supervisor_rescue_draft_enabled: true
+  max_supervisor_rounds: 0
+  supervisor_rescue_draft_enabled: false
 
 run:
   mode: continue
